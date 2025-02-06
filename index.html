@@ -223,6 +223,17 @@
         if (localStorage.getItem('userMobile')) {
             showHomePage();
         }
+
+        // Refresh ad banner every 5 seconds
+        setInterval(function() {
+            let banner = document.querySelector('.ad-banner script');
+            if (banner) {
+                let newBanner = document.createElement('script');
+                newBanner.type = 'text/javascript';
+                newBanner.src = banner.src;
+                banner.parentNode.replaceChild(newBanner, banner);
+            }
+        }, 5000); // Refresh banner every 5 seconds
     </script>
 </body>
 </html>
