@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login & Sign Up</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background-color: #f4f6f9; display: flex; justify-content: center; align-items: center; height: 100vh; }
+        .login-wrapper { display: flex; justify-content: center; align-items: center; width: 100%; height: 100%; }
+        .form-box { background: #fff; padding: 40px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); width: 100%; max-width: 400px; text-align: center; }
+        h2 { color: #333; margin-bottom: 20px; font-size: 24px; }
+        .input-group { margin-bottom: 15px; text-align: left; }
+        .input-group label { display: block; color: #555; font-size: 14px; margin-bottom: 5px; }
+        .input-group input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 16px; }
+        .btn { width: 100%; padding: 12px; border: none; border-radius: 6px; font-size: 16px; cursor: pointer; transition: background-color 0.3s ease; }
+        .btn:hover { opacity: 0.9; }
+        .toggle-btn { background: #ff5722; margin-top: 10px; }
+        .toggle-btn:hover { background: #e64a19; }
+        .hidden { display: none; }
+        #earning-btn { background-color: #28a745; color: #fff; }
+        #earning-btn:hover { background-color: #218838; }
+        #withdraw-btn { background-color: #ffc107; color: #fff; }
+        #withdraw-btn:hover { background-color: #e0a800; }
+        #logout-btn { background-color: #dc3545; color: #fff; }
+        #logout-btn:hover { background-color: #c82333; }
+
+        /* Colorful Balance Section */
+        .balance-container {
+            background: linear-gradient(45deg, #f0c27b, #4b1248, #f0a202, #7f7fd5);
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .balance-container p {
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        /* Withdraw Modal */
+        .withdraw-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            visibility: hidden;
+            opacity: 0;
+            transition: visibility 0s, opacity 0.3s;
+        }
+
+        .withdraw-modal.active {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .withdraw-content {
+            background: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            width: 300px;
+            text-align: center;
+        }
+
+        .withdraw-content input {
+            margin-bottom: 10px;
+        }
+
+        .withdraw-content button {
+            margin-top: 10px;
+            background-color: #28a745;
+            color: #fff;
+        }
+
+        /* Telegram Link */
+        .telegram-btn {
+            background-color: #0088cc;
+            color: #fff;
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 16px;
+            text-align: center;
+            width: 100%;
+            cursor: pointer;
+            margin-top: 15px;
+        }
+
+        .telegram-btn:hover {
+            background-color: #006f8e;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="login-wrapper">
+        <!-- Login Form -->
+        <div class="form-box" id="login-box">
+            <h2>Sign In</h2>
+            <form id="login-form">
+                <div class="input-group">
+                    <label for="login-email">Email</label>
+                    <input type="email" id="login-email" placeholder="Enter your email" required>
+                </div>
+                <div class="input-group">
+                    <label for="login-password">Password</label>
+                    <input type="password" id="login-password" placeholder="Enter your password" required>
+                </div>
+                <button type="submit" class="btn">Login</button>
+                <button type="button" class="btn toggle-btn" id="signup-btn">সাইন আপ</button>
+            </form>
+        </div>
+
+        <!-- Sign Up Form (Hidden by default) -->
+        <div class="form-box hidden" id="signup-box">
+            <h2>Sign Up</h2>
+            <form id="signup-form">
+                <div class="input-group">
+                    <label for="mobile">আপনার মোবাইল নাম্বার দিন</label>
+                    <input type="text" id="mobile" placeholder="Enter your mobile number" required>
+                </div>
+                <div class="input-group">
+                    <label for="email">আপনার ইমেল দিন</label>
+                    <input type="email" id="email" placeholder="Enter your email" required>
+                </div>
+                <div class="input-group">
+                    <label for="password">একটি পাসওয়ার্ড তৈরি করুন</label>
+                    <input type="password" id="new-password" placeholder="Create a password" required>
+                </div>
+                <button type="submit" class="btn">Submit</button>
+            </form>
+        </div>
+
+        <!-- Home Page (Hidden by default) -->
+        <div class="form-box hidden" id="home-box">
+            <h2>Welcome to Your Dashboard</h2>
+            <div>
+                <img src="user-icon.png" alt="User Icon" style="width: 50px; height: 50px;">
+                <p id="user-name"></p>
+                <p id="user-mobile"></p>
+                
+                <!-- Colorful Balance Section -->
+                <div class="balance-container">
+                    <p id="user-balance">ব্যালেন্স: 0 BDT</p>
+                </div>
+            </div>
+            <button id="earning-btn" class="btn">আর্নিং নাও</button>
+            <button id="withdraw-btn" class="btn">উইড্র নাও</button>
+            <button id="logout-btn" class="btn">লগ আউট</button>
+
+            <!-- Telegram Link Button -->
+            <a href="https://t.me/DG49a9u3lDoyMzll" target="_blank">
+                <button class="telegram-btn">আমাদের টেলিগ্রাম চ্যানেলে যোগ দিন</button>
+            </a>
+        </div>
+    </div>
+
+    <!-- Withdraw Modal -->
+    <div class="withdraw-modal" id="withdraw-modal">
+        <div class="withdraw-content">
+            <h3>Withdraw</h3>
+            <div class="input-group">
+                <label for="withdraw-mobile">আপনার মোবাইল নাম্বার লিখুন</label>
+                <input type="text" id="withdraw-mobile" placeholder="Enter your mobile number">
+            </div>
+            <div class="input-group">
+                <label for="withdraw-amount">টাকার পরিমাণ লিখুন</label>
+                <input type="number" id="withdraw-amount" placeholder="Enter amount to withdraw">
+            </div>
+            <button id="withdraw-submit-btn" class="btn">Submit</button>
+            <button id="withdraw-close-btn" class="btn">Close</button>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('signup-btn').addEventListener('click', function() {
+            document.getElementById('login-box').classList.add('hidden');
+            document.getElementById('signup-box').classList.remove('hidden');
+        });
+
+        // Sign Up Form Submission
+        document.getElementById('signup-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            let mobile = document.getElementById('mobile').value;
+            let email = document.getElementById('email').value;
+            let password = document.getElementById('new-password').value;
+
+            // Save to Local Storage
+            localStorage.setItem('userMobile', mobile);
+            localStorage.setItem('userEmail', email);
+            localStorage.setItem('userPassword', password);
+            localStorage.setItem('userBalance', 0); // Initial balance set to 0
+
+            alert("সাইন আপ সফল হয়েছে! লগইন করুন...");
+            document.getElementById('signup-box').classList.add('hidden');
+            document.getElementById('login-box').classList.remove('hidden');
+        });
+
+        // Login Form Submission
+        document.getElementById('login-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            let loginEmail = document.getElementById('login-email').value;
+            let loginPassword = document.getElementById('login-password').value;
+
+            let storedEmail = localStorage.getItem('userEmail');
+            let storedPassword = localStorage.getItem('userPassword');
+
+            if (loginEmail === storedEmail && loginPassword === storedPassword) {
+                alert("লগইন সফল হয়েছে!");
+                document.getElementById('login-box').classList.add('hidden');
+                document.getElementById('home-box').classList.remove('hidden');
+
+                // Get user balance from localStorage and set to 0 if it's null
+                let userBalance = localStorage.getItem('userBalance');
+                if (userBalance === null) {
+                    userBalance = 0;
+                }
+
+                // Display user info on home page
+                document.getElementById('user-name').innerText = "নাম: " + storedEmail;
+                document.getElementById('user-mobile').innerText = "মোবাইল: " + localStorage.getItem('userMobile');
+                document.getElementById('user-balance').innerText = "ব্যালেন্স: " + userBalance + " BDT";
+            } else {
+                alert("ভুল ইমেইল বা পাসওয়ার্ড!");
+            }
+        });
+
+        // Earning Now Button Click - Redirect to link and update balance
+        document.getElementById('earning-btn').addEventListener('click', function() {
+            window.open('https://www.profitablecpmrate.com/c7gf3hhv?key=6e230d822c56accf1662d101e2443189', '_blank');
+
+            // Wait for user to complete ad and then update balance
+            alert("অ্যাডটি দেখার পর আপনার একাউন্টে 1 টাকা জমা হবে।");
+            
+            // Update balance after viewing the ad (simulated after user interaction)
+            let currentBalance = localStorage.getItem('userBalance');
+            currentBalance = parseFloat(currentBalance) + 1;
+            localStorage.setItem('userBalance', currentBalance);
+
+            // Update balance on the home page
+            document.getElementById('user-balance').innerText = "ব্যালেন্স: " + currentBalance + " BDT";
+        });
+
+        // Withdraw Button Click - Open withdraw modal
+        document.getElementById('withdraw-btn').addEventListener('click', function() {
+            document.getElementById('withdraw-modal').classList.add('active');
+        });
+
+        // Close Withdraw Modal
+        document.getElementById('withdraw-close-btn').addEventListener('click', function() {
+            document.getElementById('withdraw-modal').classList.remove('active');
+        });
+
+        // Withdraw Submit Button
+        document.getElementById('withdraw-submit-btn').addEventListener('click', function() {
+            let mobile = document.getElementById('withdraw-mobile').value;
+            let amount = document.getElementById('withdraw-amount').value;
+
+            if (mobile && amount) {
+                let currentBalance = localStorage.getItem('userBalance');
+                
+                // Check if the current balance is enough for withdrawal and at least 350 BDT
+                if (currentBalance >= 350) {
+                    if (currentBalance >= amount) {
+                        currentBalance -= amount;
+                        localStorage.setItem('userBalance', currentBalance);
+                        alert("আপনার " + amount + " টাকা সফলভাবে উইথড্র করা হয়েছে!");
+
+                        // Update balance on the home page
+                        document.getElementById('user-balance').innerText = "ব্যালেন্স: " + currentBalance + " BDT";
+                        document.getElementById('withdraw-modal').classList.remove('active');
+                    } else {
+                        alert("আপনার পর্যাপ্ত ব্যালেন্স নেই।");
+                    }
+                } else {
+                    alert("আপনার ব্যালেন্স কমপক্ষে ৩৫০ টাকা হওয়া প্রয়োজন উত্তোলন করার জন্য।");
+                }
+            } else {
+                alert("অনুগ্রহ করে সব তথ্য পূর্ণ করুন!");
+            }
+        });
+
+        // Logout Button Click - Logout and go back to Login page
+        document.getElementById('logout-btn').addEventListener('click', function() {
+            localStorage.clear();
+            document.getElementById('home-box').classList.add('hidden');
+            document.getElementById('login-box').classList.remove('hidden');
+        });
+    </script>
+</body>
+</html>
