@@ -219,21 +219,11 @@
             window.location.href = 'https://t.me/My_Earning20BD_bot'; // Open support group
         });
 
-        // Auto-login if user already exists
-        if (localStorage.getItem('userMobile')) {
-            showHomePage();
-        }
+        // Auto-login removal (This part is removed)
+        // if (localStorage.getItem('userMobile')) {
+        //     showHomePage();
+        // }
 
-        // Refresh ad banner every 5 seconds
-        setInterval(function() {
-            let banner = document.querySelector('.ad-banner script');
-            if (banner) {
-                let newBanner = document.createElement('script');
-                newBanner.type = 'text/javascript';
-                newBanner.src = banner.src;
-                banner.parentNode.replaceChild(newBanner, banner);
-            }
-        }, 1000); // Refresh banner every 1 seconds
     </script>
 </body>
 </html>
