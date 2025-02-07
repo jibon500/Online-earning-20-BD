@@ -30,6 +30,8 @@
         .action-btn#withdraw-btn:hover { background-color: #218838; }
         .action-btn#support-btn { background-color: #ffc107; }
         .action-btn#support-btn:hover { background-color: #e0a800; }
+        .action-btn#refer-btn { background-color: #6f42c1; }
+        .action-btn#refer-btn:hover { background-color: #5a2c8a; }
         .withdrawal-box { display: none; padding: 20px; background: #fff; border-radius: 6px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); }
         .withdrawal-box input { margin-bottom: 10px; }
         .submit-btn { background-color: #007BFF; }
@@ -102,6 +104,8 @@
                 <button id="income-btn" class="action-btn">ইনকাম করুন</button>
                 <button id="withdraw-btn" class="action-btn">টাকা উত্তলন করুন</button>
                 <button id="support-btn" class="action-btn">সাপোর্ট গ্রুপ</button>
+                <!-- New Refer Button -->
+                <button id="refer-btn" class="action-btn">রেফার করুন</button>
             </div>
 
             <!-- Withdrawal Box -->
@@ -219,11 +223,24 @@
             window.location.href = 'https://t.me/My_Earning20BD_bot'; // Open support group
         });
 
-        // Auto-login removal (This part is removed)
-        // if (localStorage.getItem('userMobile')) {
-        //     showHomePage();
-        // }
+        // Refer Button Click (Share Link)
+        document.getElementById('refer-btn').addEventListener('click', function() {
+            const referralLink = 'https://20bd.netlify.app/'; // Updated referral link
 
+            if (navigator.share) {
+                navigator.share({
+                    title: 'Join Our Platform',
+                    text: 'Check out this amazing platform!',
+                    url: referralLink
+                }).then(() => {
+                    console.log('Share was successful');
+                }).catch((error) => {
+                    console.error('Error sharing:', error);
+                });
+            } else {
+                alert("Sharing is not supported on this device/browser.");
+            }
+        });
     </script>
 </body>
 </html>
