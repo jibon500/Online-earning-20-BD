@@ -22,8 +22,8 @@
         #logout-btn:hover { background-color: #c82333; }
         .balance-container { background: linear-gradient(45deg, #f0c27b, #4b1248, #f0a202, #7f7fd5); color: white; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
         .balance-container p { font-size: 18px; font-weight: bold; }
-        .button-container { display: flex; justify-content: space-between; }
-        .action-btn { flex: 1; padding: 12px; border-radius: 6px; color: white; margin: 5px; cursor: pointer; }
+        .button-container { display: flex; justify-content: space-between; flex-wrap: wrap; }
+        .action-btn { flex: 1 1 calc(33.33% - 10px); padding: 12px; border-radius: 6px; color: white; margin: 5px; cursor: pointer; }
         .action-btn#income-btn { background-color: #007BFF; }
         .action-btn#income-btn:hover { background-color: #0056b3; }
         .action-btn#withdraw-btn { background-color: #28a745; }
@@ -32,12 +32,14 @@
         .action-btn#support-btn:hover { background-color: #e0a800; }
         .action-btn#refer-btn { background-color: #6f42c1; }
         .action-btn#refer-btn:hover { background-color: #5a2c8a; }
+        .action-btn#deposit-btn { background-color: #17a2b8; }
+        .action-btn#deposit-btn:hover { background-color: #117a8b; }
         .withdrawal-box { display: none; padding: 20px; background: #fff; border-radius: 6px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); }
         .withdrawal-box input { margin-bottom: 10px; }
         .submit-btn { background-color: #007BFF; }
         .submit-btn:hover { background-color: #0056b3; }
-        .cancel-btn { background-color: #ffc107; } /* Changed to yellow */
-        .cancel-btn:hover { background-color: #e0a800; } /* Hover effect for yellow */
+        .cancel-btn { background-color: #ffc107; }
+        .cancel-btn:hover { background-color: #e0a800; }
         .ad-banner { width: 320px; height: 50px; margin-bottom: 20px; }
     </style>
 </head>
@@ -79,7 +81,7 @@
 
         <!-- Home Page -->
         <div class="form-box hidden" id="home-box">
-            <!-- Adsttrar Banner -->
+            <!-- Ad Banner -->
             <div class="ad-banner">
                 <script type="text/javascript">
                     atOptions = {
@@ -104,8 +106,9 @@
                 <button id="income-btn" class="action-btn">ইনকাম করুন</button>
                 <button id="withdraw-btn" class="action-btn">টাকা উত্তলন করুন</button>
                 <button id="support-btn" class="action-btn">সাপোর্ট গ্রুপ</button>
-                <!-- New Refer Button -->
                 <button id="refer-btn" class="action-btn">রেফার করুন</button>
+                <!-- New Deposit Button -->
+                <button id="deposit-btn" class="action-btn">ডিপোজিট নাও</button>
             </div>
 
             <!-- Withdrawal Box -->
@@ -220,26 +223,17 @@
 
         // Support Group Button Click
         document.getElementById('support-btn').addEventListener('click', function() {
-            window.location.href = 'https://t.me/My_Earning20BD_bot'; // Open support group
+            window.location.href = 'https://t.me/My_Earning20BD_bot'; // Open Support Group
         });
 
-        // Refer Button Click (Share Link)
+        // Referral Button Click
         document.getElementById('refer-btn').addEventListener('click', function() {
-            const referralLink = 'https://20bd.netlify.app/'; // Updated referral link
+            alert("আপনি সফলভাবে রেফারেল করেছেন!");
+        });
 
-            if (navigator.share) {
-                navigator.share({
-                    title: 'Join Our Platform',
-                    text: 'Check out this amazing platform!',
-                    url: referralLink
-                }).then(() => {
-                    console.log('Share was successful');
-                }).catch((error) => {
-                    console.error('Error sharing:', error);
-                });
-            } else {
-                alert("Sharing is not supported on this device/browser.");
-            }
+        // Deposit Button Click
+        document.getElementById('deposit-btn').addEventListener('click', function() {
+            alert("ডিপোজিট ফিচার চালু হবে শীঘ্রই!");
         });
     </script>
 </body>
