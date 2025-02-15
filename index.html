@@ -217,18 +217,27 @@
                 alert("টাকা সফলভাবে উত্তোলন হয়েছে!");
                 document.getElementById('withdrawal-box').style.display = 'none';
             } else {
-                alert("সব তথ্য সঠিকভাবে পূর্ণ করুন!");
+                alert("অনুগ্রহ করে সব তথ্য সঠিকভাবে পূর্ণ করুন।");
             }
         });
 
-        // Support Group Button Click
+        // Support Button Click
         document.getElementById('support-btn').addEventListener('click', function() {
-            window.location.href = 'https://t.me/My_Earning20BD_bot'; // Open Support Group
+            window.open('https://t.me/My_Earning20BD_bot', '_blank'); // Open Support Group
         });
 
         // Referral Button Click
         document.getElementById('refer-btn').addEventListener('click', function() {
-            alert("আপনি সফলভাবে রেফারেল করেছেন!");
+            let url = "https://20bd.netlify.app/"; // Referral Link
+            if (navigator.share) { // For mobile browsers
+                navigator.share({
+                    title: 'Referral Link',
+                    text: 'আমার রেফারেল লিঙ্ক:',
+                    url: url
+                }).catch(console.error);
+            } else { // Desktop or non-supporting browsers
+                alert('শেয়ার করার জন্য নিচের লিঙ্কটি কপি করুন: ' + url);
+            }
         });
 
         // Deposit Button Click
