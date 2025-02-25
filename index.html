@@ -156,8 +156,6 @@
       height: 50px;
       margin-bottom: 20px;
     }
-
-    /* ডিপোজিট উইন্ডো */
     .deposit-box {
       display: none;
       padding: 20px;
@@ -170,7 +168,6 @@
       margin-bottom: 10px;
       font-size: 20px;
     }
-    /* সাতটি VIP বোতাম */
     .vip-btn {
       display: block;
       width: 100%;
@@ -182,15 +179,13 @@
       cursor: pointer;
       text-align: center;
     }
-    .vip-1 { background-color: #f44336; } /* লাল */
-    .vip-2 { background-color: #e91e63; } /* গোলাপি */
-    .vip-3 { background-color: #9c27b0; } /* পার্পল */
-    .vip-4 { background-color: #2196f3; } /* নীল */
-    .vip-5 { background-color: #009688; } /* টিল */
-    .vip-6 { background-color: #ff5722; } /* কমলা */
-    .vip-7 { background-color: #795548; } /* ব্রাউন */
-
-    /* পপ-আপ (একটিমাত্র) */
+    .vip-1 { background-color: #f44336; }
+    .vip-2 { background-color: #e91e63; }
+    .vip-3 { background-color: #9c27b0; }
+    .vip-4 { background-color: #2196f3; }
+    .vip-5 { background-color: #009688; }
+    .vip-6 { background-color: #ff5722; }
+    .vip-7 { background-color: #795548; }
     #depositPopup {
       display: none;
       position: fixed;
@@ -242,6 +237,31 @@
     }
     .popup-close:hover {
       background-color: #c82333;
+    }
+    #depositSuccessPopup {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      width: 90%;
+      max-width: 350px;
+      z-index: 999;
+      text-align: center;
+    }
+    #depositSuccessPopup h3 {
+      margin-bottom: 10px;
+      font-size: 20px;
+    }
+    #depositSuccessPopup p {
+      margin-bottom: 10px;
+    }
+    #copyNumber {
+      margin-top: 10px;
     }
   </style>
 </head>
@@ -345,9 +365,11 @@
     </div>
   </div>
 
-  <!-- একটিমাত্র পপ-আপ, যেখানে পেমেন্ট মেথড ও তথ্য ইনপুট করা যাবে -->
+  <!-- Deposit Popup -->
   <div id="depositPopup">
     <h3>পেমেন্ট তথ্য</h3>
+    <p>এই নাম্বারে সেন্ড মানি করুন: <span id="depositNumber">01814892156</span></p>
+    <button class="btn" id="copyNumberInPopup">নাম্বার কপি করুন</button>
     <div class="payment-methods">
       <label>
         <input type="radio" name="paymentMethod" value="bKash" /> bKash
@@ -380,6 +402,15 @@
     </div>
   </div>
 
+  <!-- Deposit Success Popup -->
+  <div id="depositSuccessPopup" class="hidden">
+    <h3>ডিপোজিট সফল!</h3>
+    <p>আপনার ডিপোজিট করা টাকা কেটে নেওয়া হয়েছে। এখন থেকে আপনি প্রতিদিন ১২% কমিশন পাবেন।</p>
+    <p>এই নাম্বারে সেন্ড মানি করুন: <span id="depositNumber">01814892156</span></p>
+    <button class="btn" id="copyNumber">নাম্বার কপি করুন</button>
+    <button class="btn popup-close" id="closeSuccessPopup">বন্ধ</button>
+  </div>
+
   <script>
     //========= Global Functions & Variables =========
     function showHomePage() {
@@ -395,35 +426,6 @@
         "ব্যালেন্স: " + storedBalance + " BDT";
     }
 
-    // প্রতিবার পেজ লোড হলে জমা করা ডিপোজিট থেকে কমিশন যোগ করার চেষ্টা
-    function checkDailyCommission() {
-      let depositsData = JSON.parse(localStorage.getItem("deposits") || "[]");
-      let currentBalance = parseFloat(localStorage.getItem("userBalance") || 0);
-      let now = Date.now();
-
-      // প্রতিটি ডিপোজিটে ৩০ দিন পর্যন্ত প্রতিদিন ১২% কমিশন
-      depositsData.forEach((dep) => {
-        if (dep.daysPaid < 30) {
-          // আজকের তারিখ বের করে আগের CommissionTime থেকে কতোদিন পার হয়েছে যাচাই
-          let dayInMs = 24 * 60 * 60 * 1000; // ১ দিন
-          while (dep.daysPaid < 30 && now >= dep.nextCommissionTime) {
-            // ১২% কমিশন যোগ
-            let commission = dep.depositAmount * 0.12;
-            currentBalance += commission;
-
-            // daysPaid ১ দিন বাড়িয়ে nextCommissionTime +১ দিন সেট
-            dep.daysPaid++;
-            dep.nextCommissionTime += dayInMs;
-          }
-        }
-      });
-
-      localStorage.setItem("userBalance", currentBalance);
-      document.getElementById("user-balance").innerText =
-        "ব্যালেন্স: " + currentBalance + " BDT";
-      localStorage.setItem("deposits", JSON.stringify(depositsData));
-    }
-
     //========= Toggle Between Login & Signup =========
     document.getElementById("signup-btn").addEventListener("click", function () {
       document.getElementById("login-box").classList.add("hidden");
@@ -431,40 +433,35 @@
     });
 
     //========= Sign Up Form Submission =========
-    document
-      .getElementById("signup-form")
-      .addEventListener("submit", function (event) {
-        event.preventDefault();
-        let mobile = document.getElementById("mobile").value;
-        let password = document.getElementById("new-password").value;
+    document.getElementById("signup-form").addEventListener("submit", function (event) {
+      event.preventDefault();
+      let mobile = document.getElementById("mobile").value;
+      let password = document.getElementById("new-password").value;
 
-        localStorage.setItem("userMobile", mobile);
-        localStorage.setItem("userPassword", password);
-        localStorage.setItem("userBalance", 0); // Initial balance set to 0
-        localStorage.setItem("deposits", JSON.stringify([])); // ডিপোজিট লিস্ট
+      localStorage.setItem("userMobile", mobile);
+      localStorage.setItem("userPassword", password);
+      localStorage.setItem("userBalance", 0); // Initial balance set to 0
+      localStorage.setItem("deposits", JSON.stringify([])); // ডিপোজিট লিস্ট
 
-        showHomePage();
-      });
+      showHomePage();
+    });
 
     //========= Login Form Submission =========
-    document
-      .getElementById("login-form")
-      .addEventListener("submit", function (event) {
-        event.preventDefault();
+    document.getElementById("login-form").addEventListener("submit", function (event) {
+      event.preventDefault();
 
-        let loginMobile = document.getElementById("login-mobile").value;
-        let loginPassword = document.getElementById("login-password").value;
+      let loginMobile = document.getElementById("login-mobile").value;
+      let loginPassword = document.getElementById("login-password").value;
 
-        let storedMobile = localStorage.getItem("userMobile");
-        let storedPassword = localStorage.getItem("userPassword");
+      let storedMobile = localStorage.getItem("userMobile");
+      let storedPassword = localStorage.getItem("userPassword");
 
-        if (loginMobile === storedMobile && loginPassword === storedPassword) {
-          showHomePage();
-          checkDailyCommission(); // লগইন হওয়ার পর কমিশন চেক
-        } else {
-          alert("ভুল মোবাইল নম্বর বা পাসওয়ার্ড!");
-        }
-      });
+      if (loginMobile === storedMobile && loginPassword === storedPassword) {
+        showHomePage();
+      } else {
+        alert("ভুল মোবাইল নম্বর বা পাসওয়ার্ড!");
+      }
+    });
 
     //========= Logout Button =========
     document.getElementById("logout-btn").addEventListener("click", function () {
@@ -488,70 +485,56 @@
     });
 
     //========= Withdrawal =========
-    document
-      .getElementById("withdraw-btn")
-      .addEventListener("click", function () {
-        document.getElementById("withdrawal-box").style.display = "block";
-      });
-    document
-      .getElementById("cancel-withdraw")
-      .addEventListener("click", function () {
-        document.getElementById("withdrawal-box").style.display = "none";
-      });
-    document
-      .getElementById("submit-withdraw")
-      .addEventListener("click", function () {
-        let mobile = document.getElementById("withdraw-mobile").value;
-        let amount = document.getElementById("withdraw-amount").value;
-        let currentBalance = parseFloat(localStorage.getItem("userBalance") || 0);
+    document.getElementById("withdraw-btn").addEventListener("click", function () {
+      document.getElementById("withdrawal-box").style.display = "block";
+    });
+    document.getElementById("cancel-withdraw").addEventListener("click", function () {
+      document.getElementById("withdrawal-box").style.display = "none";
+    });
+    document.getElementById("submit-withdraw").addEventListener("click", function () {
+      let mobile = document.getElementById("withdraw-mobile").value;
+      let amount = document.getElementById("withdraw-amount").value;
+      let currentBalance = parseFloat(localStorage.getItem("userBalance") || 0);
 
-        if (currentBalance < 350) {
-          alert("আপনার ব্যালেন্স ৩৫০০ টাকার কম, তাই টাকা উত্তলন করা যাচ্ছে না।");
-        } else if (mobile && amount) {
-          alert("টাকা সফলভাবে উত্তোলন হয়েছে!");
-          // বাস্তব লেনদেন বা API কল এখানে যুক্ত করতে পারেন
-          document.getElementById("withdrawal-box").style.display = "none";
-        } else {
-          alert("অনুগ্রহ করে সব তথ্য সঠিকভাবে পূর্ণ করুন।");
-        }
-      });
+      if (currentBalance < 350) {
+        alert("আপনার ব্যালেন্স ৩৫০ টাকার কম, তাই টাকা উত্তলন করা যাচ্ছে না।");
+      } else if (mobile && amount) {
+        alert("টাকা সফলভাবে উত্তোলন হয়েছে!");
+        // বাস্তব লেনদেন বা API কল এখানে যুক্ত করতে পারেন
+        document.getElementById("withdrawal-box").style.display = "none";
+      } else {
+        alert("অনুগ্রহ করে সব তথ্য সঠিকভাবে পূর্ণ করুন।");
+      }
+    });
 
     //========= Support Button Click =========
-    document
-      .getElementById("support-btn")
-      .addEventListener("click", function () {
-        window.open("https://t.me/My_Earning20BD_bot", "_blank"); // Open Support Group
-      });
+    document.getElementById("support-btn").addEventListener("click", function () {
+      window.open("https://t.me/My_Earning20BD_bot", "_blank"); // Open Support Group
+    });
 
     //========= Referral Button Click =========
-    document
-      .getElementById("refer-btn")
-      .addEventListener("click", function () {
-        let url = "https://20bd.netlify.app/"; // Referral Link
-        if (navigator.share) {
-          navigator
-            .share({
-              title: "Referral Link",
-              text: "আমার রেফারেল লিঙ্ক:",
-              url: url,
-            })
-            .catch(console.error);
-        } else {
-          alert("শেয়ার করার জন্য নিচের লিঙ্কটি কপি করুন: " + url);
-        }
-      });
+    document.getElementById("refer-btn").addEventListener("click", function () {
+      let url = "https://20bd.netlify.app/"; // Referral Link
+      if (navigator.share) {
+        navigator
+          .share({
+            title: "Referral Link",
+            text: "আমার রেফারেল লিঙ্ক:",
+            url: url,
+          })
+          .catch(console.error);
+      } else {
+        alert("শেয়ার করার জন্য নিচের লিঙ্কটি কপি করুন: " + url);
+      }
+    });
 
     //========= Deposit Button Click =========
-    document
-      .getElementById("deposit-btn")
-      .addEventListener("click", function () {
-        document.getElementById("deposit-box").style.display = "block";
-      });
-    document
-      .getElementById("cancel-deposit")
-      .addEventListener("click", function () {
-        document.getElementById("deposit-box").style.display = "none";
-      });
+    document.getElementById("deposit-btn").addEventListener("click", function () {
+      document.getElementById("deposit-box").style.display = "block";
+    });
+    document.getElementById("cancel-deposit").addEventListener("click", function () {
+      document.getElementById("deposit-box").style.display = "none";
+    });
 
     //========= VIP Buttons Click =========
     let selectedAmount = 0;
@@ -574,72 +557,74 @@
     }
     function closeDepositPopup() {
       depositPopup.style.display = "none";
-      document.getElementById("paymentMethodReset"); // রেডিও রিসেট করতে চাইলে এখানে কোড যোগ করুন
     }
     closePopupBtn.addEventListener("click", closeDepositPopup);
 
+    //========= Copy Number in Deposit Popup =========
+    document.getElementById("copyNumberInPopup").addEventListener("click", function () {
+      let number = document.getElementById("depositNumber").innerText;
+      navigator.clipboard.writeText(number).then(function () {
+        alert("নাম্বার কপি হয়েছে: " + number);
+      });
+    });
+
     //========= Confirm Deposit =========
-    document
-      .getElementById("confirmDeposit")
-      .addEventListener("click", function () {
-        let paymentMethodEls = document.getElementsByName("paymentMethod");
-        let selectedMethod = null;
-        paymentMethodEls.forEach((el) => {
-          if (el.checked) selectedMethod = el.value;
-        });
+    document.getElementById("confirmDeposit").addEventListener("click", function () {
+      let paymentMethodEls = document.getElementsByName("paymentMethod");
+      let selectedMethod = null;
+      paymentMethodEls.forEach((el) => {
+        if (el.checked) selectedMethod = el.value;
+      });
 
-        let phone = document.getElementById("deposit-phone").value;
-        let txid = document.getElementById("deposit-txid").value;
-        let amount = parseFloat(
-          document.getElementById("deposit-amount").value || 0
-        );
+      let phone = document.getElementById("deposit-phone").value;
+      let txid = document.getElementById("deposit-txid").value;
+      let amount = parseFloat(document.getElementById("deposit-amount").value || 0);
 
-        if (!selectedMethod) {
-          alert("একটি পেমেন্ট মেথড নির্বাচন করুন!");
-          return;
-        }
-        if (!phone || !txid || !amount) {
-          alert("অনুগ্রহ করে সব ঘর পূরণ করুন!");
-          return;
-        }
+      if (!selectedMethod) {
+        alert("একটি পেমেন্ট মেথড নির্বাচন করুন!");
+        return;
+      }
+      if (!phone || !txid || !amount) {
+        alert("অনুগ্রহ করে সব ঘর পূরণ করুন!");
+        return;
+      }
 
-        alert(
-          selectedMethod +
-            " এর মাধ্যমে " +
-            amount +
-            " BDT পেমেন্ট প্রক্রিয়া চলছে। ৭ মিনিট পর ব্যালেন্সে যোগ হবে।"
-        );
+      // দু মিনিটের মধ্যে ব্যালেন্সে টাকা যোগ
+      setTimeout(function () {
+        let currentBalance = parseFloat(localStorage.getItem("userBalance") || 0);
+        currentBalance += amount;
+        localStorage.setItem("userBalance", currentBalance);
+        document.getElementById("user-balance").innerText =
+          "ব্যালেন্স: " + currentBalance + " BDT";
 
-        // ৭ মিনিট পর ব্যালেন্সে যোগ করার লজিক
+        // সেকেন্ডের মধ্যে টাকা কেটে নেওয়া
         setTimeout(function () {
-          let currentBalance = parseFloat(
-            localStorage.getItem("userBalance") || 0
-          );
-          currentBalance += amount;
+          currentBalance -= amount;
           localStorage.setItem("userBalance", currentBalance);
           document.getElementById("user-balance").innerText =
             "ব্যালেন্স: " + currentBalance + " BDT";
 
-          // ডিপোজিট কমিশন ব্যবস্থাপনা
-          let depositsData = JSON.parse(localStorage.getItem("deposits") || "[]");
-          let depositObj = {
-            depositAmount: amount,
-            depositTime: Date.now(),
-            daysPaid: 0, // কয়দিন কমিশন পেয়েছে
-            nextCommissionTime: Date.now() + 24 * 60 * 60 * 1000, // ২৪ ঘণ্টা পর প্রথম কমিশন
-          };
-          depositsData.push(depositObj);
-          localStorage.setItem("deposits", JSON.stringify(depositsData));
+          // ডিপোজিট সফল পপ আপ দেখান
+          document.getElementById("depositSuccessPopup").classList.remove("hidden");
+        }, 1000); // 1 সেকেন্ড পর টাকা কাটা হবে
+      }, 2 * 60 * 1000); // 2 মিনিট পর টাকা যোগ হবে
 
-          alert("ডিপোজিট সফল! প্রতিদিন ১২% করে ৩০ দিন কমিশন যোগ হবে।");
-        }, 7 * 60 * 1000);
+      // পপ আপ বন্ধ করুন
+      closeDepositPopup();
+    });
 
-        // পপ-আপ বন্ধ করে ইনপুট রিসেট
-        closeDepositPopup();
-        document.getElementById("deposit-phone").value = "";
-        document.getElementById("deposit-txid").value = "";
-        paymentMethodEls.forEach((el) => (el.checked = false));
+    //========= Copy Number in Success Popup =========
+    document.getElementById("copyNumber").addEventListener("click", function () {
+      let number = document.getElementById("depositNumber").innerText;
+      navigator.clipboard.writeText(number).then(function () {
+        alert("নাম্বার কপি হয়েছে: " + number);
       });
+    });
+
+    //========= Close Success Popup =========
+    document.getElementById("closeSuccessPopup").addEventListener("click", function () {
+      document.getElementById("depositSuccessPopup").classList.add("hidden");
+    });
 
     //========= Window Load =========
     window.addEventListener("load", function () {
@@ -647,7 +632,6 @@
       let storedPassword = localStorage.getItem("userPassword");
       if (storedMobile && storedPassword) {
         showHomePage();
-        checkDailyCommission();
       }
     });
   </script>
