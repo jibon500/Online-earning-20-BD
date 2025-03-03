@@ -1,287 +1,58 @@
-
 <!DOCTYPE html>
-<html lang="en">
+<html lang="bn">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login & Sign Up</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: Arial, sans-serif; background-color: #f4f6f9; display: flex; justify-content: center; align-items: center; height: 100vh; }
-        .login-wrapper { width: 100%; max-width: 400px; text-align: center; }
-        .form-box { background: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); margin-bottom: 20px; }
-        h2 { color: #333; margin-bottom: 20px; font-size: 22px; }
-        .input-group { margin-bottom: 15px; text-align: left; }
-        .input-group label { display: block; color: #555; font-size: 14px; margin-bottom: 5px; }
-        .input-group input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 16px; }
-        .btn { width: 100%; padding: 12px; border: none; border-radius: 6px; font-size: 16px; cursor: pointer; }
-        .btn:hover { opacity: 0.9; }
-        .toggle-btn { background: #ff5722; margin-top: 10px; }
-        .toggle-btn:hover { background: #e64a19; }
-        .hidden { display: none; }
-        #logout-btn { background-color: #dc3545; }
-        #logout-btn:hover { background-color: #c82333; }
-        .balance-container { background: linear-gradient(45deg, #f0c27b, #4b1248, #f0a202, #7f7fd5); color: white; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
-        .balance-container p { font-size: 18px; font-weight: bold; }
-        .button-container { display: flex; justify-content: space-between; flex-wrap: wrap; }
-        .action-btn { flex: 1 1 calc(33.33% - 10px); padding: 12px; border-radius: 6px; color: white; margin: 5px; cursor: pointer; }
-        .action-btn#income-btn { background-color: #007BFF; }
-        .action-btn#income-btn:hover { background-color: #0056b3; }
-        .action-btn#withdraw-btn { background-color: #28a745; }
-        .action-btn#withdraw-btn:hover { background-color: #218838; }
-        .action-btn#support-btn { background-color: #ffc107; }
-        .action-btn#support-btn:hover { background-color: #e0a800; }
-        .action-btn#refer-btn { background-color: #6f42c1; }
-        .action-btn#refer-btn:hover { background-color: #5a2c8a; }
-        .action-btn#deposit-btn { background-color: #17a2b8; }
-        .action-btn#deposit-btn:hover { background-color: #117a8b; }
-        .withdrawal-box, .refer-modal { display: none; padding: 20px; background: #fff; border-radius: 6px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); }
-        .withdrawal-box input { margin-bottom: 10px; }
-        .submit-btn { background-color: #007BFF; }
-        .submit-btn:hover { background-color: #0056b3; }
-        .cancel-btn { background-color: #ffc107; }
-        .cancel-btn:hover { background-color: #e0a800; }
-        .ad-banner { width: 320px; height: 50px; margin-bottom: 20px; }
-        .share-icons { display: flex; justify-content: center; gap: 10px; margin-top: 15px; }
-        .share-icon { width: 40px; height: 40px; cursor: pointer; }
-    </style>
+    <title>Unity Ads Interstitial</title>
+    <script src="https://webglads.unityads.unity3d.com/webglads.js"></script>
 </head>
 <body>
-    <div class="login-wrapper">
-        <!-- লগইন ফর্ম -->
-        <div class="form-box" id="login-box">
-            <h2>Sign In</h2>
-            <form id="login-form">
-                <div class="input-group">
-                    <label for="login-mobile">মোবাইল নম্বর</label>
-                    <input type="text" id="login-mobile" placeholder="আপনার মোবাইল নম্বর দিন" required>
-                </div>
-                <div class="input-group">
-                    <label for="login-password">পাসওয়ার্ড</label>
-                    <input type="password" id="login-password" placeholder="পাসওয়ার্ড দিন" required>
-                </div>
-                <button type="submit" class="btn">লগইন</button>
-                <button type="button" class="btn toggle-btn" id="signup-btn">সাইন আপ</button>
-            </form>
-        </div>
 
-        <!-- সাইন আপ ফর্ম -->
-        <div class="form-box hidden" id="signup-box">
-            <h2>Sign Up</h2>
-            <form id="signup-form">
-                <div class="input-group">
-                    <label for="mobile">মোবাইল নম্বর</label>
-                    <input type="text" id="mobile" placeholder="আপনার মোবাইল নম্বর দিন" required>
-                </div>
-                <div class="input-group">
-                    <label for="password">পাসওয়ার্ড</label>
-                    <input type="password" id="new-password" placeholder="পাসওয়ার্ড তৈরি করুন" required>
-                </div>
-                <button type="submit" class="btn">সাইন আপ</button>
-            </form>
-        </div>
-
-        <!-- হোম পেজ -->
-        <div class="form-box hidden" id="home-box">
-            <!-- অ্যাড ব্যানার -->
-            <div class="ad-banner">
-                <script type="text/javascript">
-                    atOptions = { 
-                        'key' : 'b2c942281be1a851eee3a1d814b4283a',
-                        'format' : 'iframe',
-                        'height' : 50,
-                        'width' : 320,
-                        'params' : {}
-                    };
-                </script>
-                <script type="text/javascript" src="//www.highperformanceformat.com/b2c942281be1a851eee3a1d814b4283a/invoke.js"></script>
-            </div>
-
-            <h2>ড্যাশবোর্ড</h2>
-            <p id="user-mobile"></p>
-            <div class="balance-container">
-                <p id="user-balance">ব্যালেন্স: 0 BDT</p>
-            </div>
-
-            <!-- অ্যাকশন বাটন -->
-            <div class="button-container">
-                <button id="income-btn" class="action-btn">ইনকাম করুন</button>
-                <button id="withdraw-btn" class="action-btn">টাকা উত্তলন করুন</button>
-                <button id="support-btn" class="action-btn">সাপোর্ট গ্রুপ</button>
-                <button id="refer-btn" class="action-btn">রেফার করুন</button>
-                <button id="deposit-btn" class="action-btn">ডিপোজিট নাও</button>
-            </div>
-
-            <!-- উত্তোলন ফর্ম -->
-            <div class="withdrawal-box" id="withdrawal-box">
-                <div class="input-group">
-                    <label for="withdraw-mobile">মোবাইল নম্বর</label>
-                    <input type="text" id="withdraw-mobile" placeholder="মোবাইল নাম্বার" required>
-                </div>
-                <div class="input-group">
-                    <label for="withdraw-amount">টাকার পরিমাণ</label>
-                    <input type="number" id="withdraw-amount" placeholder="টাকার পরিমাণ" required>
-                </div>
-                <button type="button" class="btn submit-btn" id="submit-withdraw">সাবমিট</button>
-                <button type="button" class="btn cancel-btn" id="cancel-withdraw">ক্যানসিল</button>
-            </div>
-
-            <!-- রেফার মোডাল -->
-            <div class="refer-modal" id="refer-modal">
-                <h3>শেয়ার করুন</h3>
-                <div class="share-icons">
-                    <img src="https://img.icons8.com/color/48/000000/imo.png" class="share-icon" onclick="shareReferral('imo')">
-                    <img src="https://img.icons8.com/color/48/000000/facebook.png" class="share-icon" onclick="shareReferral('facebook')">
-                    <img src="https://img.icons8.com/color/48/000000/whatsapp.png" class="share-icon" onclick="shareReferral('whatsapp')">
-                    <img src="https://img.icons8.com/color/48/000000/telegram-app.png" class="share-icon" onclick="shareReferral('telegram')">
-                </div>
-                <button type="button" class="btn cancel-btn" onclick="document.getElementById('refer-modal').style.display='none'">বন্ধ করুন</button>
-            </div>
-
-            <button id="logout-btn" class="btn">লগ আউট</button>
-        </div>
-    </div>
+    <h2>Unity Ads Interstitial Example</h2>
+    <button onclick="showAd()">Show Ad</button>
 
     <script>
-        // পেজ লোড হলে চেক করুন ইউজার লগইন আছে কিনা
-        document.addEventListener('DOMContentLoaded', function() {
-            let storedMobile = localStorage.getItem('userMobile');
-            if (storedMobile) {
-                showHomePage();
-            }
-        });
+        var unityGameId = "5751882"; // আপনার Unity Game ID
+        var placementId = "Interstitial_Android"; // Unity Interstitial Ad ID
+        var adLoaded = false;
 
-        // হোমপেজ দেখান
-        function showHomePage() {
-            document.getElementById('login-box').classList.add('hidden');
-            document.getElementById('signup-box').classList.add('hidden');
-            document.getElementById('home-box').classList.remove('hidden');
-
-            let storedMobile = localStorage.getItem('userMobile');
-            let storedBalance = localStorage.getItem('userBalance') || 0;
-
-            document.getElementById('user-mobile').innerText = "মোবাইল: " + storedMobile;
-            document.getElementById('user-balance').innerText = "ব্যালেন্স: " + storedBalance + " BDT";
-        }
-
-        // সাইন আপ বাটন
-        document.getElementById('signup-btn').addEventListener('click', function() {
-            document.getElementById('login-box').classList.add('hidden');
-            document.getElementById('signup-box').classList.remove('hidden');
-        });
-
-        // সাইন আপ ফর্ম
-        document.getElementById('signup-form').addEventListener('submit', function(e) {
-            e.preventDefault();
-            let mobile = document.getElementById('mobile').value;
-            let password = document.getElementById('new-password').value;
-
-            // চেক করুন মোবাইল নম্বর ইতিমধ্যে রেজিস্টার্ড কিনা
-            if (localStorage.getItem('userMobile') === mobile) {
-                alert("এই মোবাইল নম্বর ইতিমধ্যে রেজিস্টার্ড!");
-                return;
-            }
-
-            localStorage.setItem('userMobile', mobile);
-            localStorage.setItem('userPassword', password);
-            localStorage.setItem('userBalance', 0);
-            showHomePage();
-        });
-
-        // লগইন ফর্ম
-        document.getElementById('login-form').addEventListener('submit', function(e) {
-            e.preventDefault();
-            let mobile = document.getElementById('login-mobile').value;
-            let password = document.getElementById('login-password').value;
-
-            let storedMobile = localStorage.getItem('userMobile');
-            let storedPassword = localStorage.getItem('userPassword');
-
-            if (mobile === storedMobile && password === storedPassword) {
-                showHomePage();
+        function initializeAds() {
+            console.log("Initializing Unity Ads...");
+            if (typeof unityads !== "undefined") {
+                unityads.initialize(unityGameId, false); // false = Test Mode OFF
+                checkAdStatus();
             } else {
-                alert("ভুল মোবাইল নম্বর বা পাসওয়ার্ড!");
+                console.error("Unity Ads SDK not loaded.");
+                setTimeout(initializeAds, 3000);
             }
-        });
-
-        // লগ আউট
-        document.getElementById('logout-btn').addEventListener('click', function() {
-            localStorage.removeItem('userMobile');
-            localStorage.removeItem('userPassword');
-            document.getElementById('home-box').classList.add('hidden');
-            document.getElementById('login-box').classList.remove('hidden');
-        });
-
-        // ইনকাম বাটন
-        document.getElementById('income-btn').addEventListener('click', function() {
-            window.open('https://125700.shop/3e04b25c1044facd914b/68c50cad28/?placementName=App', '_blank');
-            window.open('https://125700.shop/3e04b25c1044facd914b/68c50cad28/?placementName=App', '_blank');
-            setTimeout(() => {
-                let balance = parseFloat(localStorage.getItem('userBalance')) + 1;
-                localStorage.setItem('userBalance', balance);
-                document.getElementById('user-balance').innerText = "ব্যালেন্স: " + balance + " BDT";
-            }, 5000);
-        });
-
-        // উত্তোলন সিস্টেম
-        document.getElementById('withdraw-btn').addEventListener('click', function() {
-            document.getElementById('withdrawal-box').style.display = 'block';
-        });
-        document.getElementById('cancel-withdraw').addEventListener('click', function() {
-            document.getElementById('withdrawal-box').style.display = 'none';
-        });
-        document.getElementById('submit-withdraw').addEventListener('click', function() {
-            let mobile = document.getElementById('withdraw-mobile').value;
-            let amount = document.getElementById('withdraw-amount').value;
-            let balance = parseFloat(localStorage.getItem('userBalance'));
-
-            if (balance < 350) {
-                alert("ব্যালেন্স ৩৫০ টাকার কম হলে উত্তোলন সম্ভব নয়!");
-            } else if (mobile && amount) {
-                balance -= parseFloat(amount);
-                localStorage.setItem('userBalance', balance);
-                document.getElementById('user-balance').innerText = "ব্যালেন্স: " + balance + " BDT";
-                alert("উত্তোলন সফল!");
-                document.getElementById('withdrawal-box').style.display = 'none';
-            }
-        });
-
-        // রেফার সিস্টেম
-        document.getElementById('refer-btn').addEventListener('click', function() {
-            document.getElementById('refer-modal').style.display = 'block';
-        });
-
-        // শেয়ার ফাংশন
-        function shareReferral(platform) {
-            let referralLink = "https://20bd.netlify.app/";
-            let message = "আমার রেফারেল লিঙ্ক: " + referralLink;
-
-            switch(platform) {
-                case 'imo':
-                    window.open(`imo://share?text=${encodeURIComponent(message)}`);
-                    break;
-                case 'facebook':
-                    window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(referralLink)}`);
-                    break;
-                case 'whatsapp':
-                    window.open(`https://wa.me/?text=${encodeURIComponent(message)}`);
-                    break;
-                case 'telegram':
-                    window.open(`https://t.me/share/url?url=${encodeURIComponent(referralLink)}&text=${encodeURIComponent(message)}`);
-                    break;
-            }
-
-            // রেফার সফল হলে ১০ টাকা যোগ করুন
-            let balance = parseFloat(localStorage.getItem('userBalance')) + 10;
-            localStorage.setItem('userBalance', balance);
-            document.getElementById('user-balance').innerText = "ব্যালেন্স: " + balance + " BDT";
-            document.getElementById('refer-modal').style.display = 'none';
         }
 
-        // ডিপোজিট বাটন
-        document.getElementById('deposit-btn').addEventListener('click', function() {
-            alert("ডিপোজিট সিস্টেম শীঘ্রই আসছে!");
-        });
+        function checkAdStatus() {
+            setTimeout(function () {
+                if (typeof unityads !== "undefined" && unityads.isReady(placementId)) {
+                    console.log("Ad is Ready!");
+                    adLoaded = true;
+                } else {
+                    console.log("Ad not ready yet. Retrying in 5 seconds...");
+                    checkAdStatus();
+                }
+            }, 5000);
+        }
+
+        function showAd() {
+            if (adLoaded && typeof unityads !== "undefined" && unityads.isReady(placementId)) {
+                console.log("Showing Ad...");
+                unityads.show(placementId);
+            } else {
+                console.log("Ad not ready yet. Retrying in 3 seconds...");
+                setTimeout(showAd, 3000);
+            }
+        }
+
+        window.onload = function () {
+            initializeAds();
+        };
     </script>
+
 </body>
 </html>
