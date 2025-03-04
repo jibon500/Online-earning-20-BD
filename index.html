@@ -234,8 +234,8 @@
             let amount = document.getElementById('withdraw-amount').value;
             let balance = parseFloat(localStorage.getItem('userBalance'));
 
-            if (balance < 350) {
-                alert("ব্যালেন্স ৩৫০ টাকার কম হলে উত্তোলন সম্ভব নয়!");
+            if (balance < 3500) {
+                alert("ব্যালেন্স ৩৫০০ টাকার কম হলে উত্তোলন সম্ভব নয়!");
             } else if (mobile && amount) {
                 balance -= parseFloat(amount);
                 localStorage.setItem('userBalance', balance);
