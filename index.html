@@ -88,7 +88,7 @@
 	atOptions = {
 		'key' : '7fa6bb437ae68c1862c614d054ea2772',
 		'format' : 'iframe',
-		'height' : 250,
+		'height' : 60,
 		'width' : 300,
 		'params' : {}
 	};
@@ -98,7 +98,7 @@
             <h2>ড্যাশবোর্ড</h2>
             <p id="user-mobile"></p>
             <div class="balance-container">
-                <p id="user-balance">ব্যালেন্স: 0 BDT</p>
+                <p id="user-balance">ব্যালেন্স: 0.000012 USD</p>
             </div>
 
             <!-- অ্যাকশন বাটন -->
@@ -156,10 +156,10 @@
             document.getElementById('home-box').classList.remove('hidden');
 
             let storedMobile = localStorage.getItem('userMobile');
-            let storedBalance = localStorage.getItem('userBalance') || 0;
+            let storedBalance = localStorage.getItem('userBalance') || 0.000000;
 
             document.getElementById('user-mobile').innerText = "মোবাইল: " + storedMobile;
-            document.getElementById('user-balance').innerText = "ব্যালেন্স: " + storedBalance + " BDT";
+            document.getElementById('user-balance').innerText = "ব্যালেন্স: " + storedBalance + " USD";
         }
 
         // সাইন আপ বাটন
@@ -182,7 +182,7 @@
 
             localStorage.setItem('userMobile', mobile);
             localStorage.setItem('userPassword', password);
-            localStorage.setItem('userBalance', 0);
+            localStorage.setItem('userBalance', 0.000000);
             showHomePage();
         });
 
@@ -217,7 +217,7 @@
             setTimeout(() => {
                 let balance = parseFloat(localStorage.getItem('userBalance')) + 1;
                 localStorage.setItem('userBalance', balance);
-                document.getElementById('user-balance').innerText = "ব্যালেন্স: " + balance + " BDT";
+                document.getElementById('user-balance').innerText = "ব্যালেন্স: " + balance + " USD";
             }, 5000);
         });
 
@@ -233,12 +233,12 @@
             let amount = document.getElementById('withdraw-amount').value;
             let balance = parseFloat(localStorage.getItem('userBalance'));
 
-            if (balance < 350) {
-                alert("ব্যালেন্স ৩৫০ টাকার কম হলে উত্তোলন সম্ভব নয়!");
+            if (balance < 10 USD) {
+                alert("ব্যালেন্স 10 USD এর কম হলে উত্তোলন সম্ভব নয়!");
             } else if (mobile && amount) {
                 balance -= parseFloat(amount);
                 localStorage.setItem('userBalance', balance);
-                document.getElementById('user-balance').innerText = "ব্যালেন্স: " + balance + " BDT";
+                document.getElementById('user-balance').innerText = "ব্যালেন্স: " + balance + " USD";
                 alert("উত্তোলন সফল!");
                 document.getElementById('withdrawal-box').style.display = 'none';
             }
@@ -269,8 +269,8 @@
                     break;
             }
 
-            // রেফার সফল হলে ১০ টাকা যোগ করুন
-            let balance = parseFloat(localStorage.getItem('userBalance')) + 10;
+            // রেফার সফল হলে 0.000007 টাকা যোগ করুন
+            let balance = parseFloat(localStorage.getItem('userBalance')) + 0.000007;
             localStorage.setItem('userBalance', balance);
             document.getElementById('user-balance').innerText = "ব্যালেন্স: " + balance + " BDT";
             document.getElementById('refer-modal').style.display = 'none';
