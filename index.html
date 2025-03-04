@@ -1,58 +1,136 @@
 <!DOCTYPE html>
-<html lang="bn">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Unity Ads Interstitial</title>
-    <script src="https://webglads.unityads.unity3d.com/webglads.js"></script>
+    <title>Background Remover</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background: linear-gradient(to right, #ff7e5f, #feb47b, #ff6a00, #f83600, #f5af19); /* Colorful background */
+        }
+        .container {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.8);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+            width: 90%;
+            max-width: 500px;
+        }
+        input[type="file"] {
+            padding: 15px;
+            margin: 20px 0;
+            width: 80%;
+            border: 2px solid #feb47b;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+        button {
+            padding: 15px 25px;
+            background-color: #ff7e5f;
+            color: white;
+            font-size: 18px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            margin-top: 10px;
+            width: 80%;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: #feb47b;
+        }
+        #output-image {
+            margin-top: 20px;
+            max-width: 100%;
+            display: none;
+            border-radius: 10px;
+        }
+        .download-container {
+            margin-top: 20px;
+        }
+        .download-button {
+            padding: 15px 30px;
+            background-color: #ff6a00;
+            color: white;
+            font-size: 18px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            width: 80%;
+        }
+        .download-button:hover {
+            background-color: #f5af19;
+        }
+        .download-container,
+        #output-image {
+            display: block;
+        }
+    </style>
 </head>
 <body>
+    <div class="container">
+        <h2>Background Remover</h2>
+        <input type="file" id="image-input" accept="image/*">
+        <button onclick="removeBackground()">Remove Background</button>
+        <div id="result-container">
+            <img id="output-image" src="" alt="Output Image">
+        </div>
 
-    <h2>Unity Ads Interstitial Example</h2>
-    <button onclick="showAd()">Show Ad</button>
+        <div class="download-container">
+            <button id="download-btn" class="download-button">Download Image</button>
+            <button class="download-button" onclick="window.location.href='https://www.effectiveratecpm.com/jnf86rs9n?key=0d5ffc804cf69b1c9c36358068cb80be';">Full HD Quality Photo Download</button>
+        </div>
+    </div>
 
     <script>
-        var unityGameId = "5751882"; // আপনার Unity Game ID
-        var placementId = "Interstitial_Android"; // Unity Interstitial Ad ID
-        var adLoaded = false;
+        function removeBackground() {
+            const apiKey = "xvGhTovLtGEojcNr3DcV7T38"; // Replace with your actual API key
+            const imageInput = document.getElementById('image-input');
+            const file = imageInput.files[0];
 
-        function initializeAds() {
-            console.log("Initializing Unity Ads...");
-            if (typeof unityads !== "undefined") {
-                unityads.initialize(unityGameId, false); // false = Test Mode OFF
-                checkAdStatus();
-            } else {
-                console.error("Unity Ads SDK not loaded.");
-                setTimeout(initializeAds, 3000);
+            if (!file) {
+                alert('Please select an image first');
+                return;
             }
-        }
 
-        function checkAdStatus() {
-            setTimeout(function () {
-                if (typeof unityads !== "undefined" && unityads.isReady(placementId)) {
-                    console.log("Ad is Ready!");
-                    adLoaded = true;
-                } else {
-                    console.log("Ad not ready yet. Retrying in 5 seconds...");
-                    checkAdStatus();
-                }
-            }, 5000);
-        }
+            const formData = new FormData();
+            formData.append("image_file", file);
 
-        function showAd() {
-            if (adLoaded && typeof unityads !== "undefined" && unityads.isReady(placementId)) {
-                console.log("Showing Ad...");
-                unityads.show(placementId);
-            } else {
-                console.log("Ad not ready yet. Retrying in 3 seconds...");
-                setTimeout(showAd, 3000);
-            }
-        }
+            fetch("https://api.remove.bg/v1.0/removebg", {
+                method: "POST",
+                headers: {
+                    "X-Api-Key": apiKey
+                },
+                body: formData
+            })
+            .then(response => response.blob())
+            .then(blob => {
+                const imageUrl = URL.createObjectURL(blob);
+                const outputImage = document.getElementById('output-image');
+                outputImage.src = imageUrl;
+                outputImage.style.display = 'block';
 
-        window.onload = function () {
-            initializeAds();
-        };
+                // Enable download button after background removal
+                const downloadBtn = document.getElementById('download-btn');
+                downloadBtn.onclick = function() {
+                    const a = document.createElement('a');
+                    a.href = imageUrl;
+                    a.download = 'output_image.png';
+                    a.click();
+                };
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Something went wrong. Please try again.');
+            });
+        }
     </script>
-
 </body>
 </html>
