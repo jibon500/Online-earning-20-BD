@@ -85,20 +85,21 @@
             <!-- অ্যাড ব্যানার -->
             <div class="ad-banner">
                 <script type="text/javascript">
-	atOptions = {
-		'key' : '7fa6bb437ae68c1862c614d054ea2772',
-		'format' : 'iframe',
-		'height' : 60,
-		'width' : 300,
-		'params' : {}
-	};
-</script>
-<script type="text/javascript" src="//www.highperformanceformat.com/7fa6bb437ae68c1862c614d054ea2772/invoke.js"></script>
+                    atOptions = { 
+                        'key' : 'b2c942281be1a851eee3a1d814b4283a',
+                        'format' : 'iframe',
+                        'height' : 50,
+                        'width' : 320,
+                        'params' : {}
+                    };
+                </script>
+                <script type="text/javascript" src="//www.highperformanceformat.com/b2c942281be1a851eee3a1d814b4283a/invoke.js"></script>
+            </div>
 
             <h2>ড্যাশবোর্ড</h2>
             <p id="user-mobile"></p>
             <div class="balance-container">
-                <p id="user-balance">ব্যালেন্স: 0.000012 USD</p>
+                <p id="user-balance">ব্যালেন্স: 0 BDT</p>
             </div>
 
             <!-- অ্যাকশন বাটন -->
@@ -156,10 +157,10 @@
             document.getElementById('home-box').classList.remove('hidden');
 
             let storedMobile = localStorage.getItem('userMobile');
-            let storedBalance = localStorage.getItem('userBalance') || 0.000000;
+            let storedBalance = localStorage.getItem('userBalance') || 0;
 
             document.getElementById('user-mobile').innerText = "মোবাইল: " + storedMobile;
-            document.getElementById('user-balance').innerText = "ব্যালেন্স: " + storedBalance + " USD";
+            document.getElementById('user-balance').innerText = "ব্যালেন্স: " + storedBalance + " BDT";
         }
 
         // সাইন আপ বাটন
@@ -212,12 +213,12 @@
 
         // ইনকাম বাটন
         document.getElementById('income-btn').addEventListener('click', function() {
-            window.open('https://sites.google.com/view/xxxsex85/home', '_blank');
-            window.open('https://background690.blogspot.com', '_blank');
+            window.open('https://www.profitablecpmrate.com/c7gf3hhv?key=6e230d822c56accf1662d101e2443189', '_blank');
+            window.open('https://www.effectiveratecpm.com/ss2gkm42wm?key=4c52a02211f69e11615891c47626c790', '_blank');
             setTimeout(() => {
                 let balance = parseFloat(localStorage.getItem('userBalance')) + 1;
                 localStorage.setItem('userBalance', balance);
-                document.getElementById('user-balance').innerText = "ব্যালেন্স: " + balance + " USD";
+                document.getElementById('user-balance').innerText = "ব্যালেন্স: " + balance + " BDT";
             }, 5000);
         });
 
@@ -233,12 +234,12 @@
             let amount = document.getElementById('withdraw-amount').value;
             let balance = parseFloat(localStorage.getItem('userBalance'));
 
-            if (balance < 10 USD) {
-                alert("ব্যালেন্স 10 USD এর কম হলে উত্তোলন সম্ভব নয়!");
+            if (balance < 350) {
+                alert("ব্যালেন্স ৩৫০ টাকার কম হলে উত্তোলন সম্ভব নয়!");
             } else if (mobile && amount) {
                 balance -= parseFloat(amount);
                 localStorage.setItem('userBalance', balance);
-                document.getElementById('user-balance').innerText = "ব্যালেন্স: " + balance + " USD";
+                document.getElementById('user-balance').innerText = "ব্যালেন্স: " + balance + " BDT";
                 alert("উত্তোলন সফল!");
                 document.getElementById('withdrawal-box').style.display = 'none';
             }
@@ -269,8 +270,8 @@
                     break;
             }
 
-            // রেফার সফল হলে 0.000007 টাকা যোগ করুন
-            let balance = parseFloat(localStorage.getItem('userBalance')) + 0.000007;
+            // রেফার সফল হলে ১০ টাকা যোগ করুন
+            let balance = parseFloat(localStorage.getItem('userBalance')) + 10;
             localStorage.setItem('userBalance', balance);
             document.getElementById('user-balance').innerText = "ব্যালেন্স: " + balance + " BDT";
             document.getElementById('refer-modal').style.display = 'none';
