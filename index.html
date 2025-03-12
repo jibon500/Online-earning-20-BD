@@ -143,6 +143,17 @@
             padding: 10px 0;
             z-index: 999;
         }
+
+        /* Banner inside Withdraw Popup */
+        .withdraw-banner {
+            background-color: #ff8c00;
+            color: white;
+            padding: 10px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            font-size: 20px;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
@@ -166,7 +177,20 @@
         <button onclick="window.location.href='https://t.me/your_telegram_link'">Telegram</button>
     </div>
     <div id="withdrawPopup" class="popup">
-        <h2>Withdraw Money</h2>
+        <!-- Banner Ad inside Withdraw Popup (No 'Withdraw Request' text) -->
+        <div class="withdraw-banner">
+            <script type="text/javascript">
+                atOptions = {
+                    'key' : '6fcfc8cf18fe66e2762bee5d997dc0b9',
+                    'format' : 'iframe',
+                    'height' : 50,
+                    'width' : 320,
+                    'params' : {}
+                };
+            </script>
+            <script type="text/javascript" src="//www.highperformanceformat.com/6fcfc8cf18fe66e2762bee5d997dc0b9/invoke.js"></script>
+        </div>
+
         <select id="withdrawMethod">
             <option value="bkash">Bkash</option>
             <option value="rocket">Rocket</option>
@@ -179,7 +203,7 @@
         <div id="timer" class="timer" style="display:none;"></div>
     </div>
 
-    <!-- Adsterra Banner -->
+    <!-- Adsterra Banner at the bottom -->
     <div class="banner">
         <script type="text/javascript">
             atOptions = {
