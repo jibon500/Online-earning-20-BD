@@ -46,9 +46,20 @@
             padding: 15px;
             font-size: 18px;
             font-weight: bold;
+            border: 2px solid #ff8c00;
+            display: inline-block;
+            margin-top: 20px;
+            border-radius: 10px;
+            width: auto;
         }
         .content {
             padding: 20px;
+        }
+        .button-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 20px;
         }
         .content button {
             padding: 15px 30px;
@@ -61,6 +72,7 @@
             background: linear-gradient(135deg, #ff4500, #ff8c00);
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
             transition: transform 0.2s, box-shadow 0.2s;
+            width: 200px;  /* Ensuring all buttons are the same size */
         }
         .content button:hover {
             transform: scale(1.05);
@@ -154,6 +166,32 @@
             font-size: 20px;
             font-weight: bold;
         }
+
+        /* Email Banner with Islamic Image */
+        .email-banner {
+            position: fixed;
+            bottom: 50px;  /* This makes sure the image is fixed near the bottom */
+            left: 0;
+            width: 100%;
+            text-align: center;
+            z-index: 100;
+        }
+
+        .email-banner img {
+            width: 100%;  /* Full-width for the image */
+            height: auto;
+            border-radius: 10px;
+            border: 3px solid #fff;
+        }
+
+        /* Ad Banner Above the Buttons */
+        .ad-banner {
+            background-color: #333;
+            padding: 15px;
+            margin-bottom: 20px;
+            text-align: center;
+            border-radius: 5px;
+        }
     </style>
 </head>
 <body>
@@ -168,16 +206,40 @@
             <span>IP Address: <span id="userIP">Loading...</span></span>
         </div>
     </div>
+
+    <!-- Balance Section Inside Box -->
     <div class="balance-section">
         User balance <span id="userBalance">0.00000 USD</span>
     </div>
-    <div class="content">
-        <button onclick="openAd()">Earn Money</button>
-        <button onclick="openWithdrawPopup()">Withdraw</button>
-        <button onclick="window.location.href='https://t.me/your_telegram_link'">Telegram</button>
+
+    <!-- Email Banner with Islamic Image -->
+    <div class="email-banner">
+        <img src="https://www.example.com/your-image.jpg" alt="Islamic Image">
     </div>
+
+    <!-- Ad Banner Above the Buttons -->
+    <div class="ad-banner">
+        <script type="text/javascript">
+            atOptions = {
+                'key' : '7fa6bb437ae68c1862c614d054ea2772',
+                'format' : 'iframe',
+                'height' : 250,
+                'width' : 300,
+                'params' : {}
+            };
+        </script>
+        <script type="text/javascript" src="//www.highperformanceformat.com/7fa6bb437ae68c1862c614d054ea2772/invoke.js"></script>
+    </div>
+
+    <div class="content">
+        <div class="button-container">
+            <button onclick="openAd()">Earn Money</button>
+            <button onclick="openWithdrawPopup()">Withdraw</button>
+            <button onclick="window.location.href='https://t.me/your_telegram_link'">Telegram</button>
+        </div>
+    </div>
+
     <div id="withdrawPopup" class="popup">
-        <!-- Banner Ad inside Withdraw Popup (No 'Withdraw Request' text) -->
         <div class="withdraw-banner">
             <script type="text/javascript">
                 atOptions = {
@@ -203,7 +265,6 @@
         <div id="timer" class="timer" style="display:none;"></div>
     </div>
 
-    <!-- Adsterra Banner at the bottom -->
     <div class="banner">
         <script type="text/javascript">
             atOptions = {
@@ -307,46 +368,13 @@
                 return;
             }
 
+            // Simulate withdraw process
+            alert(`Withdrawal of ${amount} USD to ${mobileNumber} via ${method} requested.`);
             balance -= parseFloat(amount);
             balanceElement.textContent = formatBalance(balance);
             localStorage.setItem('userBalance', balance.toFixed(5));
-
-            alert(`Withdrawal request submitted for ${amount} USD via ${method}.`);
-
-            // Start 24-hour countdown timer
-            startTimer();
+            closeWithdrawPopup();
         }
-
-        // Function to start 24-hour countdown timer
-        function startTimer() {
-            const timerElement = document.getElementById('timer');
-            let remainingTime = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
-
-            function updateTimer() {
-                let hours = Math.floor(remainingTime / (1000 * 60 * 60));
-                let minutes = Math.floor((remainingTime % (1000 * 60 * 60)) / (1000 * 60));
-                let seconds = Math.floor((remainingTime % (1000 * 60)) / 1000);
-                timerElement.textContent = `You can withdraw again in ${hours}:${minutes}:${seconds}`;
-                remainingTime -= 1000;
-
-                if (remainingTime <= 0) {
-                    clearInterval(timerInterval);
-                    timerElement.textContent = 'Your withdrawal was successful!';
-                }
-            }
-
-            // Show the timer and start the countdown
-            timerElement.style.display = 'block';
-            const timerInterval = setInterval(updateTimer, 1000);
-        }
-
-        // Load user balance from local storage when page loads
-        window.onload = function() {
-            const savedBalance = localStorage.getItem('userBalance');
-            if (savedBalance) {
-                document.getElementById('userBalance').textContent = formatBalance(parseFloat(savedBalance));
-            }
-        };
     </script>
 </body>
 </html>
