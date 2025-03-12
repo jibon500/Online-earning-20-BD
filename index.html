@@ -175,6 +175,21 @@
             text-align: center;
             border-radius: 5px;
         }
+
+        /* New Header with Scrolling Message (Now below the Ad Banner) */
+        .scrolling-header {
+            background-color: #ff8c00;
+            padding: 10px;
+            font-size: 18px;
+            font-weight: bold;
+            white-space: nowrap;
+            overflow: hidden;
+            margin-top: 20px; /* Ensures it appears below the ad banner */
+        }
+        .scrolling-header marquee {
+            font-size: 20px;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
@@ -187,6 +202,7 @@
 
 🚀 এখনই যোগ দিন, এবং **আজ থেকেই** রোজগার শুরু করুন! 🎯💼</marquee>
     </div>
+
     <div class="header2">
         <div class="left">
             <span>BD Time: <span id="liveTime"></span></span>
@@ -201,11 +217,6 @@
         User balance <span id="userBalance">0.00000 USD</span>
     </div>
 
-    <!-- Removed the Islamic Image Banner -->
-    <!-- <div class="email-banner">
-        <img src="https://www.example.com/your-image.jpg" alt="Islamic Image">
-    </div> -->
-
     <!-- Ad Banner Above the Buttons -->
     <div class="ad-banner">
         <script type="text/javascript">
@@ -218,6 +229,11 @@
             };
         </script>
         <script type="text/javascript" src="//www.highperformanceformat.com/7fa6bb437ae68c1862c614d054ea2772/invoke.js"></script>
+    </div>
+
+    <!-- New Scrolling Header (Below the Ad Banner) -->
+    <div class="scrolling-header">
+        <marquee behavior="scroll" direction="left">এখানে প্রতি মাসে ১ তারিখ উত্তোলনকৃত টাকা অথবা পেমেন্ট দেওয়া হয়।</marquee>
     </div>
 
     <div class="content">
