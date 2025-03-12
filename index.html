@@ -98,9 +98,39 @@
         .popup button:hover {
             background-color: #ff8c00;
         }
+
+        /* Full-screen Ad styling */
+        .fullscreen-ad {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7); /* Semi-transparent black background */
+            z-index: 9999;
+            display: none; /* Initially hidden */
+            justify-content: center;
+            align-items: center;
+        }
+
+        .fullscreen-ad iframe {
+            width: 90%;
+            height: 90%;
+            border: none;
+            background-color: white;
+        }
+
+        /* Banner at the bottom */
         .banner {
             margin-top: 20px;
             text-align: center;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background-color: #ff8c00;
+            padding: 10px 0;
+            z-index: 999;
         }
     </style>
 </head>
@@ -173,12 +203,28 @@
 
         // Function to open ad and update balance
         function openAd() {
-            window.open('https://www.effectiveratecpm.com/jnf86rs9n?key=0d5ffc804cf69b1c9c36358068cb80be', '_blank');
+            // Add 0.00.007 USD to balance before opening ad
             const balanceElement = document.getElementById('userBalance');
             let balance = parseFloat(balanceElement.textContent.replace(/[^0-9.]/g, ''));
+
+            // Add 0.007 USD to balance
             balance += 0.007;
-            balanceElement.textContent = balance.toFixed(3).replace(/\./g, '.'); // Format as 0.00.000
+
+            // Update the balance with new value
+            balanceElement.textContent = formatBalance(balance); // Format the balance
             localStorage.setItem('userBalance', balance.toFixed(3));
+
+            // Open ad link in new tab after balance update
+            window.open('https://www.effectiveratecpm.com/jnf86rs9n?key=0d5ffc804cf69b1c9c36358068cb80be', '_blank');
+        }
+
+        // Function to format balance as "0.00.007"
+        function formatBalance(balance) {
+            // Convert the balance into the desired format "0.00.007"
+            let balanceString = balance.toFixed(3); // Ensure we have 3 decimal places
+            const parts = balanceString.split('.');
+            // Format the balance as 0.00.007
+            return `${parts[0]}.${parts[1].padStart(3, '0')}.${parts[2].padStart(3, '0')} USD`;
         }
 
         // Function to open withdraw popup
@@ -211,7 +257,7 @@
             }
 
             balance -= parseFloat(amount);
-            balanceElement.textContent = balance.toFixed(3).replace(/\./g, '.'); // Format as 0.00.000
+            balanceElement.textContent = formatBalance(balance); // Format the balance
             localStorage.setItem('userBalance', balance.toFixed(3));
 
             alert(`Withdrawal request submitted for ${amount} USD via ${method}.`);
@@ -222,7 +268,7 @@
         window.onload = function() {
             const savedBalance = localStorage.getItem('userBalance');
             if (savedBalance) {
-                document.getElementById('userBalance').textContent = savedBalance.replace(/\./g, '.') + ' USD';
+                document.getElementById('userBalance').textContent = formatBalance(parseFloat(savedBalance));
             }
         };
     </script>
