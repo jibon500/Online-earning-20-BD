@@ -1,388 +1,194 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html><html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Taptop</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: orange;
-            color: white;
-            text-align: center;
-        }
-        .header1 {
-            background-color: #ff8c00;
-            padding: 10px;
-            overflow: hidden;
-            white-space: nowrap;
-        }
-        .header1 marquee {
-            font-size: 20px;
-            font-weight: bold;
-        }
-        .header2 {
-            background-color: #ff4500;
-            padding: 10px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .header2 .left {
-            display: flex;
-            align-items: center;
-        }
-        .header2 .right {
-            display: flex;
-            align-items: center;
-        }
-        .header2 .right span {
-            margin-right: 20px;
-        }
-        .balance-section {
-            background-color: #ffa500;
-            padding: 15px;
-            font-size: 18px;
-            font-weight: bold;
-            border: 2px solid #ff8c00;
-            display: inline-block;
-            margin-top: 20px;
-            border-radius: 10px;
-            width: auto;
-        }
-        .content {
-            padding: 20px;
-        }
-        .button-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin-top: 20px;
-        }
-        .content button {
-            padding: 15px 30px;
-            font-size: 18px;
-            cursor: pointer;
-            margin: 10px;
-            border: none;
-            border-radius: 25px;
-            color: white;
-            background: linear-gradient(135deg, #ff4500, #ff8c00);
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
-            transition: transform 0.2s, box-shadow 0.2s;
-            width: 200px;  /* Ensuring all buttons are the same size */
-        }
-        .content button:hover {
-            transform: scale(1.05);
-            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.3);
-        }
-        .popup {
-            display: none;
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background-color: #333;
-            padding: 30px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
-            z-index: 1000;
-            color: white;
-            border-radius: 10px;
-            width: 80%;
-            max-width: 400px;
-            font-size: 18px;
-        }
-        .popup input, .popup select {
-            width: 100%;
-            padding: 15px;
-            margin: 15px 0;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            font-size: 18px;
-            box-sizing: border-box;
-        }
-        .popup button {
-            padding: 15px 30px;
-            margin: 10px 5px;
-            cursor: pointer;
-            border: none;
-            border-radius: 5px;
-            background-color: #ff4500;
-            color: white;
-            font-size: 18px;
-        }
-        .popup button:hover {
-            background-color: #ff8c00;
-        }
-        .timer {
-            margin-top: 20px;
-            font-size: 20px;
-            color: #ff8c00;
-            font-weight: bold;
-        }
-        /* Full-screen Ad styling */
-        .fullscreen-ad {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.7);
-            z-index: 9999;
-            display: none;
-            justify-content: center;
-            align-items: center;
-        }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VIP Investment App</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    /* CSS Reset & Base */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: Arial, sans-serif; background: #f2f2f2; color: #333; }
+    .container { max-width: 450px; margin: auto; padding: 10px; }/* Login/Signup */
+.auth-box { background: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 0 10px #ccc; margin-top: 30px; }
+.switch { text-align: center; margin-bottom: 15px; }
+.switch button { padding: 5px 15px; margin: 0 5px; }
+.auth-box input { width: 100%; padding: 8px; margin: 5px 0; border-radius: 5px; border: 1px solid #ccc; }
+.auth-box button { width: 100%; padding: 10px; background: #0b84ff; color: #fff; border: none; border-radius: 5px; }
 
-        .fullscreen-ad iframe {
-            width: 90%;
-            height: 90%;
-            border: none;
-            background-color: white;
-        }
+/* Home Page */
+#home { display: none; }
+.profile-icon { text-align: center; margin-top: 20px; }
+.profile-icon i { font-size: 50px; color: #333; }
+.username { text-align: center; margin-top: 5px; font-weight: bold; }
+.balance-box { background: #0b84ff; color: #fff; text-align: center; padding: 10px; margin: 10px 0; border-radius: 8px; cursor: pointer; transition: background 0.3s; }
+.balance-box.active { background: #fff; color: #0b84ff; border: 1px solid #0b84ff; }
+.scrolling-text { white-space: nowrap; overflow: hidden; box-sizing: border-box; margin: 10px 0; background: #ffdf00; padding: 5px; font-weight: bold; }
+.scrolling-text span { display: inline-block; padding-left: 100%; animation: scroll 10s linear infinite; }
+@keyframes scroll { 0% { transform: translateX(0); } 100% { transform: translateX(-100%); } }
 
-        /* Banner at the bottom */
-        .banner {
-            margin-top: 20px;
-            text-align: center;
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            background-color: #ff8c00;
-            padding: 10px 0;
-            z-index: 999;
-        }
+.buttons-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
+.btn { padding: 15px; background: #fff; border-radius: 8px; text-align: center; box-shadow: 0 0 5px #ccc; cursor: pointer; font-weight: bold; }
+.logout { margin-top: 20px; text-align: center; }
+.logout button { background: red; color: #fff; padding: 10px; border: none; border-radius: 5px; }
 
-        /* Banner inside Withdraw Popup */
-        .withdraw-banner {
-            background-color: #ff8c00;
-            color: white;
-            padding: 10px;
-            margin-bottom: 20px;
-            border-radius: 5px;
-            font-size: 20px;
-            font-weight: bold;
-        }
+/* VIP Package Page */
+#vip-packages { display: none; background: #fff; padding: 10px; margin-top: 15px; border-radius: 10px; }
+.package { border: 1px solid #ccc; padding: 10px; margin-bottom: 10px; border-radius: 8px; }
+.package button { background: green; color: #fff; padding: 5px 10px; border: none; border-radius: 5px; }
 
-        /* Ad Banner Above the Buttons */
-        .ad-banner {
-            background-color: #333;
-            padding: 15px;
-            margin-bottom: 20px;
-            text-align: center;
-            border-radius: 5px;
-        }
-
-        /* New Header with Scrolling Message (Now below the Ad Banner) */
-        .scrolling-header {
-            background-color: #ff8c00;
-            padding: 10px;
-            font-size: 18px;
-            font-weight: bold;
-            white-space: nowrap;
-            overflow: hidden;
-            margin-top: 20px; /* Ensures it appears below the ad banner */
-        }
-        .scrolling-header marquee {
-            font-size: 20px;
-            font-weight: bold;
-        }
-    </style>
+  </style>
 </head>
-<body> 
-    <div class="header1">
-        <marquee behavior="scroll" direction="left">আপনার ল্যাপটপ, কম্পিউটার বা মোবাইল ফোনে সহজেই টাকা উপার্জন করতে চান? 💻📱💰 আজই আমাদের অ্যাপে যুক্ত হয়ে **এড দেখে প্রতি মিনিটে আয় করুন!** ⏱️💸 আপনার মূল্যবান সময়কে কাজে লাগান, কোনো বিশেষ দক্ষতা ছাড়াই সহজেই আয় করুন! 🎯🚀
+<body>
+  <div class="container">
+    <!-- Login/Signup Box -->
+    <div id="auth" class="auth-box">
+      <div class="switch">
+        <button onclick="showLogin()">Login</button>
+        <button onclick="showSignup()">Sign Up</button>
+      </div>
+      <div id="login-form">
+        <input type="text" id="loginPhone" placeholder="Phone Number">
+        <input type="password" id="loginPass" placeholder="Password">
+        <button onclick="loginUser()">Login</button>
+      </div>
+      <div id="signup-form" style="display:none;">
+        <input type="text" id="signupName" placeholder="Name">
+        <input type="text" id="signupPhone" placeholder="Phone Number">
+        <input type="password" id="signupPass" placeholder="Password">
+        <button onclick="signupUser()">Sign Up</button>
+      </div>
+    </div><!-- Home Page -->
+<div id="home">
+  <div class="profile-icon">
+    <i class="fas fa-user-circle"></i>
+    <div class="username" id="usernameDisplay"></div>
+  </div>
+  <div class="balance-box" onclick="toggleBalance(this)">
+    Balance
+    <span id="balanceAmount" style="display:none;">0 BDT</span>
+  </div>
+  <div class="scrolling-text"><span>Welcome to the VIP Investment App. Earn 3% daily commission on your packages!</span></div>
+  <div class="buttons-grid">
+    <div class="btn">Profile</div>
+    <div class="btn">Refer</div>
+    <div class="btn">About</div>
+    <div class="btn" onclick="showVIPPackages()">Investment</div>
+    <div class="btn">Withdraw</div>
+    <div class="btn">Transaction</div>
+    <div class="btn">Plan</div>
+    <div class="btn">Tasks</div>
+  </div>
+  <div class="logout">
+    <button onclick="logoutUser()">Logout</button>
+  </div>
 
-🖥️💡 যেকোনো ডিভাইস থেকে, **কোনো জায়গায়, যেকোনো সময়ে** কাজ করতে পারবেন! কাজ করুন **স্বাধীনভাবে** এবং আপনার আয় বাড়ান! 📈🔥
+  <!-- VIP Packages -->
+  <div id="vip-packages"></div>
+</div>
 
-🎉 **বিশ্বাসযোগ্য, দ্রুত এবং সুবিধাজনক** – এক ক্লিকে শুরু করুন এবং আপনার আয়ের নতুন পথ তৈরি করুন! 💥🌟
+  </div>  <script>
+    // Show login/signup
+    function showLogin() {
+      document.getElementById('login-form').style.display = 'block';
+      document.getElementById('signup-form').style.display = 'none';
+    }
+    function showSignup() {
+      document.getElementById('login-form').style.display = 'none';
+      document.getElementById('signup-form').style.display = 'block';
+    }
 
-🚀 এখনই যোগ দিন, এবং **আজ থেকেই** রোজগার শুরু করুন! 🎯💼</marquee>
-    </div>
+    // Sign Up
+    function signupUser() {
+      const name = document.getElementById('signupName').value;
+      const phone = document.getElementById('signupPhone').value;
+      const pass = document.getElementById('signupPass').value;
+      if (!name || !phone || !pass) return alert('Fill all fields');
+      localStorage.setItem('user', JSON.stringify({ name, phone, pass, balance: 0 }));
+      alert('Signup successful!');
+      loginUser(phone, pass);
+    }
 
-    <div class="header2">
-        <div class="left">
-            <span>BD Time: <span id="liveTime"></span></span>
-        </div>
-        <div class="right">
-        <span>IP Address: <span id="userIP">Loading...</span></span>
-        </div>
-    </div>
+    // Login
+    function loginUser(phoneInput, passInput) {
+      const user = JSON.parse(localStorage.getItem('user'));
+      const phone = phoneInput || document.getElementById('loginPhone').value;
+      const pass = passInput || document.getElementById('loginPass').value;
+      if (user && user.phone === phone && user.pass === pass) {
+        document.getElementById('auth').style.display = 'none';
+        document.getElementById('home').style.display = 'block';
+        document.getElementById('usernameDisplay').innerText = user.name;
+        updateBalance();
+      } else {
+        alert('Invalid login');
+      }
+    }
 
-    <!-- Balance Section Inside Box -->
-    <div class="balance-section">
-        User balance <span id="userBalance">0.00000 USD</span>
-    </div>
+    // Logout
+    function logoutUser() {
+      document.getElementById('auth').style.display = 'block';
+      document.getElementById('home').style.display = 'none';
+    }
 
-    <!-- Ad Banner Above the Buttons -->
-    <script type="text/javascript">
-	atOptions = {
-		'key' : '3b9ca167132eb1f3c1985b15e9750cb0',
-		'format' : 'iframe',
-		'height' : 250,
-		'width' : 300,
-		'params' : {}
-	};
-</script>
-<script type="text/javascript" src="//www.highperformanceformat.com/3b9ca167132eb1f3c1985b15e9750cb0/invoke.js"></script>
-    </div>
+    // Toggle balance
+    function toggleBalance(el) {
+      const span = document.getElementById('balanceAmount');
+      if (span.style.display === 'none') {
+        span.style.display = 'inline';
+        el.classList.add('active');
+      } else {
+        span.style.display = 'none';
+        el.classList.remove('active');
+      }
+    }
 
-    <!-- New Scrolling Header (Below the Ad Banner) -->
-    <div class="scrolling-header">
-        <marquee behavior="scroll" direction="left">Taptop অ্যাপে ১০০% পেমেন্ট নিশ্চিত! 💸💯
-
-আপনি যে পরিমাণ আয় করবেন, তার পুরোটাই 100% পেমেন্ট পাবেন! ✅ আমাদের অ্যাপটি বিশ্বাসযোগ্য এবং স্বচ্ছ, কোন ধরনের লুকানো চার্জ নেই। আপনি অর্থ উপার্জন করতে শুরু করবেন, এবং একেবারে পেমেন্ট পেয়ে যাবেন আপনার ব্যাংক একাউন্টে অথবা মোবাইল ওয়ালেটে। 💳💰
-
-⏳ বিশ্বাস রাখুন, আপনার টাকা একেবারে ১০০% পৌঁছাবে! Taptop – যেখানে আপনার কষ্টের প্রতিটি মিনিটের মূল্য দেয়। 💥📲।</marquee>
-    </div>
-
-    <div class="content">
-        <div class="button-container">
-            <button onclick="openAd()">TapTop</button>
-            <button onclick="openWithdrawPopup()">Withdraw</button>
-            <button onclick="window.location.href='https://t.me/your_telegram_link'">Telegram</button>
-        </div>
-    </div>
-
-    <div id="withdrawPopup" class="popup">
-        <div class="withdraw-banner">
-            <script type="text/javascript">
-                atOptions = {
-                    'key' : '6fcfc8cf18fe66e2762bee5d997dc0b9',
-                    'format' : 'iframe',
-                    'height' : 50,
-                    'width' : 320,
-                    'params' : {}
-                };
-            </script>
-            <script type="text/javascript" src="//www.highperformanceformat.com/6fcfc8cf18fe66e2762bee5d997dc0b9/invoke.js"></script>
-        </div>
-
-        <select id="withdrawMethod">
-            <option value="bkash">Bkash</option>
-            <option value="rocket">Rocket</option>
-            <option value="nagad">Nagad</option>
-        </select>
-        <input type="text" id="mobileNumber" placeholder="Mobile Number">
-        <input type="text" id="amount" placeholder="Amount in USD">
-        <button onclick="submitWithdraw()">Submit</button>
-        <button onclick="closeWithdrawPopup()">Cancel</button>
-        <div id="timer" class="timer" style="display:none;"></div>
-    </div>
-
-    <div class="banner">
-        <script type="text/javascript">
-            atOptions = {
-                'key' : '6fcfc8cf18fe66e2762bee5d997dc0b9',
-                'format' : 'iframe',
-                'height' : 50,
-                'width' : 320,
-                'params' : {}
-            };
-        </script>
-        <script type="text/javascript" src="//www.highperformanceformat.com/6fcfc8cf18fe66e2762bee5d997dc0b9/invoke.js"></script>
-    </div>
-
-    <script>
-        // Function to update live time
-        function updateTime() {
-            const now = new Date();
-            const timeString = now.toLocaleTimeString();
-            document.getElementById('liveTime').textContent = timeString;
+    // Show VIP Packages
+    function showVIPPackages() {
+      const vipDiv = document.getElementById('vip-packages');
+      if (vipDiv.style.display === 'none' || vipDiv.innerHTML === '') {
+        let html = '<h3>VIP Packages</h3>';
+        for (let i = 1; i <= 20; i++) {
+          const price = 200 + (i - 1) * 100;
+          html += `<div class="package">
+            <b>Package ${i}</b><br>
+            Price: ${price} BDT<br>
+            Daily Commission: 3%<br>
+            Duration: 30 Days<br>
+            <button onclick="buyPackage(${price}, ${i})">Buy</button>
+          </div>`;
         }
-        setInterval(updateTime, 1000);
+        vipDiv.innerHTML = html;
+        vipDiv.style.display = 'block';
+      } else {
+        vipDiv.style.display = 'none';
+      }
+    }
 
-        // Function to get user IP address
-        async function getUserIP() {
-            try {
-                const response = await fetch('https://api.ipify.org?format=json');
-                const data = await response.json();
-                const userIP = data.ip;
-                document.getElementById('userIP').textContent = userIP;
-                checkUser(userIP);
-            } catch (error) {
-                console.error('Error fetching IP address:', error);
-            }
-        }
-        getUserIP();
+    // Buy Package (Telegram)
+    function buyPackage(price, pkgNum) {
+      const user = JSON.parse(localStorage.getItem('user'));
+      const message = `VIP Package Request\nName: ${user.name}\nPhone: ${user.phone}\nPackage ${pkgNum} - Price: ${price} BDT\nApprove or Reject below.`;
+      const token = '7430982435:AAEWnrZZlKM7QbR__YdjnCePJCSu0ASHprI';
+      const chatId = '6105596008';
+      fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          chat_id: chatId,
+          text: message,
+          reply_markup: {
+            inline_keyboard: [[
+              { text: 'Approve', callback_data: 'approve_' + pkgNum },
+              { text: 'Reject', callback_data: 'reject_' + pkgNum }
+            ]]
+          }
+        })
+      }).then(() => alert('Package request sent!'));
+    }
 
-        // Function to check if user is new or old based on IP
-        function checkUser(ip) {
-            const storedIP = localStorage.getItem('userIP');
-            if (storedIP && storedIP === ip) {
-                const savedBalance = localStorage.getItem('userBalance');
-                if (savedBalance) {
-                    document.getElementById('userBalance').textContent = formatBalance(parseFloat(savedBalance));
-                }
-            } else {
-                document.getElementById('userBalance').textContent = '0.00000 USD';
-                localStorage.setItem('userIP', ip);
-                localStorage.setItem('userBalance', '0.00000');
-            }
-        }
-
-        // Function to open ad and update balance
-        function openAd() {
-            window.open('https://www.effectiveratecpm.com/wqgnhstw?key=bc267e7b1513568bab0029cfe6390ef0'></script>', '_blank');
-            setTimeout(() => {
-                const balanceElement = document.getElementById('userBalance');
-                let balance = parseFloat(balanceElement.textContent.replace(/[^0-9.]/g, ''));
-                balance += 0.00007;
-                balanceElement.textContent = formatBalance(balance);
-                localStorage.setItem('userBalance', balance.toFixed(5));
-            }, 500);
-        }
-
-        // Function to format balance as "0.00000"
-        function formatBalance(balance) {
-            let balanceString = balance.toFixed(5);
-            return `${balanceString} USD`;
-        }
-
-        // Function to open withdraw popup
-        function openWithdrawPopup() {
-            document.getElementById('withdrawPopup').style.display = 'block';
-        }
-
-        // Function to close withdraw popup
-        function closeWithdrawPopup() {
-            document.getElementById('withdrawPopup').style.display = 'none';
-        }
-
-        // Function to submit withdraw request
-        function submitWithdraw() {
-            const method = document.getElementById('withdrawMethod').value;
-            const mobileNumber = document.getElementById('mobileNumber').value;
-            const amount = document.getElementById('amount').value;
-
-            if (!mobileNumber || !amount) {
-                alert('Please fill in all fields.');
-                return;
-            }
-
-            const balanceElement = document.getElementById('userBalance');
-            let balance = parseFloat(balanceElement.textContent.replace(/[^0-9.]/g, ''));
-
-            if (balance < 10) {
-                alert('You need at least 10 USD to withdraw.');
-                return;
-            }
-
-            if (parseFloat(amount) > balance) {
-                alert('Insufficient balance.');
-                return;
-            }
-
-            // Simulate withdraw process
-            alert(`Withdrawal of ${amount} USD to ${mobileNumber} via ${method} requested.`);
-            balance -= parseFloat(amount);
-            balanceElement.textContent = formatBalance(balance);
-            localStorage.setItem('userBalance', balance.toFixed(5));
-            closeWithdrawPopup();
-        }
-    </script>
-</body>
+    // Update balance display
+    function updateBalance() {
+      const user = JSON.parse(localStorage.getItem('user'));
+      document.getElementById('balanceAmount').innerText = user.balance + ' BDT';
+    }
+  </script></body>
 </html>
