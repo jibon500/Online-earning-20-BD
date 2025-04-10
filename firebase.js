@@ -1,3 +1,14 @@
+const admin = require('firebase-admin');
+const serviceAccount = require('./investment-app-44dcb-firebase-adminsdk-fbsvc-24165b7d05.json');
+
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount)
+});
+
+const db = admin.firestore();
+module.exports = db;
+
+
 {
   "type": "service_account",
   "project_id": "investment-app-44dcb",
