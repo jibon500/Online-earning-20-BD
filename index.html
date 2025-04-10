@@ -192,3 +192,29 @@
     }
   </script></body>
 </html>
+function checkPackageStatus(phone, pkgNum) {
+  const statusBoxId = `status_${pkgNum}`;
+  const div = document.getElementById(statusBoxId) || document.createElement('div');
+  div.id = statusBoxId;
+  div.style.marginTop = '5px';
+  div.style.fontWeight = 'bold';
+
+  const pkgDiv = document.querySelector(`.package:nth-child(${pkgNum})`);
+  pkgDiv.appendChild(div);
+
+  const interval = setInterval(() => {
+    fetch(`/status/${phone}/${pkgNum}`)
+      .then(res => res.json())
+      .then(data => {
+        if (data.status === 'approved') {
+          div.innerText = '✅ Approved';
+          div.style.color = 'green';
+          clearInterval(interval);
+        } else if (data.status === 'reject') {
+          div.innerText = '❌ Rejected';
+          div.style.color = 'red';
+          clearInterval(interval);
+        }
+      });
+  }, 5000);
+}
