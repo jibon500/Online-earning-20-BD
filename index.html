@@ -1,16 +1,15 @@
 <!DOCTYPE html>
 <html lang="bn">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- Add this line for responsive design -->
-  <title>ব্লকচেইন আর্নিং ড্যাশবোর্ড</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ব্লকচেইন আর্নিং সিস্টেম</title>
   <style>
     body {
       font-family: 'Segoe UI', sans-serif;
       margin: 0;
       background: linear-gradient(to right, #2b5876, #4e4376);
       color: #fff;
-      overflow-x: hidden; /* Prevent horizontal scroll */
     }
     .header {
       text-align: center;
@@ -19,9 +18,17 @@
       font-size: 24px;
       font-weight: bold;
     }
+    .ad-box {
+      margin: 15px;
+      background: #fff;
+      border-radius: 12px;
+      padding: 10px;
+      text-align: center;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    }
     .profile {
       display: flex;
-      flex-wrap: wrap; /* Allow wrapping in smaller screens */
+      flex-wrap: wrap;
       justify-content: space-between;
       align-items: center;
       background: #fff;
@@ -39,7 +46,7 @@
     }
     .details {
       margin-left: 12px;
-      flex-grow: 1; /* Take available space */
+      flex-grow: 1;
     }
     .details strong {
       display: block;
@@ -52,7 +59,7 @@
     }
     .button-panel {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); /* Responsive grid */
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
       gap: 15px;
       padding: 0 15px 20px;
     }
@@ -97,6 +104,21 @@
     ব্লকচেইন আর্নিং সিস্টেম
   </div>
 
+  <!-- Banner Ad (Inside a box) Above Profile -->
+  <div class="ad-box">
+    <script type="text/javascript">
+      atOptions = {
+        'key' : '728897206504f3ccf981e290d2df1034',
+        'format' : 'iframe',
+        'height' : 50,
+        'width' : 320,
+        'params' : {}
+      };
+    </script>
+    <script type="text/javascript" src="//www.highperformanceformat.com/728897206504f3ccf981e290d2df1034/invoke.js"></script>
+  </div>
+
+  <!-- Profile Section -->
   <div class="profile">
     <div style="display: flex; align-items: center;">
       <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="User Icon">
@@ -113,7 +135,7 @@
   </div>
 
   <div class="notification">
-    <div class="marquee">📢 আমি ভালো নেই 📢 আমি ভালো নেই 📢 আমি ভালো নেই 📢 আমি ভালো নেই 📢</div>
+    <div class="marquee">📢 আমি ভালো নেই 📢 আমি ভালো নেই 📢 আমি ভালো নেই 📢</div>
   </div>
 
   <div class="button-panel">
@@ -126,7 +148,6 @@
   </div>
 
   <script>
-    // Initialize user data
     let userData = JSON.parse(localStorage.getItem('userData')) || {
       username: "Rahim123",
       balance: 1200,
@@ -135,13 +156,12 @@
       ip: ""
     };
 
-    // Optimized IP fetch with caching
     function fetchIP() {
       if(userData.ip) {
         document.getElementById('ipAddress').textContent = userData.ip;
         return;
       }
-      
+
       Promise.any([
         fetch('https://api.ipify.org?format=json'),
         fetch('https://ipapi.co/json'),
@@ -159,7 +179,6 @@
       });
     }
 
-    // Initial setup
     document.getElementById('username').textContent = userData.username;
     document.getElementById('balance').textContent = `৳${userData.balance}`;
     document.getElementById('regDate').textContent = userData.regDate;
@@ -167,14 +186,17 @@
     fetchIP();
 
     function updateBalanceDisplay() {
-      document.getElementById("balance").innerText = `৳${userData.balance}`;
+      document.getElementById("balance").innerText = `৳${userData.balance.toFixed(2)}`;
       localStorage.setItem('userData', JSON.stringify(userData));
     }
 
     function doTask() {
-      alert("Task completed! +৳10 added");
-      userData.balance += 10;
-      updateBalanceDisplay();
+      window.open("https://www.profitablecpmrate.com/c7gf3hhv?key=6e230d822c56accf1662d101e2443189", "_blank");
+      setTimeout(() => {
+        userData.balance += 0.5;
+        updateBalanceDisplay();
+        alert("আপনি একটি অ্যাড দেখেছেন, ব্যালেন্সে ৳0.5 যুক্ত হয়েছে!");
+      }, 2000);
     }
 
     function goToInvest() {
@@ -199,7 +221,7 @@
     }
 
     function referFriends() {
-      const link = "https://yourapp.com/refer?user=Rahim123";
+      const link = "https://yourapp.com/refer?user=" + userData.username;
       navigator.clipboard.writeText(link);
       alert("Referral link copied: " + link);
     }
