@@ -2,123 +2,207 @@
 <html lang="bn">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>ট</title>
+  <title>ব্লকচেইন আর্নিং ড্যাশবোর্ড</title>
   <style>
     body {
+      font-family: 'Segoe UI', sans-serif;
       margin: 0;
-      font-family: sans-serif;
-      background: #f5f5f5;
+      background: linear-gradient(to right, #2b5876, #4e4376);
+      color: #fff;
+    }
+    .header {
       text-align: center;
-    }
-    header {
-      background: #4CAF50;
-      color: white;
-      padding: 15px;
+      padding: 25px 0;
+      background-color: #1f1c2c;
       font-size: 24px;
+      font-weight: bold;
     }
-    .user-section {
-      margin-top: 20px;
+    .profile {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #fff;
+      color: #333;
+      padding: 15px;
+      border-radius: 10px;
+      margin: 15px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
     }
-    .user-icon {
-      font-size: 60px;
-      color: #555;
+    .profile img {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      border: 2px solid #4e4376;
+    }
+    .details {
+      margin-left: 12px;
+    }
+    .details strong {
+      display: block;
+      font-size: 16px;
     }
     .balance {
-      margin-top: 10px;
-      font-size: 20px;
-      background: #fff;
-      display: inline-block;
-      padding: 10px 20px;
+      font-size: 14px;
+      font-weight: bold;
+      color: #27ae60;
+    }
+    .button-panel {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 15px;
+      padding: 0 15px 20px;
+    }
+    .button-panel button {
+      padding: 15px;
+      border: none;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: bold;
+      background: linear-gradient(45deg, #1d2671, #c33764);
+      color: white;
+      cursor: pointer;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+    .notification {
+      background: linear-gradient(90deg, #ff6b6b, #ff8e53);
+      padding: 10px;
+      margin: 10px 15px;
       border-radius: 8px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-    }
-    .banner-ad {
-      margin: 20px auto;
-      background: #ddd;
-      padding: 10px;
-      width: 90%;
-      max-width: 500px;
-      border: 2px dashed #aaa;
-    }
-    .notification-bar {
-      background: #222;
-      color: #fff;
-      padding: 10px;
       overflow: hidden;
-      position: relative;
-      margin: 20px auto;
     }
-    .notification-text {
-      display: inline-block;
+    .marquee {
       white-space: nowrap;
-      animation: scroll-left 10s linear infinite;
+      animation: marquee 15s linear infinite;
+      color: white;
+      font-weight: bold;
+      font-size: 14px;
     }
-    @keyframes scroll-left {
+    @keyframes marquee {
       0% { transform: translateX(100%); }
       100% { transform: translateX(-100%); }
     }
-    .income-btn {
-      margin-top: 20px;
-      background: #2196F3;
-      color: white;
-      border: none;
-      padding: 15px 30px;
-      font-size: 18px;
-      border-radius: 8px;
-      cursor: pointer;
-    }
-    .adsense-container {
-      margin-top: 20px;
+    .ip-address {
+      font-size: 10px;
+      color: #666;
+      margin-top: 3px;
     }
   </style>
 </head>
 <body>
+  <div class="header">
+    ব্লকচেইন আর্নিং সিস্টেম
+  </div>
 
-  <header>ইনকাম ওয়েবসাইট</header>
-
-  <div class="user-section">
-    <div class="user-icon">👤</div>
-    <div class="balance">Balance: $<span id="balance">0.00</span></div>
-
-    <div class="banner-ad">
-      এখানে ম্যানুয়ালি ব্যানার এড করুন
+  <div class="profile">
+    <div style="display: flex; align-items: center;">
+      <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="User Icon">
+      <div class="details">
+        <strong>Username: <span id="username"></span></strong>
+        <span class="balance">Balance: <span id="balance">৳0</span></span>
+        <span class="ip-address">IP: <span id="ipAddress">Loading...</span></span>
+      </div>
+    </div>
+    <div style="text-align: right;">
+      <span>Registered: <span id="regDate"></span></span><br>
+      <span>ID: <span id="userId"></span></span>
     </div>
   </div>
 
-  <div class="notification-bar">
-    <div class="notification-text">এই নোটিফিকেশন বারটি চলমান। আপনি এখানে যে কোনো বার্তা দিতে পারেন।</div>
+  <div class="notification">
+    <div class="marquee">📢 আমি ভালো নেই 📢 আমি ভালো নেই 📢 আমি ভালো নেই 📢 আমি ভালো নেই 📢</div>
   </div>
 
-  <button class="income-btn" onclick="showAdAndEarn()">ইনকাম করুন</button>
-
-  <div class="adsense-container" id="adContainer" style="display: none;">
-    <!-- AdSense কোড -->
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9866453529125865"
-      crossorigin="anonymous"></script>
-    <ins class="adsbygoogle"
-        style="display:block"
-        data-ad-client="ca-pub-9866453529125865"
-        data-ad-slot="6680305448"
-        data-ad-format="auto"
-        data-full-width-responsive="true"></ins>
-    <script>
-        (adsbygoogle = window.adsbygoogle || []).push({});
-    </script>
+  <div class="button-panel">
+    <button onclick="doTask()">Do Task</button>
+    <button onclick="goToInvest()">Invest</button>
+    <button onclick="withdrawMoney()">Withdraw</button>
+    <button onclick="partnerList()">Partners</button>
+    <button onclick="referFriends()">Refer</button>
+    <button onclick="moreOptions()">More</button>
   </div>
 
   <script>
-    let balance = 0;
+    // Initialize user data
+    let userData = JSON.parse(localStorage.getItem('userData')) || {
+      username: "Rahim123",
+      balance: 1200,
+      regDate: "2025-04-12",
+      userId: "001254",
+      ip: ""
+    };
 
-    function showAdAndEarn() {
-      const adDiv = document.getElementById('adContainer');
-      adDiv.style.display = 'block';
+    // Optimized IP fetch with caching
+    function fetchIP() {
+      if(userData.ip) {
+        document.getElementById('ipAddress').textContent = userData.ip;
+        return;
+      }
+      
+      Promise.any([
+        fetch('https://api.ipify.org?format=json'),
+        fetch('https://ipapi.co/json'),
+        fetch('https://api.my-ip.io/ip.json')
+      ])
+      .then(response => response.json())
+      .then(data => {
+        const ip = data.ip || data.ip;
+        document.getElementById('ipAddress').textContent = ip;
+        userData.ip = ip;
+        localStorage.setItem('userData', JSON.stringify(userData));
+      })
+      .catch(() => {
+        document.getElementById('ipAddress').textContent = "Failed to load";
+      });
+    }
 
-      // Add $0.10
-      balance += 0.10;
-      document.getElementById('balance').innerText = balance.toFixed(2);
+    // Initial setup
+    document.getElementById('username').textContent = userData.username;
+    document.getElementById('balance').textContent = `৳${userData.balance}`;
+    document.getElementById('regDate').textContent = userData.regDate;
+    document.getElementById('userId').textContent = userData.userId;
+    fetchIP();
+
+    function updateBalanceDisplay() {
+      document.getElementById("balance").innerText = `৳${userData.balance}`;
+      localStorage.setItem('userData', JSON.stringify(userData));
+    }
+
+    function doTask() {
+      alert("Task completed! +৳10 added");
+      userData.balance += 10;
+      updateBalanceDisplay();
+    }
+
+    function goToInvest() {
+      const amount = prompt("Enter investment amount:");
+      if (amount && !isNaN(amount) && amount > 0) {
+        alert(`Invested ৳${amount}. 12% commission activated for 30 days.`);
+      }
+    }
+
+    function withdrawMoney() {
+      const number = prompt("Enter mobile number:");
+      const amount = prompt("Enter withdrawal amount:");
+      if (number && amount && !isNaN(amount)) {
+        alert(`Withdrawal request submitted for ৳${amount}`);
+        userData.balance -= parseFloat(amount);
+        updateBalanceDisplay();
+      }
+    }
+
+    function partnerList() {
+      alert("Showing partner list");
+    }
+
+    function referFriends() {
+      const link = "https://yourapp.com/refer?user=Rahim123";
+      navigator.clipboard.writeText(link);
+      alert("Referral link copied: " + link);
+    }
+
+    function moreOptions() {
+      alert("New features coming soon!");
     }
   </script>
-
 </body>
 </html>
