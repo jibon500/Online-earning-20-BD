@@ -2,6 +2,7 @@
 <html lang="bn">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- Add this line for responsive design -->
   <title>ব্লকচেইন আর্নিং ড্যাশবোর্ড</title>
   <style>
     body {
@@ -9,6 +10,7 @@
       margin: 0;
       background: linear-gradient(to right, #2b5876, #4e4376);
       color: #fff;
+      overflow-x: hidden; /* Prevent horizontal scroll */
     }
     .header {
       text-align: center;
@@ -19,6 +21,7 @@
     }
     .profile {
       display: flex;
+      flex-wrap: wrap; /* Allow wrapping in smaller screens */
       justify-content: space-between;
       align-items: center;
       background: #fff;
@@ -36,6 +39,7 @@
     }
     .details {
       margin-left: 12px;
+      flex-grow: 1; /* Take available space */
     }
     .details strong {
       display: block;
@@ -48,7 +52,7 @@
     }
     .button-panel {
       display: grid;
-      grid-template-columns: repeat(2, 1fr);
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); /* Responsive grid */
       gap: 15px;
       padding: 0 15px 20px;
     }
