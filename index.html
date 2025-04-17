@@ -1,234 +1,929 @@
 <!DOCTYPE html>
 <html lang="bn">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>ব্লকচেইন আর্নিং সিস্টেম</title>
-  <style>
-    body {
-      font-family: 'Segoe UI', sans-serif;
-      margin: 0;
-      background: linear-gradient(to right, #2b5876, #4e4376);
-      color: #fff;
-    }
-    .header {
-      text-align: center;
-      padding: 25px 0;
-      background-color: #1f1c2c;
-      font-size: 24px;
-      font-weight: bold;
-    }
-    .ad-box {
-      margin: 15px;
-      background: #fff;
-      border-radius: 12px;
-      padding: 10px;
-      text-align: center;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-    }
-    .profile {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: space-between;
-      align-items: center;
-      background: #fff;
-      color: #333;
-      padding: 15px;
-      border-radius: 10px;
-      margin: 15px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-    }
-    .profile img {
-      width: 60px;
-      height: 60px;
-      border-radius: 50%;
-      border: 2px solid #4e4376;
-    }
-    .details {
-      margin-left: 12px;
-      flex-grow: 1;
-    }
-    .details strong {
-      display: block;
-      font-size: 16px;
-    }
-    .balance {
-      font-size: 14px;
-      font-weight: bold;
-      color: #27ae60;
-    }
-    .button-panel {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-      gap: 15px;
-      padding: 0 15px 20px;
-    }
-    .button-panel button {
-      padding: 15px;
-      border: none;
-      border-radius: 10px;
-      font-size: 14px;
-      font-weight: bold;
-      background: linear-gradient(45deg, #1d2671, #c33764);
-      color: white;
-      cursor: pointer;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    }
-    .notification {
-      background: linear-gradient(90deg, #ff6b6b, #ff8e53);
-      padding: 10px;
-      margin: 10px 15px;
-      border-radius: 8px;
-      overflow: hidden;
-    }
-    .marquee {
-      white-space: nowrap;
-      animation: marquee 15s linear infinite;
-      color: white;
-      font-weight: bold;
-      font-size: 14px;
-    }
-    @keyframes marquee {
-      0% { transform: translateX(100%); }
-      100% { transform: translateX(-100%); }
-    }
-    .ip-address {
-      font-size: 10px;
-      color: #666;
-      margin-top: 3px;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Elite Earning Zone (প্রফেশনাল ডেমো)</title>
+    <!-- Font Awesome & Google Fonts -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;500;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* --- Base Styles & Variables --- */
+        :root {
+            --primary-color: #6A1B9A; /* New Primary: Purple */
+            --primary-dark: #4A148C;
+            --secondary-color: #1DE9B6; /* Teal Accent */
+            --accent-color: #FFC107;   /* Amber */
+            --success-color: #558B2F; /* Light Green */
+            --warning-color: #FFA000; /* Amber Dark */
+            --danger-color: #D32F2F;  /* Red Dark */
+            --light-bg: #f8f9fa;      /* Cleaner Light Background */
+            --card-bg: #ffffff;
+            --dark-text: #37474F;      /* Dark Blue Grey */
+            --medium-text: #546E7A;    /* Blue Grey */
+            --light-text: #90A4AE;     /* Light Blue Grey */
+            --border-color: #CFD8DC;   /* Lighter Border */
+            --white: #ffffff;
+            --shadow-light: 0 2px 4px rgba(0,0,0,0.06);
+            --shadow-medium: 0 4px 12px rgba(0, 0, 0, 0.1);
+            --font-primary: 'Poppins', 'Noto Sans Bengali', sans-serif;
+            --font-bengali: 'Noto Sans Bengali', sans-serif;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { font-family: var(--font-primary); background-color: var(--light-bg); color: var(--dark-text); display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 5px; }
+        .app-container { width: 100%; max-width: 430px; background-color: var(--card-bg); border-radius: 28px; box-shadow: var(--shadow-medium); overflow: hidden; height: 97vh; display: flex; flex-direction: column; position: relative; }
+
+        /* --- Loading & Toast --- */
+        .loading-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(255, 255, 255, 0.9); display: none; flex-direction: column; justify-content: center; align-items: center; z-index: 1000; }
+        .loading-overlay i { font-size: 2.8em; color: var(--primary-color); margin-bottom: 10px; animation: spin 1.5s linear infinite;}
+        .loading-overlay p { font-size: 1em; color: var(--primary-dark); font-weight: 500;}
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .toast-notification { position: fixed; bottom: 85px; /* Above fixed banner & nav */ left: 50%; transform: translateX(-50%); background-color: rgba(49, 27, 146, 0.9); /* Dark purple */ color: white; padding: 12px 22px; border-radius: 25px; z-index: 1001; display: none; font-size: 0.9em; text-align: center; box-shadow: 0 5px 12px rgba(0,0,0,0.25); animation: fadeInOutToast 3.5s ease-in-out; /* Faster animation */ max-width: 90%; font-family: var(--font-bengali); }
+        @keyframes fadeInOutToast { 0%, 100% { opacity: 0; bottom: 65px; } 10%, 90% { opacity: 1; bottom: 85px;} }
+
+        /* --- অ্যাপ হেডার --- */
+         .app-header {
+             background: var(--primary-color);
+             color: var(--white);
+             padding: 12px 20px;
+             display: flex; /* Keep flex for alignment when visible */
+             justify-content: space-between;
+             align-items: center;
+             box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+             position: sticky;
+             top: 0;
+             z-index: 101;
+             transition: display 0.3s ease; /* Add transition for potential future use */
+          }
+         .header-title { flex-grow: 1; text-align: center; font-size: 1.2em; font-weight: 600; margin-left: 40px; } /* Adjusted margin for centering */
+         .header-right { visibility: hidden; opacity: 0; transition: opacity 0.3s ease; display: flex; align-items: center;}
+         .header-right.visible { visibility: visible; opacity: 1;}
+         .header-right i { font-size: 1.5em; color: var(--white); cursor: pointer; background: none; border: none; padding: 5px; }
+
+        /* --- Pages Container --- */
+        .pages-container {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding-bottom: calc(65px + 50px + 10px); /* Nav(65) + Banner(50) + Gap(10) */
+            scroll-behavior: smooth;
+        }
+        .page { display: none; padding: 15px 20px 25px 20px; animation: pageFadeInSimple 0.3s ease-out; }
+        .page.active { display: block; }
+        @keyframes pageFadeInSimple { from { opacity: 0; } to { opacity: 1; } }
+        .page h2 { color: var(--primary-color); /* Use main primary color */ margin-bottom: 20px; text-align: center; font-size: 1.6em; font-weight: 700; display: flex; align-items: center; justify-content: center;} .page h2 i { margin-right: 10px; font-size: 0.9em;}
+        .page p { line-height: 1.7; color: var(--medium-text); margin-bottom: 18px; font-family: var(--font-bengali); font-size: 0.95em; }
+        .page h3 { margin-top: 25px; margin-bottom: 12px; color: var(--dark-text); font-size: 1.1em; font-weight: 600; padding-bottom: 5px; border-bottom: 2px solid var(--secondary-color); display: inline-block; }
+
+        /* --- Forms & Inputs --- */
+         .form-group { margin-bottom: 18px; position: relative; }
+         .form-group label { display: block; margin-bottom: 6px; font-weight: 500; color: var(--medium-text); font-size: 0.95em; }
+         .form-group input[type="text"], .form-group input[type="email"], .form-group input[type="password"], .form-group input[type="number"], .form-group textarea, .form-group select { width: 100%; padding: 15px 18px; border: 1px solid var(--border-color); border-radius: 10px; font-size: 1em; background-color: #fdfdfd; color: var(--dark-text); transition: border-color 0.3s, box-shadow 0.3s; font-family: var(--font-primary); }
+         .form-group select { appearance: none; padding-right: 40px; background-image: url("data:image/svg+xml;utf8,<svg fill='%235f6368' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/><path d='M0 0h24v24H0z' fill='none'/></svg>"); background-repeat: no-repeat; background-position: right 12px center; background-size: 24px; }
+         .form-group input:focus, .form-group textarea:focus, .form-group select:focus { outline: none; border-color: var(--primary-color); box-shadow: 0 0 0 3px rgba(103, 58, 183, 0.15); }
+         .form-group textarea { min-height: 100px; resize: vertical; }
+
+        /* --- Buttons --- */
+         .btn { display: block; width: 100%; padding: 15px; background-color: var(--primary-color); color: var(--white); border: none; border-radius: 10px; font-size: 1.1em; font-weight: 600; cursor: pointer; text-align: center; margin-top: 25px; transition: all 0.2s ease; text-decoration: none; box-shadow: 0 3px 5px rgba(103, 58, 183, 0.2); }
+         .btn:hover { background-color: var(--primary-dark); box-shadow: 0 4px 8px rgba(103, 58, 183, 0.3); transform: translateY(-1px); }
+         .btn:active { transform: scale(0.98); box-shadow: none; }
+         .btn i { margin-right: 10px; }
+        .btn-success { background-color: var(--secondary-color); box-shadow: 0 3px 5px rgba(0, 150, 136, 0.2); } .btn-success:hover { background-color: #00796B; box-shadow: 0 4px 8px rgba(0, 150, 136, 0.3); transform: translateY(-1px); }
+        .btn-warning { background: linear-gradient(45deg, var(--accent-color), #ffb300); box-shadow: 0 3px 5px rgba(255, 193, 7, 0.2); color: var(--dark-text); } .btn-warning:hover { background: linear-gradient(45deg, #ffb300, #ffa000); box-shadow: 0 4px 8px rgba(255, 193, 7, 0.3); transform: translateY(-1px);}
+        .btn-secondary { background-color: var(--medium-text); box-shadow: 0 3px 5px rgba(117, 117, 117, 0.2); } .btn-secondary:hover { background-color: #616161; box-shadow: 0 4px 8px rgba(117, 117, 117, 0.3); transform: translateY(-1px);}
+        .btn-link { background: none; border: none; color: var(--primary-color); text-decoration: none; cursor: pointer; display: block; text-align: center; margin-top: 20px; font-size: 0.95em; padding: 5px; font-weight: 500; } .btn-link:hover { color: var(--primary-dark); text-decoration: underline;}
+
+
+        /* --- Home Page Styles (Header removed, profile sticks to top) --- */
+        #home-page { padding-top: 0; padding-left: 0; padding-right: 0; }
+         .user-profile-section { /* Sticky Section */
+              padding: 12px 15px; /* Adjusted padding */
+              background-color: var(--card-bg);
+              position: sticky;
+              top: 0; /* Sticks directly to the top of the scroll container */
+              z-index: 100; /* Below Nav, Above Content */
+              box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+              margin-bottom: 20px; /* Space below */
+          }
+          .user-profile-card { /* Inner card style */
+              background-color: transparent; /* Make card transparent within sticky */
+              border-radius: 0; /* No radius needed */
+              padding: 0; margin: 0; /* Remove padding/margin */
+              box-shadow: none; border: none; /* Remove border/shadow */
+              text-align: center;
+              display: flex; /* Use flexbox */
+              align-items: center;
+              gap: 12px;
+          }
+          .user-profile-card .profile-icon { /* Icon style */
+               width: 50px; height: 50px; /* Slightly smaller */
+               border-radius: 50%;
+               background: linear-gradient(45deg, var(--secondary-color), var(--primary-color));
+               color: var(--white);
+               display: inline-flex; justify-content: center; align-items: center;
+               margin-bottom: 0; /* Remove bottom margin */
+               box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+               flex-shrink: 0; /* Don't shrink icon */
+          }
+          .user-profile-card .profile-icon i { font-size: 1.8em; }
+          .user-details-home { /* Container for Name/Phone */
+                text-align: left;
+                flex-grow: 1; /* Take available space */
+          }
+          .user-profile-card .user-name { /* Name style */
+              font-size: 1.05em; font-weight: 600; color: var(--dark-text); margin-bottom: 1px;
+              white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 150px;
+           }
+           .user-profile-card .user-phone { /* Phone style */
+               font-size: 0.8em; color: var(--medium-text); margin-bottom: 0; /* Remove bottom margin */
+           }
+          .balance-section-home { /* Balance Section style */
+               cursor: pointer; display: inline-flex; align-items: center; padding: 6px 10px; border-radius: 20px; background-color: rgba(85, 139, 47, 0.1); /* Success color bg */ transition: all 0.3s ease; text-align: right; flex-shrink: 0; /* Don't shrink balance */
+           }
+          .balance-section-home.visible { background-color: var(--card-bg); border: 1px solid var(--success-color); }
+          .balance-section-home .balance-hidden-placeholder-home { /* Placeholder style */
+               font-size: 1.0em; font-weight: 600; color: var(--success-color); /* Match color */ margin-right: 4px;
+           }
+          .balance-section-home .balance-value-home { /* Value style */
+               font-size: 1.1em; font-weight: 700; color: var(--success-color); opacity: 0; transition: opacity 0.3s ease; display: none;
+           }
+           .balance-section-home .balance-visibility-icon { /* Eye icon style */
+               font-size: 1.0em; color: var(--medium-text); margin-left: 6px; transition: color 0.3s ease;
+           }
+          .balance-section-home.visible .balance-value-home { opacity: 1; display: inline; }
+          .balance-section-home.visible .balance-hidden-placeholder-home { display: none; }
+          .balance-section-home.visible .balance-visibility-icon { color: var(--success-color); }
+
+         .home-section-title { /* Title style */ padding: 0 20px; margin-bottom: 15px; margin-top: 0; /* Remove top margin */ font-size: 1.2em; font-weight: 600; color: var(--dark-text); }
+          .home-actions { /* Action Grid style (2 columns) */
+              display: grid;
+              grid-template-columns: repeat(2, 1fr);
+              gap: 15px; padding: 0 15px; margin-bottom: 25px;
+           }
+          .action-card {
+               background-color: var(--card-bg); padding: 18px 15px; border-radius: 12px; text-align: center; box-shadow: var(--shadow-light); cursor: pointer; transition: all 0.25s ease; border: 1px solid var(--border-color); display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 105px;
+           }
+         .action-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-medium); }
+         .action-card i {
+              font-size: 2em; /* Icon size */
+              margin-bottom: 12px;
+              width: 48px; /* Container size */
+              height: 48px;
+              line-height: 48px; /* Center icon vertically */
+              border-radius: 12px; /* Rounded square */
+              color: var(--white);
+              text-align: center;
+              display: inline-block;
+          }
+         .action-card p { font-weight: 500; font-size: 0.9em; color: var(--dark-text); line-height: 1.3; }
+
+         /* --- Professional Home Action Icon Colors --- */
+         .action-card.deposit i { background: linear-gradient(135deg, #4CAF50, #66BB6A); } /* Green Gradient */
+         .action-card.withdraw i { background: linear-gradient(135deg, #F44336, #EF5350); } /* Red Gradient */
+         .action-card.vip i { background: linear-gradient(135deg, #FFC107, #FFCA28); } /* Amber Gradient */
+         .action-card.refer i { background: linear-gradient(135deg, #673AB7, #7E57C2); } /* Purple Gradient */
+         .action-card.task i { background: linear-gradient(135deg, #03A9F4, #29B6F6); } /* Blue Gradient (Changed from Accent) */
+
+        /* --- Task Page Styles --- */
+        #task-page .task-banner-area {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #e8eaed; /* Placeholder background */
+            border-radius: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 70px; /* Ensure space for the banner */
+            border: 1px solid var(--border-color);
+        }
+        #task-page .task-banner-area iframe {
+            max-width: 100%;
+            display: block;
+            border: none;
+        }
+        #task-page p.info-text { /* Style for informational text on task page */
+            text-align: center;
+            margin-top: 25px;
+            color: var(--medium-text);
+            font-size: 0.9em;
+        }
+
+         /* --- Fixed Bottom Banner --- */
+          .fixed-bottom-banner-container {
+             position: fixed; bottom: 65px; /* Positioned above the bottom nav */
+             left: 0; right: 0; max-width: 430px; /* Match app width */
+             margin: 0 auto; /* Center it */
+             height: 50px; /* Standard banner height */
+             background-color: #e8eaed; /* Placeholder background */
+             display: flex; justify-content: center; align-items: center;
+             z-index: 99; /* Below Nav (100) and Header (101) */
+             overflow: hidden;
+             border-top: 1px solid var(--border-color);
+             box-shadow: 0 -2px 5px rgba(0,0,0,0.05);
+             transition: display 0.3s ease; /* Smooth hide/show */
+          }
+          .fixed-bottom-banner-container iframe { border: none; display: block; max-width: 100%; height: 100%; }
+          .fixed-bottom-banner-container p { font-size: 0.85em; color: var(--medium-text); }
+
+          /* --- Bottom Nav (Professional Style) --- */
+         .bottom-nav {
+             position: fixed; bottom: 0; left: 0; right: 0; max-width: 430px; margin: 0 auto;
+             height: 65px;
+             background: var(--card-bg);
+             display: flex; justify-content: space-around; align-items: center;
+             box-shadow: 0 -3px 10px rgba(0, 0, 0, 0.1); /* Enhanced shadow */
+             border-top: 1px solid var(--border-color);
+             border-bottom-left-radius: 28px; /* Match app container */
+             border-bottom-right-radius: 28px;
+             z-index: 100; /* Above banner, below header */
+             padding: 0 10px; /* Add some horizontal padding */
+         }
+        .nav-item {
+             background: none; border: none; color: var(--light-text); cursor: pointer;
+             display: flex; flex-direction: column; align-items: center; justify-content: center;
+             padding: 8px 5px; /* Adjust padding */
+             flex-grow: 1; /* Distribute space */
+             text-align: center;
+             transition: color 0.2s ease, background-color 0.2s ease;
+             border-radius: 8px; /* Slight rounding on hover */
+         }
+        .nav-item i {
+             font-size: 1.6em; /* Slightly adjusted icon size */
+             margin-bottom: 4px; /* Space between icon and text */
+             transition: transform 0.2s ease;
+         }
+        .nav-item span {
+             font-size: 0.8em; /* Slightly larger text */
+             font-weight: 500;
+             font-family: var(--font-bengali);
+         }
+        .nav-item:hover:not(.active) { /* Subtle hover effect */
+            color: var(--medium-text);
+            background-color: rgba(106, 27, 154, 0.05); /* Very subtle primary tint */
+         }
+        .nav-item.active { /* Professional Active State */
+             color: var(--primary-color);
+         }
+        .nav-item.active i {
+            transform: scale(1.1); /* Slightly scale up active icon */
+         }
+        .nav-item.active span {
+             font-weight: 700; /* Bolder text for active item */
+         }
+
+         /* --- VIP Page Styles --- */
+        .vip-grid { display: grid; grid-template-columns: 1fr; gap: 18px; margin-top: 15px; }
+         .vip-card { border: 1px solid var(--border-color); border-radius: 16px; background-color: var(--card-bg); box-shadow: var(--shadow-light); display: flex; flex-direction: column; transition: transform 0.2s ease, box-shadow 0.2s ease; position: relative; overflow: hidden; }
+         .vip-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-medium); }
+         .vip-card-header { padding: 15px 20px; background-color: #f9f9f9; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; }
+         .vip-card-header h3 { margin: 0; font-size: 1.15em; color: var(--dark-text); display: flex; align-items: center;}
+         .vip-card-header h3 i { margin-right: 10px; font-size: 1.2em; }
+         .vip-level { font-size: 0.85em; font-weight: 500; color: var(--medium-text); background-color: #eee; padding: 3px 8px; border-radius: 10px; }
+         .vip-card-body { padding: 15px 20px; }
+         .vip-card-body ul { list-style: none; padding-left: 5px; margin: 0; }
+         .vip-card-body li { margin-bottom: 8px; color: var(--medium-text); font-size: 0.9em; position: relative; padding-left: 20px; font-family: var(--font-bengali); }
+         .vip-card-body li::before { content: "\f00c"; /* FontAwesome check */ font-family: "Font Awesome 6 Free"; font-weight: 900; color: var(--secondary-color); position: absolute; left: 0; top: 1px; font-size: 0.85em; }
+         .vip-card-footer { padding: 15px 20px; border-top: 1px solid #f0f0f0; display: flex; justify-content: space-between; align-items: center; background-color: #fafafa; }
+         .vip-card-footer .price { font-size: 1.2em; font-weight: 700; color: var(--primary-color); }
+         .vip-card-footer .btn-buy-vip { margin-top: 0; padding: 10px 20px; font-size: 0.95em; width: auto; flex-shrink: 0; } /* Adjust button size */
+         .vip-card-footer .btn-buy-vip i { margin-right: 8px; }
+         .status-active, .status-pending { font-weight: 600; font-size: 0.9em; padding: 6px 12px; border-radius: 20px; }
+         .status-active { color: var(--success-color); background-color: rgba(85, 139, 47, 0.1); }
+         .status-pending { color: var(--warning-color); background-color: rgba(255, 160, 0, 0.1); }
+         .status-active i, .status-pending i { margin-right: 6px; }
+
+         /* Alert style */
+         .alert { padding: 12px 16px; margin-bottom: 15px; border-radius: 8px; font-size: 0.95em; border: 1px solid transparent; display: none; font-family: var(--font-bengali);}
+         .alert-danger { background-color: #fdecea; color: #a50e0e; border-color: #f5c6cb; }
+         .alert-success { background-color: #e6f4ea; color: #155724; border-color: #c3e6cb; }
+         .alert-warning { background-color: #fff8e1; color: #6f4e00; border-color: #ffecb3; }
+
+         /* Withdraw page radio buttons */
+         .withdraw-options { display: flex; gap: 15px; margin-top: 8px; }
+         .withdraw-options label { display: flex; align-items: center; gap: 5px; font-size: 0.95em; cursor: pointer; }
+         .withdraw-options input[type="radio"] { accent-color: var(--primary-color); }
+
+         /* Referral Code Box */
+         .refer-code-box {
+             background-color: #eee;
+             padding: 15px 20px;
+             border-radius: 10px;
+             font-size: 1.3em;
+             font-weight: 700;
+             text-align: center;
+             margin: 10px 0 20px 0;
+             color: var(--primary-dark);
+             letter-spacing: 1px;
+             border: 1px dashed var(--border-color);
+         }
+         #copy-feedback {
+             text-align: center;
+             margin-top: 10px;
+             color: var(--success-color);
+             font-weight: 500;
+             height: 20px; /* Reserve space */
+         }
+         .deposit-info {
+             background-color: rgba(255, 193, 7, 0.1); /* Light Amber */
+             border-left: 4px solid var(--accent-color);
+             padding: 12px 15px;
+             margin-bottom: 20px;
+             border-radius: 4px;
+             font-size: 0.9em;
+             font-family: var(--font-bengali);
+             color: var(--dark-text);
+         }
+         .deposit-info strong { color: var(--warning-color); }
+         .deposit-info ol { padding-left: 20px; margin-top: 8px; }
+         .deposit-info li { margin-bottom: 5px; }
+
+         /* Policy Page Specific Styles */
+         .policy-content h3 {
+             margin-top: 20px;
+             margin-bottom: 10px;
+             font-size: 1.2em;
+             color: var(--primary-dark);
+             border-bottom: none; /* Remove the secondary color border here */
+             padding-bottom: 0;
+         }
+         .policy-content p {
+             margin-bottom: 15px;
+             font-size: 0.95em;
+             line-height: 1.7;
+             color: var(--medium-text);
+             font-family: var(--font-bengali);
+         }
+         .policy-content p i { /* Italicized text style */
+             color: var(--medium-text);
+             font-style: italic;
+         }
+
+    </style>
 </head>
 <body>
-  <div class="header">
-    ব্লকচেইন আর্নিং সিস্টেম
-  </div>
+    <div class="app-container">
+        <!-- Loading & Toast -->
+        <div class="loading-overlay" id="loading-indicator"><i class="fas fa-sync-alt fa-spin"></i><p>অপেক্ষা করুন...</p></div>
+        <div class="toast-notification" id="toast-message"></div>
 
-  <!-- Banner Ad (Inside a box) Above Profile -->
-  <div class="ad-box">
-    <script type="text/javascript">
-      atOptions = {
-        'key' : '728897206504f3ccf981e290d2df1034',
-        'format' : 'iframe',
-        'height' : 50,
-        'width' : 320,
-        'params' : {}
-      };
+        <!-- Header (Will be hidden on Home Page via JS) -->
+        <header class="app-header" id="app-main-header">
+            <span class="header-title" id="app-title"></span>
+            <div class="header-right" id="header-logout-section">
+                <button id="logout-button" title="লগআউট"><i class="fas fa-sign-out-alt"></i></button>
+            </div>
+        </header>
+
+        <!-- Page Container -->
+        <main class="pages-container">
+            <div id="general-alert-area" style="padding: 10px 22px 0 22px;"></div>
+
+            <!-- Login Page -->
+            <div id="login-page" class="page">
+                <div style="text-align: center; margin-bottom: 30px;"> <i class="fas fa-rocket" style="font-size: 3.5em; color: var(--primary-color); margin-bottom: 10px;"></i> <h2 style="margin-bottom: 5px; border:none;">অ্যাপে স্বাগতম!</h2> <p style="color: var(--medium-text); margin-bottom: 20px;">আপনার অ্যাকাউন্টে লগইন করুন।</p> </div>
+                <div id="login-alert" class="alert"></div>
+                <form id="login-form">
+                    <div class="form-group"> <input type="email" id="login-email" placeholder="ইমেইল" required> </div>
+                    <div class="form-group"> <input type="password" id="login-password" placeholder="পাসওয়ার্ড" required> </div>
+                    <button type="submit" class="btn"><i class="fas fa-sign-in-alt"></i> লগইন</button>
+                </form>
+                <button class="btn-link" onclick="showPage('signup-page')">অ্যাকাউন্ট নেই? সাইন আপ করুন</button>
+            </div>
+
+            <!-- Signup Page -->
+            <div id="signup-page" class="page">
+                <h2><i class="fas fa-user-plus"></i> নতুন অ্যাকাউন্ট</h2> <div id="signup-alert" class="alert"></div>
+                <form id="signup-form">
+                    <div class="form-group"> <input type="text" id="signup-name" placeholder="আপনার পুরো নাম" required> </div>
+                    <div class="form-group"> <input type="email" id="signup-email" placeholder="আপনার ইমেইল" required> </div>
+                    <div class="form-group"> <input type="password" id="signup-password" placeholder="পাসওয়ার্ড (কমপক্ষে ৬ অক্ষর)" required> </div>
+                    <div class="form-group"> <input type="text" id="signup-refer" placeholder="রেফার কোড (ঐচ্ছিক)"> </div>
+                    <button type="submit" class="btn btn-success"><i class="fas fa-check-circle"></i> রেজিস্টার</button>
+                </form>
+                <button class="btn-link" onclick="showPage('login-page')">ইতিমধ্যে অ্যাকাউন্ট আছে? লগইন করুন</button>
+            </div>
+
+            <!-- Home Page (Updated Structure & Icons, No Header) -->
+            <div id="home-page" class="page active"> <!-- No padding adjustments needed here, sticky profile handles it -->
+                <!-- Sticky Profile Section (Will stick to top of container) -->
+                 <div class="user-profile-section">
+                     <div class="user-profile-card">
+                         <div class="profile-icon"><i class="fas fa-user"></i></div>
+                         <div class="user-details-home">
+                             <div class="user-name" id="profile-user-name">ব্যবহারকারী</div>
+                             <div class="user-phone" id="profile-user-phone">01xxxxxxxxx</div>
+                             <div class="balance-section-home" id="profile-balance-section">
+                                  <span class="balance-hidden-placeholder-home" id="balance-hidden-symbol">ব্যালেন্স দেখুন</span>
+                                  <span class="balance-value-home" id="profile-balance-value">৳ 0.00</span>
+                                  <i class="fas fa-eye balance-visibility-icon" id="balance-eye-icon"></i>
+                              </div>
+                         </div>
+                      </div>
+                  </div>
+
+                  <!-- Scrollable Content -->
+                  <h3 class="home-section-title" style="padding: 0 20px;">অপশনস</h3>
+                  <div class="home-actions" style="padding: 0 15px;">
+                       <div class="action-card deposit" onclick="showPage('deposit-page')"> <i class="fas fa-wallet"></i> <p>ডিপোজিট</p> </div>
+                      <!-- Changed withdraw icon -->
+                      <div class="action-card withdraw" onclick="showPage('withdraw-page')"> <i class="fas fa-money-bill-wave"></i> <p>উইথড্র</p> </div>
+                      <div class="action-card vip" onclick="showPage('vip-page')"> <i class="fas fa-crown"></i> <p>ভিআইপি প্ল্যান</p> </div>
+                      <div class="action-card refer" onclick="showPage('refer-page')"> <i class="fas fa-user-friends"></i> <p>রেফার করুন</p> </div>
+                      <!-- Task Button now opens task page -->
+                      <div class="action-card task" onclick="showPage('task-page')" style="grid-column: span 2;"> <i class="fas fa-tasks"></i> <p>দৈনিক টাস্ক / বিজ্ঞাপন দেখুন</p> </div>
+                  </div>
+            </div> <!-- End of Home Page -->
+
+             <!-- Task Page -->
+            <div id="task-page" class="page">
+                <h2><i class="fas fa-ad"></i> দৈনিক টাস্ক</h2>
+                <p>নীচের বিজ্ঞাপনটি লোড হওয়ার জন্য অপেক্ষা করুন।</p>
+                <div class="task-banner-area" id="adsterra-task-banner-container">
+                    <p style="font-size: 0.9em; color: var(--medium-text);">বিজ্ঞাপন লোড হচ্ছে...</p> <!-- Placeholder -->
+                </div>
+                 <p class="info-text">এই পৃষ্ঠায় এসে বিজ্ঞাপন দেখার মাধ্যমে আপনি আয় করতে পারবেন (ডেমো)।</p>
+                 <button class="btn btn-secondary" onclick="showPage('home-page')" style="margin-top: 30px;"><i class="fas fa-arrow-left"></i> হোমে ফিরে যান</button>
+             </div>
+
+            <!-- Referral Page -->
+            <div id="refer-page" class="page">
+                <h2><i class="fas fa-gift"></i> রেফারেল বোনাস</h2> <p>বন্ধুদের সাথে আপনার রেফার কোড শেয়ার করুন। প্রতি সফল রেফারে আপনি ও আপনার বন্ধু বোনাস পাবেন!</p>
+                <label style="font-weight: 500;">আপনার রেফার কোড:</label>
+                <div class="refer-code-box" id="referral-code">---</div>
+                <button class="btn btn-success" onclick="copyReferralCode()"><i class="fas fa-copy"></i> কপি করুন</button>
+                <div id="copy-feedback"></div> <!-- Feedback div -->
+                <h3>রেফারেল বোনাস (উদাহরণ)</h3>
+                <p>আপনার বন্ধু সাইন আপ করলে আপনি পাবেন <b>৳১০</b>, বন্ধু পাবে <b>৳৫</b>!</p>
+            </div>
+
+            <!-- Deposit Page -->
+            <div id="deposit-page" class="page">
+                <h2><i class="fas fa-university"></i> ডিপোজিট</h2> <div id="deposit-alert" class="alert"></div>
+                <div class="deposit-info"> <strong><i class="fas fa-info-circle"></i> গুরুত্বপূর্ণ:</strong> <ol> <li>সঠিক মাধ্যমে ও নম্বরে টাকা পাঠান (ন্যূনতম ৳৫০)।</li> <li>সঠিক TrxID এবং আপনার প্রেরক নম্বর দিন।</li> <li>সাধারণত ৩০ মিনিটের মধ্যে ব্যালেন্স যোগ হয়।</li> </ol> </div>
+                <h3><i class="fas fa-mobile-alt"></i> পেমেন্ট নম্বর</h3> <p style="background:#eee; padding:15px; border-radius:8px; text-align:center; font-weight:bold; margin-bottom:20px;">বিকাশ/নগদ/রকেট: 017********</p>
+                <form id="deposit-form">
+                     <div class="form-group"><label for="deposit-method">মাধ্যম</label> <select id="deposit-method" required><option value="" disabled selected>নির্বাচন করুন</option><option value="bkash">বিকাশ</option><option value="nagad">নগদ</option><option value="rocket">রকেট</option></select></div>
+                     <div class="form-group"><label for="deposit-amount">টাকার পরিমাণ</label> <input type="number" id="deposit-amount" placeholder="৳৫০+" required min="50"></div>
+                     <div class="form-group"><label for="deposit-txn-id">TrxID</label> <input type="text" id="deposit-txn-id" placeholder="ট্রানজেকশন আইডি" required></div>
+                     <div class="form-group"><label for="deposit-sender-number">প্রেরক নম্বর</label> <input type="text" id="deposit-sender-number" placeholder="আপনার নম্বর" required></div>
+                     <button type="submit" class="btn btn-success"><i class="fas fa-paper-plane"></i> সাবমিট</button>
+                 </form>
+             </div>
+
+             <!-- Withdraw Page -->
+            <div id="withdraw-page" class="page">
+                <h2><i class="fas fa-money-bill-wave"></i> টাকা উত্তোলন</h2> <div id="withdraw-alert" class="alert"></div>
+                <p style="text-align: center; margin-bottom: 20px; color: var(--medium-text); font-size:0.95em">উইথড্র করার জন্য ব্যালেন্স: <b id="current-balance-text-wp" style="color: var(--primary-dark); font-size:1.1em">৳ 0.00</b></p>
+                <form id="withdraw-form">
+                    <div class="form-group"> <label>উইথড্র মাধ্যম:</label> <div class="withdraw-options"> <label><input type="radio" name="payment_method" value="bkash" checked> বিকাশ</label> <label><input type="radio" name="payment_method" value="nagad"> নগদ</label> <label><input type="radio" name="payment_method" value="rocket"> রকেট</label> </div> </div>
+                    <div class="form-group"><label for="withdraw-account">অ্যাকাউন্ট নম্বর:</label> <input type="text" id="withdraw-account" placeholder="যে নম্বরে টাকা নিবেন" required></div>
+                    <div class="form-group"><label for="withdraw-amount">টাকার পরিমাণ:</label> <input type="number" id="withdraw-amount" placeholder="ন্যূনতম ৳১০০" required min="100"></div>
+                    <button type="submit" class="btn"><i class="fas fa-check-circle"></i> উইথড্র রিকোয়েস্ট</button>
+                </form>
+                <p style="font-size: 0.85em; color: var(--medium-text); margin-top: 20px; text-align: center;"><i class="fas fa-info-circle"></i> ২৪ ঘণ্টার মধ্যে পেমেন্ট সম্পন্ন হবে।</p>
+            </div>
+
+            <!-- VIP Page -->
+            <div id="vip-page" class="page">
+                <h2><i class="fas fa-crown"></i> ভিআইপি প্ল্যানসমূহ</h2> <p>আপনার সুবিধা অনুযায়ী ভিআইপি প্ল্যান বেছে নিন এবং আয় বাড়ান!</p>
+                <div id="vip-purchase-feedback" style="text-align: center; margin: 15px 0; font-weight: 500;"></div>
+                <div class="vip-grid" id="vip-plan-list"> <!-- Loading message/spinner --> </div>
+            </div>
+
+            <!-- Policy Page -->
+             <div id="policy-page" class="page">
+                 <h2><i class="fas fa-shield-alt"></i> শর্তাবলী ও নীতিমালা</h2>
+                 <div class="policy-content">
+                     <h3>১. সাধারণ শর্তাবলী</h3> <p>এই প্ল্যাটফর্ম ব্যবহার করার মাধ্যমে আপনি আমাদের সমস্ত নিয়ম ও শর্তাবলী মেনে নিতে সম্মত হচ্ছেন। যেকোনো অবৈধ বা প্রতারণামূলক কার্যকলাপের জন্য আপনার অ্যাকাউন্ট বিনা নোটিশে বন্ধ করে দেওয়া হতে পারে।</p>
+                     <h3>২. অ্যাকাউন্ট</h3> <p>প্রতি ব্যবহারকারী শুধুমাত্র একটি অ্যাকাউন্ট ব্যবহার করতে পারবেন। একাধিক অ্যাকাউন্ট তৈরি করা বা অন্যের অ্যাকাউন্ট ব্যবহার করা নিষিদ্ধ। আপনার অ্যাকাউন্টের তথ্যের গোপনীয়তা রক্ষা করার দায়িত্ব আপনার।</p>
+                     <h3>৩. আয় এবং টাস্ক</h3> <p>বিজ্ঞাপন দেখা, ভিডিও দেখা, রেফার করা এবং অন্যান্য তালিকাভুক্ত কাজ সম্পন্ন করে আয় করা যাবে। প্রতিটি কাজের মূল্য অ্যাপের মধ্যে উল্লেখ থাকবে।</p>
+                     <h3>৪. ডিপোজিট</h3> <p>উল্লেখিত পদ্ধতির মাধ্যমে ডিপোজিট করতে পারবেন। ভুল তথ্য দিলে কর্তৃপক্ষ দায়ী থাকবে না। ডিপোজিট ৩০ মিনিট থেকে ২ ঘণ্টার মধ্যে যুক্ত হয়।</p>
+                     <h3>৫. উইথড্র</h3> <p>ন্যূনতম সীমা অর্জন করার পর উইথড্র করতে পারবেন। রিকোয়েস্ট ২৪ ঘণ্টার মধ্যে প্রক্রিয়া করা হয়।</p>
+                     <h3>৬. ভিআইপি মেম্বারশিপ</h3> <p>প্ল্যান ক্রয়ের মাধ্যমে অতিরিক্ত সুবিধা পেতে পারেন। মেয়াদ এবং সুবিধা প্ল্যান অনুযায়ী ভিন্ন হবে। মূল্য অফেরতযোগ্য।</p>
+                     <h3>৭. নিষিদ্ধ কার্যকলাপ</h3> <p>ভিপিএন, প্রক্সি, অটো-ক্লিক, স্ক্রিপ্ট, এমুলেটর ব্যবহার করা কঠোরভাবে নিষিদ্ধ। ধরা পড়লে অ্যাকাউন্ট স্থায়ীভাবে বন্ধ করা হবে।</p>
+                     <h3>৮. নীতিমালার পরিবর্তন</h3> <p>কর্তৃপক্ষ যেকোনো সময় এই নীতিমালা পরিবর্তন করতে পারে।</p>
+                     <br> <p><i>সাহায্যের জন্য, যোগাযোগ করুন।</i></p> <p><i>শেষ আপডেট: ২০২৪</i></p>
+                 </div>
+             </div>
+
+        </main> <!-- End Pages Container -->
+
+        <!-- Fixed Bottom Banner (Single Banner) -->
+        <div class="fixed-bottom-banner-container" id="adsterra-banner-bottom">
+            <p>বিজ্ঞাপন...</p> <!-- Placeholder Text -->
+        </div>
+
+        <!-- Bottom Navigation (Professional Style Applied) -->
+        <nav class="bottom-nav">
+            <button class="nav-item active" data-page="home-page"><i class="fas fa-home"></i><span>হোম</span></button>
+            <button class="nav-item" data-page="vip-page"><i class="fas fa-crown"></i><span>ভিআইপি</span></button>
+             <button class="nav-item" data-page="refer-page"><i class="fas fa-user-friends"></i><span>রেফার</span></button>
+             <!-- Changed Withdraw icon to match home page -->
+             <button class="nav-item" data-page="withdraw-page"><i class="fas fa-money-bill-wave"></i><span>উইথড্র</span></button>
+             <button class="nav-item" data-page="policy-page"><i class="fas fa-info-circle"></i><span>নীতি</span></button>
+         </nav>
+
+    </div> <!-- End App Container -->
+
+    <script>
+        // --- DOM Elements ---
+         const appContainer = document.querySelector('.app-container'); // Reference to the main container
+         const appHeader = document.getElementById('app-main-header'); // Reference to the main header
+         const pages = document.querySelectorAll('.page'); const navItems = document.querySelectorAll('.nav-item'); const appTitle = document.getElementById('app-title'); const headerLogoutSection = document.getElementById('header-logout-section'); const logoutButton = document.getElementById('logout-button'); const loadingIndicator = document.getElementById('loading-indicator'); const toastMessage = document.getElementById('toast-message'); const generalAlertArea = document.getElementById('general-alert-area');
+         // Profile Card
+         const profileUserName = document.getElementById('profile-user-name'); const profileUserPhone = document.getElementById('profile-user-phone'); const profileBalanceSection = document.getElementById('profile-balance-section'); const profileBalanceValue = document.getElementById('profile-balance-value'); const balanceHiddenSymbol = document.getElementById('balance-hidden-symbol'); const balanceEyeIcon = document.getElementById('balance-eye-icon');
+         // Ad Containers
+         const adsterraBannerBottom = document.getElementById('adsterra-banner-bottom');
+         const adsterraTaskBannerContainer = document.getElementById('adsterra-task-banner-container'); // Container on task page
+         // Other Pages
+         const referralCodeElement = document.getElementById('referral-code'); const copyFeedbackElement = document.getElementById('copy-feedback'); const currentBalanceWithdrawPage = document.getElementById('current-balance-text-wp'); const vipPlanListContainer = document.getElementById('vip-plan-list'); const vipPurchaseFeedback = document.getElementById('vip-purchase-feedback');
+         // Forms
+         const loginForm = document.getElementById('login-form'); const signupForm = document.getElementById('signup-form'); const depositForm = document.getElementById('deposit-form'); const withdrawForm = document.getElementById('withdraw-form');
+         // Alerts
+         const loginAlert = document.getElementById('login-alert'); const signupAlert = document.getElementById('signup-alert'); const depositAlert = document.getElementById('deposit-alert'); const withdrawAlert = document.getElementById('withdraw-alert');
+
+
+        // --- App State ---
+        let isLoggedIn = false;
+        let currentUser = { name: 'ব্যবহারকারী', email: null, phone: '01xxxxxxxxx', balance: 100.0, /* Initial balance */ referralCode: 'LOADING', vip: {level: 0, name: 'Free'}, pendingVipLevel: null };
+        let vipActivationTimers = {};
+        let isBalanceVisible = false;
+
+        // --- Adsterra Config ---
+         const adsterraBottomBannerKey = '728897206504f3ccf981e290d2df1034'; // Key for bottom banner
+         const adsterraTaskBannerKey = '728897206504f3ccf981e290d2df1034'; // Key for the task page banner (as provided)
+         // const adsterraDirectLinkPopUnderScript = '//pl26239777.profitableratecpm.com/68/92/f1/6892f1ff43253029dfa7773d3081bdf4.js'; // No longer used by task button
+
+        // --- VIP Plans (Same as before) ---
+         const vipPlans = [ { level: 1, name: "ব্রোঞ্জ", icon: "fas fa-shield-alt", price: 100, features: ["দৈনিক ৫টি অতিরিক্ত টাস্ক", "১% উইথড্র ফি"], color: "#cd7f32"},{ level: 2, name: "সিলভার", icon: "fas fa-star", price: 250, features: ["দৈনিক ১০টি অতিরিক্ত টাস্ক", "০.৫% উইথড্র ফি", "দ্রুত সাপোর্ট"], color: "#c0c0c0"},{ level: 3, name: "গোল্ড", icon: "fas fa-medal", price: 500, features: ["দৈনিক ১৫টি টাস্ক", "কোনো উইথড্র ফি নেই", "অগ্রাধিকার সাপোর্ট"], color: "#ffd700"},{ level: 4, name: "প্লাটিনাম", icon: "fas fa-award", price: 1000, features: ["দৈনিক ২০টি টাস্ক", "ইনস্ট্যান্ট উইথড্রল", "ডেডিকেটেড ম্যানেজার"], color: "#e5e4e2"},{ level: 5, name: "ডায়মন্ড", icon: "fas fa-gem", price: 2000, features: ["দৈনিক ২৫টি টাস্ক", "সবচেয়ে দ্রুত উইথড্রল", "এক্সক্লুসিভ বোনাস"], color: "#b9f2ff"},{ level: 6, name: "এমেরাल्ड", icon: "fas fa-leaf", price: 3500, features: ["দৈনিক ৩০টি টাস্ক", "+ প্রতি রেফারে অতিরিক্ত বোনাস", "স্পেশাল গিফট"], color: "#3cd070" },{ level: 7, name: "স্যাফায়ার", icon: "fas fa-anchor", price: 5000, features: ["দৈনিক ৩৫টি টাস্ক", "+ সাপ্তাহিক ক্যাশব্যাক", "উচ্চ উইথড্র লিমিট"], color: "#3399ff" },{ level: 8, name: "রুবি", icon: "fas fa-fire", price: 7500, features: ["দৈনিক ৪০টি টাস্ক", "+ ফ্রি মাসিক স্পিন", "টপ প্রায়োরিটি সাপোর্ট"], color: "#ff6f61" },{ level: 9, name: "ওপাল", icon: "fas fa-moon", price: 10000, features: ["দৈনিক ৪৫টি টাস্ক", "+ প্রতি মাসে ২টি প্ল্যান গিফট", "সর্বোচ্চ উইথড্রল"], color: "#a8c3b8" },{ level: 10, name: "ওনিক্স", icon: "fas fa-atom", price: 15000, features: ["দৈনিক ৫০টি টাস্ক", "+ সরাসরি অ্যাডমিন অ্যাক্সেস", "অসীম উইথড্র লিমিট"], color: "#4a4a4a" },{ level: 11, name: "জেড", icon: "fas fa-seed", price: 20000, features: ["দৈনিক ৫৫টি টাস্ক", "ফিচার কাস্টমাইজেশন", "রেফারেল কমিশন ৫%"], color: "#00A86B" },{ level: 12, name: "লাভা", icon: "fas fa-fire", price: 25000, features: ["দৈনিক ৬০টি টাস্ক", "নতুন ফিচার বেটা টেস্ট", "রেফারেল কমিশন ৬%"], color: "#CF1020" },{ level: 13, name: "অ্যাম্বার", icon: "fas fa-sun", price: 30000, features: ["দৈনিক ৬৫টি টাস্ক", "মাসিক পারফরমেন্স বোনাস", "রেফারেল কমিশন ৭%"], color: "#FFBF00" },{ level: 14, name: "স্কাই", icon: "fas fa-bolt", price: 40000, features: ["দৈনিক ৭০টি টাস্ক", "ইন্টারন্যাশনাল ট্রিপ (বার্ষিক)", "রেফারেল কমিশন ৮%"], color: "#87CEEB" },{ level: 15, name: "ওশেন", icon: "fas fa-water", price: 50000, features: ["দৈনিক ৭৫টি টাস্ক", "ব্যক্তিগত বিনিয়োগ পরামর্শ", "রেফারেল কমিশন ৯%"], color: "#1E90FF" },{ level: 16, name: "কসমিক", icon: "fas fa-rocket", price: 60000, features: ["দৈনিক ৮০টি টাস্ক", "অ্যাডমিন প্যানেল অ্যাক্সেস", "রেফারেল কমিশন ১০%"], color: "#4A4E69" },{ level: 17, name: "গ্যালাক্সি", icon: "fas fa-meteor", price: 75000, features: ["দৈনিক ৮৫টি টাস্ক", "অংশীদারিত্বের সুযোগ", "১২% কমিশন"], color: "#9B5DE5" },{ level: 18, name: "সোলার", icon: "fas fa-solar-panel", price: 90000, features: ["দৈনিক ৯০টি টাস্ক", "বিশেষ লাভ্যাংশ", "১৪% কমিশন"], color: "#FEE440" },{ level: 19, name: "ইনফিনিটি", icon: "fas fa-infinity", price: 120000, features: ["দৈনিক ৯৫টি টাস্ক", "ভোট দেওয়ার ক্ষমতা", "১৬% কমিশন"], color: "#FB5607" },{ level: 20, name: "লিজেণ্ড", icon: "fas fa-landmark", price: 150000, features: ["দৈনিক ১০০টি টাস্ক", "আজীবন সাপোর্ট", "২০% কমিশন"], color: "#212121" }];
+
+        // --- Utility Functions (Same as before) ---
+         function showLoading() { if(loadingIndicator) loadingIndicator.style.display = 'flex'; }
+         function hideLoading() { if(loadingIndicator) loadingIndicator.style.display = 'none'; }
+         function showToast(message, duration = 3500) { if(!toastMessage) return; toastMessage.textContent = message; toastMessage.style.display = 'block'; toastMessage.style.animation = 'none'; void toastMessage.offsetWidth; /* Trigger reflow */ toastMessage.style.animation = `fadeInOutToast ${duration/1000}s ease-in-out`; setTimeout(() => { if (toastMessage.style.display === 'block') { toastMessage.style.display = 'none'; } }, duration); }
+         function showAlert(alertElement, message, type = 'danger') { if (!alertElement) { console.error("Alert Error:", message); return; } alertElement.textContent = message; alertElement.className = `alert alert-${type}`; alertElement.style.display = 'block'; setTimeout(() => { if(alertElement.style.display === 'block') { alertElement.style.display = 'none'; } }, 5000); }
+         function clearAlerts() { [loginAlert, signupAlert, depositAlert, withdrawAlert, generalAlertArea].forEach(el => { if(el) { el.style.display = 'none'; el.textContent = ''; if (el.id === 'general-alert-area') el.innerHTML = ''; else el.className = 'alert'; } }); }
+         function generateReferralCode() { return Math.random().toString(36).substring(2, 9).toUpperCase(); }
+
+        // --- Page Navigation & Core UI Update ---
+         function showPage(pageId) {
+              clearAlerts();
+              if (!isLoggedIn && !['login-page', 'signup-page', 'policy-page'].includes(pageId)) { showAlert(loginAlert || generalAlertArea, 'পেজটি দেখতে লগইন করুন।', 'danger'); showPage('login-page'); return; }
+              pages.forEach(page => page.classList.remove('active'));
+              const pageToShow = document.getElementById(pageId);
+              if (pageToShow) { pageToShow.classList.add('active'); updateAppUIBasedOnPage(pageId); }
+              else { console.error("Page not found:", pageId); showPage(isLoggedIn ? 'home-page' : 'login-page'); }
+              document.querySelector('.pages-container').scrollTop = 0;
+          }
+
+         function updateAppUIBasedOnPage(pageId) {
+               let title = "Earning Zone"; // Default title
+
+               // Hide/Show Main Header based on Page
+               if (appHeader) {
+                   appHeader.style.display = (pageId === 'home-page') ? 'none' : 'flex';
+               }
+
+               // Set Page Title (only relevant if header is visible)
+               switch (pageId) {
+                   case 'home-page': title = ''; break; // No title needed as header is hidden
+                   case 'login-page': title = ''; break;
+                   case 'signup-page': title = 'নতুন অ্যাকাউন্ট'; break;
+                   case 'task-page': title = 'দৈনিক টাস্ক'; break; // Added title for task page
+                   case 'refer-page': title = 'রেফারেল'; break;
+                   case 'deposit-page': title = 'ডিপোজিট'; break;
+                   case 'withdraw-page': title = 'উইথড্র'; break;
+                   case 'vip-page': title = 'ভিআইপি প্ল্যান'; break;
+                   case 'policy-page': title = 'নীতিমালা'; break;
+               }
+               if (appTitle) appTitle.textContent = title; // Set title if element exists
+               if (appTitle) appTitle.style.display = (pageId === 'login-page' || pageId === 'signup-page') ? 'none' : 'block'; // Keep title visible logic for non-home pages
+
+               // Toggle Logout Button Visibility
+               if (headerLogoutSection) headerLogoutSection.classList.toggle('visible', isLoggedIn && pageId !== 'login-page' && pageId !== 'signup-page' && pageId !== 'home-page'); // Hide on home page too
+
+               // Update Active Nav Item
+               navItems.forEach(item => {
+                   item.classList.toggle('active', item.getAttribute('data-page') === pageId);
+               });
+
+               // Show/Hide bottom banner based on login state and page
+               const shouldShowBottomBanner = isLoggedIn && pageId !== 'login-page' && pageId !== 'signup-page';
+               if (adsterraBannerBottom) adsterraBannerBottom.style.display = shouldShowBottomBanner ? 'flex' : 'none';
+               if (shouldShowBottomBanner && adsterraBannerBottom && adsterraBannerBottom.innerHTML.includes('<p>')) { // Load bottom banner only if visible and not already loaded
+                  loadAdsterraBanner('adsterra-banner-bottom', adsterraBottomBannerKey); // Use the specific key for bottom banner
+               }
+
+               // Load page specific data
+               if (pageId === 'home-page' && isLoggedIn) { updateProfileCard(); }
+               if (pageId === 'task-page' && isLoggedIn) { loadAdsterraBanner('adsterra-task-banner-container', adsterraTaskBannerKey); } // Load task banner
+               if (pageId === 'refer-page' && isLoggedIn) { displayReferralCode(); }
+               if (pageId === 'withdraw-page' && isLoggedIn) { displayBalanceOnWithdrawPage(); }
+               if (pageId === 'vip-page' && isLoggedIn) { renderVipPlans(); }
+           }
+
+        // --- Authentication & Local Storage (Uses v5 keys, same logic) ---
+        const LS_PREFIX = "eliteEarnZone_v5_"; // Updated Prefix for keys
+         function checkLoginStatus() {
+            const loggedIn = localStorage.getItem(LS_PREFIX + 'loggedIn') === 'true';
+            if (loggedIn) {
+                isLoggedIn = true;
+                currentUser.email = localStorage.getItem(LS_PREFIX + 'userEmail');
+                currentUser.name = localStorage.getItem(LS_PREFIX + 'userName');
+                currentUser.phone = localStorage.getItem(LS_PREFIX + 'userPhone') || '01xxxxxxxxx';
+                currentUser.balance = parseFloat(localStorage.getItem(LS_PREFIX + 'userBalance')) || 0.0;
+                currentUser.referralCode = localStorage.getItem(LS_PREFIX + 'userReferralCode');
+                const vipData = JSON.parse(localStorage.getItem(LS_PREFIX + 'userVipStatus') || '{}');
+                currentUser.vip = { level: vipData.level || 0, name: vipData.name || 'Free', activeUntil: vipData.activeUntil ? new Date(vipData.activeUntil) : null };
+                currentUser.pendingVipLevel = parseInt(localStorage.getItem(LS_PREFIX + 'pendingVipLevel') || '0');
+                 if (currentUser.pendingVipLevel > 0) { const pt = parseInt(localStorage.getItem(LS_PREFIX+'pendingVipTime')||'0');const fiveM=5*60*1000;const el=Date.now()-pt;if(pt>0&&el<fiveM){const rem=fiveM-el;if(rem>10000)showToast(`VIP ${currentUser.pendingVipLevel} রিকোয়েস্ট প্রসেসিং...`);restartVipActivationTimer(currentUser.pendingVipLevel,rem)}else if(pt>0){activateVipPlan(currentUser.pendingVipLevel);clearPendingVip()}else{clearPendingVip()}}
+            } else {
+                isLoggedIn = false;
+                 currentUser = { name: 'ব্যবহারকারী', email: null, phone: '01xxxxxxxxx', balance: 100.0, referralCode: 'DEMO123', vip: {level: 0, name: 'Free'}, pendingVipLevel: null };
+                clearVipTimers();
+                clearPendingVip();
+            }
+         }
+         function saveLoginStatus(user) {
+            isLoggedIn = true; if(!user.vip){user.vip={level:0,name:'Free'}} if(!user.referralCode){user.referralCode=generateReferralCode()} if(!user.phone){user.phone='01xxxxxxxxx'}
+            currentUser = {...user, pendingVipLevel:currentUser.pendingVipLevel};
+             localStorage.setItem(LS_PREFIX + 'loggedIn', 'true');
+             localStorage.setItem(LS_PREFIX + 'userEmail', user.email);
+             localStorage.setItem(LS_PREFIX + 'userName', user.name);
+             localStorage.setItem(LS_PREFIX + 'userPhone', user.phone);
+             localStorage.setItem(LS_PREFIX + 'userBalance', user.balance.toString());
+             localStorage.setItem(LS_PREFIX + 'userReferralCode', user.referralCode);
+             localStorage.setItem(LS_PREFIX + 'userVipStatus', JSON.stringify(user.vip));
+             updateProfileCard(); // Ensure profile card updates on login/signup
+         }
+        function saveAppState() { if(isLoggedIn){ localStorage.setItem(LS_PREFIX+'userBalance',currentUser.balance.toString()); localStorage.setItem(LS_PREFIX+'userVipStatus',JSON.stringify(currentUser.vip)); } }
+         function clearLoginStatus() {
+             isLoggedIn = false; currentUser = { name: 'ব্যবহারকারী', email: null, phone: '01xxxxxxxxx', balance: 100.0, referralCode: 'DEMO123', vip: {level: 0, name: 'Free'}, pendingVipLevel: null };
+             localStorage.removeItem(LS_PREFIX + 'loggedIn'); localStorage.removeItem(LS_PREFIX + 'userEmail'); localStorage.removeItem(LS_PREFIX + 'userName'); localStorage.removeItem(LS_PREFIX + 'userPhone'); localStorage.removeItem(LS_PREFIX + 'userBalance'); localStorage.removeItem(LS_PREFIX + 'userReferralCode'); localStorage.removeItem(LS_PREFIX + 'userVipStatus');
+             clearPendingVip(); clearVipTimers(); updateProfileCard();
+         }
+
+        // --- VIP Timer/Pending State Helpers (Uses v5 keys, same logic) ---
+        function setPendingVip(level) { currentUser.pendingVipLevel=level; localStorage.setItem(LS_PREFIX+'pendingVipLevel',level.toString()); localStorage.setItem(LS_PREFIX+'pendingVipTime',Date.now().toString()); }
+         function clearPendingVip() { currentUser.pendingVipLevel=null; localStorage.removeItem(LS_PREFIX+'pendingVipLevel'); localStorage.removeItem(LS_PREFIX+'pendingVipTime'); if(document.getElementById('vip-page')?.classList.contains('active')){renderVipPlans();}}
+         function clearVipTimers() { Object.values(vipActivationTimers).forEach(clearTimeout); vipActivationTimers = {}; }
+         function restartVipActivationTimer(level, remainingTime) { if(vipActivationTimers[level])clearTimeout(vipActivationTimers[level]); vipActivationTimers[level] = setTimeout(() => { activateVipPlan(level); clearPendingVip(); showToast(`VIP ${level} প্ল্যান সক্রিয় হয়েছে!`); if(document.getElementById('vip-page')?.classList.contains('active')) { renderVipPlans(); } }, remainingTime); }
+         function activateVipPlan(level) { const plan = vipPlans.find(p => p.level === level); if (plan && currentUser) { currentUser.vip = { level: plan.level, name: plan.name, activeUntil: null }; console.log(`Activated VIP: ${level}`); saveAppState(); updateProfileCard(); /* Update potentially affected UI */ } }
+
+
+        // --- Profile Card & Balance Display (Same logic) ---
+          function updateProfileCard() {
+              if (!profileUserName || !profileUserPhone) return;
+              if (isLoggedIn) {
+                  profileUserName.textContent = currentUser.name || 'ব্যবহারকারী';
+                  profileUserPhone.textContent = currentUser.phone || 'N/A';
+                   updateBalanceDisplay(); // Updates the balance part
+              } else {
+                   profileUserName.textContent = 'স্বাগতম!';
+                   profileUserPhone.textContent = 'লগইন/সাইন আপ করুন';
+                   profileBalanceValue.textContent = '৳ 0.00';
+                   profileBalanceValue.style.display = 'none';
+                   balanceHiddenSymbol.style.display = 'inline-block';
+                   profileBalanceSection.classList.remove('visible');
+                   balanceEyeIcon.classList.replace('fa-eye-slash', 'fa-eye');
+                   isBalanceVisible = false;
+              }
+          }
+
+        function toggleBalanceVisibility() {
+            if (!isLoggedIn) return;
+            isBalanceVisible = !isBalanceVisible;
+             updateBalanceDisplay();
+         }
+
+         function updateBalanceDisplay() {
+             const displayBalance = currentUser.balance || 0.0;
+              // Update Profile Card Balance
+              if (profileBalanceSection && profileBalanceValue && balanceHiddenSymbol && balanceEyeIcon) {
+                  if (isBalanceVisible) {
+                       profileBalanceValue.textContent = "৳ " + displayBalance.toFixed(2);
+                      profileBalanceValue.style.display = 'inline';
+                      balanceHiddenSymbol.style.display = 'none';
+                       profileBalanceSection.classList.add('visible');
+                       balanceEyeIcon.classList.replace('fa-eye', 'fa-eye-slash');
+                   } else {
+                       profileBalanceValue.style.display = 'none';
+                       balanceHiddenSymbol.style.display = 'inline-block'; // Show placeholder
+                       profileBalanceSection.classList.remove('visible');
+                       balanceEyeIcon.classList.replace('fa-eye-slash', 'fa-eye');
+                   }
+               }
+              displayBalanceOnWithdrawPage(); // Update Withdraw Page balance text
+           }
+
+         function displayBalanceOnWithdrawPage(){ if(currentBalanceWithdrawPage){ currentBalanceWithdrawPage.textContent = "৳ " + (currentUser.balance || 0.0).toFixed(2); }}
+          function updateUserBalance(newBalance) { currentUser.balance = Math.max(0, newBalance); saveAppState(); updateBalanceDisplay(); }
+
+
+         // --- Referral Functions (Same logic) ---
+          function displayReferralCode(){ if(referralCodeElement && isLoggedIn){ referralCodeElement.textContent = currentUser.referralCode || "N/A"; } else if(referralCodeElement){ referralCodeElement.textContent = "N/A"; }}
+          function copyReferralCode() { if(!isLoggedIn || !currentUser.referralCode || currentUser.referralCode === 'LOADING...' || currentUser.referralCode === 'N/A'){ showToast("কোড পেতে লগইন করুন।"); return; } const code = currentUser.referralCode; navigator.clipboard.writeText(code).then(() => { if (copyFeedbackElement) { copyFeedbackElement.textContent = "কপি হয়েছে!"; setTimeout(() => { copyFeedbackElement.textContent = ''; }, 2000); } }).catch(err => { showToast("কপি করা যায়নি।"); if (copyFeedbackElement) copyFeedbackElement.textContent = ''; }); }
+
+
+          // --- Ad Functions (Updated to handle keys) ---
+           function loadAdsterraBanner(containerId, bannerKey) {
+               const containerElement = document.getElementById(containerId);
+               // Only proceed if logged in, container exists, and key is present
+               if (!isLoggedIn || !containerElement || !bannerKey) {
+                   if(containerElement) containerElement.innerHTML = `<p style="font-size:0.8em; color: var(--medium-text); text-align:center;">বিজ্ঞাপন লোড করার জন্য লগইন করুন</p>`;
+                   return;
+               }
+              // Add a small delay before clearing to avoid flash if ad loads instantly
+               setTimeout(() => {
+                 if (containerElement.querySelector('iframe')) return; // Don't reload if already loading/loaded
+                 containerElement.innerHTML = ''; // Clear placeholder only if iframe not present
+                 const iframe = document.createElement('iframe');
+                 iframe.width = '320'; // Standard mobile banner size
+                 iframe.height = '50';
+                 iframe.style.border = 'none';
+                 iframe.style.overflow = 'hidden';
+                 iframe.setAttribute('scrolling', 'no');
+                 iframe.style.maxWidth = '100%';
+                 iframe.style.maxHeight='50px';
+                 iframe.style.display='block';
+                 iframe.style.margin = '0 auto'; // Center iframe if container is wider
+
+                 // Construct the HTML content for the iframe source using the provided bannerKey
+                 const bannerHtml = `
+                     <!DOCTYPE html>
+                     <html>
+                     <head>
+                         <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+                         <style> body { margin:0; padding:0; display:flex; justify-content:center; align-items:center; height:50px; background-color: transparent; } </style>
+                     </head>
+                     <body>
+                         <script type="text/javascript">
+                             atOptions = {
+                                 'key' : '${bannerKey}',
+                                 'format' : 'iframe',
+                                 'height' : 50,
+                                 'width' : 320,
+                                 'params' : {}
+                             };
+                         <\/script>
+                         <script type="text/javascript" src="//www.highperformanceformat.com/${bannerKey}/invoke.js"><\/script>
+                     </body>
+                     </html>`;
+
+                  try {
+                     // Use srcdoc for modern browsers (safer)
+                     iframe.srcdoc = bannerHtml;
+                     containerElement.appendChild(iframe);
+                     containerElement.style.border = 'none'; // Remove placeholder border
+                     containerElement.style.background = 'transparent'; // Ensure transparent background
+                     containerElement.style.minHeight = '50px'; // Ensure container height
+                     containerElement.style.padding = '0'; // Remove padding if any was set
+                  } catch (e) {
+                     console.error("Ad Load Error ("+containerId+"):", e);
+                     containerElement.innerHTML = '<p style="font-size:0.8em; color: var(--danger-color); text-align:center;">বিজ্ঞাপন লোড হয়নি</p>';
+                  }
+               }, 100); // 100ms delay
+           }
+
+           // Removed showAdsterraDirectLink function as it's no longer used by the task button
+
+
+        // --- VIP Plan Functions (Same logic) ---
+         function renderVipPlans() {
+               if (!vipPlanListContainer) return;
+               vipPlanListContainer.innerHTML = ''; // Clear previous plans
+               const currentLevel = currentUser.vip.level || 0;
+               const pendingLevel = currentUser.pendingVipLevel || 0;
+               vipPlanListContainer.classList.add('loading-vip-plans'); // Add loading class initially
+                vipPlanListContainer.innerHTML = '<div style="text-align:center; padding: 30px 0;"><i class="fas fa-spinner fa-spin fa-2x" style="color: var(--primary-color);"></i><p style="margin-top:10px; color: var(--medium-text);">প্ল্যান লোড হচ্ছে...</p></div>'; // Enhanced placeholder
+
+                 // Simulate loading delay for visual effect
+                 setTimeout(() => {
+                      if (!vipPlanListContainer) return; // Check again in case user navigated away
+                     vipPlanListContainer.innerHTML = ''; // Clear loading message
+                      vipPlanListContainer.classList.remove('loading-vip-plans');
+
+                     vipPlans.forEach(plan => {
+                          const isCurrent = plan.level === currentLevel;
+                          const isPending = plan.level === pendingLevel;
+                           // Allow purchasing ONLY if target level is > current level AND nothing is pending
+                           const canPurchase = plan.level > currentLevel && pendingLevel === 0;
+                           const isLower = plan.level < currentLevel; // Plan level is lower than current active level
+
+                           const card = document.createElement('div');
+                          card.className = 'vip-card';
+                          card.setAttribute('data-level', plan.level);
+                          let featuresHtml = plan.features.map(f => `<li>${f}</li>`).join('');
+                           let footerHtml = '';
+
+                          if (isCurrent) { footerHtml = `<div class="status-active"><i class="fas fa-check-circle"></i> সক্রিয়</div><span class="price">৳ ${plan.price}</span>`; }
+                          else if (isPending) { footerHtml = `<div class="status-pending"><i class="fas fa-hourglass-half"></i> অপেক্ষমান...</div><span class="price">৳ ${plan.price}</span>`; }
+                           else if (isLower) { footerHtml = `<button class="btn btn-secondary btn-buy-vip" disabled><i class="fas fa-times-circle"></i> আপগ্রেড নয়</button><span class="price">৳ ${plan.price}</span>`; } // Cannot downgrade
+                           else if (canPurchase) { footerHtml = `<button class="btn btn-warning btn-buy-vip" onclick="initiateVipPurchase(${plan.level}, ${plan.price})"><i class="fas fa-shopping-cart"></i> আপগ্রেড করুন</button><span class="price">৳ ${plan.price}</span>`; }
+                           else { /* Higher level, but another purchase is pending OR cannot afford (checked in initiate) */ footerHtml = `<button class="btn btn-secondary btn-buy-vip" disabled title="আরেকটি আপগ্রেড অপেক্ষমান"><i class="fas fa-ban"></i> недоступен</button><span class="price">৳ ${plan.price}</span>`; }
+
+                           card.innerHTML = ` <div class="vip-card-header"> <h3><i class="${plan.icon}" style="color: ${plan.color || 'inherit'}"></i> ${plan.name}</h3> <span class="vip-level">লেভেল ${plan.level}</span> </div> <div class="vip-card-body"> <ul>${featuresHtml}</ul> </div> <div class="vip-card-footer"> ${footerHtml} </div> `;
+                          vipPlanListContainer.appendChild(card);
+                     });
+                  }, 500); // 0.5 second loading simulation
+
+          }
+         function initiateVipPurchase(level, price) {
+               if(!isLoggedIn){showToast("আপগ্রেড করতে লগইন করুন।"); return}
+               if(currentUser.pendingVipLevel){showToast("আপনার একটি আপগ্রেড রিকোয়েস্ট ইতিমধ্যে অপেক্ষমান আছে।"); return}
+               if(currentUser.balance < price){
+                   showAlert(vipPurchaseFeedback || generalAlertArea, `এই প্ল্যান কিনতে আপনার আরো ৳${(price - currentUser.balance).toFixed(2)} প্রয়োজন।`, 'danger');
+                   return;
+               }
+
+               // Confirm purchase
+               if (!confirm(`আপনি কি নিশ্চিতভাবে ৳${price} দিয়ে VIP ${level} (${vipPlans.find(p=>p.level===level)?.name || ''}) প্ল্যান আপগ্রেড করতে চান?\nআপনার বর্তমান ব্যালেন্স: ৳${currentUser.balance.toFixed(2)}`)) {
+                   return; // User cancelled
+               }
+
+               showLoading(); // Show loading indicator during processing
+               vipPurchaseFeedback.innerHTML = ''; // Clear previous feedback
+
+               // Simulate backend interaction delay
+               setTimeout(() => {
+                   // Deduct balance and set pending state
+                   updateUserBalance(currentUser.balance - price);
+                   setPendingVip(level);
+                   renderVipPlans(); // Update VIP page UI to show pending status
+
+                   // Display success message (use general alert area if vipPurchaseFeedback isn't visible)
+                   const feedbackArea = vipPurchaseFeedback || generalAlertArea;
+                   showAlert(feedbackArea, `VIP ${level} প্ল্যানের জন্য রিকোয়েস্ট পাঠানো হয়েছে। আপনার ব্যালেন্স থেকে ৳${price.toFixed(2)} কাটা হয়েছে। ৫ মিনিটের মধ্যে প্ল্যান সক্রিয় হবে।`, 'success');
+                   if (feedbackArea.scrollIntoView) feedbackArea.scrollIntoView({behavior:"smooth", block: "start"});
+
+
+                   // Start the activation timer (5 minutes)
+                   const activationDelay = 5 * 60 * 1000; // 5 minutes in milliseconds
+                   restartVipActivationTimer(level, activationDelay);
+
+                   // Simulate sending info to backend/Telegram
+                   console.log("SIMULATE_BACKEND/TELEGRAM: VIP Purchase Initiated", {
+                       user: currentUser.email,
+                       level: level,
+                       price: price,
+                       timestamp: new Date().toISOString()
+                   });
+
+                   hideLoading(); // Hide loading indicator
+               }, 1500); // Simulate 1.5 seconds processing time
+           }
+
+
+        // --- Event Handlers (Same logic) ---
+        function handleLogin(event) { event.preventDefault(); clearAlerts(); const e=loginForm.querySelector('#login-email').value.trim().toLowerCase(),p=loginForm.querySelector('#login-password').value;if(!e||!p){showAlert(loginAlert,'অনুগ্রহ করে ইমেইল এবং পাসওয়ার্ড দিন।');return} if(!/\S+@\S+\.\S+/.test(e)){showAlert(loginAlert,'অনুগ্রহ করে একটি সঠিক ইমেইল ঠিকানা দিন।');return} showLoading();setTimeout(()=>{const u_str=localStorage.getItem(`user_${e}_${LS_PREFIX}`);let u; if(!u_str){showAlert(loginAlert,'এই ইমেইল দিয়ে কোনো অ্যাকাউন্ট পাওয়া যায়নি।');hideLoading();return;} try {u=JSON.parse(u_str);} catch(err){showAlert(loginAlert,'অ্যাকাউন্ট ডেটা লোড করতে সমস্যা।');hideLoading();return;} /* === SIMULATED PASSWORD CHECK (REMOVE IN PRODUCTION) === */ if(p.length>=6){ const userData={email:e,name:u.name||e.split('@')[0],balance:u.balance!==undefined?u.balance:100.0,referralCode:u.referralCode||generateReferralCode(),phone:u.phone||'01xxxxxxxxx',vip:u.vip||{level:0,name:'Free'}};/* Load pending state before saving */ currentUser.pendingVipLevel=parseInt(localStorage.getItem(LS_PREFIX+'pendingVipLevel')||'0');saveLoginStatus(userData);showToast('লগইন সফল!');initializeAppUI()}else{showAlert(loginAlert,'পাসওয়ার্ড সঠিক নয়। ডেমো পাসওয়ার্ড কমপক্ষে ৬ অক্ষরের হতে হবে।')} hideLoading()},1000);}
+        function handleSignup(event) { event.preventDefault();clearAlerts();const n=signupForm.querySelector('#signup-name').value.trim(),e=signupForm.querySelector('#signup-email').value.trim().toLowerCase(),p=signupForm.querySelector('#signup-password').value,r=signupForm.querySelector('#signup-refer').value.trim(); const phoneNum='01xxxxxxxxx'; /* Placeholder */ if(!n||!e||!p){showAlert(signupAlert,'অনুগ্রহ করে নাম, ইমেইল এবং পাসওয়ার্ড পূরণ করুন।');return} if(!/\S+@\S+\.\S+/.test(e)){showAlert(signupAlert,'অনুগ্রহ করে একটি সঠিক ইমেইল ঠিকানা দিন।');return} if(p.length<6){showAlert(signupAlert,'পাসওয়ার্ড কমপক্ষে ৬ অক্ষরের হতে হবে।');return} showLoading();setTimeout(()=>{ if(localStorage.getItem(`user_${e}_${LS_PREFIX}`)){showAlert(signupAlert,'এই ইমেইল ঠিকানা দিয়ে ইতিমধ্যে একটি অ্যাকাউন্ট রয়েছে।');hideLoading();return;} const rc=generateReferralCode();let signupBonus=150.0; if(r&&r.length===7){/* Simple check for demo */ signupBonus+=50.0; console.log(`Referral code ${r} applied. Bonus +50`);} const newUser={name:n,email:e,balance:signupBonus,referralCode:rc,phone:phoneNum,vip:{level:0,name:'Free'}}; localStorage.setItem(`user_${e}_${LS_PREFIX}`, JSON.stringify(newUser)); saveLoginStatus(newUser);showToast('সাইন আপ সফল! স্বাগতম!', 4000); initializeAppUI(); hideLoading()},1500);}
+        function handleDepositRequest(event) { event.preventDefault(); clearAlerts(); if(!isLoggedIn){showAlert(depositAlert,"ডিপোজিট করতে লগইন করুন।");return} const amountInput = depositForm.querySelector('#deposit-amount'); const amount = parseFloat(amountInput.value); const method = depositForm.querySelector('#deposit-method').value; const txnId = depositForm.querySelector('#deposit-txn-id').value.trim(); const senderNumber = depositForm.querySelector('#deposit-sender-number').value.trim(); if(isNaN(amount)||amount<50||!method||!txnId||!senderNumber){showAlert(depositAlert,"অনুগ্রহ করে সমস্ত তথ্য সঠিকভাবে পূরণ করুন (টাকার পরিমাণ কমপক্ষে ৳৫০)।");return} if(senderNumber.length < 11 || !/^[0-9]+$/.test(senderNumber)){ showAlert(depositAlert, "অনুগ্রহ করে একটি সঠিক প্রেরক মোবাইল নম্বর দিন।"); return; } showLoading(); setTimeout(()=>{showAlert(depositAlert,"আপনার ডিপোজিট রিকোয়েস্ট সাবমিট করা হয়েছে। এডমিন রিভিউ করার পর আপনার অ্যাকাউন্টে ব্যালেন্স যোগ করা হবে।","success");depositForm.reset();hideLoading(); console.log("SIMULATE_BACKEND/TELEGRAM: Deposit Request", {user:currentUser.email, amount: amount, method: method, txnId: txnId, sender: senderNumber, timestamp: new Date().toISOString()}); },1200);}
+        function handleWithdraw(event) { event.preventDefault();clearAlerts();if(!isLoggedIn){showAlert(withdrawAlert,"উইথড্র করতে লগইন করুন।");return} const amountInput = withdrawForm.querySelector('#withdraw-amount'); const amount = parseFloat(amountInput.value); const account = withdrawForm.querySelector('#withdraw-account').value.trim(); const methodRadio = withdrawForm.querySelector('input[name="payment_method"]:checked'); if(isNaN(amount)||amount<100||!account||!methodRadio){showAlert(withdrawAlert,"অনুগ্রহ করে সমস্ত তথ্য সঠিকভাবে পূরণ করুন (ন্যূনতম উইথড্র ৳১০০)।");return} if(account.length < 11 || !/^[0-9]+$/.test(account)){ showAlert(withdrawAlert, "অনুগ্রহ করে একটি সঠিক অ্যাকাউন্ট নম্বর দিন।"); return; } if(amount > currentUser.balance){showAlert(withdrawAlert,"আপনার অ্যাকাউন্টে পর্যাপ্ত ব্যালেন্স নেই।");return} const method = methodRadio.value; showLoading(); setTimeout(()=>{const newBalance=currentUser.balance-amount;updateUserBalance(newBalance);showAlert(withdrawAlert,`৳${amount.toFixed(2)} আপনার ${method} নম্বরে (${account}) উইথড্র করার রিকোয়েস্ট সফলভাবে পাঠানো হয়েছে। ২৪ ঘণ্টার মধ্যে পেমেন্ট সম্পন্ন হবে। (ডেমো)`,"success");withdrawForm.reset();hideLoading(); console.log("SIMULATE_BACKEND/TELEGRAM: Withdraw Request", {user:currentUser.email, amount:amount, method:method, account:account, timestamp: new Date().toISOString()});},1800);}
+
+
+        // --- Initialization ---
+        function initializeAppUI() {
+             checkLoginStatus(); // Load user state from Local Storage
+             updateProfileCard(); // Update top profile section UI
+             if (isLoggedIn) {
+                 showPage('home-page'); // Start at home page if logged in
+             } else {
+                  showPage('login-page'); // Start at login page if not logged in
+             }
+              // Reset balance visibility on app load/reload
+              isBalanceVisible = false;
+              updateBalanceDisplay(); // Ensure balance display matches visibility state
+         }
+
+        // --- Event Listener Setup ---
+         document.addEventListener('DOMContentLoaded', () => {
+              navItems.forEach(item => item.addEventListener('click', () => showPage(item.getAttribute('data-page'))));
+              if(loginForm) loginForm.addEventListener('submit', handleLogin);
+              if(signupForm) signupForm.addEventListener('submit', handleSignup);
+              if(depositForm) depositForm.addEventListener('submit', handleDepositRequest);
+              if(withdrawForm) withdrawForm.addEventListener('submit', handleWithdraw);
+              if(logoutButton) logoutButton.addEventListener('click', ()=>{
+                  if (confirm("আপনি কি নিশ্চিতভাবে লগ আউট করতে চান?")) {
+                     showLoading();
+                     setTimeout(()=>{
+                         clearLoginStatus();
+                         initializeAppUI(); // This will now correctly show login page and hide header
+                         hideLoading();
+                         showToast("আপনি সফলভাবে লগ আউট হয়েছেন।");
+                      }, 500);
+                  }
+              });
+              if (profileBalanceSection) profileBalanceSection.addEventListener('click', toggleBalanceVisibility);
+
+             // Initialize the app
+             initializeAppUI();
+         });
+
+        // Save state before unload (optional but good practice for balance/VIP)
+        window.addEventListener('beforeunload', saveAppState);
+
     </script>
-    <script type="text/javascript" src="//www.highperformanceformat.com/728897206504f3ccf981e290d2df1034/invoke.js"></script>
-  </div>
-
-  <!-- Profile Section -->
-  <div class="profile">
-    <div style="display: flex; align-items: center;">
-      <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="User Icon">
-      <div class="details">
-        <strong>Username: <span id="username"></span></strong>
-        <span class="balance">Balance: <span id="balance">৳0</span></span>
-        <span class="ip-address">IP: <span id="ipAddress">Loading...</span></span>
-      </div>
-    </div>
-    <div style="text-align: right;">
-      <span>Registered: <span id="regDate"></span></span><br>
-      <span>ID: <span id="userId"></span></span>
-    </div>
-  </div>
-
-  <div class="notification">
-    <div class="marquee">📢 আমি ভালো নেই 📢 আমি ভালো নেই 📢 আমি ভালো নেই 📢</div>
-  </div>
-
-  <div class="button-panel">
-    <button onclick="doTask()">Do Task</button>
-    <button onclick="goToInvest()">Invest</button>
-    <button onclick="withdrawMoney()">Withdraw</button>
-    <button onclick="partnerList()">Partners</button>
-    <button onclick="referFriends()">Refer</button>
-    <button onclick="moreOptions()">More</button>
-  </div>
-
-  <script>
-    let userData = JSON.parse(localStorage.getItem('userData')) || {
-      username: "Rahim123",
-      balance: 1200,
-      regDate: "2025-04-12",
-      userId: "001254",
-      ip: ""
-    };
-
-    function fetchIP() {
-      if(userData.ip) {
-        document.getElementById('ipAddress').textContent = userData.ip;
-        return;
-      }
-
-      Promise.any([
-        fetch('https://api.ipify.org?format=json'),
-        fetch('https://ipapi.co/json'),
-        fetch('https://api.my-ip.io/ip.json')
-      ])
-      .then(response => response.json())
-      .then(data => {
-        const ip = data.ip || data.ip;
-        document.getElementById('ipAddress').textContent = ip;
-        userData.ip = ip;
-        localStorage.setItem('userData', JSON.stringify(userData));
-      })
-      .catch(() => {
-        document.getElementById('ipAddress').textContent = "Failed to load";
-      });
-    }
-
-    document.getElementById('username').textContent = userData.username;
-    document.getElementById('balance').textContent = `৳${userData.balance}`;
-    document.getElementById('regDate').textContent = userData.regDate;
-    document.getElementById('userId').textContent = userData.userId;
-    fetchIP();
-
-    function updateBalanceDisplay() {
-      document.getElementById("balance").innerText = `৳${userData.balance.toFixed(2)}`;
-      localStorage.setItem('userData', JSON.stringify(userData));
-    }
-
-    function doTask() {
-      window.open("https://www.profitablecpmrate.com/c7gf3hhv?key=6e230d822c56accf1662d101e2443189", "_blank");
-      setTimeout(() => {
-        userData.balance += 0.5;
-        updateBalanceDisplay();
-        alert("আপনি একটি অ্যাড দেখেছেন, ব্যালেন্সে ৳0.5 যুক্ত হয়েছে!");
-      }, 2000);
-    }
-
-    function goToInvest() {
-      const amount = prompt("Enter investment amount:");
-      if (amount && !isNaN(amount) && amount > 0) {
-        alert(`Invested ৳${amount}. 12% commission activated for 30 days.`);
-      }
-    }
-
-    function withdrawMoney() {
-      const number = prompt("Enter mobile number:");
-      const amount = prompt("Enter withdrawal amount:");
-      if (number && amount && !isNaN(amount)) {
-        alert(`Withdrawal request submitted for ৳${amount}`);
-        userData.balance -= parseFloat(amount);
-        updateBalanceDisplay();
-      }
-    }
-
-    function partnerList() {
-      alert("Showing partner list");
-    }
-
-    function referFriends() {
-      const link = "https://yourapp.com/refer?user=" + userData.username;
-      navigator.clipboard.writeText(link);
-      alert("Referral link copied: " + link);
-    }
-
-    function moreOptions() {
-      alert("New features coming soon!");
-    }
-  </script>
 </body>
 </html>
