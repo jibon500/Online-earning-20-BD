@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Elite Earning Zone (সম্পূর্ণ কোড - আনলিমিটেড অ্যাড সহ)</title>
+    <title>Elite Earning Zone (সম্পূর্ণ কোড - ডিপোজিট নম্বর কপি)</title>
     <!-- Font Awesome & Google Fonts -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -78,7 +78,7 @@
          .btn:disabled { background-color: var(--medium-text); cursor: not-allowed; box-shadow: none; transform: none;}
          .btn i { margin-right: 10px; }
          .btn-small { padding: 10px 15px; font-size: 0.9em; margin-top: 10px;}
-         .btn-copy { margin-left: 10px; padding: 6px 10px; font-size: 0.8em; background-color: var(--medium-text); color: white; border-radius: 5px; cursor: pointer;}
+         .btn-copy { margin-left: 10px; padding: 6px 10px; font-size: 0.8em; background-color: var(--medium-text); color: white; border-radius: 5px; cursor: pointer; border:none; } /* Added border:none */
          .btn-copy:hover { background-color: var(--dark-text);}
         .btn-success { background-color: var(--secondary-color); box-shadow: 0 3px 5px rgba(0, 150, 136, 0.2); } .btn-success:hover:not(:disabled) { background-color: #00796B; box-shadow: 0 4px 8px rgba(0, 150, 136, 0.3); transform: translateY(-1px); }
         .btn-warning { background: linear-gradient(45deg, var(--accent-color), #ffb300); box-shadow: 0 3px 5px rgba(255, 193, 7, 0.2); color: var(--dark-text); } .btn-warning:hover:not(:disabled) { background: linear-gradient(45deg, #ffb300, #ffa000); box-shadow: 0 4px 8px rgba(255, 193, 7, 0.3); transform: translateY(-1px);}
@@ -259,11 +259,45 @@
          /* Referral Code Box */
          .refer-code-box { background-color: #eee; padding: 15px 20px; border-radius: 10px; font-size: 1.3em; font-weight: 700; text-align: center; margin: 10px 0 20px 0; color: var(--primary-dark); letter-spacing: 1px; border: 1px dashed var(--border-color); }
          #copy-feedback { text-align: center; margin-top: 10px; color: var(--success-color); font-weight: 500; height: 20px; }
-         /* Deposit uses Taka */
+
+         /* Deposit Page Specific Styles */
          .deposit-info { background-color: rgba(255, 193, 7, 0.1); border-left: 4px solid var(--accent-color); padding: 12px 15px; margin-bottom: 20px; border-radius: 4px; font-size: 0.9em; font-family: var(--font-bengali); color: var(--dark-text); }
          .deposit-info strong { color: var(--warning-color); }
          .deposit-info ol { padding-left: 20px; margin-top: 8px; }
          .deposit-info li { margin-bottom: 5px; }
+        /* >>> NEW CSS FOR DEPOSIT NUMBER BOX <<< */
+         .deposit-number-box {
+             display: flex;
+             align-items: center;
+             justify-content: center;
+             background: #e0f2f7; /* Light cyan background */
+             padding: 12px 18px;
+             border-radius: 10px;
+             margin-bottom: 20px;
+             border: 1px dashed #00acc1; /* Cyan border */
+         }
+         .deposit-number-box span {
+             font-size: 1.3em; /* Slightly larger number */
+             font-weight: 700;
+             color: #00796b; /* Dark teal color */
+             margin-right: 15px; /* More space */
+             letter-spacing: 1px;
+         }
+         .deposit-number-box .btn-copy {
+             background-color: #0097a7; /* Cyan button */
+             flex-shrink: 0; /* Prevent button from shrinking */
+         }
+          .deposit-number-box .btn-copy:hover {
+             background-color: #00796b; /* Darker cyan on hover */
+         }
+         .deposit-instruction-text { /* Added class for the instruction */
+             text-align: center;
+             font-weight: 600; /* Bolder */
+             font-size: 1.05em;
+             color: var(--primary-dark);
+             margin-bottom: 8px; /* More space */
+             font-family: var(--font-bengali);
+         }
 
          /* Policy Page Specific Styles */
          .policy-content h3 { margin-top: 20px; margin-bottom: 10px; font-size: 1.2em; color: var(--primary-dark); border-bottom: none; padding-bottom: 0; }
@@ -370,17 +404,54 @@
 
             <!-- Deposit Page (Taka, Minimum 100) -->
             <div id="deposit-page" class="page">
-                <h2><i class="fas fa-university"></i> ডিপোজিট (৳)</h2> <div id="deposit-alert" class="alert"></div>
-                <!-- Updated minimum deposit text -->
-                <div class="deposit-info"> <strong><i class="fas fa-info-circle"></i> গুরুত্বপূর্ণ:</strong> <ol> <li>সঠিক মাধ্যমে ও নম্বরে টাকা পাঠান (ন্যূনতম ৳১০০)।</li> <li>সঠিক ১০ সংখ্যার TrxID এবং আপনার প্রেরক নম্বর দিন।</li> <li>সাধারণত ৫ মিনিটের মধ্যে কয়েন যোগ হয়।</li> </ol> </div>
-                <h3><i class="fas fa-mobile-alt"></i> পেমেন্ট নম্বর</h3> <p style="background:#eee; padding:15px; border-radius:8px; text-align:center; font-weight:bold; margin-bottom:20px;">বিকাশ/নগদ/রকেট: 017********</p>
+                <h2><i class="fas fa-university"></i> ডিপোজিট (৳)</h2>
+                <div id="deposit-alert" class="alert"></div>
+
+                <!-- Important Info Box -->
+                <div class="deposit-info">
+                    <strong><i class="fas fa-info-circle"></i> গুরুত্বপূর্ণ:</strong>
+                    <ol>
+                        <li>নিচের নগদ নম্বরে টাকা Send Money করুন (ন্যূনতম ৳১০০)।</li>
+                        <li>সঠিক ১০ সংখ্যার TrxID এবং আপনার প্রেরক নম্বর ফর্ম এ দিন।</li>
+                        <li>সাধারণত ৫ মিনিটের মধ্যে কয়েন যোগ হয়।</li>
+                    </ol>
+                </div>
+
+                <!-- >>> MODIFIED DEPOSIT NUMBER SECTION <<< -->
+                <p class="deposit-instruction-text">Send Money করুন শুধুমাত্র নগদে</p>
+                <div class="deposit-number-box">
+                    <span id="deposit-number-display">01814892156</span>
+                    <button type="button" class="btn-copy" onclick="copyDepositNumber()"><i class="fas fa-copy"></i> কপি</button>
+                </div>
+                <!-- >>> END OF MODIFIED SECTION <<< -->
+
+                <!-- Deposit Form -->
                 <form id="deposit-form">
-                     <div class="form-group"><label for="deposit-method">মাধ্যম</label> <select id="deposit-method" required><option value="" disabled selected>নির্বাচন করুন</option><option value="bkash">বিকাশ</option><option value="nagad">নগদ</option><option value="rocket">রকেট</option></select></div>
-                     <!-- Updated minimum deposit amount -->
-                     <div class="form-group"><label for="deposit-amount">টাকার পরিমাণ</label> <input type="number" id="deposit-amount" placeholder="৳১০০+" required min="100"></div>
-                     <!-- Updated placeholder for TrxID -->
-                     <div class="form-group"><label for="deposit-txn-id">TrxID</label> <input type="text" id="deposit-txn-id" placeholder="১০ সংখ্যার ট্রানজেকশন আইডি" required></div>
-                     <div class="form-group"><label for="deposit-sender-number">প্রেরক নম্বর</label> <input type="text" id="deposit-sender-number" placeholder="আপনার নম্বর" required></div>
+                    <!-- Hidden Input for Method - Assuming only Nagad now -->
+                    <input type="hidden" id="deposit-method" value="nagad">
+                    <!-- Removed Method Selection Dropdown -->
+                    <!-- <div class="form-group">
+                        <label for="deposit-method">মাধ্যম</label>
+                        <select id="deposit-method" required>
+                            <option value="" disabled selected>নির্বাচন করুন</option>
+                            <option value="bkash">বিকাশ</option>
+                            <option value="nagad">নগদ</option>
+                            <option value="rocket">রকেট</option>
+                        </select>
+                    </div> -->
+
+                     <div class="form-group">
+                         <label for="deposit-amount">টাকার পরিমাণ</label>
+                         <input type="number" id="deposit-amount" placeholder="৳১০০+" required min="100">
+                     </div>
+                     <div class="form-group">
+                         <label for="deposit-txn-id">TrxID (নগদ)</label>
+                         <input type="text" id="deposit-txn-id" placeholder="১০ সংখ্যার ট্রানজেকশন আইডি" required>
+                     </div>
+                     <div class="form-group">
+                         <label for="deposit-sender-number">প্রেরক নম্বর (আপনার নগদ নম্বর)</label>
+                         <input type="text" id="deposit-sender-number" placeholder="যে নম্বর থেকে টাকা পাঠিয়েছেন" required>
+                     </div>
                      <button type="submit" class="btn btn-success"><i class="fas fa-paper-plane"></i> সাবমিট</button>
                  </form>
              </div>
@@ -414,7 +485,7 @@
                      <h3>১. সাধারণ শর্তাবলী</h3> <p>এই প্ল্যাটফর্ম ব্যবহার করার মাধ্যমে আপনি আমাদের সমস্ত নিয়ম ও শর্তাবলী মেনে নিতে সম্মত হচ্ছেন। যেকোনো অবৈধ বা প্রতারণামূলক কার্যকলাপের জন্য আপনার অ্যাকাউন্ট বিনা নোটিশে বন্ধ করে দেওয়া হতে পারে।</p>
                      <h3>২. অ্যাকাউন্ট</h3> <p>প্রতি ব্যবহারকারী শুধুমাত্র একটি অ্যাকাউন্ট ব্যবহার করতে পারবেন। একাধিক অ্যাকাউন্ট তৈরি করা বা অন্যের অ্যাকাউন্ট ব্যবহার করা নিষিদ্ধ। আপনার অ্যাকাউন্টের তথ্যের গোপনীয়তা রক্ষা করার দায়িত্ব আপনার।</p>
                      <h3>৩. আয় এবং টাস্ক</h3> <p>ভিআইপি প্ল্যান সক্রিয় থাকলে নির্দিষ্ট সংখ্যক 'আর্নিং অ্যাড' দেখে কয়েন আয় করা যাবে। 'আনলিমিটেড অ্যাড' বাটনে ক্লিক করে অ্যাড দেখা যাবে, এবং প্রতি ৫টি অ্যাড দেখার পর ১ কয়েন মূল ব্যালেন্সে যোগ হবে। রেফার করে টাকা আয় করা যাবে (শর্ত প্রযোজ্য)। প্রতিটি কাজের মূল্য অ্যাপের মধ্যে উল্লেখ থাকবে। ভিআইপি প্ল্যান অনুযায়ী দৈনিক 'আর্নিং অ্যাড' দেখার সীমা ভিন্ন হবে। 'আনলিমিটেড অ্যাড' দেখার কোনো সীমা নেই, তবে কয়েন যোগ হবে প্রতি ৫টি ভিউ এর পর।</p>
-                     <h3>৪. ডিপোজিট (৳) ও ভিআইপি ক্রয় (কয়েন)</h3> <p>উল্লেখিত পদ্ধতির মাধ্যমে টাকায় ডিপোজিট করতে পারবেন (ন্যূনতম ৳১০০)। ডিপোজিট রিকোয়েস্ট সাবমিট করার ৫ মিনিট পর আপনার ডিপোজিট করা টাকার সমপরিমাণ কয়েন অ্যাকাউন্টে যোগ হবে (১ টাকা = ১ কয়েন)। ভিআইপি প্ল্যান ক্রয়ের জন্য আপনার অ্যাকাউন্টে পর্যাপ্ত কয়েন থাকতে হবে। প্ল্যান কিনলে আপনার কয়েন ব্যালেন্স থেকে প্ল্যানের মূল্য কেটে নেওয়া হবে এবং প্ল্যানটি সক্রিয় প্ল্যান তালিকায় যুক্ত হবে। ব্যবহারকারী একই সময়ে একাধিক ভিআইপি প্ল্যান সক্রিয় রাখতে পারে।</p>
+                     <h3>৪. ডিপোজিট (৳) ও ভিআইপি ক্রয় (কয়েন)</h3> <p>শুধুমাত্র 'নগদ' এর মাধ্যমে Send Money করে ডিপোজিট করতে পারবেন (ন্যূনতম ৳১০০)। ডিপোজিট পেজে দেওয়া নির্দিষ্ট নগদ নম্বরে টাকা পাঠানোর পর, অ্যাপের ফর্মে আপনার পাঠানো টাকার পরিমাণ, ১০ সংখ্যার TrxID এবং আপনার প্রেরক নগদ নম্বর দিয়ে সাবমিট করতে হবে। রিকোয়েস্ট সাবমিট করার ৫ মিনিট পর আপনার ডিপোজিট করা টাকার সমপরিমাণ কয়েন অ্যাকাউন্টে যোগ হবে (১ টাকা = ১ কয়েন)। ভিআইপি প্ল্যান ক্রয়ের জন্য আপনার অ্যাকাউন্টে পর্যাপ্ত কয়েন থাকতে হবে। প্ল্যান কিনলে আপনার কয়েন ব্যালেন্স থেকে প্ল্যানের মূল্য কেটে নেওয়া হবে এবং প্ল্যানটি সক্রিয় প্ল্যান তালিকায় যুক্ত হবে। ব্যবহারকারী একই সময়ে একাধিক ভিআইপি প্ল্যান সক্রিয় রাখতে পারে।</p>
                      <h3>৫. উইথড্র (কয়েন)</h3> <p>ন্যূনতম ৫০০০ কয়েন অর্জন করার পর উইথড্র করতে পারবেন। উইথড্র করার সময় আপনার কয়েন টাকায় রূপান্তরিত হয়ে পেমেন্ট করা হবে (রেট এডমিন কর্তৃক নির্ধারিত)। রিকোয়েস্ট ২৪ ঘণ্টার মধ্যে প্রক্রিয়া করা হয়। উইথড্র রিকোয়েস্ট করলে এডমিনকে টেলিগ্রামে জানানো হবে।</p>
                      <h3>৬. ভিআইপি মেম্বারশিপ</h3> <p>প্ল্যান ক্রয়ের মাধ্যমে দৈনিক 'আর্নিং অ্যাড' দেখার সীমা বৃদ্ধি পাবে। মেয়াদ এবং সুবিধা প্ল্যান অনুযায়ী ভিন্ন হবে। ভিআইপি প্ল্যানের মূল্য (কয়েন) অফেরতযোগ্য।</p>
                      <h3>৭. নিষিদ্ধ কার্যকলাপ</h3> <p>ভিপিএন, প্রক্সি, অটো-ক্লিক, স্ক্রিপ্ট, এমুলেটর ব্যবহার করা কঠোরভাবে নিষিদ্ধ। ধরা পড়লে অ্যাকাউন্ট স্থায়ীভাবে বন্ধ করা হবে।</p>
@@ -500,6 +571,7 @@
          const modalVipPriceInput = document.getElementById('modal-vip-price');
          const modalVipPriceDisplay = document.getElementById('modal-vip-price-display');
          const modalCurrentCoins = document.getElementById('modal-current-coins');
+         const depositNumberDisplay = document.getElementById('deposit-number-display'); // <<< Get deposit number element
 
         // --- App State ---
         let isLoggedIn = false;
@@ -511,7 +583,7 @@
             referralCode: 'LOADING',
             activeVips: [], // Array of { level, name, tasksPerDay, purchaseDate }
             completedAdViewsToday: 0, // For VIP ads
-            unlimitedAdViewCount: 0, // Counter for Unlimited Ads button <<< NEW STATE
+            unlimitedAdViewCount: 0, // Counter for Unlimited Ads button
         };
         let isBalanceVisible = false;
         let isMonetagAdShowing = false;
@@ -522,7 +594,7 @@
         const TELEGRAM_CHAT_ID = "6105596008"; // Replace if needed
         const ADSTERRA_BOTTOM_BANNER_KEY = '728897206504f3ccf981e290d2df1034'; // Replace if needed
         const MONETAG_AD_REWARD = 1; // 1 Coin per VIP ad view
-        const UNLIMITED_ADS_PER_COIN = 5; // <<< NEW CONFIG: Number of unlimited ads for 1 coin reward
+        const UNLIMITED_ADS_PER_COIN = 5; // Number of unlimited ads for 1 coin reward
         const WITHDRAWAL_MINIMUM_COINS = 5000;
         const DEPOSIT_MINIMUM_TAKA = 100;
         const DEPOSIT_COIN_DELAY_MS = 5 * 60 * 1000; // 5 minutes delay
@@ -565,6 +637,20 @@
          function openModal(modalId) { const modal = document.getElementById(modalId); if (modal) modal.style.display = 'flex'; }
          function closeModal(modalId) { const modal = document.getElementById(modalId); if (modal) modal.style.display = 'none'; }
          function getTotalDailyAdLimit() { if (!currentUser || !currentUser.activeVips || currentUser.activeVips.length === 0) return 0; return currentUser.activeVips.reduce((sum, vip) => sum + (vip.tasksPerDay || 0), 0); }
+         // >>> NEW FUNCTION TO COPY DEPOSIT NUMBER <<<
+         function copyDepositNumber() {
+             if (depositNumberDisplay) {
+                 const numberToCopy = depositNumberDisplay.textContent.trim();
+                 navigator.clipboard.writeText(numberToCopy).then(() => {
+                     showToast('নগদ নম্বর কপি করা হয়েছে!', 2500);
+                 }).catch(err => {
+                     showToast('কপি করতে সমস্যা হয়েছে।');
+                     console.error('Failed to copy deposit number:', err);
+                 });
+             } else {
+                 console.error("Deposit number element not found.");
+             }
+         }
 
 
         // --- Telegram Integration ---
@@ -605,7 +691,7 @@
          }
 
         // --- Authentication & Local Storage ---
-        const LS_PREFIX = "eliteEarnCoinVIP_v4_"; // <<< Incremented prefix for new unlimited ad logic
+        const LS_PREFIX = "eliteEarnCoinVIP_v4_"; // Keep prefix consistent
          function checkLoginStatus() {
              const loggedIn = localStorage.getItem(LS_PREFIX + 'loggedIn') === 'true';
              if (loggedIn) {
@@ -617,14 +703,13 @@
                  currentUser.referralCode = localStorage.getItem(LS_PREFIX + 'userReferralCode');
                  currentUser.activeVips = JSON.parse(localStorage.getItem(LS_PREFIX + 'userActiveVips') || '[]');
                  currentUser.completedAdViewsToday = parseInt(localStorage.getItem(LS_PREFIX + 'completedAdViewsToday') || '0');
-                 currentUser.unlimitedAdViewCount = parseInt(localStorage.getItem(LS_PREFIX + 'unlimitedAdViewCount') || '0'); // <<< LOAD Unlimited Ad Count
+                 currentUser.unlimitedAdViewCount = parseInt(localStorage.getItem(LS_PREFIX + 'unlimitedAdViewCount') || '0'); // LOAD Unlimited Ad Count
                  const today = new Date().toDateString();
                  const lastReset = localStorage.getItem(LS_PREFIX + 'lastAdResetDate');
                  if (lastReset !== today) { resetDailyAdViews(); }
                  checkPendingDeposits();
              } else {
                  isLoggedIn = false;
-                 // <<< Updated default currentUser object
                  currentUser = { name: 'ব্যবহারকারী', email: null, phone: '01xxxxxxxxx', balance: 100, referralCode: 'DEMO123', activeVips: [], completedAdViewsToday: 0, unlimitedAdViewCount: 0 };
              }
          }
@@ -633,7 +718,6 @@
              user.activeVips = user.activeVips || [];
              if(!user.referralCode){user.referralCode=generateReferralCode()}
              if(!user.phone || user.phone.length !== 11 || !/^[0-9]+$/.test(user.phone)){user.phone='01xxxxxxxxx'}
-             // <<< Updated saved currentUser object
              currentUser = { ...user, completedAdViewsToday: 0, unlimitedAdViewCount: user.unlimitedAdViewCount || 0 };
              localStorage.setItem(LS_PREFIX + 'loggedIn', 'true');
              localStorage.setItem(LS_PREFIX + 'userEmail', currentUser.email);
@@ -643,7 +727,7 @@
              localStorage.setItem(LS_PREFIX + 'userReferralCode', currentUser.referralCode);
              localStorage.setItem(LS_PREFIX + 'userActiveVips', JSON.stringify(currentUser.activeVips));
              localStorage.setItem(LS_PREFIX + 'completedAdViewsToday', currentUser.completedAdViewsToday.toString());
-             localStorage.setItem(LS_PREFIX + 'unlimitedAdViewCount', currentUser.unlimitedAdViewCount.toString()); // <<< SAVE Unlimited Ad Count
+             localStorage.setItem(LS_PREFIX + 'unlimitedAdViewCount', currentUser.unlimitedAdViewCount.toString()); // SAVE Unlimited Ad Count
              resetDailyAdViews(); // Also resets the date
              updateProfileCard();
              renderDailyAdViewProgress();
@@ -653,7 +737,7 @@
                  localStorage.setItem(LS_PREFIX+'userBalance', Math.floor(currentUser.balance).toString());
                  localStorage.setItem(LS_PREFIX+'userActiveVips', JSON.stringify(currentUser.activeVips));
                  localStorage.setItem(LS_PREFIX + 'completedAdViewsToday', currentUser.completedAdViewsToday.toString());
-                 localStorage.setItem(LS_PREFIX + 'unlimitedAdViewCount', currentUser.unlimitedAdViewCount.toString()); // <<< SAVE Unlimited Ad Count
+                 localStorage.setItem(LS_PREFIX + 'unlimitedAdViewCount', currentUser.unlimitedAdViewCount.toString()); // SAVE Unlimited Ad Count
                  const lastReset = localStorage.getItem(LS_PREFIX + 'lastAdResetDate');
                  if (lastReset) { localStorage.setItem(LS_PREFIX + 'lastAdResetDate', lastReset); }
                  localStorage.setItem(LS_PREFIX + 'pendingDeposits', JSON.stringify(depositTimers));
@@ -661,7 +745,6 @@
         }
          function clearLoginStatus() {
              isLoggedIn = false;
-             // <<< Updated default currentUser object
              currentUser = { name: 'ব্যবহারকারী', email: null, phone: '01xxxxxxxxx', balance: 100, referralCode: 'DEMO123', activeVips: [], completedAdViewsToday: 0, unlimitedAdViewCount: 0 };
              localStorage.removeItem(LS_PREFIX + 'loggedIn');
              localStorage.removeItem(LS_PREFIX + 'userEmail');
@@ -672,7 +755,7 @@
              localStorage.removeItem(LS_PREFIX + 'userActiveVips');
              localStorage.removeItem(LS_PREFIX + 'completedAdViewsToday');
              localStorage.removeItem(LS_PREFIX + 'lastAdResetDate');
-             localStorage.removeItem(LS_PREFIX + 'unlimitedAdViewCount'); // <<< CLEAR Unlimited Ad Count
+             localStorage.removeItem(LS_PREFIX + 'unlimitedAdViewCount'); // CLEAR Unlimited Ad Count
              localStorage.removeItem(LS_PREFIX + 'pendingDeposits');
              Object.values(depositTimers).forEach(timerData => clearTimeout(timerData.timeoutId));
              depositTimers = {};
@@ -767,7 +850,7 @@
                } catch (error) { console.error("Error calling show_9292109:", error); showToast("বিজ্ঞাপন দেখানোর ফাংশন চালু করা যায়নি।", 3000); hideLoading(); isMonetagAdShowing = false; }
            }
 
-           // --- <<< NEW UNLIMITED AD FUNCTION >>> ---
+           // --- UNLIMITED AD FUNCTION ---
            function showUnlimitedAd() {
                if (!isLoggedIn) { showToast("বিজ্ঞাপন দেখতে লগইন করুন।"); return; }
                if (isMonetagAdShowing) { showToast("অন্য একটি বিজ্ঞাপন চলছে..."); return; }
@@ -890,19 +973,19 @@
         function handleLogin(event) { event.preventDefault(); clearAlerts(); const e=loginForm.querySelector('#login-email').value.trim().toLowerCase(),p=loginForm.querySelector('#login-password').value;if(!e||!p){showAlert(loginAlert,'অনুগ্রহ করে ইমেইল এবং পাসওয়ার্ড দিন।');return} if(!/\S+@\S+\.\S+/.test(e)){showAlert(loginAlert,'অনুগ্রহ করে একটি সঠিক ইমেইল ঠিকানা দিন।');return} showLoading();setTimeout(()=>{const u_str=localStorage.getItem(`user_${e}_${LS_PREFIX}`);let u; if(!u_str){showAlert(loginAlert,'এই ইমেইল দিয়ে কোনো অ্যাকাউন্ট পাওয়া যায়নি।');hideLoading();return;} try {u=JSON.parse(u_str);} catch(err){showAlert(loginAlert,'অ্যাকাউন্ট ডেটা লোড করতে সমস্যা।');hideLoading();return;} if(p.length>=6){ const userData={email:e,name:u.name||e.split('@')[0],balance:u.balance!==undefined?parseInt(u.balance):100, referralCode:u.referralCode||generateReferralCode(),phone:u.phone||'01xxxxxxxxx', activeVips: u.activeVips || [], unlimitedAdViewCount: u.unlimitedAdViewCount || 0 }; saveLoginStatus(userData);showToast('লগইন সফল!');initializeAppUI()}else{showAlert(loginAlert,'পাসওয়ার্ড সঠিক নয়। ডেমো পাসওয়ার্ড কমপক্ষে ৬ অক্ষরের হতে হবে।')} hideLoading()},1000);}
         function handleSignup(event) { event.preventDefault();clearAlerts();const n=signupForm.querySelector('#signup-name').value.trim(),e=signupForm.querySelector('#signup-email').value.trim().toLowerCase(),ph=signupForm.querySelector('#signup-phone').value.trim(),p=signupForm.querySelector('#signup-password').value,r=signupForm.querySelector('#signup-refer').value.trim(); if(!n||!e||!ph||!p){showAlert(signupAlert,'অনুগ্রহ করে নাম, ইমেইল, ফোন নম্বর এবং পাসওয়ার্ড পূরণ করুন।');return} if(!/\S+@\S+\.\S+/.test(e)){showAlert(signupAlert,'অনুগ্রহ করে একটি সঠিক ইমেইল ঠিকানা দিন।');return} if(ph.length !== 11 || !/^[0-9]+$/.test(ph)){showAlert(signupAlert,'অনুগ্রহ করে একটি সঠিক ১১ ডিজিটের মোবাইল নম্বর দিন।'); return;} if(p.length<6){showAlert(signupAlert,'পাসওয়ার্ড কমপক্ষে ৬ অক্ষরের হতে হবে।');return} showLoading();setTimeout(()=>{ if(localStorage.getItem(`user_${e}_${LS_PREFIX}`)){showAlert(signupAlert,'এই ইমেইল ঠিকানা দিয়ে ইতিমধ্যে একটি অ্যাকাউন্ট রয়েছে।');hideLoading();return;} const rc=generateReferralCode();let signupBonusCoins=100; if(r&&r.length===7){ console.log(`Referral code ${r} applied. Taka bonus needs manual addition.`);} const newUser={name:n,email:e,phone:ph,balance:signupBonusCoins, referralCode:rc, activeVips: [], unlimitedAdViewCount: 0 }; localStorage.setItem(`user_${e}_${LS_PREFIX}`, JSON.stringify(newUser)); saveLoginStatus(newUser);showToast('সাইন আপ সফল! স্বাগতম!', 4000); initializeAppUI(); hideLoading()},1500);}
 
-        // Deposit handler updated for minimum 100 Taka and 10-char TrxID
-        // Adds COINS after 5 minutes
+        // Deposit handler updated for Nagad Only
         function handleDepositRequest(event) {
              event.preventDefault(); clearAlerts(); if(!isLoggedIn){showAlert(depositAlert,"ডিপোজিট করতে লগইন করুন।");return}
              const amountInput = depositForm.querySelector('#deposit-amount');
              const amount = parseFloat(amountInput.value); // Amount in Taka
-             const method = depositForm.querySelector('#deposit-method').value;
+             const method = "nagad"; // Hardcoded to Nagad
              const txnId = depositForm.querySelector('#deposit-txn-id').value.trim();
              const senderNumber = depositForm.querySelector('#deposit-sender-number').value.trim();
 
-             if(isNaN(amount) || amount < DEPOSIT_MINIMUM_TAKA || !method || !txnId || !senderNumber){ showAlert(depositAlert,`অনুগ্রহ করে সমস্ত তথ্য সঠিকভাবে পূরণ করুন (টাকার পরিমাণ কমপক্ষে ৳${DEPOSIT_MINIMUM_TAKA})।`); return; }
-             if(txnId.length !== TRX_ID_LENGTH){ showAlert(depositAlert, `ট্রানজেকশন আইডি অবশ্যই ${TRX_ID_LENGTH} সংখ্যার হতে হবে।`); return; } // <<< TRX ID LENGTH CHECK
-             if(senderNumber.length < 11 || !/^[0-9]+$/.test(senderNumber)){ showAlert(depositAlert, "অনুগ্রহ করে একটি সঠিক প্রেরক মোবাইল নম্বর দিন।"); return; }
+             // Removed check for method selection as it's now fixed
+             if(isNaN(amount) || amount < DEPOSIT_MINIMUM_TAKA || !txnId || !senderNumber){ showAlert(depositAlert,`অনুগ্রহ করে সমস্ত তথ্য সঠিকভাবে পূরণ করুন (টাকার পরিমাণ কমপক্ষে ৳${DEPOSIT_MINIMUM_TAKA}, TrxID, প্রেরক নম্বর)।`); return; }
+             if(txnId.length !== TRX_ID_LENGTH){ showAlert(depositAlert, `ট্রানজেকশন আইডি অবশ্যই ${TRX_ID_LENGTH} সংখ্যার হতে হবে।`); return; }
+             if(senderNumber.length < 11 || !/^[0-9]+$/.test(senderNumber)){ showAlert(depositAlert, "অনুগ্রহ করে একটি সঠিক প্রেরক নগদ মোবাইল নম্বর দিন।"); return; }
 
              // Prevent duplicate deposit processing using txnId
              if (depositTimers[txnId]) {
@@ -912,7 +995,7 @@
 
              showLoading();
              // Send Telegram message immediately
-             const message = `📥 <b>ডিপোজিট রিকোয়েস্ট (৳)</b> 📥\n------------------------------------\n📧 <b>ইউজার:</b> ${currentUser.email || 'N/A'} (${currentUser.phone})\n💰 <b>পরিমাণ:</b> ৳${amount.toFixed(2)}\n🏧 <b>মাধ্যম:</b> ${method}\n🆔 <b>TrxID:</b> ${txnId}\n🔢 <b>প্রেরক নম্বর:</b> ${senderNumber}\n------------------------------------\n⏰ <b>সময়:</b> ${new Date().toLocaleString('bn-BD')}\n🪙 <b>ইউজারের বর্তমান কয়েন:</b> ${Math.floor(currentUser.balance)}`;
+             const message = `📥 <b>ডিপোজিট রিকোয়েস্ট (৳ Nagad)</b> 📥\n------------------------------------\n📧 <b>ইউজার:</b> ${currentUser.email || 'N/A'} (${currentUser.phone})\n💰 <b>পরিমাণ:</b> ৳${amount.toFixed(2)}\n🏧 <b>মাধ্যম:</b> ${method.toUpperCase()}\n🆔 <b>TrxID:</b> ${txnId}\n🔢 <b>প্রেরক নম্বর:</b> ${senderNumber}\n------------------------------------\n⏰ <b>সময়:</b> ${new Date().toLocaleString('bn-BD')}\n🪙 <b>ইউজারের বর্তমান কয়েন:</b> ${Math.floor(currentUser.balance)}`;
 
              sendTelegramMessage(message).then(sent => {
                  hideLoading(); // Hide loading after Telegram attempt
@@ -953,7 +1036,6 @@
 
          // Function to save pending deposits to localStorage
          function savePendingDeposits() {
-             // We only need to store amount and startTime, not the timeoutId itself
              const storableTimers = {};
              for (const txnId in depositTimers) {
                  storableTimers[txnId] = {
@@ -990,18 +1072,14 @@
                              savePendingDeposits();
                          }
                      }, remainingTime);
-                     // Store the new timeoutId along with original data
                      depositTimers[txnId] = { ...timerData, timeoutId: newTimeoutId };
                  } else {
-                     // Timer should have already fired, add coins now if missed
                      console.log(`Adding ${timerData.amount} coins for missed pending deposit TxnID: ${txnId}`);
                      updateUserBalance(currentUser.balance + timerData.amount); // Add coins immediately
-                     // Don't add to depositTimers object, just update balance
                      saveAppState(); // Save the updated balance
                  }
              }
-             // Clean up the saved timers after processing
-             savePendingDeposits();
+             savePendingDeposits(); // Clean up storage after processing
          }
 
 
@@ -1048,6 +1126,8 @@
               if (profileBalanceSection) profileBalanceSection.addEventListener('click', toggleBalanceVisibility);
 
              if(vipUpgradeModal) { vipUpgradeModal.addEventListener('click', (event) => { if (event.target === vipUpgradeModal) { closeModal('vip-upgrade-modal'); } }); }
+
+             // No need to add listener for copyDepositNumber button as it uses onclick attribute
 
              initializeAppUI();
          });
