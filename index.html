@@ -3,60 +3,56 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Elite Earning Zone (সম্পূর্ণ কোড)</title>
+    <title>Elite Earning Zone (সম্পূর্ণ কোড - কয়েন, ভিআইপি লিমিট, ব্যানার রিলোড)</title>
     <!-- Font Awesome & Google Fonts -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;500;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-    <!-- Monetag Verification (Already present) -->
+    <!-- Monetag Verification -->
     <meta name="monetag" content="35527a4139b51e79207c40ddc425fb70">
 
-    <!-- Monetag SDK Script (Added as requested) -->
+    <!-- Monetag SDK Script -->
     <script src='//whephiwums.com/sdk.js' data-zone='9292109' data-sdk='show_9292109'></script>
 
     <style>
         /* --- Base Styles & Variables --- */
         :root {
-            --primary-color: #6A1B9A; /* New Primary: Purple */
+            --primary-color: #6A1B9A;
             --primary-dark: #4A148C;
-            --secondary-color: #1DE9B6; /* Teal Accent */
-            --accent-color: #FFC107;   /* Amber */
-            --success-color: #558B2F; /* Light Green */
-            --warning-color: #FFA000; /* Amber Dark */
-            --danger-color: #D32F2F;  /* Red Dark */
-            --light-bg: #f8f9fa;      /* Cleaner Light Background */
+            --secondary-color: #1DE9B6;
+            --accent-color: #FFC107;
+            --success-color: #558B2F;
+            --warning-color: #FFA000; /* Amber Dark - Used for header */
+            --danger-color: #D32F2F;
+            --light-bg: #f8f9fa;
             --card-bg: #ffffff;
-            --dark-text: #37474F;      /* Dark Blue Grey */
-            --medium-text: #546E7A;    /* Blue Grey */
-            --light-text: #90A4AE;     /* Light Blue Grey */
-            --border-color: #CFD8DC;   /* Lighter Border */
+            --dark-text: #37474F;
+            --medium-text: #546E7A;
+            --light-text: #90A4AE;
+            --border-color: #CFD8DC;
             --white: #ffffff;
             --shadow-light: 0 2px 4px rgba(0,0,0,0.06);
             --shadow-medium: 0 4px 12px rgba(0, 0, 0, 0.1);
             --font-primary: 'Poppins', 'Noto Sans Bengali', sans-serif;
             --font-bengali: 'Noto Sans Bengali', sans-serif;
+            --coin-color: #FF9800; /* Color for coin icon/text */
         }
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { font-family: var(--font-primary); background-color: var(--light-bg); color: var(--dark-text); display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 5px; }
         .app-container { width: 100%; max-width: 430px; background-color: var(--card-bg); border-radius: 28px; box-shadow: var(--shadow-medium); overflow: hidden; height: 97vh; display: flex; flex-direction: column; position: relative; }
 
         /* --- Loading & Toast --- */
-        .loading-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(255, 255, 255, 0.9); display: none; flex-direction: column; justify-content: center; align-items: center; z-index: 1050; } /* Increased z-index */
+        .loading-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(255, 255, 255, 0.9); display: none; flex-direction: column; justify-content: center; align-items: center; z-index: 1050; }
         .loading-overlay i { font-size: 2.8em; color: var(--primary-color); margin-bottom: 10px; animation: spin 1.5s linear infinite;}
         .loading-overlay p { font-size: 1em; color: var(--primary-dark); font-weight: 500;}
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        .toast-notification { position: fixed; bottom: 85px; /* Above fixed banner & nav */ left: 50%; transform: translateX(-50%); background-color: rgba(49, 27, 146, 0.9); /* Dark purple */ color: white; padding: 12px 22px; border-radius: 25px; z-index: 1051; /* Above loading */ display: none; font-size: 0.9em; text-align: center; box-shadow: 0 5px 12px rgba(0,0,0,0.25); animation: fadeInOutToast 3.5s ease-in-out; max-width: 90%; font-family: var(--font-bengali); }
+        .toast-notification { position: fixed; bottom: 85px; left: 50%; transform: translateX(-50%); background-color: rgba(49, 27, 146, 0.9); color: white; padding: 12px 22px; border-radius: 25px; z-index: 1051; display: none; font-size: 0.9em; text-align: center; box-shadow: 0 5px 12px rgba(0,0,0,0.25); animation: fadeInOutToast 3.5s ease-in-out; max-width: 90%; font-family: var(--font-bengali); }
         @keyframes fadeInOutToast { 0%, 100% { opacity: 0; bottom: 65px; } 10%, 90% { opacity: 1; bottom: 85px;} }
 
         /* --- Pages Container --- */
-        .pages-container {
-            flex-grow: 1;
-            overflow-y: auto;
-            padding-bottom: calc(65px + 50px + 10px); /* Nav(65) + Banner(50) + Gap(10) */
-            scroll-behavior: smooth;
-        }
+        .pages-container { flex-grow: 1; overflow-y: auto; padding-bottom: calc(65px + 50px + 10px); scroll-behavior: smooth; }
         .page { display: none; padding: 15px 20px 25px 20px; animation: pageFadeInSimple 0.3s ease-out; }
         .page.active { display: block; }
         @keyframes pageFadeInSimple { from { opacity: 0; } to { opacity: 1; } }
@@ -72,6 +68,7 @@
          .form-group select { appearance: none; padding-right: 40px; background-image: url("data:image/svg+xml;utf8,<svg fill='%235f6368' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/><path d='M0 0h24v24H0z' fill='none'/></svg>"); background-repeat: no-repeat; background-position: right 12px center; background-size: 24px; }
          .form-group input:focus, .form-group textarea:focus, .form-group select:focus { outline: none; border-color: var(--primary-color); box-shadow: 0 0 0 3px rgba(103, 58, 183, 0.15); }
          .form-group textarea { min-height: 100px; resize: vertical; }
+         .coin-icon { color: var(--coin-color); margin-right: 3px; font-size: 0.9em; }
 
         /* --- Buttons --- */
          .btn { display: block; width: 100%; padding: 15px; background-color: var(--primary-color); color: var(--white); border: none; border-radius: 10px; font-size: 1.1em; font-weight: 600; cursor: pointer; text-align: center; margin-top: 25px; transition: all 0.2s ease; text-decoration: none; box-shadow: 0 3px 5px rgba(103, 58, 183, 0.2); }
@@ -90,130 +87,95 @@
 
         /* --- Home Page Styles --- */
         #home-page { padding-top: 0; padding-left: 0; padding-right: 0; }
-         .user-profile-section { padding: 12px 15px; background-color: var(--card-bg); position: sticky; top: 0; z-index: 100; box-shadow: 0 1px 3px rgba(0,0,0,0.05); margin-bottom: 20px; }
+         .user-profile-section { padding: 12px 15px; background-color: var(--card-bg); position: sticky; top: 0; z-index: 100; box-shadow: 0 1px 3px rgba(0,0,0,0.05); margin-bottom: 0; /* Removed margin-bottom */ }
           .user-profile-card { background-color: transparent; border-radius: 0; padding: 0; margin: 0; box-shadow: none; border: none; text-align: center; display: flex; align-items: center; gap: 12px; }
           .user-profile-card .profile-icon { width: 50px; height: 50px; border-radius: 50%; background: linear-gradient(45deg, var(--secondary-color), var(--primary-color)); color: var(--white); display: inline-flex; justify-content: center; align-items: center; margin-bottom: 0; box-shadow: 0 2px 4px rgba(0,0,0,0.1); flex-shrink: 0; }
           .user-profile-card .profile-icon i { font-size: 1.8em; }
           .user-details-home { text-align: left; flex-grow: 1; }
           .user-profile-card .user-name { font-size: 1.05em; font-weight: 600; color: var(--dark-text); margin-bottom: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 150px; }
            .user-profile-card .user-phone { font-size: 0.8em; color: var(--medium-text); margin-bottom: 0; }
-          .balance-section-home { cursor: pointer; display: inline-flex; align-items: center; padding: 6px 10px; border-radius: 20px; background-color: rgba(85, 139, 47, 0.1); transition: all 0.3s ease; text-align: right; flex-shrink: 0; }
-          .balance-section-home.visible { background-color: var(--card-bg); border: 1px solid var(--success-color); }
-          .balance-section-home .balance-hidden-placeholder-home { font-size: 1.0em; font-weight: 600; color: var(--success-color); margin-right: 4px; }
-          .balance-section-home .balance-value-home { font-size: 1.1em; font-weight: 700; color: var(--success-color); opacity: 0; transition: opacity 0.3s ease; display: none; }
+          /* Updated Balance Section for Coins */
+          .balance-section-home { cursor: pointer; display: inline-flex; align-items: center; padding: 6px 10px; border-radius: 20px; background-color: rgba(255, 152, 0, 0.1); /* Light orange bg for coins */ transition: all 0.3s ease; text-align: right; flex-shrink: 0; }
+          .balance-section-home.visible { background-color: var(--card-bg); border: 1px solid var(--coin-color); }
+          .balance-section-home .balance-hidden-placeholder-home { font-size: 1.0em; font-weight: 600; color: var(--coin-color); margin-right: 4px; }
+          .balance-section-home .balance-value-home { font-size: 1.1em; font-weight: 700; color: var(--coin-color); opacity: 0; transition: opacity 0.3s ease; display: none; align-items: center; gap: 4px;}
            .balance-section-home .balance-visibility-icon { font-size: 1.0em; color: var(--medium-text); margin-left: 6px; transition: color 0.3s ease; }
-          .balance-section-home.visible .balance-value-home { opacity: 1; display: inline; }
+          .balance-section-home.visible .balance-value-home { opacity: 1; display: inline-flex; }
           .balance-section-home.visible .balance-hidden-placeholder-home { display: none; }
-          .balance-section-home.visible .balance-visibility-icon { color: var(--success-color); }
+          .balance-section-home.visible .balance-visibility-icon { color: var(--coin-color); }
+
+         /* --- NEW Marquee Header (Orange Background) --- */
+        .marquee-header {
+            background-color: var(--warning-color); /* Changed to warning color (orange) */
+            color: var(--dark-text); /* Changed text color for better contrast */
+            padding: 8px 0;
+            overflow: hidden;
+            white-space: nowrap;
+            margin: 20px 0 20px 0; /* Added margin top/bottom */
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .marquee-header p {
+            display: inline-block;
+            padding-left: 100%; /* Start off screen right */
+            animation: marquee-scroll 15s linear infinite;
+            font-size: 0.9em;
+            font-weight: 500;
+            font-family: var(--font-bengali);
+        }
+        @keyframes marquee-scroll {
+            0%   { transform: translateX(0); }
+            100% { transform: translateX(-100%); }
+        }
 
          .home-section-title { padding: 0 20px; margin-bottom: 15px; margin-top: 0; font-size: 1.2em; font-weight: 600; color: var(--dark-text); }
-          .home-actions { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; padding: 0 15px; margin-bottom: 25px; }
-          .action-card { background-color: var(--card-bg); padding: 18px 15px; border-radius: 12px; text-align: center; box-shadow: var(--shadow-light); cursor: pointer; transition: all 0.25s ease; border: 1px solid var(--border-color); display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 105px; }
-         .action-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-medium); }
-         .action-card i { font-size: 2em; margin-bottom: 12px; width: 48px; height: 48px; line-height: 48px; border-radius: 12px; color: var(--white); text-align: center; display: inline-block; }
-         .action-card p { font-weight: 500; font-size: 0.9em; color: var(--dark-text); line-height: 1.3; }
+          /* Updated grid for 5 buttons */
+          .home-actions { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; /* Reduced gap */ padding: 0 12px; margin-bottom: 25px; }
+          .action-card { background-color: var(--card-bg); padding: 15px 8px; /* Adjusted padding */ border-radius: 12px; text-align: center; box-shadow: var(--shadow-light); cursor: pointer; transition: all 0.25s ease; border: 1px solid var(--border-color); display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 95px; /* Adjusted height */ }
+         .action-card:hover:not(.disabled) { transform: translateY(-4px); box-shadow: var(--shadow-medium); }
+         .action-card i { font-size: 1.7em; /* Adjusted icon size */ margin-bottom: 8px; width: 42px; height: 42px; line-height: 42px; border-radius: 10px; color: var(--white); text-align: center; display: inline-block; }
+         .action-card p { font-weight: 500; font-size: 0.8em; /* Adjusted font size */ color: var(--dark-text); line-height: 1.3; }
+         .action-card.disabled { cursor: not-allowed; opacity: 0.6; background-color: #f0f0f0; }
+         .action-card.disabled:hover { transform: none; box-shadow: var(--shadow-light); }
 
          .action-card.deposit i { background: linear-gradient(135deg, #4CAF50, #66BB6A); }
          .action-card.withdraw i { background: linear-gradient(135deg, #F44336, #EF5350); }
          .action-card.vip i { background: linear-gradient(135deg, #FFC107, #FFCA28); }
          .action-card.refer i { background: linear-gradient(135deg, #673AB7, #7E57C2); }
-         /* Style for the new Earning button */
-         .action-card.earning i { background: linear-gradient(135deg, #FFA000, #FFC107); } /* Amber gradient */
+         .action-card.earning i { background: linear-gradient(135deg, #FF9800, #FFA726); } /* Coin color gradient */
 
 
-        /* --- Task Section on Home Page --- */
-        #daily-task-section {
+        /* --- Daily Ad View Section (Formerly Task Section) --- */
+        #daily-ad-view-section { /* Renamed ID */
             padding: 0 15px;
             margin-bottom: 25px;
-            display: none; /* Hidden by default */
+            display: none; /* Hidden by default, shown if VIP level > 0 */
         }
-        #daily-task-section .task-list-container {
+        #daily-ad-view-section .ad-view-container { /* Renamed class */
             background-color: var(--card-bg);
             border-radius: 12px;
             padding: 15px;
             box-shadow: var(--shadow-light);
             border: 1px solid var(--border-color);
         }
-        #daily-task-section h3 {
+        #daily-ad-view-section h3 {
              margin-top: 0; margin-bottom: 15px; border-bottom: none; padding-bottom: 0; text-align: center; color: var(--primary-dark); font-size: 1.1em;
         }
-        #daily-task-section .task-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px 5px;
-            border-bottom: 1px dashed var(--border-color);
-            font-family: var(--font-bengali);
-        }
-        #daily-task-section .task-item:last-child { border-bottom: none; }
-        #daily-task-section .task-item span { font-size: 0.95em; color: var(--dark-text); }
-        #daily-task-section .task-item .btn-complete-task {
-            padding: 6px 12px; font-size: 0.85em; margin-top: 0; width: auto; background-color: var(--secondary-color); color: var(--dark-text); font-weight: 600;
-        }
-         #daily-task-section .task-item .btn-complete-task:hover { background-color: #00bfa5; }
-        #daily-task-section .task-item .task-status-done {
-            color: var(--success-color); font-weight: 600; font-size: 0.9em;
-        }
-        #task-progress-info {
+        #ad-view-progress-info { /* Renamed ID */
             font-size: 0.9em; text-align: center; margin-top: 10px; color: var(--medium-text);
         }
 
 
         /* --- Fixed Bottom Banner --- */
-          .fixed-bottom-banner-container {
-             position: fixed; bottom: 65px; /* Positioned above the bottom nav */
-             left: 0; right: 0; max-width: 430px; /* Match app width */
-             margin: 0 auto; /* Center it */
-             height: 50px; /* Standard banner height */
-             background-color: #f0f2f5; /* Slightly different placeholder bg */
-             display: flex; justify-content: center; align-items: center;
-             z-index: 99; /* Below Nav (100) and Header (101) */
-             overflow: hidden;
-             border-top: 1px solid var(--border-color);
-             box-shadow: 0 -2px 5px rgba(0,0,0,0.05);
-             transition: opacity 0.3s ease, visibility 0.3s ease; /* Smooth hide/show */
-             opacity: 0;
-             visibility: hidden;
-          }
-         .fixed-bottom-banner-container.visible {
-             opacity: 1;
-             visibility: visible;
-         }
+          .fixed-bottom-banner-container { position: fixed; bottom: 65px; left: 0; right: 0; max-width: 430px; margin: 0 auto; height: 50px; background-color: #f0f2f5; display: flex; justify-content: center; align-items: center; z-index: 99; overflow: hidden; border-top: 1px solid var(--border-color); box-shadow: 0 -2px 5px rgba(0,0,0,0.05); transition: opacity 0.3s ease, visibility 0.3s ease; opacity: 0; visibility: hidden; }
+         .fixed-bottom-banner-container.visible { opacity: 1; visibility: visible; }
           .fixed-bottom-banner-container iframe { border: none; display: block; max-width: 100%; height: 100%; }
           .fixed-bottom-banner-container .placeholder-text { font-size: 0.85em; color: var(--medium-text); }
 
           /* --- Bottom Nav --- */
-         .bottom-nav {
-             position: fixed; bottom: 0; left: 0; right: 0; max-width: 430px; margin: 0 auto;
-             height: 65px;
-             background: var(--card-bg);
-             display: flex; justify-content: space-around; align-items: center;
-             box-shadow: 0 -3px 10px rgba(0, 0, 0, 0.1); /* Enhanced shadow */
-             border-top: 1px solid var(--border-color);
-             border-bottom-left-radius: 28px; /* Match app container */
-             border-bottom-right-radius: 28px;
-             z-index: 100; /* Above banner */
-             padding: 0 10px; /* Add some horizontal padding */
-         }
-        .nav-item {
-             background: none; border: none; color: var(--light-text); cursor: pointer;
-             display: flex; flex-direction: column; align-items: center; justify-content: center;
-             padding: 8px 5px; /* Adjust padding */
-             flex-grow: 1; /* Distribute space */
-             text-align: center;
-             transition: color 0.2s ease, background-color 0.2s ease;
-             border-radius: 8px; /* Slight rounding on hover */
-         }
-        .nav-item i {
-             font-size: 1.6em; /* Slightly adjusted icon size */
-             margin-bottom: 4px; /* Space between icon and text */
-             transition: transform 0.2s ease;
-         }
-        .nav-item span {
-             font-size: 0.8em; /* Slightly larger text */
-             font-weight: 500;
-             font-family: var(--font-bengali);
-         }
+         .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; max-width: 430px; margin: 0 auto; height: 65px; background: var(--card-bg); display: flex; justify-content: space-around; align-items: center; box-shadow: 0 -3px 10px rgba(0, 0, 0, 0.1); border-top: 1px solid var(--border-color); border-bottom-left-radius: 28px; border-bottom-right-radius: 28px; z-index: 100; padding: 0 10px; }
+        .nav-item { background: none; border: none; color: var(--light-text); cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 8px 5px; flex-grow: 1; text-align: center; transition: color 0.2s ease, background-color 0.2s ease; border-radius: 8px; }
+        .nav-item i { font-size: 1.6em; margin-bottom: 4px; transition: transform 0.2s ease; }
+        .nav-item span { font-size: 0.8em; font-weight: 500; font-family: var(--font-bengali); }
         .nav-item:hover:not(.active) { color: var(--medium-text); background-color: rgba(106, 27, 154, 0.05); }
         .nav-item.active { color: var(--primary-color); }
         .nav-item.active i { transform: scale(1.1); }
@@ -230,14 +192,15 @@
          .vip-card-body { padding: 15px 20px; }
          .vip-card-body ul { list-style: none; padding-left: 5px; margin: 0; }
          .vip-card-body li { margin-bottom: 8px; color: var(--medium-text); font-size: 0.9em; position: relative; padding-left: 20px; font-family: var(--font-bengali); }
-         .vip-card-body li::before { content: "\f00c"; /* FontAwesome check */ font-family: "Font Awesome 6 Free"; font-weight: 900; color: var(--secondary-color); position: absolute; left: 0; top: 1px; font-size: 0.85em; }
+         .vip-card-body li::before { content: "\f00c"; font-family: "Font Awesome 6 Free"; font-weight: 900; color: var(--secondary-color); position: absolute; left: 0; top: 1px; font-size: 0.85em; }
          .vip-card-footer { padding: 15px 20px; border-top: 1px solid #f0f0f0; display: flex; justify-content: space-between; align-items: center; background-color: #fafafa; }
-         .vip-card-footer .price { font-size: 1.2em; font-weight: 700; color: var(--primary-color); }
-         .vip-card-footer .btn-buy-vip { margin-top: 0; padding: 10px 20px; font-size: 0.95em; width: auto; flex-shrink: 0; } /* Adjust button size */
+         /* VIP Price now in Coins */
+         .vip-card-footer .price { font-size: 1.2em; font-weight: 700; color: var(--coin-color); display: inline-flex; align-items: center; gap: 4px;}
+         .vip-card-footer .btn-buy-vip { margin-top: 0; padding: 10px 20px; font-size: 0.95em; width: auto; flex-shrink: 0; }
          .vip-card-footer .btn-buy-vip i { margin-right: 8px; }
          .status-active, .status-pending { font-weight: 600; font-size: 0.9em; padding: 6px 12px; border-radius: 20px; }
          .status-active { color: var(--success-color); background-color: rgba(85, 139, 47, 0.1); }
-         .status-pending { color: var(--warning-color); background-color: rgba(255, 160, 0, 0.1); }
+         .status-pending { color: var(--warning-color); background-color: rgba(255, 160, 0, 0.1); } /* Pending style might not be used now */
          .status-active i, .status-pending i { margin-right: 6px; }
 
         /* --- VIP Upgrade Modal Styles --- */
@@ -248,10 +211,12 @@
         .modal-box .close-modal { position: absolute; top: 10px; right: 15px; background: none; border: none; font-size: 1.8em; color: var(--medium-text); cursor: pointer; padding: 5px;}
         .modal-box .close-modal:hover { color: var(--dark-text); }
         #vip-upgrade-modal p { font-size: 0.9em; margin-bottom: 15px; font-family: var(--font-bengali); line-height: 1.6; }
-        #vip-upgrade-modal .payment-info { background-color: #f0f0f0; padding: 12px 15px; border-radius: 8px; margin-bottom: 18px; }
-        #vip-upgrade-modal .payment-info strong { font-size: 1.1em; color: var(--dark-text); }
-        #vip-upgrade-modal .payment-info span { font-weight: 500; color: var(--medium-text); font-size: 0.9em; }
+        #vip-upgrade-modal .vip-cost-info {
+            background-color: rgba(255, 152, 0, 0.1); padding: 12px 15px; border-radius: 8px; margin-bottom: 18px; text-align: center; border: 1px dashed var(--coin-color);
+        }
+        #vip-upgrade-modal .vip-cost-info strong { font-size: 1.2em; color: var(--coin-color); display: flex; align-items: center; justify-content: center; gap: 5px; }
         #vip-upgrade-modal #modal-alert { margin-bottom: 15px; }
+
 
          /* Alert style */
          .alert { padding: 12px 16px; margin-bottom: 15px; border-radius: 8px; font-size: 0.95em; border: 1px solid transparent; display: none; font-family: var(--font-bengali);}
@@ -267,6 +232,7 @@
          /* Referral Code Box */
          .refer-code-box { background-color: #eee; padding: 15px 20px; border-radius: 10px; font-size: 1.3em; font-weight: 700; text-align: center; margin: 10px 0 20px 0; color: var(--primary-dark); letter-spacing: 1px; border: 1px dashed var(--border-color); }
          #copy-feedback { text-align: center; margin-top: 10px; color: var(--success-color); font-weight: 500; height: 20px; }
+         /* Deposit uses Taka */
          .deposit-info { background-color: rgba(255, 193, 7, 0.1); border-left: 4px solid var(--accent-color); padding: 12px 15px; margin-bottom: 20px; border-radius: 4px; font-size: 0.9em; font-family: var(--font-bengali); color: var(--dark-text); }
          .deposit-info strong { color: var(--warning-color); }
          .deposit-info ol { padding-left: 20px; margin-top: 8px; }
@@ -307,7 +273,7 @@
                 <form id="signup-form">
                     <div class="form-group"> <input type="text" id="signup-name" placeholder="আপনার পুরো নাম" required> </div>
                     <div class="form-group"> <input type="email" id="signup-email" placeholder="আপনার ইমেইল" required> </div>
-                    <div class="form-group"> <input type="text" id="signup-phone" placeholder="আপনার মোবাইল নম্বর (১১ ডিজিট)" required pattern="[0-9]{11}"> </div> <!-- Added Phone -->
+                    <div class="form-group"> <input type="text" id="signup-phone" placeholder="আপনার মোবাইল নম্বর (১১ ডিজিট)" required pattern="[0-9]{11}"> </div>
                     <div class="form-group"> <input type="password" id="signup-password" placeholder="পাসওয়ার্ড (কমপক্ষে ৬ অক্ষর)" required> </div>
                     <div class="form-group"> <input type="text" id="signup-refer" placeholder="রেফার কোড (ঐচ্ছিক)"> </div>
                     <button type="submit" class="btn btn-success"><i class="fas fa-check-circle"></i> রেজিস্টার</button>
@@ -324,34 +290,38 @@
                              <div class="user-name" id="profile-user-name">ব্যবহারকারী</div>
                              <div class="user-phone" id="profile-user-phone">01xxxxxxxxx</div>
                          </div>
+                         <!-- Updated Balance Section for Coins -->
                          <div class="balance-section-home" id="profile-balance-section">
-                             <span class="balance-hidden-placeholder-home" id="balance-hidden-symbol">ব্যালেন্স দেখুন</span>
-                             <span class="balance-value-home" id="profile-balance-value">৳ 0.00</span>
+                             <span class="balance-hidden-placeholder-home" id="balance-hidden-symbol">কয়েন দেখুন</span>
+                             <span class="balance-value-home" id="profile-balance-value">
+                                 <i class="fas fa-coins coin-icon"></i> 0
+                             </span>
                              <i class="fas fa-eye balance-visibility-icon" id="balance-eye-icon"></i>
                          </div>
                       </div>
                   </div>
 
-                  <!-- Scrollable Content -->
-                  <h3 class="home-section-title" style="padding: 0 20px;">অপশনস</h3>
-                  <div class="home-actions" style="padding: 0 15px;">
-                       <div class="action-card deposit" onclick="showPage('deposit-page')"> <i class="fas fa-wallet"></i> <p>ডিপোজিট</p> </div>
-                      <div class="action-card withdraw" onclick="showPage('withdraw-page')"> <i class="fas fa-money-bill-wave"></i> <p>উইথড্র</p> </div>
-                      <div class="action-card vip" onclick="showPage('vip-page')"> <i class="fas fa-crown"></i> <p>ভিআইপি প্ল্যান</p> </div>
-                      <div class="action-card refer" onclick="showPage('refer-page')"> <i class="fas fa-user-friends"></i> <p>রেফার করুন</p> </div>
-                      <!-- >>> NEW EARNING BUTTON ADDED HERE <<< -->
-                      <div class="action-card earning" onclick="showMonetagEarningAd()"> <i class="fas fa-coins"></i> <p>আর্নিং (অ্যাড)</p> </div>
-                       <!-- You might need to adjust the grid (e.g., grid-template-columns: repeat(3, 1fr) or remove another button if you want 2 columns) -->
+                  <!-- >>> NEW Marquee Header <<< -->
+                  <div class="marquee-header">
+                      <p>আমি ভাত খাইনি</p>
                   </div>
 
-                  <!-- Daily Task Section (Dynamically Shown) -->
-                  <div id="daily-task-section">
-                      <h3 class="home-section-title" style="padding: 0;">আজকের টাস্ক</h3>
-                      <div class="task-list-container">
-                          <div id="task-progress-info"></div>
-                          <div id="task-list-items">
-                              <!-- Task items will be generated here -->
-                          </div>
+                  <!-- Scrollable Content -->
+                  <h3 class="home-section-title" style="padding: 0 20px;">অপশনস</h3>
+                  <!-- Updated home actions grid -->
+                  <div class="home-actions" style="padding: 0 12px; grid-template-columns: repeat(3, 1fr);">
+                       <div class="action-card deposit" onclick="showPage('deposit-page')"> <i class="fas fa-wallet"></i> <p>ডিপোজিট (৳)</p> </div>
+                      <div class="action-card withdraw" onclick="showPage('withdraw-page')"> <i class="fas fa-money-bill-wave"></i> <p>উইথড্র (কয়েন)</p> </div>
+                      <div class="action-card vip" onclick="showPage('vip-page')"> <i class="fas fa-crown"></i> <p>ভিআইপি প্ল্যান</p> </div>
+                      <div class="action-card refer" onclick="showPage('refer-page')"> <i class="fas fa-user-friends"></i> <p>রেফার করুন</p> </div>
+                      <div class="action-card earning" onclick="showMonetagEarningAd()"> <i class="fas fa-coins"></i> <p>আর্নিং (১ কয়েন)</p> </div>
+                  </div>
+
+                  <!-- Daily Ad View Section -->
+                  <div id="daily-ad-view-section">
+                      <h3 class="home-section-title" style="padding: 0;">আজকের দেখা অ্যাড</h3>
+                      <div class="ad-view-container">
+                          <div id="ad-view-progress-info"></div>
                       </div>
                   </div>
 
@@ -364,41 +334,45 @@
                 <label style="font-weight: 500;">আপনার রেফার কোড:</label>
                 <div class="refer-code-box" id="referral-code">---</div>
                 <button class="btn btn-success" onclick="copyReferralCode()"><i class="fas fa-copy"></i> কপি করুন</button>
-                <div id="copy-feedback"></div> <!-- Feedback div -->
-                <h3>রেফারেল বোনাস (উদাহরণ)</h3>
+                <div id="copy-feedback"></div>
+                <h3>রেফারেল বোনাস (উদাহরণ - টাকায়)</h3>
                 <p>আপনার বন্ধু সাইন আপ করলে আপনি পাবেন <b>৳১০</b>, বন্ধু পাবে <b>৳৫</b>!</p>
             </div>
 
-            <!-- Deposit Page -->
+            <!-- Deposit Page (Taka, Minimum 100) -->
             <div id="deposit-page" class="page">
-                <h2><i class="fas fa-university"></i> ডিপোজিট</h2> <div id="deposit-alert" class="alert"></div>
-                <div class="deposit-info"> <strong><i class="fas fa-info-circle"></i> গুরুত্বপূর্ণ:</strong> <ol> <li>সঠিক মাধ্যমে ও নম্বরে টাকা পাঠান (ন্যূনতম ৳৫০)।</li> <li>সঠিক TrxID এবং আপনার প্রেরক নম্বর দিন।</li> <li>সাধারণত ৩০ মিনিটের মধ্যে ব্যালেন্স যোগ হয়।</li> </ol> </div>
+                <h2><i class="fas fa-university"></i> ডিপোজিট (৳)</h2> <div id="deposit-alert" class="alert"></div>
+                <!-- Updated minimum deposit -->
+                <div class="deposit-info"> <strong><i class="fas fa-info-circle"></i> গুরুত্বপূর্ণ:</strong> <ol> <li>সঠিক মাধ্যমে ও নম্বরে টাকা পাঠান (ন্যূনতম ৳১০০)।</li> <li>সঠিক TrxID এবং আপনার প্রেরক নম্বর দিন।</li> <li>এডমিন কনফার্ম করলে ব্যালেন্স (টাকা) যোগ হবে (যদি প্রযোজ্য হয়)।</li> </ol> </div>
                 <h3><i class="fas fa-mobile-alt"></i> পেমেন্ট নম্বর</h3> <p style="background:#eee; padding:15px; border-radius:8px; text-align:center; font-weight:bold; margin-bottom:20px;">বিকাশ/নগদ/রকেট: 017********</p>
                 <form id="deposit-form">
                      <div class="form-group"><label for="deposit-method">মাধ্যম</label> <select id="deposit-method" required><option value="" disabled selected>নির্বাচন করুন</option><option value="bkash">বিকাশ</option><option value="nagad">নগদ</option><option value="rocket">রকেট</option></select></div>
-                     <div class="form-group"><label for="deposit-amount">টাকার পরিমাণ</label> <input type="number" id="deposit-amount" placeholder="৳৫০+" required min="50"></div>
+                     <!-- Updated minimum deposit amount -->
+                     <div class="form-group"><label for="deposit-amount">টাকার পরিমাণ</label> <input type="number" id="deposit-amount" placeholder="৳১০০+" required min="100"></div>
                      <div class="form-group"><label for="deposit-txn-id">TrxID</label> <input type="text" id="deposit-txn-id" placeholder="ট্রানজেকশন আইডি" required></div>
                      <div class="form-group"><label for="deposit-sender-number">প্রেরক নম্বর</label> <input type="text" id="deposit-sender-number" placeholder="আপনার নম্বর" required></div>
                      <button type="submit" class="btn btn-success"><i class="fas fa-paper-plane"></i> সাবমিট</button>
                  </form>
              </div>
 
-             <!-- Withdraw Page -->
+             <!-- Withdraw Page (Coins) -->
             <div id="withdraw-page" class="page">
-                <h2><i class="fas fa-money-bill-wave"></i> টাকা উত্তোলন</h2> <div id="withdraw-alert" class="alert"></div>
-                <p style="text-align: center; margin-bottom: 20px; color: var(--medium-text); font-size:0.95em">উইথড্র করার জন্য ব্যালেন্স: <b id="current-balance-text-wp" style="color: var(--primary-dark); font-size:1.1em">৳ 0.00</b></p>
+                <h2><i class="fas fa-money-bill-wave"></i> কয়েন উত্তোলন</h2> <div id="withdraw-alert" class="alert"></div>
+                <p style="text-align: center; margin-bottom: 20px; color: var(--medium-text); font-size:0.95em">
+                    উইথড্র করার জন্য কয়েন: <b id="current-balance-text-wp" style="color: var(--coin-color); font-size:1.1em"><i class="fas fa-coins coin-icon"></i> 0</b>
+                </p>
                 <form id="withdraw-form">
-                    <div class="form-group"> <label>উইথড্র মাধ্যম:</label> <div class="withdraw-options"> <label><input type="radio" name="payment_method" value="bkash" checked> বিকাশ</label> <label><input type="radio" name="payment_method" value="nagad"> নগদ</label> <label><input type="radio" name="payment_method" value="rocket"> রকেট</label> </div> </div>
+                    <div class="form-group"> <label>উইথড্র মাধ্যম (পেমেন্ট পাবেন টাকায়):</label> <div class="withdraw-options"> <label><input type="radio" name="payment_method" value="bkash" checked> বিকাশ</label> <label><input type="radio" name="payment_method" value="nagad"> নগদ</label> <label><input type="radio" name="payment_method" value="rocket"> রকেট</label> </div> </div>
                     <div class="form-group"><label for="withdraw-account">অ্যাকাউন্ট নম্বর:</label> <input type="text" id="withdraw-account" placeholder="যে নম্বরে টাকা নিবেন" required></div>
-                    <div class="form-group"><label for="withdraw-amount">টাকার পরিমাণ:</label> <input type="number" id="withdraw-amount" placeholder="ন্যূনতম ৳১০০" required min="100"></div>
+                    <div class="form-group"><label for="withdraw-amount">কয়েনের পরিমাণ:</label> <input type="number" id="withdraw-amount" placeholder="ন্যূনতম 5000" required min="5000"></div>
                     <button type="submit" class="btn"><i class="fas fa-check-circle"></i> উইথড্র রিকোয়েস্ট</button>
                 </form>
-                <p style="font-size: 0.85em; color: var(--medium-text); margin-top: 20px; text-align: center;"><i class="fas fa-info-circle"></i> ২৪ ঘণ্টার মধ্যে পেমেন্ট সম্পন্ন হবে।</p>
+                <p style="font-size: 0.85em; color: var(--medium-text); margin-top: 20px; text-align: center;"><i class="fas fa-info-circle"></i> 5000 কয়েন হলে উইথড্র করতে পারবেন। ২৪ ঘণ্টার মধ্যে পেমেন্ট সম্পন্ন হবে।</p>
             </div>
 
-            <!-- VIP Page -->
+            <!-- VIP Page (Purchase uses Coins) -->
             <div id="vip-page" class="page">
-                <h2><i class="fas fa-crown"></i> ভিআইপি প্ল্যানসমূহ</h2> <p>আপনার সুবিধা অনুযায়ী ভিআইপি প্ল্যান বেছে নিন এবং আয় বাড়ান!</p>
+                <h2><i class="fas fa-crown"></i> ভিআইপি প্ল্যান (কয়েন)</h2> <p>আপনার সুবিধা অনুযায়ী ভিআইপি প্ল্যান বেছে নিন এবং আয় বাড়ান!</p>
                 <div id="vip-purchase-feedback" style="text-align: center; margin: 15px 0; font-weight: 500;"></div>
                 <div class="vip-grid" id="vip-plan-list"> <!-- Loading message/spinner --> </div>
             </div>
@@ -409,25 +383,21 @@
                  <div class="policy-content">
                      <h3>১. সাধারণ শর্তাবলী</h3> <p>এই প্ল্যাটফর্ম ব্যবহার করার মাধ্যমে আপনি আমাদের সমস্ত নিয়ম ও শর্তাবলী মেনে নিতে সম্মত হচ্ছেন। যেকোনো অবৈধ বা প্রতারণামূলক কার্যকলাপের জন্য আপনার অ্যাকাউন্ট বিনা নোটিশে বন্ধ করে দেওয়া হতে পারে।</p>
                      <h3>২. অ্যাকাউন্ট</h3> <p>প্রতি ব্যবহারকারী শুধুমাত্র একটি অ্যাকাউন্ট ব্যবহার করতে পারবেন। একাধিক অ্যাকাউন্ট তৈরি করা বা অন্যের অ্যাকাউন্ট ব্যবহার করা নিষিদ্ধ। আপনার অ্যাকাউন্টের তথ্যের গোপনীয়তা রক্ষা করার দায়িত্ব আপনার।</p>
-                     <h3>৩. আয় এবং টাস্ক</h3> <p>বিজ্ঞাপন দেখা, টাস্ক সম্পন্ন করা, রেফার করা এবং অন্যান্য তালিকাভুক্ত কাজ সম্পন্ন করে আয় করা যাবে। প্রতিটি কাজের মূল্য অ্যাপের মধ্যে উল্লেখ থাকবে। ভিআইপি প্ল্যান অনুযায়ী টাস্ক সংখ্যা ও মূল্য ভিন্ন হতে পারে।</p>
-                     <h3>৪. ডিপোজিট ও ভিআইপি আপগ্রেড</h3> <p>উল্লেখিত পদ্ধতির মাধ্যমে ডিপোজিট করতে পারবেন। ভিআইপি আপগ্রেডের জন্য নির্দিষ্ট নম্বরে পেমেন্ট করে ট্রানজেকশন আইডি এবং আপনার নম্বর সাবমিট করতে হবে। ভুল তথ্য দিলে বা ভুল নম্বরে টাকা পাঠালে কর্তৃপক্ষ দায়ী থাকবে না। ডিপোজিট সাধারণত ৩০ মিনিট থেকে ২ ঘণ্টার মধ্যে যুক্ত হয়। ভিআইপি আপগ্রেড রিকোয়েস্ট সাবমিট করার ১ মিনিটের মধ্যে সাধারণত সক্রিয় হয়ে যায়।</p>
-                     <h3>৫. উইথড্র</h3> <p>ন্যূনতম সীমা অর্জন করার পর উইথড্র করতে পারবেন। রিকোয়েস্ট ২৪ ঘণ্টার মধ্যে প্রক্রিয়া করা হয়। উইথড্র রিকোয়েস্ট করলে এডমিনকে টেলিগ্রামে জানানো হবে।</p>
-                     <h3>৬. ভিআইপি মেম্বারশিপ</h3> <p>প্ল্যান ক্রয়ের মাধ্যমে অতিরিক্ত সুবিধা যেমন বেশি টাস্ক, কম ফি ইত্যাদি পেতে পারেন। মেয়াদ এবং সুবিধা প্ল্যান অনুযায়ী ভিন্ন হবে। ভিআইপি প্ল্যানের মূল্য অফেরতযোগ্য।</p>
+                     <h3>৩. আয় এবং টাস্ক</h3> <p>ভিআইপি প্ল্যান সক্রিয় থাকলে নির্দিষ্ট সংখ্যক বিজ্ঞাপন দেখে কয়েন আয় করা যাবে। রেফার করে টাকা আয় করা যাবে (শর্ত প্রযোজ্য)। প্রতিটি কাজের মূল্য অ্যাপের মধ্যে উল্লেখ থাকবে। ভিআইপি প্ল্যান অনুযায়ী দৈনিক অ্যাড দেখার সীমা ভিন্ন হবে।</p>
+                     <h3>৪. ডিপোজিট (৳) ও ভিআইপি ক্রয় (কয়েন)</h3> <p>উল্লেখিত পদ্ধতির মাধ্যমে টাকায় ডিপোজিট করতে পারবেন (ন্যূনতম ৳১০০)। ভিআইপি প্ল্যান ক্রয়ের জন্য আপনার অ্যাকাউন্টে পর্যাপ্ত কয়েন থাকতে হবে। প্ল্যান কিনলে আপনার কয়েন ব্যালেন্স থেকে প্ল্যানের মূল্য কেটে নেওয়া হবে এবং প্ল্যানটি সক্রিয় প্ল্যান তালিকায় যুক্ত হবে। ব্যবহারকারী একই সময়ে একাধিক ভিআইপি প্ল্যান সক্রিয় রাখতে পারে।</p>
+                     <h3>৫. উইথড্র (কয়েন)</h3> <p>ন্যূনতম ৫০০০ কয়েন অর্জন করার পর উইথড্র করতে পারবেন। উইথড্র করার সময় আপনার কয়েন টাকায় রূপান্তরিত হয়ে পেমেন্ট করা হবে (রেট এডমিন কর্তৃক নির্ধারিত)। রিকোয়েস্ট ২৪ ঘণ্টার মধ্যে প্রক্রিয়া করা হয়। উইথড্র রিকোয়েস্ট করলে এডমিনকে টেলিগ্রামে জানানো হবে।</p>
+                     <h3>৬. ভিআইপি মেম্বারশিপ</h3> <p>প্ল্যান ক্রয়ের মাধ্যমে দৈনিক অ্যাড দেখার সীমা বৃদ্ধি পাবে। মেয়াদ এবং সুবিধা প্ল্যান অনুযায়ী ভিন্ন হবে। ভিআইপি প্ল্যানের মূল্য (কয়েন) অফেরতযোগ্য।</p>
                      <h3>৭. নিষিদ্ধ কার্যকলাপ</h3> <p>ভিপিএন, প্রক্সি, অটো-ক্লিক, স্ক্রিপ্ট, এমুলেটর ব্যবহার করা কঠোরভাবে নিষিদ্ধ। ধরা পড়লে অ্যাকাউন্ট স্থায়ীভাবে বন্ধ করা হবে।</p>
                      <h3>৮. নীতিমালার পরিবর্তন</h3> <p>কর্তৃপক্ষ যেকোনো সময় এই নীতিমালা পরিবর্তন করতে পারে।</p>
                      <br> <p><i>সাহায্যের জন্য, যোগাযোগ করুন।</i></p> <p><i>শেষ আপডেট: ২০২৪</i></p>
                  </div>
              </div>
-             <!-- REMOVED Task Page - Tasks handled on Home Page now -->
-             <!--
-             <div id="task-page" class="page"> ... </div>
-             -->
 
         </main> <!-- End Pages Container -->
 
-        <!-- Fixed Bottom Banner (Single Banner - Dynamically Loaded - Uses Adsterra, NOT Monetag) -->
+        <!-- Fixed Bottom Banner (Adsterra) -->
         <div class="fixed-bottom-banner-container" id="adsterra-banner-bottom">
-            <span class="placeholder-text">বিজ্ঞাপন লোড হচ্ছে...</span> <!-- Placeholder Text -->
+            <span class="placeholder-text">বিজ্ঞাপন লোড হচ্ছে...</span>
         </div>
 
         <!-- Bottom Navigation -->
@@ -439,34 +409,28 @@
              <button class="nav-item" data-page="policy-page"><i class="fas fa-info-circle"></i><span>নীতি</span></button>
          </nav>
 
-        <!-- VIP Upgrade Modal -->
+        <!-- VIP Upgrade Modal (Updated for Coin Purchase) -->
          <div class="modal-overlay" id="vip-upgrade-modal">
              <div class="modal-box">
                  <button class="close-modal" onclick="closeModal('vip-upgrade-modal')">×</button>
-                 <h3><i class="fas fa-crown"></i> ভিআইপি আপগ্রেড</h3>
+                 <h3><i class="fas fa-crown"></i> ভিআইপি প্ল্যান কিনুন</h3>
                  <div id="modal-alert" class="alert"></div>
-                 <p>প্ল্যান <b id="modal-vip-level-name">Level X (Name)</b> আপগ্রেড করতে নিচের নম্বরে পেমেন্ট করুন:</p>
-                 <div class="payment-info">
-                     <strong>নম্বর: <span id="payment-number-vip">01750114669</span></strong>
-                     <button class="btn-copy" onclick="copyToClipboard('01750114669', this)">কপি</button>
-                     <br>
-                     <span>মাধ্যম: নগদ / রকেট / উপায়</span>
+                 <p>আপনি কি <b id="modal-vip-level-name">Level X (Name)</b> প্ল্যানটি কিনতে চান?</p>
+                 <!-- Display Coin Cost -->
+                 <div class="vip-cost-info">
+                     <strong>মূল্য: <span id="modal-vip-price-display"><i class="fas fa-coins coin-icon"></i> 0</span> কয়েন</strong>
                  </div>
+                 <p>আপনার বর্তমান ব্যালেন্স: <b id="modal-current-coins" style="color:var(--coin-color)"><i class="fas fa-coins coin-icon"></i> 0</b> কয়েন।</p>
+                 <!-- Form is simplified, only needs hidden fields -->
                  <form id="vip-upgrade-form">
                      <input type="hidden" id="modal-vip-level" value="">
-                     <input type="hidden" id="modal-vip-price" value="">
-                     <div class="form-group">
-                         <label for="modal-user-phone">আপনার মোবাইল নম্বর</label>
-                         <input type="text" id="modal-user-phone" readonly required>
-                     </div>
-                     <div class="form-group">
-                         <label for="modal-txn-id">Transaction ID (TrxID)</label>
-                         <input type="text" id="modal-txn-id" placeholder="এখানে TrxID লিখুন" required>
-                     </div>
-                     <button type="submit" class="btn btn-success"><i class="fas fa-paper-plane"></i> সাবমিট করুন</button>
+                     <input type="hidden" id="modal-vip-price" value=""> <!-- Coin price stored here -->
+                     <button type="submit" class="btn btn-success"><i class="fas fa-check-circle"></i> নিশ্চিত করুন</button>
+                     <button type="button" class="btn btn-secondary" style="margin-top: 10px;" onclick="closeModal('vip-upgrade-modal')"><i class="fas fa-times-circle"></i> বাতিল করুন</button>
                  </form>
              </div>
          </div>
+
 
     </div> <!-- End App Container -->
 
@@ -478,366 +442,228 @@
          const loadingIndicator = document.getElementById('loading-indicator');
          const toastMessage = document.getElementById('toast-message');
          const generalAlertArea = document.getElementById('general-alert-area');
-         // Profile Card
          const profileUserName = document.getElementById('profile-user-name');
          const profileUserPhone = document.getElementById('profile-user-phone');
          const profileBalanceSection = document.getElementById('profile-balance-section');
          const profileBalanceValue = document.getElementById('profile-balance-value');
          const balanceHiddenSymbol = document.getElementById('balance-hidden-symbol');
          const balanceEyeIcon = document.getElementById('balance-eye-icon');
-         // Ad Container
          const adsterraBannerBottom = document.getElementById('adsterra-banner-bottom');
-         // Other Pages
          const referralCodeElement = document.getElementById('referral-code');
          const copyFeedbackElement = document.getElementById('copy-feedback');
          const currentBalanceWithdrawPage = document.getElementById('current-balance-text-wp');
          const vipPlanListContainer = document.getElementById('vip-plan-list');
          const vipPurchaseFeedback = document.getElementById('vip-purchase-feedback');
-         // Forms
          const loginForm = document.getElementById('login-form');
          const signupForm = document.getElementById('signup-form');
          const depositForm = document.getElementById('deposit-form');
          const withdrawForm = document.getElementById('withdraw-form');
          const vipUpgradeForm = document.getElementById('vip-upgrade-form');
-         // Alerts
          const loginAlert = document.getElementById('login-alert');
          const signupAlert = document.getElementById('signup-alert');
          const depositAlert = document.getElementById('deposit-alert');
          const withdrawAlert = document.getElementById('withdraw-alert');
          const modalAlert = document.getElementById('modal-alert');
-         // Task Section (Home Page)
-         const dailyTaskSection = document.getElementById('daily-task-section');
-         const taskProgressInfo = document.getElementById('task-progress-info');
-         const taskListItems = document.getElementById('task-list-items');
-         // VIP Modal Elements
+         const dailyAdViewSection = document.getElementById('daily-ad-view-section');
+         const adViewProgressInfo = document.getElementById('ad-view-progress-info');
          const vipUpgradeModal = document.getElementById('vip-upgrade-modal');
          const modalVipLevelName = document.getElementById('modal-vip-level-name');
-         const modalPaymentNumberVip = document.getElementById('payment-number-vip'); // Although static, good to have ID
-         const modalUserPhone = document.getElementById('modal-user-phone');
-         const modalTxnId = document.getElementById('modal-txn-id');
          const modalVipLevelInput = document.getElementById('modal-vip-level');
-         const modalVipPriceInput = document.getElementById('modal-vip-price');
+         const modalVipPriceInput = document.getElementById('modal-vip-price'); // Now stores coin price
+         const modalVipPriceDisplay = document.getElementById('modal-vip-price-display');
+         const modalCurrentCoins = document.getElementById('modal-current-coins');
+
+         // --- Removed elements related to external VIP payment & auto earning ---
 
 
         // --- App State ---
         let isLoggedIn = false;
-        let currentUser = { name: 'ব্যবহারকারী', email: null, phone: '01xxxxxxxxx', balance: 100.0, referralCode: 'LOADING', vip: {level: 0, name: 'Free', tasksPerDay: 3}, /* Free tasks */ pendingVipLevel: null, availableTasks: 0, completedTasks: 0 };
-        let vipActivationTimers = {};
+        let currentUser = {
+            name: 'ব্যবহারকারী',
+            email: null,
+            phone: '01xxxxxxxxx',
+            balance: 100, // Starting coins
+            referralCode: 'LOADING',
+            activeVips: [], // Array of { level, name, tasksPerDay, purchaseDate }
+            completedAdViewsToday: 0,
+        };
+        // Removed pendingVipLevel and vipActivationTimers
         let isBalanceVisible = false;
-        let isMonetagAdShowing = false; // Flag to prevent multiple simultaneous ad calls
+        let isMonetagAdShowing = false;
 
         // --- Configuration ---
-        const TELEGRAM_BOT_TOKEN = "7510853175:AAGd6xQZiMCzx1CpzR2V8dw2QHODHsGMfgc";
-        const TELEGRAM_CHAT_ID = "6105596008";
-        const VIP_ACTIVATION_DELAY_MS = 60 * 1000; // 1 minute
-        const ADSTERRA_BOTTOM_BANNER_KEY = '728897206504f3ccf981e290d2df1034'; // Use the same key for simplicity
-        const PAYMENT_NUMBER_VIP = '01750114669'; // Centralize the number
-        const MONETAG_AD_REWARD = 0.25; // Reward amount for watching Monetag ad
+        const TELEGRAM_BOT_TOKEN = "7510853175:AAGd6xQZiMCzx1CpzR2V8dw2QHODHsGMfgc"; // Replace if needed
+        const TELEGRAM_CHAT_ID = "6105596008"; // Replace if needed
+        const ADSTERRA_BOTTOM_BANNER_KEY = '728897206504f3ccf981e290d2df1034'; // Replace if needed
+        const MONETAG_AD_REWARD = 1; // 1 Coin per ad view
+        const WITHDRAWAL_MINIMUM_COINS = 5000; // Minimum coins for withdrawal
+        const DEPOSIT_MINIMUM_TAKA = 100; // Minimum Taka deposit
+        const COIN_ICON_CLASS = "fas fa-coins";
 
-        // --- VIP Plans (Added tasksPerDay) ---
-         const vipPlans = [
-             { level: 1, name: "ব্রোঞ্জ", icon: "fas fa-shield-alt", price: 100, tasksPerDay: 5, features: ["দৈনিক ৫টি টাস্ক", "১% উইথড্র ফি"], color: "#cd7f32"},
-             { level: 2, name: "সিলভার", icon: "fas fa-star", price: 250, tasksPerDay: 10, features: ["দৈনিক ১০টি টাস্ক", "০.৫% উইথড্র ফি", "দ্রুত সাপোর্ট"], color: "#c0c0c0"},
-             { level: 3, name: "গোল্ড", icon: "fas fa-medal", price: 500, tasksPerDay: 15, features: ["দৈনিক ১৫টি টাস্ক", "কোনো উইথড্র ফি নেই", "অগ্রাধিকার সাপোর্ট"], color: "#ffd700"},
-             { level: 4, name: "প্লাটিনাম", icon: "fas fa-award", price: 1000, tasksPerDay: 20, features: ["দৈনিক ২০টি টাস্ক", "ইনস্ট্যান্ট উইথড্রল", "ডেডিকেটেড ম্যানেজার"], color: "#e5e4e2"},
-             { level: 5, name: "ডায়মন্ড", icon: "fas fa-gem", price: 2000, tasksPerDay: 25, features: ["দৈনিক ২৫টি টাস্ক", "সবচেয়ে দ্রুত উইথড্রল", "এক্সক্লুসিভ বোনাস"], color: "#b9f2ff"},
-             { level: 6, name: "এমেরাल्ड", icon: "fas fa-leaf", price: 3500, tasksPerDay: 30, features: ["দৈনিক ৩০টি টাস্ক", "+ প্রতি রেফারে অতিরিক্ত বোনাস", "স্পেশাল গিফট"], color: "#3cd070" },
-             { level: 7, name: "স্যাফায়ার", icon: "fas fa-anchor", price: 5000, tasksPerDay: 35, features: ["দৈনিক ৩৫টি টাস্ক", "+ সাপ্তাহিক ক্যাশব্যাক", "উচ্চ উইথড্র লিমিট"], color: "#3399ff" },
-             { level: 8, name: "রুবি", icon: "fas fa-fire", price: 7500, tasksPerDay: 40, features: ["দৈনিক ৪০টি টাস্ক", "+ ফ্রি মাসিক স্পিন", "টপ প্রায়োরিটি সাপোর্ট"], color: "#ff6f61" },
-             { level: 9, name: "ওপাল", icon: "fas fa-moon", price: 10000, tasksPerDay: 45, features: ["দৈনিক ৪৫টি টাস্ক", "+ প্রতি মাসে ২টি প্ল্যান গিফট", "সর্বোচ্চ উইথড্রল"], color: "#a8c3b8" },
-             { level: 10, name: "ওনিক্স", icon: "fas fa-atom", price: 15000, tasksPerDay: 50, features: ["দৈনিক ৫০টি টাস্ক", "+ সরাসরি অ্যাডমিন অ্যাক্সেস", "অসীম উইথড্র লিমিট"], color: "#4a4a4a" },
-             { level: 11, name: "জেড", icon: "fas fa-seedling", price: 20000, tasksPerDay: 55, features: ["দৈনিক ৫৫টি টাস্ক", "ফিচার কাস্টমাইজেশন", "রেফারেল কমিশন ৫%"], color: "#00A86B" },
-             { level: 12, name: "লাভা", icon: "fas fa-fire-alt", price: 25000, tasksPerDay: 60, features: ["দৈনিক ৬০টি টাস্ক", "নতুন ফিচার বেটা টেস্ট", "রেফারেল কমিশন ৬%"], color: "#CF1020" },
-             { level: 13, name: "অ্যাম্বার", icon: "fas fa-sun", price: 30000, tasksPerDay: 65, features: ["দৈনিক ৬৫টি টাস্ক", "মাসিক পারফরমেন্স বোনাস", "রেফারেল কমিশন ৭%"], color: "#FFBF00" },
-             { level: 14, name: "স্কাই", icon: "fas fa-bolt", price: 40000, tasksPerDay: 70, features: ["দৈনিক ৭০টি টাস্ক", "ইন্টারন্যাশনাল ট্রিপ (বার্ষিক)", "রেফারেল কমিশন ৮%"], color: "#87CEEB" },
-             { level: 15, name: "ওশেন", icon: "fas fa-water", price: 50000, tasksPerDay: 75, features: ["দৈনিক ৭৫টি টাস্ক", "ব্যক্তিগত বিনিয়োগ পরামর্শ", "রেফারেল কমিশন ৯%"], color: "#1E90FF" },
-             { level: 16, name: "কসমিক", icon: "fas fa-rocket", price: 60000, tasksPerDay: 80, features: ["দৈনিক ৮০টি টাস্ক", "অ্যাডমিন প্যানেল অ্যাক্সেস", "রেফারেল কমিশন ১০%"], color: "#4A4E69" },
-             { level: 17, name: "গ্যালাক্সি", icon: "fas fa-meteor", price: 75000, tasksPerDay: 85, features: ["দৈনিক ৮৫টি টাস্ক", "অংশীদারিত্বের সুযোগ", "১২% কমিশন"], color: "#9B5DE5" },
-             { level: 18, name: "সোলার", icon: "fas fa-solar-panel", price: 90000, tasksPerDay: 90, features: ["দৈনিক ৯০টি টাস্ক", "বিশেষ লাভ্যাংশ", "১৪% কমিশন"], color: "#FEE440" },
-             { level: 19, name: "ইনফিনিটি", icon: "fas fa-infinity", price: 120000, tasksPerDay: 95, features: ["দৈনিক ৯৫টি টাস্ক", "ভোট দেওয়ার ক্ষমতা", "১৬% কমিশন"], color: "#FB5607" },
-             { level: 20, name: "লিজেণ্ড", icon: "fas fa-landmark", price: 150000, tasksPerDay: 100, features: ["দৈনিক ১০০টি টাস্ক", "আজীবন সাপোর্ট", "২০% কমিশন"], color: "#212121" }
-         ];
+        // --- VIP Plans (price is now COIN cost) ---
+        const vipPlans = [
+            { level: 1, name: "ব্রোঞ্জ", icon: "fas fa-shield-alt", price: 100, tasksPerDay: 5, features: ["দৈনিক ৫টি অ্যাড ভিউ"], color: "#cd7f32"},
+            { level: 2, name: "সিলভার", icon: "fas fa-star", price: 250, tasksPerDay: 10, features: ["দৈনিক ১০টি অ্যাড ভিউ"], color: "#c0c0c0"},
+            { level: 3, name: "গোল্ড", icon: "fas fa-medal", price: 500, tasksPerDay: 15, features: ["দৈনিক ১৫টি অ্যাড ভিউ"], color: "#ffd700"},
+            { level: 4, name: "প্লাটিনাম", icon: "fas fa-award", price: 1000, tasksPerDay: 20, features: ["দৈনিক ২০টি অ্যাড ভিউ"], color: "#e5e4e2"},
+            { level: 5, name: "ডায়মন্ড", icon: "fas fa-gem", price: 2000, tasksPerDay: 25, features: ["দৈনিক ২৫টি অ্যাড ভিউ"], color: "#b9f2ff"},
+            { level: 6, name: "এমেরাल्ड", icon: "fas fa-leaf", price: 3500, tasksPerDay: 30, features: ["দৈনিক ৩০টি অ্যাড ভিউ"], color: "#3cd070" },
+            { level: 7, name: "স্যাফায়ার", icon: "fas fa-anchor", price: 5000, tasksPerDay: 35, features: ["দৈনিক ৩৫টি অ্যাড ভিউ"], color: "#3399ff" },
+            { level: 8, name: "রুবি", icon: "fas fa-fire", price: 7500, tasksPerDay: 40, features: ["দৈনিক ৪০টি অ্যাড ভিউ"], color: "#ff6f61" },
+            { level: 9, name: "ওপাল", icon: "fas fa-moon", price: 10000, tasksPerDay: 45, features: ["দৈনিক ৪৫টি অ্যাড ভিউ"], color: "#a8c3b8" },
+            { level: 10, name: "ওনিক্স", icon: "fas fa-atom", price: 15000, tasksPerDay: 50, features: ["দৈনিক ৫০টি অ্যাড ভিউ"], color: "#4a4a4a" },
+            { level: 11, name: "জেড", icon: "fas fa-seedling", price: 20000, tasksPerDay: 55, features: ["দৈনিক ৫৫টি অ্যাড ভিউ"], color: "#00A86B" },
+            { level: 12, name: "লাভা", icon: "fas fa-fire-alt", price: 25000, tasksPerDay: 60, features: ["দৈনিক ৬০টি অ্যাড ভিউ"], color: "#CF1020" },
+            { level: 13, name: "অ্যাম্বার", icon: "fas fa-sun", price: 30000, tasksPerDay: 65, features: ["দৈনিক ৬৫টি অ্যাড ভিউ"], color: "#FFBF00" },
+            { level: 14, name: "স্কাই", icon: "fas fa-bolt", price: 40000, tasksPerDay: 70, features: ["দৈনিক ৭০টি অ্যাড ভিউ"], color: "#87CEEB" },
+            { level: 15, name: "ওশেন", icon: "fas fa-water", price: 50000, tasksPerDay: 75, features: ["দৈনিক ৭৫টি অ্যাড ভিউ"], color: "#1E90FF" },
+            { level: 16, name: "কসমিক", icon: "fas fa-rocket", price: 60000, tasksPerDay: 80, features: ["দৈনিক ৮০টি অ্যাড ভিউ"], color: "#4A4E69" },
+            { level: 17, name: "গ্যালাক্সি", icon: "fas fa-meteor", price: 75000, tasksPerDay: 85, features: ["দৈনিক ৮৫টি অ্যাড ভিউ"], color: "#9B5DE5" },
+            { level: 18, name: "সোলার", icon: "fas fa-solar-panel", price: 90000, tasksPerDay: 90, features: ["দৈনিক ৯০টি অ্যাড ভিউ"], color: "#FEE440" },
+            { level: 19, name: "ইনফিনিটি", icon: "fas fa-infinity", price: 120000, tasksPerDay: 95, features: ["দৈনিক ৯৫টি অ্যাড ভিউ"], color: "#FB5607" },
+            { level: 20, name: "লিজেণ্ড", icon: "fas fa-landmark", price: 150000, tasksPerDay: 100, features: ["দৈনিক ১০০টি অ্যাড ভিউ"], color: "#212121" }
+        ];
+
 
         // --- Utility Functions ---
          function showLoading() { if(loadingIndicator) loadingIndicator.style.display = 'flex'; }
          function hideLoading() { if(loadingIndicator) loadingIndicator.style.display = 'none'; }
          function showToast(message, duration = 3500) { if(!toastMessage) return; toastMessage.textContent = message; toastMessage.style.display = 'block'; toastMessage.style.animation = 'none'; void toastMessage.offsetWidth; toastMessage.style.animation = `fadeInOutToast ${duration/1000}s ease-in-out`; setTimeout(() => { if (toastMessage.style.display === 'block') { toastMessage.style.display = 'none'; } }, duration); }
-         function showAlert(alertElement, message, type = 'danger') { if (!alertElement) { console.error("Alert Error:", message); return; } alertElement.innerHTML = message; // Use innerHTML to allow basic HTML like <b>
-            alertElement.className = `alert alert-${type}`; alertElement.style.display = 'block'; setTimeout(() => { if(alertElement.style.display === 'block') { alertElement.style.display = 'none'; } }, 6000); } // Increased duration slightly
+         function showAlert(alertElement, message, type = 'danger') { if (!alertElement) { console.error("Alert Error:", message); return; } alertElement.innerHTML = message; alertElement.className = `alert alert-${type}`; alertElement.style.display = 'block'; setTimeout(() => { if(alertElement.style.display === 'block') { alertElement.style.display = 'none'; } }, 6000); }
          function clearAlerts() { [loginAlert, signupAlert, depositAlert, withdrawAlert, generalAlertArea, modalAlert].forEach(el => { if(el) { el.style.display = 'none'; el.textContent = ''; if (el.id === 'general-alert-area' || el.id === 'modal-alert') el.innerHTML = ''; else el.className = 'alert'; } }); }
          function generateReferralCode() { return Math.random().toString(36).substring(2, 9).toUpperCase(); }
-         function copyToClipboard(text, buttonElement) {
-            navigator.clipboard.writeText(text).then(() => {
-                const originalText = buttonElement.innerHTML;
-                buttonElement.innerHTML = '<i class="fas fa-check"></i> কপিড';
-                buttonElement.disabled = true;
-                setTimeout(() => {
-                    buttonElement.innerHTML = originalText;
-                    buttonElement.disabled = false;
-                }, 1500);
-                // Optional: Show toast as well
-                // showToast("নম্বর কপি করা হয়েছে!");
-            }).catch(err => {
-                showToast("কপি করা যায়নি!");
-                console.error('Clipboard copy failed:', err);
-            });
-         }
+         function copyToClipboard(text, buttonElement) { navigator.clipboard.writeText(text).then(() => { const originalText = buttonElement.innerHTML; buttonElement.innerHTML = '<i class="fas fa-check"></i> কপিড'; buttonElement.disabled = true; setTimeout(() => { buttonElement.innerHTML = originalText; buttonElement.disabled = false; }, 1500); }).catch(err => { showToast("কপি করা যায়নি!"); console.error('Clipboard copy failed:', err); }); }
          function openModal(modalId) { const modal = document.getElementById(modalId); if (modal) modal.style.display = 'flex'; }
          function closeModal(modalId) { const modal = document.getElementById(modalId); if (modal) modal.style.display = 'none'; }
+         function getTotalDailyAdLimit() { if (!currentUser || !currentUser.activeVips || currentUser.activeVips.length === 0) return 0; return currentUser.activeVips.reduce((sum, vip) => sum + (vip.tasksPerDay || 0), 0); }
 
 
         // --- Telegram Integration ---
-         async function sendTelegramMessage(messageText) {
-            if (!TELEGRAM_BOT_TOKEN || !TELEGRAM_CHAT_ID) {
-                console.error("Telegram Bot Token or Chat ID is missing.");
-                return false; // Indicate failure
-            }
-            const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
-            const payload = {
-                chat_id: TELEGRAM_CHAT_ID,
-                text: messageText,
-                parse_mode: 'HTML' // Use HTML for simple formatting like bold
-            };
-
-            try {
-                showLoading(); // Show loading indicator during API call
-                const response = await fetch(url, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(payload)
-                });
-                const data = await response.json();
-                hideLoading(); // Hide loading after API call completes
-
-                if (data.ok) {
-                    console.log("Telegram message sent successfully:", data);
-                    return true; // Indicate success
-                } else {
-                    console.error("Telegram API Error:", data);
-                    showToast(`টেলিগ্রামে মেসেজ পাঠাতে সমস্যা হয়েছে। কোড: ${data.error_code}`);
-                    return false; // Indicate failure
-                }
-            } catch (error) {
-                hideLoading(); // Hide loading on network error
-                console.error("Error sending Telegram message:", error);
-                showToast("টেলিগ্রামে মেসেজ পাঠাতে নেটওয়ার্ক সমস্যা।");
-                return false; // Indicate failure
-            }
-         }
+         async function sendTelegramMessage(messageText) { if (!TELEGRAM_BOT_TOKEN || !TELEGRAM_CHAT_ID) { console.error("Telegram Bot Token or Chat ID is missing."); return false; } const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`; const payload = { chat_id: TELEGRAM_CHAT_ID, text: messageText, parse_mode: 'HTML' }; try { showLoading(); const response = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) }); const data = await response.json(); hideLoading(); if (data.ok) { console.log("Telegram message sent successfully:", data); return true; } else { console.error("Telegram API Error:", data); showToast(`টেলিগ্রামে মেসেজ পাঠাতে সমস্যা হয়েছে। কোড: ${data.error_code}`); return false; } } catch (error) { hideLoading(); console.error("Error sending Telegram message:", error); showToast("টেলিগ্রামে মেসেজ পাঠাতে নেটওয়ার্ক সমস্যা।"); return false; } }
 
         // --- Page Navigation & Core UI Update ---
          function showPage(pageId) {
-              clearAlerts();
-              if (!isLoggedIn && !['login-page', 'signup-page', 'policy-page'].includes(pageId)) {
-                  showAlert(generalAlertArea || loginAlert, 'পেজটি দেখতে লগইন করুন।', 'danger');
-                  showPage('login-page');
-                  return;
-              }
-              pages.forEach(page => page.classList.remove('active'));
-              const pageToShow = document.getElementById(pageId);
-              if (pageToShow) {
-                  pageToShow.classList.add('active');
-                  updateAppUIBasedOnPage(pageId);
-              }
-              else {
-                  console.error("Page not found:", pageId);
-                  showPage(isLoggedIn ? 'home-page' : 'login-page');
-              }
-              document.querySelector('.pages-container').scrollTop = 0;
-          }
+             clearAlerts();
+             if (!isLoggedIn && !['login-page', 'signup-page', 'policy-page'].includes(pageId)) {
+                 showAlert(generalAlertArea || loginAlert, 'পেজটি দেখতে লগইন করুন।', 'danger');
+                 showPage('login-page');
+                 return;
+             }
+             pages.forEach(page => page.classList.remove('active'));
+             const pageToShow = document.getElementById(pageId);
+             if (pageToShow) {
+                 pageToShow.classList.add('active');
+                 updateAppUIBasedOnPage(pageId);
 
-         function updateAppUIBasedOnPage(pageId) {
-               // Update Active Nav Item
-               navItems.forEach(item => {
-                   item.classList.toggle('active', item.getAttribute('data-page') === pageId);
-               });
-
-               // Show/Hide & Reload bottom banner based on login state and page
-               const shouldShowBottomBanner = isLoggedIn && pageId !== 'login-page' && pageId !== 'signup-page';
-               if (adsterraBannerBottom) {
-                    adsterraBannerBottom.classList.toggle('visible', shouldShowBottomBanner);
-                    if (shouldShowBottomBanner) {
-                        // Always try to load/reload the banner when the page becomes visible
-                        loadAdsterraBanner('adsterra-banner-bottom', ADSTERRA_BOTTOM_BANNER_KEY);
-                    } else {
-                         // Clear content when not visible to ensure fresh load next time
-                         adsterraBannerBottom.innerHTML = '<span class="placeholder-text">বিজ্ঞাপন লোড হচ্ছে...</span>';
-                    }
-               }
-
-               // Load page specific data
-               if (pageId === 'home-page' && isLoggedIn) {
-                    updateProfileCard();
-                    renderDailyTasks(); // Render tasks on home page load
-                }
-               // Removed Task Page specific logic
-               if (pageId === 'refer-page' && isLoggedIn) { displayReferralCode(); }
-               if (pageId === 'withdraw-page' && isLoggedIn) { displayBalanceOnWithdrawPage(); }
-               if (pageId === 'vip-page' && isLoggedIn) { renderVipPlans(); }
-           }
-
-        // --- Authentication & Local Storage ---
-        const LS_PREFIX = "eliteEarnZone_v6_"; // New Prefix for changes
-         function checkLoginStatus() {
-            const loggedIn = localStorage.getItem(LS_PREFIX + 'loggedIn') === 'true';
-            if (loggedIn) {
-                isLoggedIn = true;
-                currentUser.email = localStorage.getItem(LS_PREFIX + 'userEmail');
-                currentUser.name = localStorage.getItem(LS_PREFIX + 'userName');
-                currentUser.phone = localStorage.getItem(LS_PREFIX + 'userPhone') || '01xxxxxxxxx';
-                currentUser.balance = parseFloat(localStorage.getItem(LS_PREFIX + 'userBalance')) || 0.0;
-                currentUser.referralCode = localStorage.getItem(LS_PREFIX + 'userReferralCode');
-                const vipData = JSON.parse(localStorage.getItem(LS_PREFIX + 'userVipStatus') || '{}');
-                currentUser.vip = {
-                    level: vipData.level || 0,
-                    name: vipData.name || 'Free',
-                    tasksPerDay: vipData.tasksPerDay || 3, // Load tasksPerDay
-                    activeUntil: vipData.activeUntil ? new Date(vipData.activeUntil) : null
-                };
-                currentUser.pendingVipLevel = parseInt(localStorage.getItem(LS_PREFIX + 'pendingVipLevel') || '0');
-                currentUser.availableTasks = parseInt(localStorage.getItem(LS_PREFIX + 'availableTasks') || '0');
-                currentUser.completedTasks = parseInt(localStorage.getItem(LS_PREFIX + 'completedTasks') || '0');
-
-                // Simplified pending check - if pending, assume timer needs restart (adjust if precise timer needed)
-                const pendingTime = parseInt(localStorage.getItem(LS_PREFIX+'pendingVipTime') || '0');
-                if (currentUser.pendingVipLevel > 0 && pendingTime > 0) {
-                    const elapsed = Date.now() - pendingTime;
-                    const remainingTime = VIP_ACTIVATION_DELAY_MS - elapsed;
-                    if (remainingTime > 0) {
-                         showToast(`VIP ${currentUser.pendingVipLevel} রিকোয়েস্ট প্রসেসিং...`);
-                         restartVipActivationTimer(currentUser.pendingVipLevel, remainingTime);
-                     } else {
-                         // Timer expired while offline, activate now
-                         activateVipPlan(currentUser.pendingVipLevel, false); // Don't show immediate toast
-                         clearPendingVip();
-                     }
-                } else if (currentUser.pendingVipLevel > 0) {
-                    // Pending state exists but no valid time - clear it
-                    clearPendingVip();
-                }
-
-                 // Reset daily tasks if needed (e.g., based on a last reset date - simplified here)
-                 // For demo, just set available tasks based on current VIP level if they are zero
-                 if (currentUser.availableTasks === 0 && currentUser.vip.tasksPerDay > 0) {
-                     resetDailyTasks();
+                 // >>> BANNER RELOAD ON NAV CLICK <<<
+                 // Force reload banner after page transition and UI update
+                 const shouldShowBottomBanner = isLoggedIn && pageId !== 'login-page' && pageId !== 'signup-page';
+                 if (adsterraBannerBottom && shouldShowBottomBanner) {
+                     console.log("Reloading banner due to navigation...");
+                     loadAdsterraBanner('adsterra-banner-bottom', ADSTERRA_BOTTOM_BANNER_KEY, true); // Pass forceReload = true
                  }
 
+             } else {
+                 console.error("Page not found:", pageId);
+                 showPage(isLoggedIn ? 'home-page' : 'login-page');
+             }
+             document.querySelector('.pages-container').scrollTop = 0;
+         }
+         function updateAppUIBasedOnPage(pageId) {
+             navItems.forEach(item => item.classList.toggle('active', item.getAttribute('data-page') === pageId));
 
-            } else {
-                isLoggedIn = false;
-                currentUser = { name: 'ব্যবহারকারী', email: null, phone: '01xxxxxxxxx', balance: 100.0, referralCode: 'DEMO123', vip: {level: 0, name: 'Free', tasksPerDay: 3}, pendingVipLevel: null, availableTasks: 0, completedTasks: 0 };
-                clearVipTimers();
-                clearPendingVip();
-            }
+             // >>> BANNER VISIBILITY LOGIC (No change here) <<<
+             const shouldShowBottomBanner = isLoggedIn && pageId !== 'login-page' && pageId !== 'signup-page';
+             if (adsterraBannerBottom) {
+                 adsterraBannerBottom.classList.toggle('visible', shouldShowBottomBanner);
+                 // Initial load if becoming visible, subsequent loads handled by showPage
+                 if (shouldShowBottomBanner && !adsterraBannerBottom.querySelector('iframe')) {
+                     loadAdsterraBanner('adsterra-banner-bottom', ADSTERRA_BOTTOM_BANNER_KEY);
+                 } else if (!shouldShowBottomBanner) {
+                     adsterraBannerBottom.innerHTML = '<span class="placeholder-text">বিজ্ঞাপন লোড হচ্ছে...</span>'; // Clear if hidden
+                 }
+             }
+
+             // Load page specific data
+             if (pageId === 'home-page' && isLoggedIn) { updateProfileCard(); renderDailyAdViewProgress(); }
+             if (pageId === 'refer-page' && isLoggedIn) { displayReferralCode(); }
+             if (pageId === 'withdraw-page' && isLoggedIn) { displayBalanceOnWithdrawPage(); }
+             if (pageId === 'vip-page' && isLoggedIn) { renderVipPlans(); }
+         }
+
+        // --- Authentication & Local Storage ---
+        const LS_PREFIX = "eliteEarnCoinVIP_v2_";
+         function checkLoginStatus() {
+             const loggedIn = localStorage.getItem(LS_PREFIX + 'loggedIn') === 'true';
+             if (loggedIn) {
+                 isLoggedIn = true;
+                 currentUser.email = localStorage.getItem(LS_PREFIX + 'userEmail');
+                 currentUser.name = localStorage.getItem(LS_PREFIX + 'userName');
+                 currentUser.phone = localStorage.getItem(LS_PREFIX + 'userPhone') || '01xxxxxxxxx';
+                 currentUser.balance = parseInt(localStorage.getItem(LS_PREFIX + 'userBalance')) || 0;
+                 currentUser.referralCode = localStorage.getItem(LS_PREFIX + 'userReferralCode');
+                 currentUser.activeVips = JSON.parse(localStorage.getItem(LS_PREFIX + 'userActiveVips') || '[]');
+                 currentUser.completedAdViewsToday = parseInt(localStorage.getItem(LS_PREFIX + 'completedAdViewsToday') || '0');
+                 const today = new Date().toDateString();
+                 const lastReset = localStorage.getItem(LS_PREFIX + 'lastAdResetDate');
+                 if (lastReset !== today) { resetDailyAdViews(); }
+             } else {
+                 isLoggedIn = false;
+                 currentUser = { name: 'ব্যবহারকারী', email: null, phone: '01xxxxxxxxx', balance: 100, referralCode: 'DEMO123', activeVips: [], completedAdViewsToday: 0 };
+             }
          }
          function saveLoginStatus(user) {
-            isLoggedIn = true;
-             if(!user.vip){user.vip={level:0,name:'Free', tasksPerDay: 3}}
+             isLoggedIn = true;
+             user.activeVips = user.activeVips || [];
              if(!user.referralCode){user.referralCode=generateReferralCode()}
-             if(!user.phone || user.phone.length !== 11 || !/^[0-9]+$/.test(user.phone)){user.phone='01xxxxxxxxx'} // Basic validation
-
-            // Merge existing task state if user logs back in
-            const existingTasks = { availableTasks: currentUser.availableTasks, completedTasks: currentUser.completedTasks };
-            currentUser = {...user, ...existingTasks, pendingVipLevel:currentUser.pendingVipLevel}; // Keep pending state
-
+             if(!user.phone || user.phone.length !== 11 || !/^[0-9]+$/.test(user.phone)){user.phone='01xxxxxxxxx'}
+             currentUser = { ...user, completedAdViewsToday: 0 }; // Reset ad views
              localStorage.setItem(LS_PREFIX + 'loggedIn', 'true');
-             localStorage.setItem(LS_PREFIX + 'userEmail', user.email);
-             localStorage.setItem(LS_PREFIX + 'userName', user.name);
-             localStorage.setItem(LS_PREFIX + 'userPhone', user.phone);
-             localStorage.setItem(LS_PREFIX + 'userBalance', user.balance.toString());
-             localStorage.setItem(LS_PREFIX + 'userReferralCode', user.referralCode);
-             localStorage.setItem(LS_PREFIX + 'userVipStatus', JSON.stringify(user.vip));
-             // Save task state separately
-             localStorage.setItem(LS_PREFIX + 'availableTasks', currentUser.availableTasks.toString());
-             localStorage.setItem(LS_PREFIX + 'completedTasks', currentUser.completedTasks.toString());
+             localStorage.setItem(LS_PREFIX + 'userEmail', currentUser.email);
+             localStorage.setItem(LS_PREFIX + 'userName', currentUser.name);
+             localStorage.setItem(LS_PREFIX + 'userPhone', currentUser.phone);
+             localStorage.setItem(LS_PREFIX + 'userBalance', Math.floor(currentUser.balance).toString());
+             localStorage.setItem(LS_PREFIX + 'userReferralCode', currentUser.referralCode);
+             localStorage.setItem(LS_PREFIX + 'userActiveVips', JSON.stringify(currentUser.activeVips));
+             localStorage.setItem(LS_PREFIX + 'completedAdViewsToday', currentUser.completedAdViewsToday.toString());
+             resetDailyAdViews(); // Also resets the date
              updateProfileCard();
-             resetDailyTasks(); // Give fresh tasks on login/signup
-             renderDailyTasks(); // Update task UI
+             renderDailyAdViewProgress();
          }
         function saveAppState() {
              if(isLoggedIn){
-                 localStorage.setItem(LS_PREFIX+'userBalance',currentUser.balance.toString());
-                 localStorage.setItem(LS_PREFIX+'userVipStatus',JSON.stringify(currentUser.vip));
-                 localStorage.setItem(LS_PREFIX + 'availableTasks', currentUser.availableTasks.toString());
-                 localStorage.setItem(LS_PREFIX + 'completedTasks', currentUser.completedTasks.toString());
-                 // Pending state is saved in setPendingVip/clearPendingVip
+                 localStorage.setItem(LS_PREFIX+'userBalance', Math.floor(currentUser.balance).toString());
+                 localStorage.setItem(LS_PREFIX+'userActiveVips', JSON.stringify(currentUser.activeVips));
+                 localStorage.setItem(LS_PREFIX + 'completedAdViewsToday', currentUser.completedAdViewsToday.toString());
+                 const lastReset = localStorage.getItem(LS_PREFIX + 'lastAdResetDate');
+                 if (lastReset) { localStorage.setItem(LS_PREFIX + 'lastAdResetDate', lastReset); }
              }
         }
          function clearLoginStatus() {
-             isLoggedIn = false; currentUser = { name: 'ব্যবহারকারী', email: null, phone: '01xxxxxxxxx', balance: 100.0, referralCode: 'DEMO123', vip: {level: 0, name: 'Free', tasksPerDay: 3}, pendingVipLevel: null, availableTasks: 0, completedTasks: 0 };
-             localStorage.removeItem(LS_PREFIX + 'loggedIn'); localStorage.removeItem(LS_PREFIX + 'userEmail'); localStorage.removeItem(LS_PREFIX + 'userName'); localStorage.removeItem(LS_PREFIX + 'userPhone'); localStorage.removeItem(LS_PREFIX + 'userBalance'); localStorage.removeItem(LS_PREFIX + 'userReferralCode'); localStorage.removeItem(LS_PREFIX + 'userVipStatus'); localStorage.removeItem(LS_PREFIX + 'availableTasks'); localStorage.removeItem(LS_PREFIX + 'completedTasks');
-             clearPendingVip(); clearVipTimers(); updateProfileCard(); renderDailyTasks(); // Clear task UI
+             isLoggedIn = false;
+             currentUser = { name: 'ব্যবহারকারী', email: null, phone: '01xxxxxxxxx', balance: 100, referralCode: 'DEMO123', activeVips: [], completedAdViewsToday: 0 };
+             localStorage.removeItem(LS_PREFIX + 'loggedIn');
+             localStorage.removeItem(LS_PREFIX + 'userEmail');
+             localStorage.removeItem(LS_PREFIX + 'userName');
+             localStorage.removeItem(LS_PREFIX + 'userPhone');
+             localStorage.removeItem(LS_PREFIX + 'userBalance');
+             localStorage.removeItem(LS_PREFIX + 'userReferralCode');
+             localStorage.removeItem(LS_PREFIX + 'userActiveVips');
+             localStorage.removeItem(LS_PREFIX + 'completedAdViewsToday');
+             localStorage.removeItem(LS_PREFIX + 'lastAdResetDate');
+             updateProfileCard();
+             renderDailyAdViewProgress();
          }
 
-        // --- VIP Timer/Pending State Helpers ---
-        function setPendingVip(level) { currentUser.pendingVipLevel=level; localStorage.setItem(LS_PREFIX+'pendingVipLevel',level.toString()); localStorage.setItem(LS_PREFIX+'pendingVipTime',Date.now().toString()); }
-         function clearPendingVip() { currentUser.pendingVipLevel=null; localStorage.removeItem(LS_PREFIX+'pendingVipLevel'); localStorage.removeItem(LS_PREFIX+'pendingVipTime'); if(document.getElementById('vip-page')?.classList.contains('active')){renderVipPlans();}}
-         function clearVipTimers() { Object.values(vipActivationTimers).forEach(clearTimeout); vipActivationTimers = {}; }
-         function restartVipActivationTimer(level, remainingTime) { if(vipActivationTimers[level])clearTimeout(vipActivationTimers[level]); vipActivationTimers[level] = setTimeout(() => { activateVipPlan(level); }, remainingTime); } // activateVipPlan handles the rest
-         function activateVipPlan(level, showSuccessToast = true) {
-            const plan = vipPlans.find(p => p.level === level);
-             if (plan && currentUser && currentUser.pendingVipLevel === level) { // Ensure it's the correct pending level
-                currentUser.vip = { level: plan.level, name: plan.name, tasksPerDay: plan.tasksPerDay, activeUntil: null };
-                clearPendingVip(); // Clear pending status *after* successful activation
-                resetDailyTasks(); // Give new tasks immediately
-                saveAppState();
-                updateProfileCard();
-                renderDailyTasks(); // Update home page task list
-                if (document.getElementById('vip-page')?.classList.contains('active')) { renderVipPlans(); }
-                if (showSuccessToast) {
-                     showToast(`অভিনন্দন! আপনার VIP ${level} (${plan.name}) প্ল্যান সক্রিয় হয়েছে!`);
-                }
-                console.log(`Activated VIP: ${level}`);
-             } else if (plan && currentUser && currentUser.vip.level === level) {
-                 // Already active, maybe timer ran again unnecessarily
-                 console.log(`VIP ${level} is already active.`);
-                 clearPendingVip(); // Ensure pending state is cleared
-             } else {
-                console.error(`Failed to activate VIP ${level}. Plan not found, user mismatch, or not pending.`);
-                // Maybe clear pending state if something went wrong
-                 clearPendingVip();
-                 if (document.getElementById('vip-page')?.classList.contains('active')) { renderVipPlans(); }
-             }
-             // Clear the specific timer regardless of success/failure
-             if(vipActivationTimers[level]) clearTimeout(vipActivationTimers[level]);
-             delete vipActivationTimers[level];
-          }
+        // --- VIP related functions removed ---
 
 
-        // --- Profile Card & Balance Display ---
-          function updateProfileCard() {
-              if (!profileUserName || !profileUserPhone) return;
-              if (isLoggedIn) {
-                  profileUserName.textContent = currentUser.name || 'ব্যবহারকারী';
-                  profileUserPhone.textContent = currentUser.phone || 'N/A';
-                   updateBalanceDisplay(); // Updates the balance part
-              } else {
-                   profileUserName.textContent = 'স্বাগতম!';
-                   profileUserPhone.textContent = 'লগইন/সাইন আপ করুন';
-                   profileBalanceValue.textContent = '৳ 0.00';
-                   profileBalanceValue.style.display = 'none';
-                   balanceHiddenSymbol.style.display = 'inline-block';
-                   profileBalanceSection.classList.remove('visible');
-                   balanceEyeIcon.classList.replace('fa-eye-slash', 'fa-eye');
-                   isBalanceVisible = false;
-              }
-          }
-        function toggleBalanceVisibility() { if (!isLoggedIn) return; isBalanceVisible = !isBalanceVisible; updateBalanceDisplay(); }
-         function updateBalanceDisplay() {
-             const displayBalance = currentUser.balance || 0.0;
-              if (profileBalanceSection && profileBalanceValue && balanceHiddenSymbol && balanceEyeIcon) {
-                  if (isBalanceVisible) {
-                       profileBalanceValue.textContent = "৳ " + displayBalance.toFixed(2); profileBalanceValue.style.display = 'inline'; balanceHiddenSymbol.style.display = 'none'; profileBalanceSection.classList.add('visible'); balanceEyeIcon.classList.replace('fa-eye', 'fa-eye-slash');
-                   } else {
-                       profileBalanceValue.style.display = 'none'; balanceHiddenSymbol.style.display = 'inline-block'; profileBalanceSection.classList.remove('visible'); balanceEyeIcon.classList.replace('fa-eye-slash', 'fa-eye');
-                   }
-               }
-              displayBalanceOnWithdrawPage();
-           }
-         function displayBalanceOnWithdrawPage(){ if(currentBalanceWithdrawPage){ currentBalanceWithdrawPage.textContent = "৳ " + (currentUser.balance || 0.0).toFixed(2); }}
-          function updateUserBalance(newBalance) { currentUser.balance = Math.max(0, newBalance); saveAppState(); updateBalanceDisplay(); }
+        // --- Profile Card & Balance Display (Coins) ---
+          function updateProfileCard() { if (!profileUserName || !profileUserPhone) return; if (isLoggedIn) { profileUserName.textContent = currentUser.name || 'ব্যবহারকারী'; profileUserPhone.textContent = currentUser.phone || 'N/A'; updateBalanceDisplay(); } else { profileUserName.textContent = 'স্বাগতম!'; profileUserPhone.textContent = 'লগইন/সাইন আপ করুন'; profileBalanceValue.innerHTML = `<i class="${COIN_ICON_CLASS} coin-icon"></i> 0`; profileBalanceValue.style.display = 'none'; balanceHiddenSymbol.textContent = 'কয়েন দেখুন'; balanceHiddenSymbol.style.display = 'inline-block'; profileBalanceSection.classList.remove('visible'); balanceEyeIcon.classList.replace('fa-eye-slash', 'fa-eye'); isBalanceVisible = false; } }
+          function toggleBalanceVisibility() { if (!isLoggedIn) return; isBalanceVisible = !isBalanceVisible; updateBalanceDisplay(); }
+          function updateBalanceDisplay() { const displayBalance = Math.floor(currentUser.balance || 0); if (profileBalanceSection && profileBalanceValue && balanceHiddenSymbol && balanceEyeIcon) { if (isBalanceVisible) { profileBalanceValue.innerHTML = `<i class="${COIN_ICON_CLASS} coin-icon"></i> ${displayBalance}`; profileBalanceValue.style.display = 'inline-flex'; balanceHiddenSymbol.style.display = 'none'; profileBalanceSection.classList.add('visible'); balanceEyeIcon.classList.replace('fa-eye', 'fa-eye-slash'); } else { profileBalanceValue.style.display = 'none'; balanceHiddenSymbol.textContent = 'কয়েন দেখুন'; balanceHiddenSymbol.style.display = 'inline-block'; profileBalanceSection.classList.remove('visible'); balanceEyeIcon.classList.replace('fa-eye-slash', 'fa-eye'); } } displayBalanceOnWithdrawPage(); }
+          function displayBalanceOnWithdrawPage(){ if(currentBalanceWithdrawPage){ currentBalanceWithdrawPage.innerHTML = `<i class="${COIN_ICON_CLASS} coin-icon"></i> ${Math.floor(currentUser.balance || 0)}`; } }
+          function updateUserBalance(newCoinBalance) { currentUser.balance = Math.max(0, Math.floor(newCoinBalance)); saveAppState(); updateBalanceDisplay(); }
 
 
          // --- Referral Functions ---
@@ -846,33 +672,34 @@
 
 
           // --- Ad Functions ---
-           function loadAdsterraBanner(containerId, bannerKey) {
+           // --- Ad Functions ---
+           function loadAdsterraBanner(containerId, bannerKey, forceReload = false) { // Added forceReload parameter
                const containerElement = document.getElementById(containerId);
-               // Banner should only load IF the container is currently visible
+               // Basic visibility check
                if (!isLoggedIn || !containerElement || !bannerKey || !containerElement.classList.contains('visible')) {
-                   // Ensure placeholder is there if not visible/logged in
                    if (containerElement && !containerElement.querySelector('iframe')) {
                        containerElement.innerHTML = '<span class="placeholder-text">বিজ্ঞাপন লোড হচ্ছে...</span>';
                    }
                    return;
                }
-               // Prevent reloading if an iframe already exists
-               if (containerElement.querySelector('iframe')) {
-                    // console.log("Banner already loaded in", containerId);
-                    return;
+               // >>> MODIFIED: Check forceReload flag <<<
+               if (!forceReload && containerElement.querySelector('iframe')) {
+                   console.log("Banner already exists and not forcing reload for:", containerId);
+                   return; // Don't reload if iframe exists and not forced
                }
 
-               // Clear placeholder and load ad
-               // console.log("Loading banner in", containerId);
-               containerElement.innerHTML = ''; // Clear placeholder
+               console.log("Loading/Reloading banner in", containerId);
+               containerElement.innerHTML = ''; // ALWAYS Clear placeholder/previous ad
+
                const iframe = document.createElement('iframe');
                iframe.width = '320'; iframe.height = '50';
                iframe.style.border = 'none'; iframe.style.overflow = 'hidden';
                iframe.setAttribute('scrolling', 'no'); iframe.style.maxWidth = '100%';
                iframe.style.maxHeight='50px'; iframe.style.display='block'; iframe.style.margin = '0 auto';
 
+               // Use srcdoc for better isolation and reliability
                const bannerHtml = `
-                   <!DOCTYPE html><html><head><meta name='viewport' content='width=device-width, initial-scale=1.0'><style>body{margin:0;padding:0;display:flex;justify-content:center;align-items:center;height:50px;background-color:transparent;}</style></head><body>
+                   <!DOCTYPE html><html><head><meta name='viewport' content='width=device-width, initial-scale=1.0'><style>body{margin:0;padding:0;display:flex;justify-content:center;align-items:center;height:50px;background-color:transparent;overflow:hidden;}</style></head><body>
                        <script type="text/javascript">atOptions={'key':'${bannerKey}','format':'iframe','height':50,'width':320,'params':{}};<\/script>
                        <script type="text/javascript" src="//www.highperformanceformat.com/${bannerKey}/invoke.js"><\/script>
                    </body></html>`;
@@ -886,366 +713,176 @@
                 }
            }
 
-           // --- NEW MONETAG AD FUNCTION ---
+
+           // --- Manual Monetag Ad Function (Checks VIP Limit) ---
            function showMonetagEarningAd() {
-               if (!isLoggedIn) {
-                   showToast("বিজ্ঞাপন দেখতে লগইন করুন।");
-                   return;
-               }
+               if (!isLoggedIn) { showToast("বিজ্ঞাপন দেখতে লগইন করুন।"); return; }
+               if (isMonetagAdShowing) { showToast("অন্য একটি বিজ্ঞাপন চলছে..."); return; }
 
-               if (isMonetagAdShowing) {
-                   showToast("আরেকটি বিজ্ঞাপন চলছে...");
-                   return;
-               }
+               const totalLimit = getTotalDailyAdLimit();
+               const completedToday = currentUser.completedAdViewsToday || 0;
 
-               // Check if the Monetag SDK function exists
-               if (typeof show_9292109 !== 'function') {
-                   console.error("Monetag SDK function show_9292109 not found!");
-                   showToast("বিজ্ঞাপন লোড করা যায়নি। SDK সমস্যা।", 3000);
-                   return;
-               }
+               if (currentUser.activeVips.length === 0) { showToast("বিজ্ঞাপন দেখতে অনুগ্রহ করে একটি ভিআইপি প্ল্যান কিনুন।", 4000); return; }
+               if (completedToday >= totalLimit) { showToast(`আজকের ${totalLimit} টি অ্যাড দেখা সম্পন্ন হয়েছে।`, 4000); renderDailyAdViewProgress(); return; }
+
+               if (typeof show_9292109 !== 'function') { console.error("Monetag SDK function not found!"); showToast("বিজ্ঞাপন লোড করা যায়নি। SDK সমস্যা।", 3000); return; }
 
                showLoading();
                isMonetagAdShowing = true;
 
                try {
-                    console.log("Attempting to show Monetag Ad (Zone 9292109)...");
-                    // Call the Monetag function provided by the SDK
-                    // Assuming it returns a Promise based on previous context
+                    console.log("Attempting Monetag Ad...");
                     show_9292109().then(() => {
-                        // Ad watched successfully
-                        console.log("Monetag Ad completed successfully.");
-                        currentUser.balance += MONETAG_AD_REWARD;
-                        updateUserBalance(currentUser.balance); // Update balance in state, storage, and UI
-                        showToast(`বিজ্ঞাপন দেখার জন্য ৳${MONETAG_AD_REWARD.toFixed(2)} যোগ হয়েছে!`, 3000);
-                        hideLoading();
-                        isMonetagAdShowing = false;
+                        console.log("Monetag Ad completed.");
+                        isMonetagAdShowing = false; hideLoading();
+                        if (currentUser.completedAdViewsToday < getTotalDailyAdLimit()) {
+                            const rewardAmount = MONETAG_AD_REWARD;
+                            currentUser.completedAdViewsToday++;
+                            updateUserBalance(currentUser.balance + rewardAmount);
+                            showToast(`বিজ্ঞাপন দেখার জন্য ${rewardAmount} কয়েন যোগ হয়েছে!`, 3000);
+                            renderDailyAdViewProgress(); saveAppState();
+                        } else { showToast("দৈনিক অ্যাড দেখার সীমা ইতিমধ্যে পূর্ণ হয়েছে।", 3000); renderDailyAdViewProgress(); }
                     }).catch(e => {
-                        // Ad failed to show or was closed early (handle error)
-                        console.error("Monetag Ad Error or Closed Early:", e);
+                        console.error("Monetag Ad Error/Closed:", e);
                         showToast("বিজ্ঞাপন দেখাতে সমস্যা হয়েছে বা শেষ করার আগে বন্ধ করা হয়েছে।", 3000);
-                        hideLoading();
-                        isMonetagAdShowing = false;
+                        hideLoading(); isMonetagAdShowing = false;
                     });
-               } catch (error) {
-                   // Catch any synchronous errors during the function call itself
-                   console.error("Error calling show_9292109:", error);
-                   showToast("বিজ্ঞাপন দেখানোর ফাংশন চালু করা যায়নি।", 3000);
-                   hideLoading();
-                   isMonetagAdShowing = false;
-               }
+               } catch (error) { console.error("Error calling show_9292109:", error); showToast("বিজ্ঞাপন দেখানোর ফাংশন চালু করা যায়নি।", 3000); hideLoading(); isMonetagAdShowing = false; }
            }
 
 
-        // --- Task Functions ---
-        function resetDailyTasks() {
-            if (!isLoggedIn) return;
-            currentUser.availableTasks = currentUser.vip.tasksPerDay || 0;
-            currentUser.completedTasks = 0;
-            // TODO: Add logic to check if it's a new day before resetting
-            console.log(`Tasks reset. Available: ${currentUser.availableTasks}`);
-            saveAppState();
-        }
-
-        function renderDailyTasks() {
-            if (!dailyTaskSection || !taskListItems || !taskProgressInfo) return;
-
-            if (isLoggedIn && currentUser.vip.tasksPerDay > 0) {
-                dailyTaskSection.style.display = 'block';
-                taskListItems.innerHTML = ''; // Clear previous list
-
-                const totalTasks = currentUser.vip.tasksPerDay;
-                const completed = currentUser.completedTasks;
-                const remaining = totalTasks - completed;
-
-                taskProgressInfo.textContent = `আজ সম্পন্ন হয়েছে: ${completed}/${totalTasks} টি টাস্ক`;
-
-                for (let i = 1; i <= totalTasks; i++) {
-                    const taskItem = document.createElement('div');
-                    taskItem.className = 'task-item';
-                    taskItem.setAttribute('data-task-id', i);
-
-                    let statusHtml = '';
-                    if (i <= completed) {
-                        statusHtml = `<span class="task-status-done"><i class="fas fa-check-circle"></i> সম্পন্ন</span>`;
-                    } else {
-                        statusHtml = `<button class="btn btn-small btn-complete-task" onclick="completeTask(${i})"> <i class="fas fa-play-circle"></i> কমপ্লিট করুন </button>`;
-                    }
-
-                    taskItem.innerHTML = `
-                        <span>টাস্ক ${i}</span>
-                        ${statusHtml}
-                    `;
-                    taskListItems.appendChild(taskItem);
-                }
-
-            } else {
-                dailyTaskSection.style.display = 'none'; // Hide if no tasks for VIP level or logged out
-                taskListItems.innerHTML = '';
-                taskProgressInfo.textContent = '';
-            }
-        }
-
-        function completeTask(taskNumber) {
-            if (!isLoggedIn || currentUser.completedTasks >= currentUser.vip.tasksPerDay) {
-                showToast("সব টাস্ক সম্পন্ন হয়েছে বা কোনো টাস্ক নেই।");
-                return;
-            }
-
-             // Check if this specific task was already marked complete visually (though state should prevent this)
-             const taskButton = taskListItems.querySelector(`.task-item[data-task-id="${taskNumber}"] .btn-complete-task`);
-             if (!taskButton) {
-                 console.warn(`Task ${taskNumber} button not found or already completed.`);
-                 return; // Already completed or error
-             }
-
-            // 1. Show "Ad" (Simulated with Toast/Log)
-            showToast("টাস্ক বিজ্ঞাপন লোড হচ্ছে..."); // Simulate ad impression
-            console.log(`Simulating TASK ad show for Task ${taskNumber}`);
-            taskButton.disabled = true; // Disable button during processing
-            taskButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
-
-            // 2. Open New Tab (after a short delay to simulate ad view)
-            setTimeout(() => {
-                // Open a blank tab or a specific placeholder URL
-                window.open('about:blank', '_blank'); // Opens a blank tab
-
-                // 3. Mark Task as Complete Locally (NO MONETARY REWARD HERE FOR TASKS AS PER CURRENT LOGIC)
-                currentUser.completedTasks++;
-                saveAppState();
-
-                // 4. Update UI
-                renderDailyTasks(); // Re-render the list to show updated status
-                showToast(`টাস্ক ${taskNumber} সফলভাবে সম্পন্ন হয়েছে!`);
-
-                // 5. Show "Another Ad" (Simulated again)
-                console.log(`Simulating second TASK ad show after Task ${taskNumber} completion`);
-
-            }, 1500); // Simulate 1.5 seconds for "ad view" before opening tab
-        }
+        // --- Daily Ad View Progress ---
+        function resetDailyAdViews() { if (!isLoggedIn) return; currentUser.completedAdViewsToday = 0; const today = new Date().toDateString(); localStorage.setItem(LS_PREFIX + 'lastAdResetDate', today); console.log(`Ad views reset for ${today}.`); saveAppState(); renderDailyAdViewProgress(); }
+        function renderDailyAdViewProgress() { if (!dailyAdViewSection || !adViewProgressInfo) return; const totalLimit = getTotalDailyAdLimit(); if (isLoggedIn && totalLimit > 0) { dailyAdViewSection.style.display = 'block'; const completed = currentUser.completedAdViewsToday || 0; adViewProgressInfo.textContent = `আজকের দেখা অ্যাড: ${completed} / ${totalLimit} টি`; } else { dailyAdViewSection.style.display = 'none'; adViewProgressInfo.textContent = ''; } }
 
 
-        // --- VIP Plan Functions ---
+        // --- VIP Plan Functions (Purchase uses Coins) ---
          function renderVipPlans() {
-               if (!vipPlanListContainer) return;
-               vipPlanListContainer.innerHTML = ''; // Clear previous plans
-               const currentLevel = currentUser.vip.level || 0;
-               const pendingLevel = currentUser.pendingVipLevel || 0;
-               vipPlanListContainer.classList.add('loading-vip-plans');
-               vipPlanListContainer.innerHTML = '<div style="text-align:center; padding: 30px 0;"><i class="fas fa-spinner fa-spin fa-2x" style="color: var(--primary-color);"></i><p style="margin-top:10px; color: var(--medium-text);">প্ল্যান লোড হচ্ছে...</p></div>';
+             if (!vipPlanListContainer) return;
+             vipPlanListContainer.innerHTML = '';
+             const activeVipLevels = currentUser.activeVips.map(vip => vip.level);
+             vipPlanListContainer.classList.add('loading-vip-plans');
+             vipPlanListContainer.innerHTML = '<div style="text-align:center; padding: 30px 0;"><i class="fas fa-spinner fa-spin fa-2x" style="color: var(--primary-color);"></i><p style="margin-top:10px; color: var(--medium-text);">প্ল্যান লোড হচ্ছে...</p></div>';
 
-                 setTimeout(() => {
-                      if (!vipPlanListContainer) return;
-                     vipPlanListContainer.innerHTML = '';
-                      vipPlanListContainer.classList.remove('loading-vip-plans');
+             setTimeout(() => {
+                 if (!vipPlanListContainer) return;
+                 vipPlanListContainer.innerHTML = '';
+                 vipPlanListContainer.classList.remove('loading-vip-plans');
+                 vipPlans.forEach(plan => {
+                     const isActive = activeVipLevels.includes(plan.level);
+                     const canPurchase = isLoggedIn && !isActive;
+                     const card = document.createElement('div');
+                     card.className = 'vip-card';
+                     card.setAttribute('data-level', plan.level);
+                     let featuresHtml = plan.features.map(f => `<li>${f}</li>`).join('');
+                     featuresHtml += `<li>দৈনিক অ্যাড ভিউ: ${plan.tasksPerDay || 0} টি</li>`;
+                     let footerHtml = '';
+                     const priceHtml = `<span class="price"><i class="${COIN_ICON_CLASS} coin-icon"></i> ${plan.price}</span>`;
+                     if (isActive) { footerHtml = `<div class="status-active"><i class="fas fa-check-circle"></i> সক্রিয়</div>${priceHtml}`; }
+                     else if (canPurchase) { footerHtml = `<button class="btn btn-warning btn-buy-vip" onclick="openVipUpgradeModal(${plan.level}, ${plan.price}, '${plan.name}')"><i class="fas fa-shopping-cart"></i> কিনুন</button>${priceHtml}`; }
+                     else { footerHtml = `<button class="btn btn-secondary btn-buy-vip" disabled title="প্ল্যান কিনতে লগইন করুন"><i class="fas fa-ban"></i> недоступен</button>${priceHtml}`; }
+                     card.innerHTML = ` <div class="vip-card-header"> <h3><i class="${plan.icon}" style="color: ${plan.color || 'inherit'}"></i> ${plan.name}</h3> <span class="vip-level">লেভেল ${plan.level}</span> </div> <div class="vip-card-body"> <ul>${featuresHtml}</ul> </div> <div class="vip-card-footer"> ${footerHtml} </div> `;
+                     vipPlanListContainer.appendChild(card);
+                 });
+             }, 500);
+         }
 
-                     vipPlans.forEach(plan => {
-                          const isCurrent = plan.level === currentLevel;
-                          const isPending = plan.level === pendingLevel;
-                           const canPurchase = plan.level > currentLevel && pendingLevel === 0;
-                           const isLower = plan.level < currentLevel;
-
-                           const card = document.createElement('div');
-                          card.className = 'vip-card';
-                          card.setAttribute('data-level', plan.level);
-                          let featuresHtml = plan.features.map(f => `<li>${f}</li>`).join('');
-                          featuresHtml += `<li>দৈনিক টাস্ক: ${plan.tasksPerDay} টি</li>`; // Add tasks per day info
-                          let footerHtml = '';
-
-                          if (isCurrent) { footerHtml = `<div class="status-active"><i class="fas fa-check-circle"></i> সক্রিয়</div><span class="price">৳ ${plan.price}</span>`; }
-                          else if (isPending) { footerHtml = `<div class="status-pending"><i class="fas fa-hourglass-half"></i> অপেক্ষমান...</div><span class="price">৳ ${plan.price}</span>`; }
-                           else if (isLower) { footerHtml = `<button class="btn btn-secondary btn-buy-vip" disabled><i class="fas fa-times-circle"></i> আপগ্রেড নয়</button><span class="price">৳ ${plan.price}</span>`; }
-                           // Changed button text and onclick target
-                           else if (canPurchase) { footerHtml = `<button class="btn btn-warning btn-buy-vip" onclick="openVipUpgradeModal(${plan.level}, ${plan.price}, '${plan.name}')"><i class="fas fa-arrow-up"></i> আপগ্রেড করুন</button><span class="price">৳ ${plan.price}</span>`; }
-                           else { footerHtml = `<button class="btn btn-secondary btn-buy-vip" disabled title="আরেকটি আপগ্রেড অপেক্ষমান বা ডাউনগ্রেড সম্ভব নয়"><i class="fas fa-ban"></i> недоступен</button><span class="price">৳ ${plan.price}</span>`; }
-
-                           card.innerHTML = ` <div class="vip-card-header"> <h3><i class="${plan.icon}" style="color: ${plan.color || 'inherit'}"></i> ${plan.name}</h3> <span class="vip-level">লেভেল ${plan.level}</span> </div> <div class="vip-card-body"> <ul>${featuresHtml}</ul> </div> <div class="vip-card-footer"> ${footerHtml} </div> `;
-                          vipPlanListContainer.appendChild(card);
-                     });
-                  }, 500);
-          }
-
+         // VIP Modal (Checks coin balance)
          function openVipUpgradeModal(level, price, name) {
-              if(!isLoggedIn){ showToast("আপগ্রেড করতে লগইন করুন।"); return; }
-              if(currentUser.pendingVipLevel){ showToast("আপনার একটি আপগ্রেড রিকোয়েস্ট ইতিমধ্যে অপেক্ষমান আছে।"); return; }
-              if(currentUser.balance < price){
-                   showAlert(vipPurchaseFeedback || generalAlertArea, `এই প্ল্যান (${name}) কিনতে আপনার আরো ৳${(price - currentUser.balance).toFixed(2)} প্রয়োজন। ডিপোজিট করুন।`, 'warning');
-                   return;
-              }
-
-              // Populate Modal
-              clearAlerts(); // Clear previous alerts
+              if(!isLoggedIn){ showToast("প্ল্যান কিনতে লগইন করুন।"); return; }
+              const alreadyActive = currentUser.activeVips.some(vip => vip.level === level);
+              if(alreadyActive){ showAlert(vipPurchaseFeedback || generalAlertArea, `আপনার VIP ${level} (${name}) প্ল্যান ইতিমধ্যে সক্রিয় আছে।`, 'warning'); return; }
+              if(currentUser.balance < price){ showAlert(vipPurchaseFeedback || generalAlertArea, `এই প্ল্যান (${name}) কিনতে আপনার ${price} কয়েন প্রয়োজন। আপনার আছে ${currentUser.balance} কয়েন।`, 'warning'); return; }
+              clearAlerts();
               modalVipLevelName.textContent = `Level ${level} (${name})`;
-              modalUserPhone.value = currentUser.phone || '';
-               modalTxnId.value = ''; // Clear previous Txn ID
-               modalVipLevelInput.value = level;
-               modalVipPriceInput.value = price;
-
-               // Set payment number (although it's static here)
-               modalPaymentNumberVip.textContent = PAYMENT_NUMBER_VIP;
-
-              // Show Modal
+              if(modalVipPriceDisplay) modalVipPriceDisplay.innerHTML = `<i class="${COIN_ICON_CLASS} coin-icon"></i> ${price}`;
+              if(modalCurrentCoins) modalCurrentCoins.innerHTML = `<i class="${COIN_ICON_CLASS} coin-icon"></i> ${currentUser.balance}`;
+              modalVipLevelInput.value = level;
+              modalVipPriceInput.value = price;
               openModal('vip-upgrade-modal');
          }
 
-        async function handleVipUpgradeSubmit(event) {
-             event.preventDefault();
-             clearAlerts(); // Clear modal alerts
-
+         // VIP Submit (Instant activation with coin deduction)
+         async function handleVipUpgradeSubmit(event) {
+             event.preventDefault(); clearAlerts();
              const level = parseInt(modalVipLevelInput.value);
-             const price = parseFloat(modalVipPriceInput.value);
-             const txnId = modalTxnId.value.trim();
-             const userPhone = modalUserPhone.value.trim(); // User's own phone (pre-filled)
+             const price = parseInt(modalVipPriceInput.value);
              const plan = vipPlans.find(p => p.level === level);
-
-             if (!level || !price || !txnId || !userPhone || !plan) {
-                 showAlert(modalAlert, "ফর্মের তথ্য অসম্পূর্ণ।"); // Corrected typo
-                 return;
-             }
-             if (currentUser.balance < price) {
-                 showAlert(modalAlert, `ব্যালেন্স অপর্যাপ্ত। প্রয়োজন: ৳${price.toFixed(2)}`);
-                 return;
-             }
-            if (currentUser.pendingVipLevel) {
-                showAlert(modalAlert, `অন্য একটি আপগ্রেড (${currentUser.pendingVipLevel}) ইতিমধ্যে অপেক্ষমান।`);
-                closeModal('vip-upgrade-modal');
-                return;
-            }
-
-             // Construct Telegram Message
-             const message = `
-<b>💎 VIP আপগ্রেড রিকোয়েস্ট 💎</b>
-------------------------------------
-📧 <b>ইউজার ইমেইল:</b> ${currentUser.email || 'N/A'}
-📱 <b>ইউজার ফোন:</b> ${userPhone}
-🌟 <b>টার্গেট VIP:</b> Level ${level} (${plan.name})
-💰 <b>প্ল্যান মূল্য:</b> ৳${price.toFixed(2)}
-💳 <b>পেমেন্ট নম্বর (ব্যবহৃত):</b> ${PAYMENT_NUMBER_VIP}
-📄 <b>TrxID:</b> ${txnId}
-------------------------------------
-⏰ <b>রিকোয়েস্ট সময়:</b> ${new Date().toLocaleString('bn-BD')}
-`;
-
-             showLoading(); // Show loading indicator
-
-             // Send message to Telegram
-             const telegramSent = await sendTelegramMessage(message);
-
-             hideLoading(); // Hide loading indicator
-
-             if (telegramSent) {
-                 // Success: Deduct balance, set pending, start timer
-                 updateUserBalance(currentUser.balance - price);
-                 setPendingVip(level);
-                 renderVipPlans(); // Update VIP page UI immediately
-
-                  showAlert(modalAlert, `আপনার VIP ${level} (${plan.name}) আপগ্রেড রিকোয়েস্ট সফলভাবে সাবমিট হয়েছে। ১ মিনিটের মধ্যে প্ল্যান সক্রিয় হবে।`, 'success');
-                 // Optionally close modal after a short delay
-                 setTimeout(() => {
-                     closeModal('vip-upgrade-modal');
-                     // Show toast maybe after closing modal
-                      showToast("VIP আপগ্রেড রিকোয়েস্ট পাঠানো হয়েছে!");
-                 }, 2500);
-
-                 // Start the activation timer
-                 restartVipActivationTimer(level, VIP_ACTIVATION_DELAY_MS);
-
-             } else {
-                 // Failure: Show error in modal
-                 showAlert(modalAlert, "টেলিগ্রামে রিকোয়েস্ট পাঠাতে সমস্যা হয়েছে। অনুগ্রহ করে আবার চেষ্টা করুন।", 'danger');
-             }
+             if (!level || !price || !plan) { showAlert(modalAlert, "প্ল্যান নির্বাচন করতে সমস্যা হয়েছে।"); return; }
+             const alreadyActive = currentUser.activeVips.some(vip => vip.level === level);
+             if(alreadyActive){ showAlert(modalAlert, `এই VIP (${level}) প্ল্যান ইতিমধ্যে সক্রিয় আছে।`); closeModal('vip-upgrade-modal'); return; }
+             if(currentUser.balance < price){ showAlert(modalAlert, `এই প্ল্যান কিনতে পর্যাপ্ত কয়েন নেই। প্রয়োজন: ${price}, আছে: ${currentUser.balance}`); return; }
+             showLoading();
+             updateUserBalance(currentUser.balance - price); // Deduct Coins
+             const newVipData = { level: plan.level, name: plan.name, tasksPerDay: plan.tasksPerDay, purchaseDate: new Date().toISOString() };
+             currentUser.activeVips.push(newVipData); // Add to active list
+             resetDailyAdViews(); // Reset daily counts
+             saveAppState(); // Save changes
+             renderVipPlans(); // Update VIP list UI
+             renderDailyAdViewProgress(); // Update home page UI
+             showAlert(modalAlert, `অভিনন্দন! আপনার VIP ${level} (${plan.name}) প্ল্যান কেনা সফল হয়েছে এবং সক্রিয় করা হয়েছে!`, 'success');
+             hideLoading();
+             setTimeout(() => { closeModal('vip-upgrade-modal'); showToast(`VIP ${level} (${plan.name}) সক্রিয়!`); }, 2500);
+             // Send Telegram notification (optional)
+             const message = `✅ <b>VIP ক্রয় (${plan.name} - Lvl ${level})</b> ✅\n------------------------------------\n📧 <b>ইউজার:</b> ${currentUser.email || 'N/A'} (${currentUser.phone})\n🪙 <b>খরচ:</b> ${price} কয়েন\n📊 <b>বর্তমান কয়েন:</b> ${currentUser.balance}\n------------------------------------\n⏰ <b>সময়:</b> ${new Date().toLocaleString('bn-BD')}`;
+             await sendTelegramMessage(message); // Send in background
          }
 
 
         // --- Event Handlers ---
-        function handleLogin(event) { event.preventDefault(); clearAlerts(); const e=loginForm.querySelector('#login-email').value.trim().toLowerCase(),p=loginForm.querySelector('#login-password').value;if(!e||!p){showAlert(loginAlert,'অনুগ্রহ করে ইমেইল এবং পাসওয়ার্ড দিন।');return} if(!/\S+@\S+\.\S+/.test(e)){showAlert(loginAlert,'অনুগ্রহ করে একটি সঠিক ইমেইল ঠিকানা দিন।');return} showLoading();setTimeout(()=>{const u_str=localStorage.getItem(`user_${e}_${LS_PREFIX}`);let u; if(!u_str){showAlert(loginAlert,'এই ইমেইল দিয়ে কোনো অ্যাকাউন্ট পাওয়া যায়নি।');hideLoading();return;} try {u=JSON.parse(u_str);} catch(err){showAlert(loginAlert,'অ্যাকাউন্ট ডেটা লোড করতে সমস্যা।');hideLoading();return;} if(p.length>=6){ const userData={email:e,name:u.name||e.split('@')[0],balance:u.balance!==undefined?u.balance:100.0,referralCode:u.referralCode||generateReferralCode(),phone:u.phone||'01xxxxxxxxx',vip:u.vip||{level:0,name:'Free', tasksPerDay: 3}}; saveLoginStatus(userData);showToast('লগইন সফল!');initializeAppUI()}else{showAlert(loginAlert,'পাসওয়ার্ড সঠিক নয়। ডেমো পাসওয়ার্ড কমপক্ষে ৬ অক্ষরের হতে হবে।')} hideLoading()},1000);}
-        function handleSignup(event) { event.preventDefault();clearAlerts();const n=signupForm.querySelector('#signup-name').value.trim(),e=signupForm.querySelector('#signup-email').value.trim().toLowerCase(),ph=signupForm.querySelector('#signup-phone').value.trim(),p=signupForm.querySelector('#signup-password').value,r=signupForm.querySelector('#signup-refer').value.trim(); if(!n||!e||!ph||!p){showAlert(signupAlert,'অনুগ্রহ করে নাম, ইমেইল, ফোন নম্বর এবং পাসওয়ার্ড পূরণ করুন।');return} if(!/\S+@\S+\.\S+/.test(e)){showAlert(signupAlert,'অনুগ্রহ করে একটি সঠিক ইমেইল ঠিকানা দিন।');return} if(ph.length !== 11 || !/^[0-9]+$/.test(ph)){showAlert(signupAlert,'অনুগ্রহ করে একটি সঠিক ১১ ডিজিটের মোবাইল নম্বর দিন।'); return;} if(p.length<6){showAlert(signupAlert,'পাসওয়ার্ড কমপক্ষে ৬ অক্ষরের হতে হবে।');return} showLoading();setTimeout(()=>{ if(localStorage.getItem(`user_${e}_${LS_PREFIX}`)){showAlert(signupAlert,'এই ইমেইল ঠিকানা দিয়ে ইতিমধ্যে একটি অ্যাকাউন্ট রয়েছে।');hideLoading();return;} const rc=generateReferralCode();let signupBonus=150.0; if(r&&r.length===7){ signupBonus+=50.0; console.log(`Referral code ${r} applied. Bonus +50`);} const newUser={name:n,email:e,phone:ph,balance:signupBonus,referralCode:rc,vip:{level:0,name:'Free', tasksPerDay: 3}}; localStorage.setItem(`user_${e}_${LS_PREFIX}`, JSON.stringify(newUser)); saveLoginStatus(newUser);showToast('সাইন আপ সফল! স্বাগতম!', 4000); initializeAppUI(); hideLoading()},1500);}
-        function handleDepositRequest(event) { event.preventDefault(); clearAlerts(); if(!isLoggedIn){showAlert(depositAlert,"ডিপোজিট করতে লগইন করুন।");return} const amountInput = depositForm.querySelector('#deposit-amount'); const amount = parseFloat(amountInput.value); const method = depositForm.querySelector('#deposit-method').value; const txnId = depositForm.querySelector('#deposit-txn-id').value.trim(); const senderNumber = depositForm.querySelector('#deposit-sender-number').value.trim(); if(isNaN(amount)||amount<50||!method||!txnId||!senderNumber){showAlert(depositAlert,"অনুগ্রহ করে সমস্ত তথ্য সঠিকভাবে পূরণ করুন (টাকার পরিমাণ কমপক্ষে ৳৫০)।");return} if(senderNumber.length < 11 || !/^[0-9]+$/.test(senderNumber)){ showAlert(depositAlert, "অনুগ্রহ করে একটি সঠিক প্রেরক মোবাইল নম্বর দিন।"); return; } showLoading(); setTimeout(async ()=>{ // Make async for potential Telegram call
-            // Simulate backend processing / admin notification (Optional Telegram)
-             const message = `
-📥 <b>ডিপোজিট রিকোয়েস্ট (Manual)</b> 📥
-------------------------------------
-📧 <b>ইউজার:</b> ${currentUser.email || 'N/A'} (${currentUser.phone})
-💰 <b>পরিমাণ:</b> ৳${amount.toFixed(2)}
-🏧 <b>মাধ্যম:</b> ${method}
-🆔 <b>TrxID:</b> ${txnId}
-🔢 <b>প্রেরক নম্বর:</b> ${senderNumber}
-------------------------------------
-⏰ <b>সময়:</b> ${new Date().toLocaleString('bn-BD')}
-`;
-             // Send to Telegram (optional, as balance isn't auto-added here)
-             await sendTelegramMessage(message); // Fire and forget is okay here
-
-             showAlert(depositAlert,"আপনার ডিপোজিট রিকোয়েস্ট সাবমিট করা হয়েছে। এডমিন রিভিউ করার পর আপনার অ্যাকাউন্টে ব্যালেন্স যোগ করা হবে।","success");
-             depositForm.reset();
-             hideLoading();
-             console.log("SIMULATE_BACKEND: Deposit Request Logged", {user:currentUser.email, amount: amount, method: method, txnId: txnId, sender: senderNumber, timestamp: new Date().toISOString()});
-         },1200);}
-
-        async function handleWithdraw(event) { // Make async for Telegram
-             event.preventDefault();clearAlerts();if(!isLoggedIn){showAlert(withdrawAlert,"উইথড্র করতে লগইন করুন।");return}
-             const amountInput = withdrawForm.querySelector('#withdraw-amount'); const amount = parseFloat(amountInput.value); const account = withdrawForm.querySelector('#withdraw-account').value.trim(); const methodRadio = withdrawForm.querySelector('input[name="payment_method"]:checked');
-             if(isNaN(amount)||amount<100||!account||!methodRadio){showAlert(withdrawAlert,"অনুগ্রহ করে সমস্ত তথ্য সঠিকভাবে পূরণ করুন (ন্যূনতম উইথড্র ৳১০০)।");return}
-             if(account.length < 11 || !/^[0-9]+$/.test(account)){ showAlert(withdrawAlert, "অনুগ্রহ করে একটি সঠিক অ্যাকাউন্ট নম্বর দিন।"); return; }
-             if(amount > currentUser.balance){showAlert(withdrawAlert,"আপনার অ্যাকাউন্টে পর্যাপ্ত ব্যালেন্স নেই।");return}
-             const method = methodRadio.value;
+        function handleLogin(event) { event.preventDefault(); clearAlerts(); const e=loginForm.querySelector('#login-email').value.trim().toLowerCase(),p=loginForm.querySelector('#login-password').value;if(!e||!p){showAlert(loginAlert,'অনুগ্রহ করে ইমেইল এবং পাসওয়ার্ড দিন।');return} if(!/\S+@\S+\.\S+/.test(e)){showAlert(loginAlert,'অনুগ্রহ করে একটি সঠিক ইমেইল ঠিকানা দিন।');return} showLoading();setTimeout(()=>{const u_str=localStorage.getItem(`user_${e}_${LS_PREFIX}`);let u; if(!u_str){showAlert(loginAlert,'এই ইমেইল দিয়ে কোনো অ্যাকাউন্ট পাওয়া যায়নি।');hideLoading();return;} try {u=JSON.parse(u_str);} catch(err){showAlert(loginAlert,'অ্যাকাউন্ট ডেটা লোড করতে সমস্যা।');hideLoading();return;} if(p.length>=6){ const userData={email:e,name:u.name||e.split('@')[0],balance:u.balance!==undefined?parseInt(u.balance):100, referralCode:u.referralCode||generateReferralCode(),phone:u.phone||'01xxxxxxxxx', activeVips: u.activeVips || [] }; saveLoginStatus(userData);showToast('লগইন সফল!');initializeAppUI()}else{showAlert(loginAlert,'পাসওয়ার্ড সঠিক নয়। ডেমো পাসওয়ার্ড কমপক্ষে ৬ অক্ষরের হতে হবে।')} hideLoading()},1000);}
+        function handleSignup(event) { event.preventDefault();clearAlerts();const n=signupForm.querySelector('#signup-name').value.trim(),e=signupForm.querySelector('#signup-email').value.trim().toLowerCase(),ph=signupForm.querySelector('#signup-phone').value.trim(),p=signupForm.querySelector('#signup-password').value,r=signupForm.querySelector('#signup-refer').value.trim(); if(!n||!e||!ph||!p){showAlert(signupAlert,'অনুগ্রহ করে নাম, ইমেইল, ফোন নম্বর এবং পাসওয়ার্ড পূরণ করুন।');return} if(!/\S+@\S+\.\S+/.test(e)){showAlert(signupAlert,'অনুগ্রহ করে একটি সঠিক ইমেইল ঠিকানা দিন।');return} if(ph.length !== 11 || !/^[0-9]+$/.test(ph)){showAlert(signupAlert,'অনুগ্রহ করে একটি সঠিক ১১ ডিজিটের মোবাইল নম্বর দিন।'); return;} if(p.length<6){showAlert(signupAlert,'পাসওয়ার্ড কমপক্ষে ৬ অক্ষরের হতে হবে।');return} showLoading();setTimeout(()=>{ if(localStorage.getItem(`user_${e}_${LS_PREFIX}`)){showAlert(signupAlert,'এই ইমেইল ঠিকানা দিয়ে ইতিমধ্যে একটি অ্যাকাউন্ট রয়েছে।');hideLoading();return;} const rc=generateReferralCode();let signupBonusCoins=100; if(r&&r.length===7){ console.log(`Referral code ${r} applied. Taka bonus needs manual addition.`);} const newUser={name:n,email:e,phone:ph,balance:signupBonusCoins, referralCode:rc, activeVips: [] }; localStorage.setItem(`user_${e}_${LS_PREFIX}`, JSON.stringify(newUser)); saveLoginStatus(newUser);showToast('সাইন আপ সফল! স্বাগতম!', 4000); initializeAppUI(); hideLoading()},1500);}
+        // Deposit handler updated for minimum 100 Taka
+        function handleDepositRequest(event) {
+             event.preventDefault(); clearAlerts(); if(!isLoggedIn){showAlert(depositAlert,"ডিপোজিট করতে লগইন করুন।");return}
+             const amountInput = depositForm.querySelector('#deposit-amount');
+             const amount = parseFloat(amountInput.value);
+             const method = depositForm.querySelector('#deposit-method').value;
+             const txnId = depositForm.querySelector('#deposit-txn-id').value.trim();
+             const senderNumber = depositForm.querySelector('#deposit-sender-number').value.trim();
+             if(isNaN(amount) || amount < DEPOSIT_MINIMUM_TAKA || !method || !txnId || !senderNumber){ showAlert(depositAlert,`অনুগ্রহ করে সমস্ত তথ্য সঠিকভাবে পূরণ করুন (টাকার পরিমাণ কমপক্ষে ৳${DEPOSIT_MINIMUM_TAKA})।`); return; }
+             if(senderNumber.length < 11 || !/^[0-9]+$/.test(senderNumber)){ showAlert(depositAlert, "অনুগ্রহ করে একটি সঠিক প্রেরক মোবাইল নম্বর দিন।"); return; }
              showLoading();
-
-             // Simulate processing delay
+             setTimeout(async ()=>{
+                 const message = `📥 <b>ডিপোজিট রিকোয়েস্ট (৳)</b> 📥\n------------------------------------\n📧 <b>ইউজার:</b> ${currentUser.email || 'N/A'} (${currentUser.phone})\n💰 <b>পরিমাণ:</b> ৳${amount.toFixed(2)}\n🏧 <b>মাধ্যম:</b> ${method}\n🆔 <b>TrxID:</b> ${txnId}\n🔢 <b>প্রেরক নম্বর:</b> ${senderNumber}\n------------------------------------\n⏰ <b>সময়:</b> ${new Date().toLocaleString('bn-BD')}\n🪙 <b>ইউজারের বর্তমান কয়েন:</b> ${Math.floor(currentUser.balance)}`;
+                 await sendTelegramMessage(message);
+                 showAlert(depositAlert,"আপনার ডিপোজিট রিকোয়েস্ট (৳) সাবমিট করা হয়েছে। এডমিন রিভিউ করার পর ম্যানুয়ালি ব্যালেন্স যোগ করবেন (যদি প্রযোজ্য হয়)।","success");
+                 depositForm.reset(); hideLoading();
+                 console.log("SIMULATE_BACKEND: Taka Deposit Request Logged", {user:currentUser.email, amount: amount, method: method, txnId: txnId, sender: senderNumber, timestamp: new Date().toISOString()});
+             },1200);
+         }
+        // Withdraw Handler (Coins)
+        async function handleWithdraw(event) {
+             event.preventDefault();clearAlerts();if(!isLoggedIn){showAlert(withdrawAlert,"উইথড্র করতে লগইন করুন।");return}
+             const amountInput = withdrawForm.querySelector('#withdraw-amount');
+             const amount = parseInt(amountInput.value);
+             const account = withdrawForm.querySelector('#withdraw-account').value.trim();
+             const methodRadio = withdrawForm.querySelector('input[name="payment_method"]:checked');
+             if(isNaN(amount) || amount < WITHDRAWAL_MINIMUM_COINS || !account || !methodRadio){ showAlert(withdrawAlert,`অনুগ্রহ করে সমস্ত তথ্য সঠিকভাবে পূরণ করুন (ন্যূনতম উইথড্র ${WITHDRAWAL_MINIMUM_COINS} কয়েন)।`); return; }
+             if(account.length < 11 || !/^[0-9]+$/.test(account)){ showAlert(withdrawAlert, "অনুগ্রহ করে একটি সঠিক পেমেন্ট অ্যাকাউন্ট নম্বর দিন।"); return; }
+             if(amount > currentUser.balance){showAlert(withdrawAlert,"আপনার অ্যাকাউন্টে পর্যাপ্ত কয়েন নেই।");return}
+             const method = methodRadio.value; showLoading();
              await new Promise(resolve => setTimeout(resolve, 1000));
-
-            // Deduct balance FIRST
-            const newBalance=currentUser.balance-amount;
-            updateUserBalance(newBalance);
-
-            // Construct Telegram message
-             const message = `
-📤 <b>উইথড্র রিকোয়েস্ট</b> 📤
-------------------------------------
-📧 <b>ইউজার:</b> ${currentUser.email || 'N/A'}
-📱 <b>ফোন:</b> ${currentUser.phone || 'N/A'}
-💰 <b>পরিমাণ:</b> <b>৳${amount.toFixed(2)}</b>
-🏧 <b>মাধ্যম:</b> ${method.toUpperCase()}
-🔢 <b>অ্যাকাউন্ট নম্বর:</b> ${account}
-------------------------------------
-📊 <b>বর্তমান ব্যালেন্স:</b> ৳${newBalance.toFixed(2)}
-⏰ <b>সময়:</b> ${new Date().toLocaleString('bn-BD')}
-`;
-             // Send to Telegram
-             const telegramSent = await sendTelegramMessage(message);
-
-             hideLoading(); // Hide loading after everything
-
-             if (telegramSent) {
-                 showAlert(withdrawAlert,`৳${amount.toFixed(2)} আপনার ${method} নম্বরে (${account}) উইথড্র করার রিকোয়েস্ট সফলভাবে পাঠানো হয়েছে। ২৪ ঘণ্টার মধ্যে পেমেন্ট সম্পন্ন হবে।`,"success");
-                 withdrawForm.reset();
-                 displayBalanceOnWithdrawPage(); // Update balance shown on page
-             } else {
-                  // Rollback balance deduction if Telegram failed? Or just warn?
-                  // For simplicity, let's just warn the user but keep the deduction.
-                   showAlert(withdrawAlert,`উইথড্র রিকোয়েস্ট লোকালি সফল হয়েছে কিন্তু এডমিনকে জানাতে সমস্যা হয়েছে। অনুগ্রহ করে সাপোর্টে যোগাযোগ করুন।`,"warning");
-                  // Rollback balance: updateUserBalance(currentUser.balance + amount); // Optional Rollback
-                  withdrawForm.reset();
-                  displayBalanceOnWithdrawPage();
-             }
-
-             console.log("Withdraw Request Processed", {user:currentUser.email, amount:amount, method:method, account:account, timestamp: new Date().toISOString(), telegram_sent: telegramSent});
+             const newBalance = currentUser.balance - amount; updateUserBalance(newBalance);
+             const message = `📤 <b>কয়েন উইথড্র রিকোয়েস্ট</b> 📤\n------------------------------------\n📧 <b>ইউজার:</b> ${currentUser.email || 'N/A'}\n📱 <b>ফোন:</b> ${currentUser.phone || 'N/A'}\n🪙 <b>কয়েনের পরিমাণ:</b> <b>${amount}</b> <i class="${COIN_ICON_CLASS}"></i>\n🏧 <b>পেমেন্ট মাধ্যম (টাকায়):</b> ${method.toUpperCase()}\n🔢 <b>পেমেন্ট অ্যাকাউন্ট নম্বর:</b> ${account}\n------------------------------------\n📊 <b>বর্তমান কয়েন ব্যালেন্স:</b> ${Math.floor(newBalance)} <i class="${COIN_ICON_CLASS}"></i>\n⏰ <b>সময়:</b> ${new Date().toLocaleString('bn-BD')}`;
+             const telegramSent = await sendTelegramMessage(message); hideLoading();
+             if (telegramSent) { showAlert(withdrawAlert,`${amount} কয়েন (${method} নম্বরে ${account} পেমেন্ট) উইথড্র করার রিকোয়েস্ট সফলভাবে পাঠানো হয়েছে। ২৪ ঘণ্টার মধ্যে পেমেন্ট সম্পন্ন হবে।`,"success"); withdrawForm.reset(); displayBalanceOnWithdrawPage(); }
+             else { showAlert(withdrawAlert,`উইথড্র রিকোয়েস্ট লোকালি সফল হয়েছে কিন্তু এডমিনকে জানাতে সমস্যা হয়েছে। অনুগ্রহ করে সাপোর্টে যোগাযোগ করুন।`,"warning"); withdrawForm.reset(); displayBalanceOnWithdrawPage(); }
+             console.log("Coin Withdraw Request Processed", {user:currentUser.email, coins_amount:amount, payment_method:method, payment_account:account, timestamp: new Date().toISOString(), telegram_sent: telegramSent});
          }
 
 
         // --- Initialization ---
         function initializeAppUI() {
-             checkLoginStatus(); // Load user state
+             checkLoginStatus(); // Load user state, check daily reset
              updateProfileCard(); // Update top profile section UI
-             renderDailyTasks(); // Render task section based on loaded state
+             renderDailyAdViewProgress(); // Render ad view progress display
 
-             if (isLoggedIn) {
-                 showPage('home-page'); // Start at home page if logged in
-             } else {
-                  showPage('login-page'); // Start at login page if not logged in
-             }
-              isBalanceVisible = false;
-              updateBalanceDisplay(); // Ensure balance display matches visibility state
+             // Removed auto-earning related initialization
+
+             if (isLoggedIn) { showPage('home-page'); } else { showPage('login-page'); }
+             isBalanceVisible = false;
+             updateBalanceDisplay(); // Ensure balance display matches visibility state
          }
 
         // --- Event Listener Setup ---
@@ -1255,19 +892,11 @@
               if(signupForm) signupForm.addEventListener('submit', handleSignup);
               if(depositForm) depositForm.addEventListener('submit', handleDepositRequest);
               if(withdrawForm) withdrawForm.addEventListener('submit', handleWithdraw);
-              if(vipUpgradeForm) vipUpgradeForm.addEventListener('submit', handleVipUpgradeSubmit);
+              if(vipUpgradeForm) vipUpgradeForm.addEventListener('submit', handleVipUpgradeSubmit); // Changed handler name
               if (profileBalanceSection) profileBalanceSection.addEventListener('click', toggleBalanceVisibility);
 
-             // Close modal if clicking outside the box
-             if(vipUpgradeModal) {
-                 vipUpgradeModal.addEventListener('click', (event) => {
-                     if (event.target === vipUpgradeModal) {
-                         closeModal('vip-upgrade-modal');
-                     }
-                 });
-             }
+             if(vipUpgradeModal) { vipUpgradeModal.addEventListener('click', (event) => { if (event.target === vipUpgradeModal) { closeModal('vip-upgrade-modal'); } }); }
 
-             // Initialize the app
              initializeAppUI();
          });
 
