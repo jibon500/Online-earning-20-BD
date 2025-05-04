@@ -106,26 +106,37 @@
 
          /* --- NEW Marquee Header (Orange Background) --- */
         .marquee-header {
-            background-color: var(--warning-color); /* Changed to warning color (orange) */
-            color: var(--dark-text); /* Changed text color for better contrast */
-            padding: 8px 0;
+            background-color: var(--warning-color); /* Orange background */
+            color: #333; /* Darker text for contrast */
+            padding: 10px 0; /* Slightly more padding */
             overflow: hidden;
             white-space: nowrap;
             margin: 20px 0 20px 0; /* Added margin top/bottom */
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.15); /* Slightly stronger shadow */
+            border-radius: 5px; /* Slight rounding */
+            margin-left: 15px; /* Add some margin */
+            margin-right: 15px;
         }
         .marquee-header p {
             display: inline-block;
             padding-left: 100%; /* Start off screen right */
             animation: marquee-scroll 15s linear infinite;
-            font-size: 0.9em;
+            font-size: 0.95em; /* Slightly larger font */
             font-weight: 500;
             font-family: var(--font-bengali);
+            vertical-align: middle; /* Align text and icon */
+        }
+        .marquee-header p i { /* Icon styling */
+            margin-right: 10px;
+            font-size: 1.1em; /* Slightly larger icon */
+            color: var(--primary-dark); /* Use a theme color */
+            vertical-align: middle;
         }
         @keyframes marquee-scroll {
             0%   { transform: translateX(0); }
             100% { transform: translateX(-100%); }
         }
+
 
          .home-section-title { padding: 0 20px; margin-bottom: 15px; margin-top: 0; font-size: 1.2em; font-weight: 600; color: var(--dark-text); }
           /* Updated grid for 5 buttons */
@@ -210,11 +221,24 @@
         .modal-box h3 { margin-top: 0; margin-bottom: 15px; color: var(--primary-color); text-align: center; font-size: 1.3em; }
         .modal-box .close-modal { position: absolute; top: 10px; right: 15px; background: none; border: none; font-size: 1.8em; color: var(--medium-text); cursor: pointer; padding: 5px;}
         .modal-box .close-modal:hover { color: var(--dark-text); }
+        /* Updated VIP Modal Text */
         #vip-upgrade-modal p { font-size: 0.9em; margin-bottom: 15px; font-family: var(--font-bengali); line-height: 1.6; }
-        #vip-upgrade-modal .vip-cost-info {
-            background-color: rgba(255, 152, 0, 0.1); padding: 12px 15px; border-radius: 8px; margin-bottom: 18px; text-align: center; border: 1px dashed var(--coin-color);
+        #vip-upgrade-modal .vip-cost-info { /* New class for coin cost */
+            background-color: rgba(255, 152, 0, 0.1); /* Light orange */
+            padding: 12px 15px;
+            border-radius: 8px;
+            margin-bottom: 18px;
+            text-align: center;
+            border: 1px dashed var(--coin-color);
         }
-        #vip-upgrade-modal .vip-cost-info strong { font-size: 1.2em; color: var(--coin-color); display: flex; align-items: center; justify-content: center; gap: 5px; }
+        #vip-upgrade-modal .vip-cost-info strong {
+            font-size: 1.2em;
+            color: var(--coin-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
         #vip-upgrade-modal #modal-alert { margin-bottom: 15px; }
 
 
@@ -303,7 +327,7 @@
 
                   <!-- >>> NEW Marquee Header <<< -->
                   <div class="marquee-header">
-                      <p>আমি ভাত খাইনি</p>
+                      <p><i class="fas fa-bullhorn"></i>আমি ভাত খাইনি</p>
                   </div>
 
                   <!-- Scrollable Content -->
@@ -342,14 +366,15 @@
             <!-- Deposit Page (Taka, Minimum 100) -->
             <div id="deposit-page" class="page">
                 <h2><i class="fas fa-university"></i> ডিপোজিট (৳)</h2> <div id="deposit-alert" class="alert"></div>
-                <!-- Updated minimum deposit -->
-                <div class="deposit-info"> <strong><i class="fas fa-info-circle"></i> গুরুত্বপূর্ণ:</strong> <ol> <li>সঠিক মাধ্যমে ও নম্বরে টাকা পাঠান (ন্যূনতম ৳১০০)।</li> <li>সঠিক TrxID এবং আপনার প্রেরক নম্বর দিন।</li> <li>এডমিন কনফার্ম করলে ব্যালেন্স (টাকা) যোগ হবে (যদি প্রযোজ্য হয়)।</li> </ol> </div>
+                <!-- Updated minimum deposit text -->
+                <div class="deposit-info"> <strong><i class="fas fa-info-circle"></i> গুরুত্বপূর্ণ:</strong> <ol> <li>সঠিক মাধ্যমে ও নম্বরে টাকা পাঠান (ন্যূনতম ৳১০০)।</li> <li>সঠিক ১০ সংখ্যার TrxID এবং আপনার প্রেরক নম্বর দিন।</li> <li>সাধারণত ৫ মিনিটের মধ্যে কয়েন যোগ হয়।</li> </ol> </div>
                 <h3><i class="fas fa-mobile-alt"></i> পেমেন্ট নম্বর</h3> <p style="background:#eee; padding:15px; border-radius:8px; text-align:center; font-weight:bold; margin-bottom:20px;">বিকাশ/নগদ/রকেট: 017********</p>
                 <form id="deposit-form">
                      <div class="form-group"><label for="deposit-method">মাধ্যম</label> <select id="deposit-method" required><option value="" disabled selected>নির্বাচন করুন</option><option value="bkash">বিকাশ</option><option value="nagad">নগদ</option><option value="rocket">রকেট</option></select></div>
                      <!-- Updated minimum deposit amount -->
                      <div class="form-group"><label for="deposit-amount">টাকার পরিমাণ</label> <input type="number" id="deposit-amount" placeholder="৳১০০+" required min="100"></div>
-                     <div class="form-group"><label for="deposit-txn-id">TrxID</label> <input type="text" id="deposit-txn-id" placeholder="ট্রানজেকশন আইডি" required></div>
+                     <!-- Updated placeholder for TrxID -->
+                     <div class="form-group"><label for="deposit-txn-id">TrxID</label> <input type="text" id="deposit-txn-id" placeholder="১০ সংখ্যার ট্রানজেকশন আইডি" required></div>
                      <div class="form-group"><label for="deposit-sender-number">প্রেরক নম্বর</label> <input type="text" id="deposit-sender-number" placeholder="আপনার নম্বর" required></div>
                      <button type="submit" class="btn btn-success"><i class="fas fa-paper-plane"></i> সাবমিট</button>
                  </form>
@@ -384,7 +409,7 @@
                      <h3>১. সাধারণ শর্তাবলী</h3> <p>এই প্ল্যাটফর্ম ব্যবহার করার মাধ্যমে আপনি আমাদের সমস্ত নিয়ম ও শর্তাবলী মেনে নিতে সম্মত হচ্ছেন। যেকোনো অবৈধ বা প্রতারণামূলক কার্যকলাপের জন্য আপনার অ্যাকাউন্ট বিনা নোটিশে বন্ধ করে দেওয়া হতে পারে।</p>
                      <h3>২. অ্যাকাউন্ট</h3> <p>প্রতি ব্যবহারকারী শুধুমাত্র একটি অ্যাকাউন্ট ব্যবহার করতে পারবেন। একাধিক অ্যাকাউন্ট তৈরি করা বা অন্যের অ্যাকাউন্ট ব্যবহার করা নিষিদ্ধ। আপনার অ্যাকাউন্টের তথ্যের গোপনীয়তা রক্ষা করার দায়িত্ব আপনার।</p>
                      <h3>৩. আয় এবং টাস্ক</h3> <p>ভিআইপি প্ল্যান সক্রিয় থাকলে নির্দিষ্ট সংখ্যক বিজ্ঞাপন দেখে কয়েন আয় করা যাবে। রেফার করে টাকা আয় করা যাবে (শর্ত প্রযোজ্য)। প্রতিটি কাজের মূল্য অ্যাপের মধ্যে উল্লেখ থাকবে। ভিআইপি প্ল্যান অনুযায়ী দৈনিক অ্যাড দেখার সীমা ভিন্ন হবে।</p>
-                     <h3>৪. ডিপোজিট (৳) ও ভিআইপি ক্রয় (কয়েন)</h3> <p>উল্লেখিত পদ্ধতির মাধ্যমে টাকায় ডিপোজিট করতে পারবেন (ন্যূনতম ৳১০০)। ভিআইপি প্ল্যান ক্রয়ের জন্য আপনার অ্যাকাউন্টে পর্যাপ্ত কয়েন থাকতে হবে। প্ল্যান কিনলে আপনার কয়েন ব্যালেন্স থেকে প্ল্যানের মূল্য কেটে নেওয়া হবে এবং প্ল্যানটি সক্রিয় প্ল্যান তালিকায় যুক্ত হবে। ব্যবহারকারী একই সময়ে একাধিক ভিআইপি প্ল্যান সক্রিয় রাখতে পারে।</p>
+                     <h3>৪. ডিপোজিট (৳) ও ভিআইপি ক্রয় (কয়েন)</h3> <p>উল্লেখিত পদ্ধতির মাধ্যমে টাকায় ডিপোজিট করতে পারবেন (ন্যূনতম ৳১০০)। ডিপোজিট রিকোয়েস্ট সাবমিট করার ৫ মিনিট পর আপনার ডিপোজিট করা টাকার সমপরিমাণ কয়েন অ্যাকাউন্টে যোগ হবে (১ টাকা = ১ কয়েন)। ভিআইপি প্ল্যান ক্রয়ের জন্য আপনার অ্যাকাউন্টে পর্যাপ্ত কয়েন থাকতে হবে। প্ল্যান কিনলে আপনার কয়েন ব্যালেন্স থেকে প্ল্যানের মূল্য কেটে নেওয়া হবে এবং প্ল্যানটি সক্রিয় প্ল্যান তালিকায় যুক্ত হবে। ব্যবহারকারী একই সময়ে একাধিক ভিআইপি প্ল্যান সক্রিয় রাখতে পারে।</p>
                      <h3>৫. উইথড্র (কয়েন)</h3> <p>ন্যূনতম ৫০০০ কয়েন অর্জন করার পর উইথড্র করতে পারবেন। উইথড্র করার সময় আপনার কয়েন টাকায় রূপান্তরিত হয়ে পেমেন্ট করা হবে (রেট এডমিন কর্তৃক নির্ধারিত)। রিকোয়েস্ট ২৪ ঘণ্টার মধ্যে প্রক্রিয়া করা হয়। উইথড্র রিকোয়েস্ট করলে এডমিনকে টেলিগ্রামে জানানো হবে।</p>
                      <h3>৬. ভিআইপি মেম্বারশিপ</h3> <p>প্ল্যান ক্রয়ের মাধ্যমে দৈনিক অ্যাড দেখার সীমা বৃদ্ধি পাবে। মেয়াদ এবং সুবিধা প্ল্যান অনুযায়ী ভিন্ন হবে। ভিআইপি প্ল্যানের মূল্য (কয়েন) অফেরতযোগ্য।</p>
                      <h3>৭. নিষিদ্ধ কার্যকলাপ</h3> <p>ভিপিএন, প্রক্সি, অটো-ক্লিক, স্ক্রিপ্ট, এমুলেটর ব্যবহার করা কঠোরভাবে নিষিদ্ধ। ধরা পড়লে অ্যাকাউন্ট স্থায়ীভাবে বন্ধ করা হবে।</p>
@@ -416,15 +441,13 @@
                  <h3><i class="fas fa-crown"></i> ভিআইপি প্ল্যান কিনুন</h3>
                  <div id="modal-alert" class="alert"></div>
                  <p>আপনি কি <b id="modal-vip-level-name">Level X (Name)</b> প্ল্যানটি কিনতে চান?</p>
-                 <!-- Display Coin Cost -->
                  <div class="vip-cost-info">
                      <strong>মূল্য: <span id="modal-vip-price-display"><i class="fas fa-coins coin-icon"></i> 0</span> কয়েন</strong>
                  </div>
                  <p>আপনার বর্তমান ব্যালেন্স: <b id="modal-current-coins" style="color:var(--coin-color)"><i class="fas fa-coins coin-icon"></i> 0</b> কয়েন।</p>
-                 <!-- Form is simplified, only needs hidden fields -->
                  <form id="vip-upgrade-form">
                      <input type="hidden" id="modal-vip-level" value="">
-                     <input type="hidden" id="modal-vip-price" value=""> <!-- Coin price stored here -->
+                     <input type="hidden" id="modal-vip-price" value="">
                      <button type="submit" class="btn btn-success"><i class="fas fa-check-circle"></i> নিশ্চিত করুন</button>
                      <button type="button" class="btn btn-secondary" style="margin-top: 10px;" onclick="closeModal('vip-upgrade-modal')"><i class="fas fa-times-circle"></i> বাতিল করুন</button>
                  </form>
@@ -469,12 +492,9 @@
          const vipUpgradeModal = document.getElementById('vip-upgrade-modal');
          const modalVipLevelName = document.getElementById('modal-vip-level-name');
          const modalVipLevelInput = document.getElementById('modal-vip-level');
-         const modalVipPriceInput = document.getElementById('modal-vip-price'); // Now stores coin price
+         const modalVipPriceInput = document.getElementById('modal-vip-price');
          const modalVipPriceDisplay = document.getElementById('modal-vip-price-display');
          const modalCurrentCoins = document.getElementById('modal-current-coins');
-
-         // --- Removed elements related to external VIP payment & auto earning ---
-
 
         // --- App State ---
         let isLoggedIn = false;
@@ -487,18 +507,20 @@
             activeVips: [], // Array of { level, name, tasksPerDay, purchaseDate }
             completedAdViewsToday: 0,
         };
-        // Removed pendingVipLevel and vipActivationTimers
         let isBalanceVisible = false;
         let isMonetagAdShowing = false;
+        let depositTimers = {}; // To manage deposit timeouts
 
         // --- Configuration ---
         const TELEGRAM_BOT_TOKEN = "7510853175:AAGd6xQZiMCzx1CpzR2V8dw2QHODHsGMfgc"; // Replace if needed
         const TELEGRAM_CHAT_ID = "6105596008"; // Replace if needed
         const ADSTERRA_BOTTOM_BANNER_KEY = '728897206504f3ccf981e290d2df1034'; // Replace if needed
         const MONETAG_AD_REWARD = 1; // 1 Coin per ad view
-        const WITHDRAWAL_MINIMUM_COINS = 5000; // Minimum coins for withdrawal
-        const DEPOSIT_MINIMUM_TAKA = 100; // Minimum Taka deposit
+        const WITHDRAWAL_MINIMUM_COINS = 5000;
+        const DEPOSIT_MINIMUM_TAKA = 100;
+        const DEPOSIT_COIN_DELAY_MS = 5 * 60 * 1000; // 5 minutes delay
         const COIN_ICON_CLASS = "fas fa-coins";
+        const TRX_ID_LENGTH = 10; // Required length for Transaction ID
 
         // --- VIP Plans (price is now COIN cost) ---
         const vipPlans = [
@@ -544,47 +566,31 @@
         // --- Page Navigation & Core UI Update ---
          function showPage(pageId) {
              clearAlerts();
-             if (!isLoggedIn && !['login-page', 'signup-page', 'policy-page'].includes(pageId)) {
-                 showAlert(generalAlertArea || loginAlert, 'পেজটি দেখতে লগইন করুন।', 'danger');
-                 showPage('login-page');
-                 return;
-             }
+             if (!isLoggedIn && !['login-page', 'signup-page', 'policy-page'].includes(pageId)) { showAlert(generalAlertArea || loginAlert, 'পেজটি দেখতে লগইন করুন।', 'danger'); showPage('login-page'); return; }
              pages.forEach(page => page.classList.remove('active'));
              const pageToShow = document.getElementById(pageId);
              if (pageToShow) {
                  pageToShow.classList.add('active');
                  updateAppUIBasedOnPage(pageId);
-
-                 // >>> BANNER RELOAD ON NAV CLICK <<<
-                 // Force reload banner after page transition and UI update
                  const shouldShowBottomBanner = isLoggedIn && pageId !== 'login-page' && pageId !== 'signup-page';
                  if (adsterraBannerBottom && shouldShowBottomBanner) {
                      console.log("Reloading banner due to navigation...");
-                     loadAdsterraBanner('adsterra-banner-bottom', ADSTERRA_BOTTOM_BANNER_KEY, true); // Pass forceReload = true
+                     loadAdsterraBanner('adsterra-banner-bottom', ADSTERRA_BOTTOM_BANNER_KEY, true); // Force banner reload
                  }
-
-             } else {
-                 console.error("Page not found:", pageId);
-                 showPage(isLoggedIn ? 'home-page' : 'login-page');
-             }
+             } else { console.error("Page not found:", pageId); showPage(isLoggedIn ? 'home-page' : 'login-page'); }
              document.querySelector('.pages-container').scrollTop = 0;
          }
          function updateAppUIBasedOnPage(pageId) {
              navItems.forEach(item => item.classList.toggle('active', item.getAttribute('data-page') === pageId));
-
-             // >>> BANNER VISIBILITY LOGIC (No change here) <<<
              const shouldShowBottomBanner = isLoggedIn && pageId !== 'login-page' && pageId !== 'signup-page';
              if (adsterraBannerBottom) {
                  adsterraBannerBottom.classList.toggle('visible', shouldShowBottomBanner);
-                 // Initial load if becoming visible, subsequent loads handled by showPage
                  if (shouldShowBottomBanner && !adsterraBannerBottom.querySelector('iframe')) {
                      loadAdsterraBanner('adsterra-banner-bottom', ADSTERRA_BOTTOM_BANNER_KEY);
                  } else if (!shouldShowBottomBanner) {
-                     adsterraBannerBottom.innerHTML = '<span class="placeholder-text">বিজ্ঞাপন লোড হচ্ছে...</span>'; // Clear if hidden
+                     adsterraBannerBottom.innerHTML = '<span class="placeholder-text">বিজ্ঞাপন লোড হচ্ছে...</span>';
                  }
              }
-
-             // Load page specific data
              if (pageId === 'home-page' && isLoggedIn) { updateProfileCard(); renderDailyAdViewProgress(); }
              if (pageId === 'refer-page' && isLoggedIn) { displayReferralCode(); }
              if (pageId === 'withdraw-page' && isLoggedIn) { displayBalanceOnWithdrawPage(); }
@@ -592,7 +598,7 @@
          }
 
         // --- Authentication & Local Storage ---
-        const LS_PREFIX = "eliteEarnCoinVIP_v2_";
+        const LS_PREFIX = "eliteEarnCoinVIP_v3_"; // Incremented prefix for new deposit logic
          function checkLoginStatus() {
              const loggedIn = localStorage.getItem(LS_PREFIX + 'loggedIn') === 'true';
              if (loggedIn) {
@@ -607,6 +613,8 @@
                  const today = new Date().toDateString();
                  const lastReset = localStorage.getItem(LS_PREFIX + 'lastAdResetDate');
                  if (lastReset !== today) { resetDailyAdViews(); }
+                 // Check for pending deposits on load
+                 checkPendingDeposits();
              } else {
                  isLoggedIn = false;
                  currentUser = { name: 'ব্যবহারকারী', email: null, phone: '01xxxxxxxxx', balance: 100, referralCode: 'DEMO123', activeVips: [], completedAdViewsToday: 0 };
@@ -637,6 +645,8 @@
                  localStorage.setItem(LS_PREFIX + 'completedAdViewsToday', currentUser.completedAdViewsToday.toString());
                  const lastReset = localStorage.getItem(LS_PREFIX + 'lastAdResetDate');
                  if (lastReset) { localStorage.setItem(LS_PREFIX + 'lastAdResetDate', lastReset); }
+                 // Save pending deposits
+                 localStorage.setItem(LS_PREFIX + 'pendingDeposits', JSON.stringify(depositTimers));
              }
         }
          function clearLoginStatus() {
@@ -651,6 +661,10 @@
              localStorage.removeItem(LS_PREFIX + 'userActiveVips');
              localStorage.removeItem(LS_PREFIX + 'completedAdViewsToday');
              localStorage.removeItem(LS_PREFIX + 'lastAdResetDate');
+             localStorage.removeItem(LS_PREFIX + 'pendingDeposits'); // Clear pending deposits on logout
+             // Clear active timers
+             Object.values(depositTimers).forEach(timerData => clearTimeout(timerData.timeoutId));
+             depositTimers = {};
              updateProfileCard();
              renderDailyAdViewProgress();
          }
@@ -671,48 +685,40 @@
           function copyReferralCode() { if(!isLoggedIn || !currentUser.referralCode || currentUser.referralCode === 'LOADING...' || currentUser.referralCode === 'N/A'){ showToast("কোড পেতে লগইন করুন।"); return; } const code = currentUser.referralCode; navigator.clipboard.writeText(code).then(() => { if (copyFeedbackElement) { copyFeedbackElement.textContent = "কপি হয়েছে!"; setTimeout(() => { copyFeedbackElement.textContent = ''; }, 2000); } }).catch(err => { showToast("কপি করা যায়নি।"); if (copyFeedbackElement) copyFeedbackElement.textContent = ''; }); }
 
 
-          // --- Ad Functions ---
-           // --- Ad Functions ---
-           function loadAdsterraBanner(containerId, bannerKey, forceReload = false) { // Added forceReload parameter
-               const containerElement = document.getElementById(containerId);
-               // Basic visibility check
-               if (!isLoggedIn || !containerElement || !bannerKey || !containerElement.classList.contains('visible')) {
-                   if (containerElement && !containerElement.querySelector('iframe')) {
-                       containerElement.innerHTML = '<span class="placeholder-text">বিজ্ঞাপন লোড হচ্ছে...</span>';
-                   }
-                   return;
-               }
-               // >>> MODIFIED: Check forceReload flag <<<
-               if (!forceReload && containerElement.querySelector('iframe')) {
-                   console.log("Banner already exists and not forcing reload for:", containerId);
-                   return; // Don't reload if iframe exists and not forced
-               }
+        // --- Ad Functions ---
+        function loadAdsterraBanner(containerId, bannerKey, forceReload = false) {
+            const containerElement = document.getElementById(containerId);
+            if (!isLoggedIn || !containerElement || !bannerKey || !containerElement.classList.contains('visible')) {
+                if (containerElement && !containerElement.querySelector('iframe')) { containerElement.innerHTML = '<span class="placeholder-text">বিজ্ঞাপন লোড হচ্ছে...</span>'; }
+                return;
+            }
+            if (!forceReload && containerElement.querySelector('iframe')) {
+                // console.log("Banner already exists and not forcing reload for:", containerId);
+                return;
+            }
 
-               console.log("Loading/Reloading banner in", containerId);
-               containerElement.innerHTML = ''; // ALWAYS Clear placeholder/previous ad
+            // console.log("Loading/Reloading banner in", containerId);
+            containerElement.innerHTML = ''; // Clear placeholder/previous ad
 
-               const iframe = document.createElement('iframe');
-               iframe.width = '320'; iframe.height = '50';
-               iframe.style.border = 'none'; iframe.style.overflow = 'hidden';
-               iframe.setAttribute('scrolling', 'no'); iframe.style.maxWidth = '100%';
-               iframe.style.maxHeight='50px'; iframe.style.display='block'; iframe.style.margin = '0 auto';
+            const iframe = document.createElement('iframe');
+            iframe.width = '320'; iframe.height = '50';
+            iframe.style.border = 'none'; iframe.style.overflow = 'hidden'; iframe.setAttribute('scrolling', 'no'); iframe.style.maxWidth = '100%';
+            iframe.style.maxHeight='50px'; iframe.style.display='block'; iframe.style.margin = '0 auto';
 
-               // Use srcdoc for better isolation and reliability
-               const bannerHtml = `
-                   <!DOCTYPE html><html><head><meta name='viewport' content='width=device-width, initial-scale=1.0'><style>body{margin:0;padding:0;display:flex;justify-content:center;align-items:center;height:50px;background-color:transparent;overflow:hidden;}</style></head><body>
-                       <script type="text/javascript">atOptions={'key':'${bannerKey}','format':'iframe','height':50,'width':320,'params':{}};<\/script>
-                       <script type="text/javascript" src="//www.highperformanceformat.com/${bannerKey}/invoke.js"><\/script>
-                   </body></html>`;
-                try {
-                   iframe.srcdoc = bannerHtml;
-                   containerElement.appendChild(iframe);
-                   containerElement.style.border = 'none'; containerElement.style.background = 'transparent'; containerElement.style.minHeight = '50px'; containerElement.style.padding = '0';
-                } catch (e) {
-                   console.error("Ad Load Error ("+containerId+"):", e);
-                   containerElement.innerHTML = '<span class="placeholder-text" style="color:var(--danger-color);">বিজ্ঞাপন লোড হয়নি</span>';
-                }
-           }
-
+            const bannerHtml = `
+                <!DOCTYPE html><html><head><meta name='viewport' content='width=device-width, initial-scale=1.0'><style>body{margin:0;padding:0;display:flex;justify-content:center;align-items:center;height:50px;background-color:transparent;overflow:hidden;}</style></head><body>
+                    <script type="text/javascript">atOptions={'key':'${bannerKey}','format':'iframe','height':50,'width':320,'params':{}};<\/script>
+                    <script type="text/javascript" src="//www.highperformanceformat.com/${bannerKey}/invoke.js"><\/script>
+                </body></html>`;
+             try {
+                iframe.srcdoc = bannerHtml;
+                containerElement.appendChild(iframe);
+                containerElement.style.border = 'none'; containerElement.style.background = 'transparent'; containerElement.style.minHeight = '50px'; containerElement.style.padding = '0';
+             } catch (e) {
+                console.error("Ad Load Error ("+containerId+"):", e);
+                containerElement.innerHTML = '<span class="placeholder-text" style="color:var(--danger-color);">বিজ্ঞাপন লোড হয়নি</span>';
+             }
+        }
 
            // --- Manual Monetag Ad Function (Checks VIP Limit) ---
            function showMonetagEarningAd() {
@@ -818,12 +824,10 @@
              currentUser.activeVips.push(newVipData); // Add to active list
              resetDailyAdViews(); // Reset daily counts
              saveAppState(); // Save changes
-             renderVipPlans(); // Update VIP list UI
-             renderDailyAdViewProgress(); // Update home page UI
+             renderVipPlans(); renderDailyAdViewProgress();
              showAlert(modalAlert, `অভিনন্দন! আপনার VIP ${level} (${plan.name}) প্ল্যান কেনা সফল হয়েছে এবং সক্রিয় করা হয়েছে!`, 'success');
              hideLoading();
              setTimeout(() => { closeModal('vip-upgrade-modal'); showToast(`VIP ${level} (${plan.name}) সক্রিয়!`); }, 2500);
-             // Send Telegram notification (optional)
              const message = `✅ <b>VIP ক্রয় (${plan.name} - Lvl ${level})</b> ✅\n------------------------------------\n📧 <b>ইউজার:</b> ${currentUser.email || 'N/A'} (${currentUser.phone})\n🪙 <b>খরচ:</b> ${price} কয়েন\n📊 <b>বর্তমান কয়েন:</b> ${currentUser.balance}\n------------------------------------\n⏰ <b>সময়:</b> ${new Date().toLocaleString('bn-BD')}`;
              await sendTelegramMessage(message); // Send in background
          }
@@ -832,25 +836,122 @@
         // --- Event Handlers ---
         function handleLogin(event) { event.preventDefault(); clearAlerts(); const e=loginForm.querySelector('#login-email').value.trim().toLowerCase(),p=loginForm.querySelector('#login-password').value;if(!e||!p){showAlert(loginAlert,'অনুগ্রহ করে ইমেইল এবং পাসওয়ার্ড দিন।');return} if(!/\S+@\S+\.\S+/.test(e)){showAlert(loginAlert,'অনুগ্রহ করে একটি সঠিক ইমেইল ঠিকানা দিন।');return} showLoading();setTimeout(()=>{const u_str=localStorage.getItem(`user_${e}_${LS_PREFIX}`);let u; if(!u_str){showAlert(loginAlert,'এই ইমেইল দিয়ে কোনো অ্যাকাউন্ট পাওয়া যায়নি।');hideLoading();return;} try {u=JSON.parse(u_str);} catch(err){showAlert(loginAlert,'অ্যাকাউন্ট ডেটা লোড করতে সমস্যা।');hideLoading();return;} if(p.length>=6){ const userData={email:e,name:u.name||e.split('@')[0],balance:u.balance!==undefined?parseInt(u.balance):100, referralCode:u.referralCode||generateReferralCode(),phone:u.phone||'01xxxxxxxxx', activeVips: u.activeVips || [] }; saveLoginStatus(userData);showToast('লগইন সফল!');initializeAppUI()}else{showAlert(loginAlert,'পাসওয়ার্ড সঠিক নয়। ডেমো পাসওয়ার্ড কমপক্ষে ৬ অক্ষরের হতে হবে।')} hideLoading()},1000);}
         function handleSignup(event) { event.preventDefault();clearAlerts();const n=signupForm.querySelector('#signup-name').value.trim(),e=signupForm.querySelector('#signup-email').value.trim().toLowerCase(),ph=signupForm.querySelector('#signup-phone').value.trim(),p=signupForm.querySelector('#signup-password').value,r=signupForm.querySelector('#signup-refer').value.trim(); if(!n||!e||!ph||!p){showAlert(signupAlert,'অনুগ্রহ করে নাম, ইমেইল, ফোন নম্বর এবং পাসওয়ার্ড পূরণ করুন।');return} if(!/\S+@\S+\.\S+/.test(e)){showAlert(signupAlert,'অনুগ্রহ করে একটি সঠিক ইমেইল ঠিকানা দিন।');return} if(ph.length !== 11 || !/^[0-9]+$/.test(ph)){showAlert(signupAlert,'অনুগ্রহ করে একটি সঠিক ১১ ডিজিটের মোবাইল নম্বর দিন।'); return;} if(p.length<6){showAlert(signupAlert,'পাসওয়ার্ড কমপক্ষে ৬ অক্ষরের হতে হবে।');return} showLoading();setTimeout(()=>{ if(localStorage.getItem(`user_${e}_${LS_PREFIX}`)){showAlert(signupAlert,'এই ইমেইল ঠিকানা দিয়ে ইতিমধ্যে একটি অ্যাকাউন্ট রয়েছে।');hideLoading();return;} const rc=generateReferralCode();let signupBonusCoins=100; if(r&&r.length===7){ console.log(`Referral code ${r} applied. Taka bonus needs manual addition.`);} const newUser={name:n,email:e,phone:ph,balance:signupBonusCoins, referralCode:rc, activeVips: [] }; localStorage.setItem(`user_${e}_${LS_PREFIX}`, JSON.stringify(newUser)); saveLoginStatus(newUser);showToast('সাইন আপ সফল! স্বাগতম!', 4000); initializeAppUI(); hideLoading()},1500);}
-        // Deposit handler updated for minimum 100 Taka
+
+        // Deposit handler updated for minimum 100 Taka and 10-char TrxID
+        // Adds COINS after 5 minutes
         function handleDepositRequest(event) {
              event.preventDefault(); clearAlerts(); if(!isLoggedIn){showAlert(depositAlert,"ডিপোজিট করতে লগইন করুন।");return}
              const amountInput = depositForm.querySelector('#deposit-amount');
-             const amount = parseFloat(amountInput.value);
+             const amount = parseFloat(amountInput.value); // Amount in Taka
              const method = depositForm.querySelector('#deposit-method').value;
              const txnId = depositForm.querySelector('#deposit-txn-id').value.trim();
              const senderNumber = depositForm.querySelector('#deposit-sender-number').value.trim();
+
              if(isNaN(amount) || amount < DEPOSIT_MINIMUM_TAKA || !method || !txnId || !senderNumber){ showAlert(depositAlert,`অনুগ্রহ করে সমস্ত তথ্য সঠিকভাবে পূরণ করুন (টাকার পরিমাণ কমপক্ষে ৳${DEPOSIT_MINIMUM_TAKA})।`); return; }
+             if(txnId.length !== TRX_ID_LENGTH){ showAlert(depositAlert, `ট্রানজেকশন আইডি অবশ্যই ${TRX_ID_LENGTH} সংখ্যার হতে হবে।`); return; } // <<< TRX ID LENGTH CHECK
              if(senderNumber.length < 11 || !/^[0-9]+$/.test(senderNumber)){ showAlert(depositAlert, "অনুগ্রহ করে একটি সঠিক প্রেরক মোবাইল নম্বর দিন।"); return; }
+
+             // Prevent duplicate deposit processing using txnId
+             if (depositTimers[txnId]) {
+                 showAlert(depositAlert, "এই ট্রানজেকশন আইডি দিয়ে ইতিমধ্যে একটি রিকোয়েস্ট প্রসেসিং চলছে।", "warning");
+                 return;
+             }
+
              showLoading();
-             setTimeout(async ()=>{
-                 const message = `📥 <b>ডিপোজিট রিকোয়েস্ট (৳)</b> 📥\n------------------------------------\n📧 <b>ইউজার:</b> ${currentUser.email || 'N/A'} (${currentUser.phone})\n💰 <b>পরিমাণ:</b> ৳${amount.toFixed(2)}\n🏧 <b>মাধ্যম:</b> ${method}\n🆔 <b>TrxID:</b> ${txnId}\n🔢 <b>প্রেরক নম্বর:</b> ${senderNumber}\n------------------------------------\n⏰ <b>সময়:</b> ${new Date().toLocaleString('bn-BD')}\n🪙 <b>ইউজারের বর্তমান কয়েন:</b> ${Math.floor(currentUser.balance)}`;
-                 await sendTelegramMessage(message);
-                 showAlert(depositAlert,"আপনার ডিপোজিট রিকোয়েস্ট (৳) সাবমিট করা হয়েছে। এডমিন রিভিউ করার পর ম্যানুয়ালি ব্যালেন্স যোগ করবেন (যদি প্রযোজ্য হয়)।","success");
-                 depositForm.reset(); hideLoading();
-                 console.log("SIMULATE_BACKEND: Taka Deposit Request Logged", {user:currentUser.email, amount: amount, method: method, txnId: txnId, sender: senderNumber, timestamp: new Date().toISOString()});
-             },1200);
+             // Send Telegram message immediately
+             const message = `📥 <b>ডিপোজিট রিকোয়েস্ট (৳)</b> 📥\n------------------------------------\n📧 <b>ইউজার:</b> ${currentUser.email || 'N/A'} (${currentUser.phone})\n💰 <b>পরিমাণ:</b> ৳${amount.toFixed(2)}\n🏧 <b>মাধ্যম:</b> ${method}\n🆔 <b>TrxID:</b> ${txnId}\n🔢 <b>প্রেরক নম্বর:</b> ${senderNumber}\n------------------------------------\n⏰ <b>সময়:</b> ${new Date().toLocaleString('bn-BD')}\n🪙 <b>ইউজারের বর্তমান কয়েন:</b> ${Math.floor(currentUser.balance)}`;
+
+             sendTelegramMessage(message).then(sent => {
+                 hideLoading(); // Hide loading after Telegram attempt
+                 if (sent) {
+                     showAlert(depositAlert,"আপনার ডিপোজিট রিকোয়েস্ট সাবমিট করা হয়েছে। ৫ মিনিটের মধ্যে কয়েন যোগ করা হবে।","success");
+                     depositForm.reset();
+
+                     // --- Schedule Coin Addition ---
+                     const coinsToAdd = Math.floor(amount); // 1 Taka = 1 Coin
+                     const depositTime = Date.now();
+                     const timeoutId = setTimeout(() => {
+                         // Add coins only if user is still logged in
+                         if(isLoggedIn && currentUser.email === localStorage.getItem(LS_PREFIX + 'userEmail')){ // Verify user
+                             console.log(`Adding ${coinsToAdd} coins for deposit TxnID: ${txnId}`);
+                             updateUserBalance(currentUser.balance + coinsToAdd);
+                             showToast(`${coinsToAdd} কয়েন আপনার ডিপোজিটের জন্য যোগ করা হয়েছে!`);
+                             // Remove timer after completion
+                             delete depositTimers[txnId];
+                             savePendingDeposits(); // Update storage
+                         } else {
+                             console.log(`User logged out or changed before deposit ${txnId} could be completed.`);
+                             delete depositTimers[txnId]; // Still remove the timer
+                             savePendingDeposits();
+                         }
+                     }, DEPOSIT_COIN_DELAY_MS); // 5 minute delay
+
+                     // Store timer info for persistence
+                     depositTimers[txnId] = { amount: coinsToAdd, startTime: depositTime, timeoutId: timeoutId };
+                     savePendingDeposits(); // Save to localStorage
+
+                 } else {
+                     showAlert(depositAlert,"টেলিগ্রামে মেসেজ পাঠাতে সমস্যা হয়েছে। অনুগ্রহ করে আবার চেষ্টা করুন।");
+                 }
+             });
+
+             console.log("Deposit Request Submitted", {user:currentUser.email, amount: amount, method: method, txnId: txnId, sender: senderNumber, timestamp: new Date().toISOString()});
          }
+
+         // Function to save pending deposits to localStorage
+         function savePendingDeposits() {
+             // We only need to store amount and startTime, not the timeoutId itself
+             const storableTimers = {};
+             for (const txnId in depositTimers) {
+                 storableTimers[txnId] = {
+                     amount: depositTimers[txnId].amount,
+                     startTime: depositTimers[txnId].startTime
+                 };
+             }
+             localStorage.setItem(LS_PREFIX + 'pendingDeposits', JSON.stringify(storableTimers));
+         }
+
+         // Function to check and restart pending deposit timers on load
+         function checkPendingDeposits() {
+             const savedTimers = JSON.parse(localStorage.getItem(LS_PREFIX + 'pendingDeposits') || '{}');
+             const now = Date.now();
+             depositTimers = {}; // Reset current timers object
+
+             for (const txnId in savedTimers) {
+                 const timerData = savedTimers[txnId];
+                 const elapsedTime = now - timerData.startTime;
+                 const remainingTime = DEPOSIT_COIN_DELAY_MS - elapsedTime;
+
+                 if (remainingTime > 0) {
+                     console.log(`Restarting deposit timer for TxnID: ${txnId}, remaining: ${remainingTime}ms`);
+                     const newTimeoutId = setTimeout(() => {
+                         if(isLoggedIn && currentUser.email === localStorage.getItem(LS_PREFIX + 'userEmail')){
+                             console.log(`Adding ${timerData.amount} coins from pending deposit TxnID: ${txnId}`);
+                             updateUserBalance(currentUser.balance + timerData.amount);
+                             showToast(`${timerData.amount} কয়েন আপনার ডিপোজিটের জন্য যোগ করা হয়েছে!`);
+                             delete depositTimers[txnId];
+                             savePendingDeposits();
+                         } else {
+                              console.log(`User logged out/changed before pending deposit ${txnId} completed.`);
+                             delete depositTimers[txnId];
+                             savePendingDeposits();
+                         }
+                     }, remainingTime);
+                     // Store the new timeoutId along with original data
+                     depositTimers[txnId] = { ...timerData, timeoutId: newTimeoutId };
+                 } else {
+                     // Timer should have already fired, add coins now if missed
+                     console.log(`Adding ${timerData.amount} coins for missed pending deposit TxnID: ${txnId}`);
+                     updateUserBalance(currentUser.balance + timerData.amount); // Add coins immediately
+                     // Don't add to depositTimers object, just update balance
+                     saveAppState(); // Save the updated balance
+                 }
+             }
+             // Clean up the saved timers after processing
+             savePendingDeposits();
+         }
+
+
         // Withdraw Handler (Coins)
         async function handleWithdraw(event) {
              event.preventDefault();clearAlerts();if(!isLoggedIn){showAlert(withdrawAlert,"উইথড্র করতে লগইন করুন।");return}
@@ -874,11 +975,9 @@
 
         // --- Initialization ---
         function initializeAppUI() {
-             checkLoginStatus(); // Load user state, check daily reset
+             checkLoginStatus(); // Load user state, check daily reset, check pending deposits
              updateProfileCard(); // Update top profile section UI
              renderDailyAdViewProgress(); // Render ad view progress display
-
-             // Removed auto-earning related initialization
 
              if (isLoggedIn) { showPage('home-page'); } else { showPage('login-page'); }
              isBalanceVisible = false;
@@ -892,7 +991,7 @@
               if(signupForm) signupForm.addEventListener('submit', handleSignup);
               if(depositForm) depositForm.addEventListener('submit', handleDepositRequest);
               if(withdrawForm) withdrawForm.addEventListener('submit', handleWithdraw);
-              if(vipUpgradeForm) vipUpgradeForm.addEventListener('submit', handleVipUpgradeSubmit); // Changed handler name
+              if(vipUpgradeForm) vipUpgradeForm.addEventListener('submit', handleVipUpgradeSubmit);
               if (profileBalanceSection) profileBalanceSection.addEventListener('click', toggleBalanceVisibility);
 
              if(vipUpgradeModal) { vipUpgradeModal.addEventListener('click', (event) => { if (event.target === vipUpgradeModal) { closeModal('vip-upgrade-modal'); } }); }
