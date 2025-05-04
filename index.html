@@ -3,12 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Elite Earning Zone (প্রফেশনাল ডেমো)</title>
+    <title>Elite Earning Zone (সম্পূর্ণ কোড)</title>
     <!-- Font Awesome & Google Fonts -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;500;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Monetag Verification (Already present) -->
+    <meta name="monetag" content="35527a4139b51e79207c40ddc425fb70">
+
+    <!-- Monetag SDK Script (Added as requested) -->
+    <script src='//whephiwums.com/sdk.js' data-zone='9292109' data-sdk='show_9292109'></script>
 
     <style>
         /* --- Base Styles & Variables --- */
@@ -111,7 +117,9 @@
          .action-card.withdraw i { background: linear-gradient(135deg, #F44336, #EF5350); }
          .action-card.vip i { background: linear-gradient(135deg, #FFC107, #FFCA28); }
          .action-card.refer i { background: linear-gradient(135deg, #673AB7, #7E57C2); }
-         /* Removed task action card, will add task section dynamically */
+         /* Style for the new Earning button */
+         .action-card.earning i { background: linear-gradient(135deg, #FFA000, #FFC107); } /* Amber gradient */
+
 
         /* --- Task Section on Home Page --- */
         #daily-task-section {
@@ -331,6 +339,9 @@
                       <div class="action-card withdraw" onclick="showPage('withdraw-page')"> <i class="fas fa-money-bill-wave"></i> <p>উইথড্র</p> </div>
                       <div class="action-card vip" onclick="showPage('vip-page')"> <i class="fas fa-crown"></i> <p>ভিআইপি প্ল্যান</p> </div>
                       <div class="action-card refer" onclick="showPage('refer-page')"> <i class="fas fa-user-friends"></i> <p>রেফার করুন</p> </div>
+                      <!-- >>> NEW EARNING BUTTON ADDED HERE <<< -->
+                      <div class="action-card earning" onclick="showMonetagEarningAd()"> <i class="fas fa-coins"></i> <p>আর্নিং (অ্যাড)</p> </div>
+                       <!-- You might need to adjust the grid (e.g., grid-template-columns: repeat(3, 1fr) or remove another button if you want 2 columns) -->
                   </div>
 
                   <!-- Daily Task Section (Dynamically Shown) -->
@@ -414,7 +425,7 @@
 
         </main> <!-- End Pages Container -->
 
-        <!-- Fixed Bottom Banner (Single Banner - Dynamically Loaded) -->
+        <!-- Fixed Bottom Banner (Single Banner - Dynamically Loaded - Uses Adsterra, NOT Monetag) -->
         <div class="fixed-bottom-banner-container" id="adsterra-banner-bottom">
             <span class="placeholder-text">বিজ্ঞাপন লোড হচ্ছে...</span> <!-- Placeholder Text -->
         </div>
@@ -513,6 +524,7 @@
         let currentUser = { name: 'ব্যবহারকারী', email: null, phone: '01xxxxxxxxx', balance: 100.0, referralCode: 'LOADING', vip: {level: 0, name: 'Free', tasksPerDay: 3}, /* Free tasks */ pendingVipLevel: null, availableTasks: 0, completedTasks: 0 };
         let vipActivationTimers = {};
         let isBalanceVisible = false;
+        let isMonetagAdShowing = false; // Flag to prevent multiple simultaneous ad calls
 
         // --- Configuration ---
         const TELEGRAM_BOT_TOKEN = "7510853175:AAGd6xQZiMCzx1CpzR2V8dw2QHODHsGMfgc";
@@ -520,6 +532,7 @@
         const VIP_ACTIVATION_DELAY_MS = 60 * 1000; // 1 minute
         const ADSTERRA_BOTTOM_BANNER_KEY = '728897206504f3ccf981e290d2df1034'; // Use the same key for simplicity
         const PAYMENT_NUMBER_VIP = '01750114669'; // Centralize the number
+        const MONETAG_AD_REWARD = 0.25; // Reward amount for watching Monetag ad
 
         // --- VIP Plans (Added tasksPerDay) ---
          const vipPlans = [
@@ -873,6 +886,57 @@
                 }
            }
 
+           // --- NEW MONETAG AD FUNCTION ---
+           function showMonetagEarningAd() {
+               if (!isLoggedIn) {
+                   showToast("বিজ্ঞাপন দেখতে লগইন করুন।");
+                   return;
+               }
+
+               if (isMonetagAdShowing) {
+                   showToast("আরেকটি বিজ্ঞাপন চলছে...");
+                   return;
+               }
+
+               // Check if the Monetag SDK function exists
+               if (typeof show_9292109 !== 'function') {
+                   console.error("Monetag SDK function show_9292109 not found!");
+                   showToast("বিজ্ঞাপন লোড করা যায়নি। SDK সমস্যা।", 3000);
+                   return;
+               }
+
+               showLoading();
+               isMonetagAdShowing = true;
+
+               try {
+                    console.log("Attempting to show Monetag Ad (Zone 9292109)...");
+                    // Call the Monetag function provided by the SDK
+                    // Assuming it returns a Promise based on previous context
+                    show_9292109().then(() => {
+                        // Ad watched successfully
+                        console.log("Monetag Ad completed successfully.");
+                        currentUser.balance += MONETAG_AD_REWARD;
+                        updateUserBalance(currentUser.balance); // Update balance in state, storage, and UI
+                        showToast(`বিজ্ঞাপন দেখার জন্য ৳${MONETAG_AD_REWARD.toFixed(2)} যোগ হয়েছে!`, 3000);
+                        hideLoading();
+                        isMonetagAdShowing = false;
+                    }).catch(e => {
+                        // Ad failed to show or was closed early (handle error)
+                        console.error("Monetag Ad Error or Closed Early:", e);
+                        showToast("বিজ্ঞাপন দেখাতে সমস্যা হয়েছে বা শেষ করার আগে বন্ধ করা হয়েছে।", 3000);
+                        hideLoading();
+                        isMonetagAdShowing = false;
+                    });
+               } catch (error) {
+                   // Catch any synchronous errors during the function call itself
+                   console.error("Error calling show_9292109:", error);
+                   showToast("বিজ্ঞাপন দেখানোর ফাংশন চালু করা যায়নি।", 3000);
+                   hideLoading();
+                   isMonetagAdShowing = false;
+               }
+           }
+
+
         // --- Task Functions ---
         function resetDailyTasks() {
             if (!isLoggedIn) return;
@@ -936,8 +1000,8 @@
              }
 
             // 1. Show "Ad" (Simulated with Toast/Log)
-            showToast("বিজ্ঞাপন দেখানো হচ্ছে..."); // Simulate ad impression
-            console.log(`Simulating ad show for Task ${taskNumber}`);
+            showToast("টাস্ক বিজ্ঞাপন লোড হচ্ছে..."); // Simulate ad impression
+            console.log(`Simulating TASK ad show for Task ${taskNumber}`);
             taskButton.disabled = true; // Disable button during processing
             taskButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
 
@@ -946,7 +1010,7 @@
                 // Open a blank tab or a specific placeholder URL
                 window.open('about:blank', '_blank'); // Opens a blank tab
 
-                // 3. Mark Task as Complete Locally
+                // 3. Mark Task as Complete Locally (NO MONETARY REWARD HERE FOR TASKS AS PER CURRENT LOGIC)
                 currentUser.completedTasks++;
                 saveAppState();
 
@@ -955,7 +1019,7 @@
                 showToast(`টাস্ক ${taskNumber} সফলভাবে সম্পন্ন হয়েছে!`);
 
                 // 5. Show "Another Ad" (Simulated again)
-                console.log(`Simulating second ad show after Task ${taskNumber} completion`);
+                console.log(`Simulating second TASK ad show after Task ${taskNumber} completion`);
 
             }, 1500); // Simulate 1.5 seconds for "ad view" before opening tab
         }
@@ -1035,7 +1099,7 @@
              const plan = vipPlans.find(p => p.level === level);
 
              if (!level || !price || !txnId || !userPhone || !plan) {
-                 showAlert(modalAlert, "ফর্মের তথ্য неполноценный।");
+                 showAlert(modalAlert, "ফর্মের তথ্য অসম্পূর্ণ।"); // Corrected typo
                  return;
              }
              if (currentUser.balance < price) {
@@ -1211,5 +1275,5 @@
         window.addEventListener('beforeunload', saveAppState);
 
     </script>
-<meta name="monetag" content="35527a4139b51e79207c40ddc425fb70">
+
 </html>
