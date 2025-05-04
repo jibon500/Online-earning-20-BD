@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Elite Earning Zone (সম্পূর্ণ কোড - কয়েন, ভিআইপি লিমিট, ব্যানার রিলোড)</title>
+    <title>Elite Earning Zone (সম্পূর্ণ কোড - আনলিমিটেড অ্যাড সহ)</title>
     <!-- Font Awesome & Google Fonts -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -26,6 +26,7 @@
             --success-color: #558B2F;
             --warning-color: #FFA000; /* Amber Dark - Used for header */
             --danger-color: #D32F2F;
+            --info-color: #1976D2; /* Blue for Unlimited Ad */
             --light-bg: #f8f9fa;
             --card-bg: #ffffff;
             --dark-text: #37474F;
@@ -139,7 +140,7 @@
 
 
          .home-section-title { padding: 0 20px; margin-bottom: 15px; margin-top: 0; font-size: 1.2em; font-weight: 600; color: var(--dark-text); }
-          /* Updated grid for 5 buttons */
+          /* Updated grid for 6 buttons (3x2) */
           .home-actions { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; /* Reduced gap */ padding: 0 12px; margin-bottom: 25px; }
           .action-card { background-color: var(--card-bg); padding: 15px 8px; /* Adjusted padding */ border-radius: 12px; text-align: center; box-shadow: var(--shadow-light); cursor: pointer; transition: all 0.25s ease; border: 1px solid var(--border-color); display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 95px; /* Adjusted height */ }
          .action-card:hover:not(.disabled) { transform: translateY(-4px); box-shadow: var(--shadow-medium); }
@@ -148,11 +149,13 @@
          .action-card.disabled { cursor: not-allowed; opacity: 0.6; background-color: #f0f0f0; }
          .action-card.disabled:hover { transform: none; box-shadow: var(--shadow-light); }
 
+         /* Action Card Icon Colors */
          .action-card.deposit i { background: linear-gradient(135deg, #4CAF50, #66BB6A); }
          .action-card.withdraw i { background: linear-gradient(135deg, #F44336, #EF5350); }
          .action-card.vip i { background: linear-gradient(135deg, #FFC107, #FFCA28); }
          .action-card.refer i { background: linear-gradient(135deg, #673AB7, #7E57C2); }
          .action-card.earning i { background: linear-gradient(135deg, #FF9800, #FFA726); } /* Coin color gradient */
+         .action-card.unlimited i { background: linear-gradient(135deg, var(--info-color), #42A5F5); } /* Blue for unlimited */
 
 
         /* --- Daily Ad View Section (Formerly Task Section) --- */
@@ -327,23 +330,25 @@
 
                   <!-- >>> NEW Marquee Header <<< -->
                   <div class="marquee-header">
-                      <p><i class="fas fa-bullhorn"></i>আমি ভাত খাইনি</p>
+                      <p><i class="fas fa-bullhorn"></i>আমি ভাত খাইনি</p> <!-- Example Text -->
                   </div>
 
                   <!-- Scrollable Content -->
                   <h3 class="home-section-title" style="padding: 0 20px;">অপশনস</h3>
-                  <!-- Updated home actions grid -->
+                  <!-- Updated home actions grid (3x2) -->
                   <div class="home-actions" style="padding: 0 12px; grid-template-columns: repeat(3, 1fr);">
                        <div class="action-card deposit" onclick="showPage('deposit-page')"> <i class="fas fa-wallet"></i> <p>ডিপোজিট (৳)</p> </div>
                       <div class="action-card withdraw" onclick="showPage('withdraw-page')"> <i class="fas fa-money-bill-wave"></i> <p>উইথড্র (কয়েন)</p> </div>
                       <div class="action-card vip" onclick="showPage('vip-page')"> <i class="fas fa-crown"></i> <p>ভিআইপি প্ল্যান</p> </div>
                       <div class="action-card refer" onclick="showPage('refer-page')"> <i class="fas fa-user-friends"></i> <p>রেফার করুন</p> </div>
-                      <div class="action-card earning" onclick="showMonetagEarningAd()"> <i class="fas fa-coins"></i> <p>আর্নিং (১ কয়েন)</p> </div>
+                      <div class="action-card earning" onclick="showMonetagEarningAd()"> <i class="fas fa-coins"></i> <p>আর্নিং অ্যাড (VIP)</p> </div>
+                      <!-- >>> NEW UNLIMITED AD BUTTON <<< -->
+                      <div class="action-card unlimited" onclick="showUnlimitedAd()"> <i class="fas fa-infinity"></i> <p>আনলিমিটেড অ্যাড</p> </div>
                   </div>
 
                   <!-- Daily Ad View Section -->
                   <div id="daily-ad-view-section">
-                      <h3 class="home-section-title" style="padding: 0;">আজকের দেখা অ্যাড</h3>
+                      <h3 class="home-section-title" style="padding: 0;">আজকের VIP অ্যাড</h3>
                       <div class="ad-view-container">
                           <div id="ad-view-progress-info"></div>
                       </div>
@@ -408,10 +413,10 @@
                  <div class="policy-content">
                      <h3>১. সাধারণ শর্তাবলী</h3> <p>এই প্ল্যাটফর্ম ব্যবহার করার মাধ্যমে আপনি আমাদের সমস্ত নিয়ম ও শর্তাবলী মেনে নিতে সম্মত হচ্ছেন। যেকোনো অবৈধ বা প্রতারণামূলক কার্যকলাপের জন্য আপনার অ্যাকাউন্ট বিনা নোটিশে বন্ধ করে দেওয়া হতে পারে।</p>
                      <h3>২. অ্যাকাউন্ট</h3> <p>প্রতি ব্যবহারকারী শুধুমাত্র একটি অ্যাকাউন্ট ব্যবহার করতে পারবেন। একাধিক অ্যাকাউন্ট তৈরি করা বা অন্যের অ্যাকাউন্ট ব্যবহার করা নিষিদ্ধ। আপনার অ্যাকাউন্টের তথ্যের গোপনীয়তা রক্ষা করার দায়িত্ব আপনার।</p>
-                     <h3>৩. আয় এবং টাস্ক</h3> <p>ভিআইপি প্ল্যান সক্রিয় থাকলে নির্দিষ্ট সংখ্যক বিজ্ঞাপন দেখে কয়েন আয় করা যাবে। রেফার করে টাকা আয় করা যাবে (শর্ত প্রযোজ্য)। প্রতিটি কাজের মূল্য অ্যাপের মধ্যে উল্লেখ থাকবে। ভিআইপি প্ল্যান অনুযায়ী দৈনিক অ্যাড দেখার সীমা ভিন্ন হবে।</p>
+                     <h3>৩. আয় এবং টাস্ক</h3> <p>ভিআইপি প্ল্যান সক্রিয় থাকলে নির্দিষ্ট সংখ্যক 'আর্নিং অ্যাড' দেখে কয়েন আয় করা যাবে। 'আনলিমিটেড অ্যাড' বাটনে ক্লিক করে অ্যাড দেখা যাবে, এবং প্রতি ৫টি অ্যাড দেখার পর ১ কয়েন মূল ব্যালেন্সে যোগ হবে। রেফার করে টাকা আয় করা যাবে (শর্ত প্রযোজ্য)। প্রতিটি কাজের মূল্য অ্যাপের মধ্যে উল্লেখ থাকবে। ভিআইপি প্ল্যান অনুযায়ী দৈনিক 'আর্নিং অ্যাড' দেখার সীমা ভিন্ন হবে। 'আনলিমিটেড অ্যাড' দেখার কোনো সীমা নেই, তবে কয়েন যোগ হবে প্রতি ৫টি ভিউ এর পর।</p>
                      <h3>৪. ডিপোজিট (৳) ও ভিআইপি ক্রয় (কয়েন)</h3> <p>উল্লেখিত পদ্ধতির মাধ্যমে টাকায় ডিপোজিট করতে পারবেন (ন্যূনতম ৳১০০)। ডিপোজিট রিকোয়েস্ট সাবমিট করার ৫ মিনিট পর আপনার ডিপোজিট করা টাকার সমপরিমাণ কয়েন অ্যাকাউন্টে যোগ হবে (১ টাকা = ১ কয়েন)। ভিআইপি প্ল্যান ক্রয়ের জন্য আপনার অ্যাকাউন্টে পর্যাপ্ত কয়েন থাকতে হবে। প্ল্যান কিনলে আপনার কয়েন ব্যালেন্স থেকে প্ল্যানের মূল্য কেটে নেওয়া হবে এবং প্ল্যানটি সক্রিয় প্ল্যান তালিকায় যুক্ত হবে। ব্যবহারকারী একই সময়ে একাধিক ভিআইপি প্ল্যান সক্রিয় রাখতে পারে।</p>
                      <h3>৫. উইথড্র (কয়েন)</h3> <p>ন্যূনতম ৫০০০ কয়েন অর্জন করার পর উইথড্র করতে পারবেন। উইথড্র করার সময় আপনার কয়েন টাকায় রূপান্তরিত হয়ে পেমেন্ট করা হবে (রেট এডমিন কর্তৃক নির্ধারিত)। রিকোয়েস্ট ২৪ ঘণ্টার মধ্যে প্রক্রিয়া করা হয়। উইথড্র রিকোয়েস্ট করলে এডমিনকে টেলিগ্রামে জানানো হবে।</p>
-                     <h3>৬. ভিআইপি মেম্বারশিপ</h3> <p>প্ল্যান ক্রয়ের মাধ্যমে দৈনিক অ্যাড দেখার সীমা বৃদ্ধি পাবে। মেয়াদ এবং সুবিধা প্ল্যান অনুযায়ী ভিন্ন হবে। ভিআইপি প্ল্যানের মূল্য (কয়েন) অফেরতযোগ্য।</p>
+                     <h3>৬. ভিআইপি মেম্বারশিপ</h3> <p>প্ল্যান ক্রয়ের মাধ্যমে দৈনিক 'আর্নিং অ্যাড' দেখার সীমা বৃদ্ধি পাবে। মেয়াদ এবং সুবিধা প্ল্যান অনুযায়ী ভিন্ন হবে। ভিআইপি প্ল্যানের মূল্য (কয়েন) অফেরতযোগ্য।</p>
                      <h3>৭. নিষিদ্ধ কার্যকলাপ</h3> <p>ভিপিএন, প্রক্সি, অটো-ক্লিক, স্ক্রিপ্ট, এমুলেটর ব্যবহার করা কঠোরভাবে নিষিদ্ধ। ধরা পড়লে অ্যাকাউন্ট স্থায়ীভাবে বন্ধ করা হবে।</p>
                      <h3>৮. নীতিমালার পরিবর্তন</h3> <p>কর্তৃপক্ষ যেকোনো সময় এই নীতিমালা পরিবর্তন করতে পারে।</p>
                      <br> <p><i>সাহায্যের জন্য, যোগাযোগ করুন।</i></p> <p><i>শেষ আপডেট: ২০২৪</i></p>
@@ -505,7 +510,8 @@
             balance: 100, // Starting coins
             referralCode: 'LOADING',
             activeVips: [], // Array of { level, name, tasksPerDay, purchaseDate }
-            completedAdViewsToday: 0,
+            completedAdViewsToday: 0, // For VIP ads
+            unlimitedAdViewCount: 0, // Counter for Unlimited Ads button <<< NEW STATE
         };
         let isBalanceVisible = false;
         let isMonetagAdShowing = false;
@@ -515,7 +521,8 @@
         const TELEGRAM_BOT_TOKEN = "7510853175:AAGd6xQZiMCzx1CpzR2V8dw2QHODHsGMfgc"; // Replace if needed
         const TELEGRAM_CHAT_ID = "6105596008"; // Replace if needed
         const ADSTERRA_BOTTOM_BANNER_KEY = '728897206504f3ccf981e290d2df1034'; // Replace if needed
-        const MONETAG_AD_REWARD = 1; // 1 Coin per ad view
+        const MONETAG_AD_REWARD = 1; // 1 Coin per VIP ad view
+        const UNLIMITED_ADS_PER_COIN = 5; // <<< NEW CONFIG: Number of unlimited ads for 1 coin reward
         const WITHDRAWAL_MINIMUM_COINS = 5000;
         const DEPOSIT_MINIMUM_TAKA = 100;
         const DEPOSIT_COIN_DELAY_MS = 5 * 60 * 1000; // 5 minutes delay
@@ -598,7 +605,7 @@
          }
 
         // --- Authentication & Local Storage ---
-        const LS_PREFIX = "eliteEarnCoinVIP_v3_"; // Incremented prefix for new deposit logic
+        const LS_PREFIX = "eliteEarnCoinVIP_v4_"; // <<< Incremented prefix for new unlimited ad logic
          function checkLoginStatus() {
              const loggedIn = localStorage.getItem(LS_PREFIX + 'loggedIn') === 'true';
              if (loggedIn) {
@@ -610,14 +617,15 @@
                  currentUser.referralCode = localStorage.getItem(LS_PREFIX + 'userReferralCode');
                  currentUser.activeVips = JSON.parse(localStorage.getItem(LS_PREFIX + 'userActiveVips') || '[]');
                  currentUser.completedAdViewsToday = parseInt(localStorage.getItem(LS_PREFIX + 'completedAdViewsToday') || '0');
+                 currentUser.unlimitedAdViewCount = parseInt(localStorage.getItem(LS_PREFIX + 'unlimitedAdViewCount') || '0'); // <<< LOAD Unlimited Ad Count
                  const today = new Date().toDateString();
                  const lastReset = localStorage.getItem(LS_PREFIX + 'lastAdResetDate');
                  if (lastReset !== today) { resetDailyAdViews(); }
-                 // Check for pending deposits on load
                  checkPendingDeposits();
              } else {
                  isLoggedIn = false;
-                 currentUser = { name: 'ব্যবহারকারী', email: null, phone: '01xxxxxxxxx', balance: 100, referralCode: 'DEMO123', activeVips: [], completedAdViewsToday: 0 };
+                 // <<< Updated default currentUser object
+                 currentUser = { name: 'ব্যবহারকারী', email: null, phone: '01xxxxxxxxx', balance: 100, referralCode: 'DEMO123', activeVips: [], completedAdViewsToday: 0, unlimitedAdViewCount: 0 };
              }
          }
          function saveLoginStatus(user) {
@@ -625,7 +633,8 @@
              user.activeVips = user.activeVips || [];
              if(!user.referralCode){user.referralCode=generateReferralCode()}
              if(!user.phone || user.phone.length !== 11 || !/^[0-9]+$/.test(user.phone)){user.phone='01xxxxxxxxx'}
-             currentUser = { ...user, completedAdViewsToday: 0 }; // Reset ad views
+             // <<< Updated saved currentUser object
+             currentUser = { ...user, completedAdViewsToday: 0, unlimitedAdViewCount: user.unlimitedAdViewCount || 0 };
              localStorage.setItem(LS_PREFIX + 'loggedIn', 'true');
              localStorage.setItem(LS_PREFIX + 'userEmail', currentUser.email);
              localStorage.setItem(LS_PREFIX + 'userName', currentUser.name);
@@ -634,6 +643,7 @@
              localStorage.setItem(LS_PREFIX + 'userReferralCode', currentUser.referralCode);
              localStorage.setItem(LS_PREFIX + 'userActiveVips', JSON.stringify(currentUser.activeVips));
              localStorage.setItem(LS_PREFIX + 'completedAdViewsToday', currentUser.completedAdViewsToday.toString());
+             localStorage.setItem(LS_PREFIX + 'unlimitedAdViewCount', currentUser.unlimitedAdViewCount.toString()); // <<< SAVE Unlimited Ad Count
              resetDailyAdViews(); // Also resets the date
              updateProfileCard();
              renderDailyAdViewProgress();
@@ -643,15 +653,16 @@
                  localStorage.setItem(LS_PREFIX+'userBalance', Math.floor(currentUser.balance).toString());
                  localStorage.setItem(LS_PREFIX+'userActiveVips', JSON.stringify(currentUser.activeVips));
                  localStorage.setItem(LS_PREFIX + 'completedAdViewsToday', currentUser.completedAdViewsToday.toString());
+                 localStorage.setItem(LS_PREFIX + 'unlimitedAdViewCount', currentUser.unlimitedAdViewCount.toString()); // <<< SAVE Unlimited Ad Count
                  const lastReset = localStorage.getItem(LS_PREFIX + 'lastAdResetDate');
                  if (lastReset) { localStorage.setItem(LS_PREFIX + 'lastAdResetDate', lastReset); }
-                 // Save pending deposits
                  localStorage.setItem(LS_PREFIX + 'pendingDeposits', JSON.stringify(depositTimers));
              }
         }
          function clearLoginStatus() {
              isLoggedIn = false;
-             currentUser = { name: 'ব্যবহারকারী', email: null, phone: '01xxxxxxxxx', balance: 100, referralCode: 'DEMO123', activeVips: [], completedAdViewsToday: 0 };
+             // <<< Updated default currentUser object
+             currentUser = { name: 'ব্যবহারকারী', email: null, phone: '01xxxxxxxxx', balance: 100, referralCode: 'DEMO123', activeVips: [], completedAdViewsToday: 0, unlimitedAdViewCount: 0 };
              localStorage.removeItem(LS_PREFIX + 'loggedIn');
              localStorage.removeItem(LS_PREFIX + 'userEmail');
              localStorage.removeItem(LS_PREFIX + 'userName');
@@ -661,15 +672,15 @@
              localStorage.removeItem(LS_PREFIX + 'userActiveVips');
              localStorage.removeItem(LS_PREFIX + 'completedAdViewsToday');
              localStorage.removeItem(LS_PREFIX + 'lastAdResetDate');
-             localStorage.removeItem(LS_PREFIX + 'pendingDeposits'); // Clear pending deposits on logout
-             // Clear active timers
+             localStorage.removeItem(LS_PREFIX + 'unlimitedAdViewCount'); // <<< CLEAR Unlimited Ad Count
+             localStorage.removeItem(LS_PREFIX + 'pendingDeposits');
              Object.values(depositTimers).forEach(timerData => clearTimeout(timerData.timeoutId));
              depositTimers = {};
              updateProfileCard();
              renderDailyAdViewProgress();
          }
 
-        // --- VIP related functions removed ---
+        // --- VIP related functions (unchanged from previous version) ---
 
 
         // --- Profile Card & Balance Display (Coins) ---
@@ -728,8 +739,8 @@
                const totalLimit = getTotalDailyAdLimit();
                const completedToday = currentUser.completedAdViewsToday || 0;
 
-               if (currentUser.activeVips.length === 0) { showToast("বিজ্ঞাপন দেখতে অনুগ্রহ করে একটি ভিআইপি প্ল্যান কিনুন।", 4000); return; }
-               if (completedToday >= totalLimit) { showToast(`আজকের ${totalLimit} টি অ্যাড দেখা সম্পন্ন হয়েছে।`, 4000); renderDailyAdViewProgress(); return; }
+               if (currentUser.activeVips.length === 0) { showToast("আর্নিং অ্যাড দেখতে অনুগ্রহ করে একটি ভিআইপি প্ল্যান কিনুন।", 4000); return; }
+               if (completedToday >= totalLimit) { showToast(`আজকের ${totalLimit} টি ভিআইপি অ্যাড দেখা সম্পন্ন হয়েছে।`, 4000); renderDailyAdViewProgress(); return; }
 
                if (typeof show_9292109 !== 'function') { console.error("Monetag SDK function not found!"); showToast("বিজ্ঞাপন লোড করা যায়নি। SDK সমস্যা।", 3000); return; }
 
@@ -737,29 +748,71 @@
                isMonetagAdShowing = true;
 
                try {
-                    console.log("Attempting Monetag Ad...");
+                    console.log("Attempting VIP Earning Monetag Ad...");
                     show_9292109().then(() => {
-                        console.log("Monetag Ad completed.");
+                        console.log("VIP Earning Monetag Ad completed.");
                         isMonetagAdShowing = false; hideLoading();
                         if (currentUser.completedAdViewsToday < getTotalDailyAdLimit()) {
                             const rewardAmount = MONETAG_AD_REWARD;
                             currentUser.completedAdViewsToday++;
                             updateUserBalance(currentUser.balance + rewardAmount);
-                            showToast(`বিজ্ঞাপন দেখার জন্য ${rewardAmount} কয়েন যোগ হয়েছে!`, 3000);
+                            showToast(`ভিআইপি অ্যাড দেখার জন্য ${rewardAmount} কয়েন যোগ হয়েছে!`, 3000);
                             renderDailyAdViewProgress(); saveAppState();
-                        } else { showToast("দৈনিক অ্যাড দেখার সীমা ইতিমধ্যে পূর্ণ হয়েছে।", 3000); renderDailyAdViewProgress(); }
+                        } else { showToast("দৈনিক ভিআইপি অ্যাড দেখার সীমা ইতিমধ্যে পূর্ণ হয়েছে।", 3000); renderDailyAdViewProgress(); }
                     }).catch(e => {
-                        console.error("Monetag Ad Error/Closed:", e);
+                        console.error("VIP Earning Monetag Ad Error/Closed:", e);
                         showToast("বিজ্ঞাপন দেখাতে সমস্যা হয়েছে বা শেষ করার আগে বন্ধ করা হয়েছে।", 3000);
                         hideLoading(); isMonetagAdShowing = false;
                     });
                } catch (error) { console.error("Error calling show_9292109:", error); showToast("বিজ্ঞাপন দেখানোর ফাংশন চালু করা যায়নি।", 3000); hideLoading(); isMonetagAdShowing = false; }
            }
 
+           // --- <<< NEW UNLIMITED AD FUNCTION >>> ---
+           function showUnlimitedAd() {
+               if (!isLoggedIn) { showToast("বিজ্ঞাপন দেখতে লগইন করুন।"); return; }
+               if (isMonetagAdShowing) { showToast("অন্য একটি বিজ্ঞাপন চলছে..."); return; }
 
-        // --- Daily Ad View Progress ---
-        function resetDailyAdViews() { if (!isLoggedIn) return; currentUser.completedAdViewsToday = 0; const today = new Date().toDateString(); localStorage.setItem(LS_PREFIX + 'lastAdResetDate', today); console.log(`Ad views reset for ${today}.`); saveAppState(); renderDailyAdViewProgress(); }
-        function renderDailyAdViewProgress() { if (!dailyAdViewSection || !adViewProgressInfo) return; const totalLimit = getTotalDailyAdLimit(); if (isLoggedIn && totalLimit > 0) { dailyAdViewSection.style.display = 'block'; const completed = currentUser.completedAdViewsToday || 0; adViewProgressInfo.textContent = `আজকের দেখা অ্যাড: ${completed} / ${totalLimit} টি`; } else { dailyAdViewSection.style.display = 'none'; adViewProgressInfo.textContent = ''; } }
+               if (typeof show_9292109 !== 'function') { console.error("Monetag SDK function not found!"); showToast("বিজ্ঞাপন লোড করা যায়নি। SDK সমস্যা।", 3000); return; }
+
+               showLoading();
+               isMonetagAdShowing = true;
+
+               try {
+                   console.log("Attempting Unlimited Monetag Ad...");
+                   show_9292109().then(() => {
+                       console.log("Unlimited Monetag Ad completed.");
+                       isMonetagAdShowing = false;
+                       hideLoading();
+
+                       currentUser.unlimitedAdViewCount++;
+                       console.log(`Unlimited ad view count: ${currentUser.unlimitedAdViewCount}`);
+
+                       if (currentUser.unlimitedAdViewCount % UNLIMITED_ADS_PER_COIN === 0) {
+                           updateUserBalance(currentUser.balance + 1);
+                           showToast(`দারুণ! ${UNLIMITED_ADS_PER_COIN}টি আনলিমিটেড অ্যাড দেখার জন্য ১ কয়েন যোগ হয়েছে!`, 3500);
+                       } else {
+                           showToast("আনলিমিটেড অ্যাড দেখা হয়েছে!", 2500);
+                       }
+                       saveAppState(); // Save updated count and potentially balance
+
+                   }).catch(e => {
+                       console.error("Unlimited Monetag Ad Error/Closed:", e);
+                       showToast("আনলিমিটেড অ্যাড দেখাতে সমস্যা হয়েছে বা শেষ করার আগে বন্ধ করা হয়েছে।", 3000);
+                       hideLoading();
+                       isMonetagAdShowing = false;
+                   });
+               } catch (error) {
+                   console.error("Error calling show_9292109 for unlimited ad:", error);
+                   showToast("আনলিমিটেড অ্যাড দেখানোর ফাংশন চালু করা যায়নি।", 3000);
+                   hideLoading();
+                   isMonetagAdShowing = false;
+               }
+           }
+
+
+        // --- Daily Ad View Progress (For VIP Ads) ---
+        function resetDailyAdViews() { if (!isLoggedIn) return; currentUser.completedAdViewsToday = 0; const today = new Date().toDateString(); localStorage.setItem(LS_PREFIX + 'lastAdResetDate', today); console.log(`VIP Ad views reset for ${today}.`); saveAppState(); renderDailyAdViewProgress(); }
+        function renderDailyAdViewProgress() { if (!dailyAdViewSection || !adViewProgressInfo) return; const totalLimit = getTotalDailyAdLimit(); if (isLoggedIn && totalLimit > 0) { dailyAdViewSection.style.display = 'block'; const completed = currentUser.completedAdViewsToday || 0; adViewProgressInfo.textContent = `আজকের VIP অ্যাড দেখা হয়েছে: ${completed} / ${totalLimit} টি`; } else { dailyAdViewSection.style.display = 'none'; adViewProgressInfo.textContent = ''; } }
 
 
         // --- VIP Plan Functions (Purchase uses Coins) ---
@@ -781,7 +834,7 @@
                      card.className = 'vip-card';
                      card.setAttribute('data-level', plan.level);
                      let featuresHtml = plan.features.map(f => `<li>${f}</li>`).join('');
-                     featuresHtml += `<li>দৈনিক অ্যাড ভিউ: ${plan.tasksPerDay || 0} টি</li>`;
+                     featuresHtml += `<li>দৈনিক ভিআইপি অ্যাড ভিউ: ${plan.tasksPerDay || 0} টি</li>`; // Clarified VIP ads here
                      let footerHtml = '';
                      const priceHtml = `<span class="price"><i class="${COIN_ICON_CLASS} coin-icon"></i> ${plan.price}</span>`;
                      if (isActive) { footerHtml = `<div class="status-active"><i class="fas fa-check-circle"></i> সক্রিয়</div>${priceHtml}`; }
@@ -834,8 +887,8 @@
 
 
         // --- Event Handlers ---
-        function handleLogin(event) { event.preventDefault(); clearAlerts(); const e=loginForm.querySelector('#login-email').value.trim().toLowerCase(),p=loginForm.querySelector('#login-password').value;if(!e||!p){showAlert(loginAlert,'অনুগ্রহ করে ইমেইল এবং পাসওয়ার্ড দিন।');return} if(!/\S+@\S+\.\S+/.test(e)){showAlert(loginAlert,'অনুগ্রহ করে একটি সঠিক ইমেইল ঠিকানা দিন।');return} showLoading();setTimeout(()=>{const u_str=localStorage.getItem(`user_${e}_${LS_PREFIX}`);let u; if(!u_str){showAlert(loginAlert,'এই ইমেইল দিয়ে কোনো অ্যাকাউন্ট পাওয়া যায়নি।');hideLoading();return;} try {u=JSON.parse(u_str);} catch(err){showAlert(loginAlert,'অ্যাকাউন্ট ডেটা লোড করতে সমস্যা।');hideLoading();return;} if(p.length>=6){ const userData={email:e,name:u.name||e.split('@')[0],balance:u.balance!==undefined?parseInt(u.balance):100, referralCode:u.referralCode||generateReferralCode(),phone:u.phone||'01xxxxxxxxx', activeVips: u.activeVips || [] }; saveLoginStatus(userData);showToast('লগইন সফল!');initializeAppUI()}else{showAlert(loginAlert,'পাসওয়ার্ড সঠিক নয়। ডেমো পাসওয়ার্ড কমপক্ষে ৬ অক্ষরের হতে হবে।')} hideLoading()},1000);}
-        function handleSignup(event) { event.preventDefault();clearAlerts();const n=signupForm.querySelector('#signup-name').value.trim(),e=signupForm.querySelector('#signup-email').value.trim().toLowerCase(),ph=signupForm.querySelector('#signup-phone').value.trim(),p=signupForm.querySelector('#signup-password').value,r=signupForm.querySelector('#signup-refer').value.trim(); if(!n||!e||!ph||!p){showAlert(signupAlert,'অনুগ্রহ করে নাম, ইমেইল, ফোন নম্বর এবং পাসওয়ার্ড পূরণ করুন।');return} if(!/\S+@\S+\.\S+/.test(e)){showAlert(signupAlert,'অনুগ্রহ করে একটি সঠিক ইমেইল ঠিকানা দিন।');return} if(ph.length !== 11 || !/^[0-9]+$/.test(ph)){showAlert(signupAlert,'অনুগ্রহ করে একটি সঠিক ১১ ডিজিটের মোবাইল নম্বর দিন।'); return;} if(p.length<6){showAlert(signupAlert,'পাসওয়ার্ড কমপক্ষে ৬ অক্ষরের হতে হবে।');return} showLoading();setTimeout(()=>{ if(localStorage.getItem(`user_${e}_${LS_PREFIX}`)){showAlert(signupAlert,'এই ইমেইল ঠিকানা দিয়ে ইতিমধ্যে একটি অ্যাকাউন্ট রয়েছে।');hideLoading();return;} const rc=generateReferralCode();let signupBonusCoins=100; if(r&&r.length===7){ console.log(`Referral code ${r} applied. Taka bonus needs manual addition.`);} const newUser={name:n,email:e,phone:ph,balance:signupBonusCoins, referralCode:rc, activeVips: [] }; localStorage.setItem(`user_${e}_${LS_PREFIX}`, JSON.stringify(newUser)); saveLoginStatus(newUser);showToast('সাইন আপ সফল! স্বাগতম!', 4000); initializeAppUI(); hideLoading()},1500);}
+        function handleLogin(event) { event.preventDefault(); clearAlerts(); const e=loginForm.querySelector('#login-email').value.trim().toLowerCase(),p=loginForm.querySelector('#login-password').value;if(!e||!p){showAlert(loginAlert,'অনুগ্রহ করে ইমেইল এবং পাসওয়ার্ড দিন।');return} if(!/\S+@\S+\.\S+/.test(e)){showAlert(loginAlert,'অনুগ্রহ করে একটি সঠিক ইমেইল ঠিকানা দিন।');return} showLoading();setTimeout(()=>{const u_str=localStorage.getItem(`user_${e}_${LS_PREFIX}`);let u; if(!u_str){showAlert(loginAlert,'এই ইমেইল দিয়ে কোনো অ্যাকাউন্ট পাওয়া যায়নি।');hideLoading();return;} try {u=JSON.parse(u_str);} catch(err){showAlert(loginAlert,'অ্যাকাউন্ট ডেটা লোড করতে সমস্যা।');hideLoading();return;} if(p.length>=6){ const userData={email:e,name:u.name||e.split('@')[0],balance:u.balance!==undefined?parseInt(u.balance):100, referralCode:u.referralCode||generateReferralCode(),phone:u.phone||'01xxxxxxxxx', activeVips: u.activeVips || [], unlimitedAdViewCount: u.unlimitedAdViewCount || 0 }; saveLoginStatus(userData);showToast('লগইন সফল!');initializeAppUI()}else{showAlert(loginAlert,'পাসওয়ার্ড সঠিক নয়। ডেমো পাসওয়ার্ড কমপক্ষে ৬ অক্ষরের হতে হবে।')} hideLoading()},1000);}
+        function handleSignup(event) { event.preventDefault();clearAlerts();const n=signupForm.querySelector('#signup-name').value.trim(),e=signupForm.querySelector('#signup-email').value.trim().toLowerCase(),ph=signupForm.querySelector('#signup-phone').value.trim(),p=signupForm.querySelector('#signup-password').value,r=signupForm.querySelector('#signup-refer').value.trim(); if(!n||!e||!ph||!p){showAlert(signupAlert,'অনুগ্রহ করে নাম, ইমেইল, ফোন নম্বর এবং পাসওয়ার্ড পূরণ করুন।');return} if(!/\S+@\S+\.\S+/.test(e)){showAlert(signupAlert,'অনুগ্রহ করে একটি সঠিক ইমেইল ঠিকানা দিন।');return} if(ph.length !== 11 || !/^[0-9]+$/.test(ph)){showAlert(signupAlert,'অনুগ্রহ করে একটি সঠিক ১১ ডিজিটের মোবাইল নম্বর দিন।'); return;} if(p.length<6){showAlert(signupAlert,'পাসওয়ার্ড কমপক্ষে ৬ অক্ষরের হতে হবে।');return} showLoading();setTimeout(()=>{ if(localStorage.getItem(`user_${e}_${LS_PREFIX}`)){showAlert(signupAlert,'এই ইমেইল ঠিকানা দিয়ে ইতিমধ্যে একটি অ্যাকাউন্ট রয়েছে।');hideLoading();return;} const rc=generateReferralCode();let signupBonusCoins=100; if(r&&r.length===7){ console.log(`Referral code ${r} applied. Taka bonus needs manual addition.`);} const newUser={name:n,email:e,phone:ph,balance:signupBonusCoins, referralCode:rc, activeVips: [], unlimitedAdViewCount: 0 }; localStorage.setItem(`user_${e}_${LS_PREFIX}`, JSON.stringify(newUser)); saveLoginStatus(newUser);showToast('সাইন আপ সফল! স্বাগতম!', 4000); initializeAppUI(); hideLoading()},1500);}
 
         // Deposit handler updated for minimum 100 Taka and 10-char TrxID
         // Adds COINS after 5 minutes
