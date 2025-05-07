@@ -347,7 +347,8 @@
             overflow: hidden;
             border: 8px solid #f39c12;
             box-shadow: 0 0 15px rgba(0,0,0,0.5);
-            transition: transform 5s cubic-bezier(0.25, 0.1, 0.25, 1);
+            /* Updated transition for 30s spin */
+            transition: transform 30s cubic-bezier(0.1, 0.7, 0.3, 1);
         }
 
         #crazy-time-page .ct-wheel-segment-text { /* Style for text divs added to wheel */
@@ -812,22 +813,22 @@
             bettingOptionsDiv: null,
             currentBetsDisplay: null,
             
-            BET_AMOUNT: 10, // Default bet amount for each segment
-            // Payouts are stake-inclusive (e.g., payout 2 means bet 10, get 20 back)
+            BET_AMOUNT: 10, 
             segmentsData: [
-                { text: "1", color: "#3498db", probability: 0.388, id: "seg1", payout: 2 }, // Bet 10, win 10 (total 20)
-                { text: "2", color: "#f1c40f", probability: 0.240, id: "seg2", payout: 3 }, // Bet 10, win 20 (total 30)
+                { text: "1", color: "#3498db", probability: 0.388, id: "seg1", payout: 2 }, 
+                { text: "2", color: "#f1c40f", probability: 0.240, id: "seg2", payout: 3 }, 
                 { text: "5", color: "#2ecc71", probability: 0.129, id: "seg5", payout: 6 },
                 { text: "10", color: "#e74c3c", probability: 0.074, id: "seg10", payout: 11 },
-                { text: "COIN FLIP", color: "#9b59b6", probability: 0.074, id: "segCF", payout: 5 }, // Example fixed payout for bonus
+                { text: "COIN FLIP", color: "#9b59b6", probability: 0.074, id: "segCF", payout: 5 }, 
                 { text: "PACHINKO", color: "#1abc9c", probability: 0.037, id: "segPA", payout: 8 },
                 { text: "CASH HUNT", color: "#e67e22", probability: 0.037, id: "segCH", payout: 10 },
                 { text: "CRAZY TIME", color: "#d35400", probability: 0.018, id: "segCT", payout: 20 }
             ],
-            currentBets: {}, // segmentId: betAmount (could support variable bets per segment later)
+            currentBets: {}, 
             spinning: false,
             currentRotation: 0,
             initialized: false,
+            spinDuration: 30000, // 30 seconds for spin
 
             init: function() {
                 if (this.initialized) return;
@@ -855,7 +856,7 @@
             },
 
             resetGameVisualsAndState: function() {
-                if (!this.initialized) this.init(); // Ensure initialized
+                if (!this.initialized) this.init(); 
 
                 this.currentBets = {};
                 this.updateGameCurrentBetsDisplay();
@@ -880,7 +881,6 @@
                 if (!this.currentBetsDisplay) return;
                 const betTexts = Object.keys(this.currentBets).map(segId => {
                     const segment = this.segmentsData.find(s => s.id === segId);
-                    // For now, each bet is fixed at this.BET_AMOUNT
                     return segment ? `${segment.text} (${this.BET_AMOUNT} টাকা)` : 'Unknown';
                 });
                 if (betTexts.length === 0) {
@@ -891,7 +891,7 @@
             },
             
             createBettingButtons: function() {
-                this.bettingOptionsDiv.innerHTML = ''; // Clear existing
+                this.bettingOptionsDiv.innerHTML = ''; 
                 this.segmentsData.forEach(segment => {
                     const button = document.createElement('button');
                     button.classList.add('ct-bet-button');
@@ -923,11 +923,11 @@
                         }
 
                         currentUser.balance -= this.BET_AMOUNT;
-                        this.currentBets[segmentId] = this.BET_AMOUNT; // Store bet amount
+                        this.currentBets[segmentId] = this.BET_AMOUNT; 
                         
-                        saveAppState(); // Save main app balance
-                        updateBalanceDisplay(); // Update main app UI balance
-                        this.updateGameBalanceDisplay(); // Update game's balance display
+                        saveAppState(); 
+                        updateBalanceDisplay(); 
+                        this.updateGameBalanceDisplay(); 
                         this.updateGameCurrentBetsDisplay();
                         button.classList.add('active');
                     });
@@ -940,9 +940,7 @@
                 let currentAngleDeg = 0;
                 const anglePerVisualSegment = 360 / this.segmentsData.length;
 
-                // Clear any existing text divs
                 this.wheel.querySelectorAll('.ct-wheel-segment-text').forEach(el => el.remove());
-
 
                 this.segmentsData.forEach((segData, index) => {
                     gradientString += `${segData.color} ${currentAngleDeg}deg ${currentAngleDeg + anglePerVisualSegment}deg`;
@@ -953,21 +951,17 @@
 
                     const textDiv = document.createElement('div');
                     textDiv.textContent = segData.text;
-                    textDiv.classList.add('ct-wheel-segment-text'); // Added class for styling
+                    textDiv.classList.add('ct-wheel-segment-text'); 
 
-                    // Position calculation needs wheel dimensions.
-                    // Ensure wheel is rendered or use requestAnimationFrame if dimensions are 0.
                     const wheelWidth = this.wheel.offsetWidth;
-                    const wheelHeight = this.wheel.offsetHeight; // or width if it's a circle
-
                     if (wheelWidth > 0) {
                         const textWidthApproximation = wheelWidth / this.segmentsData.length * 0.7;
-                        const radius = wheelWidth / 2 * 0.70; // 70% of radius for text
-                        const textAngleRad = (((index * anglePerVisualSegment) + (anglePerVisualSegment / 2) - 90) * Math.PI) / 180; // Adjust -90 for top start
+                        const radius = wheelWidth / 2 * 0.70; 
+                        const textAngleRad = (((index * anglePerVisualSegment) + (anglePerVisualSegment / 2) - 90) * Math.PI) / 180; 
 
                         textDiv.style.width = `${textWidthApproximation}px`;
                         textDiv.style.left = `calc(50% + ${radius * Math.cos(textAngleRad)}px - ${textWidthApproximation / 2}px)`;
-                        textDiv.style.top = `calc(50% + ${radius * Math.sin(textAngleRad)}px - 7px)`; // 7px is half of font-size approx
+                        textDiv.style.top = `calc(50% + ${radius * Math.sin(textAngleRad)}px - 7px)`; 
                         textDiv.style.transform = `rotate(${(index * anglePerVisualSegment) + (anglePerVisualSegment / 2)}deg)`;
                         this.wheel.appendChild(textDiv);
                     }
@@ -976,7 +970,7 @@
                 this.wheel.style.background = gradientString;
             },
 
-            getWinningSegmentByProbability: function() {
+            _getSegmentByNaturalProbability: function() {
                 let random = Math.random();
                 let cumulativeProbability = 0;
                 for (let i = 0; i < this.segmentsData.length; i++) {
@@ -985,8 +979,31 @@
                         return this.segmentsData[i];
                     }
                 }
-                return this.segmentsData[this.segmentsData.length - 1]; // Fallback
+                return this.segmentsData[this.segmentsData.length - 1]; 
             },
+            
+            determineWinningSegment: function() {
+                const userWinsThisSpin = Math.random() < 0.40; 
+
+                if (userWinsThisSpin) {
+                    const betSegmentIds = Object.keys(this.currentBets);
+                    if (betSegmentIds.length > 0) {
+                        const randomBetSegmentId = betSegmentIds[Math.floor(Math.random() * betSegmentIds.length)];
+                        const winningSegment = this.segmentsData.find(s => s.id === randomBetSegmentId);
+                        if (winningSegment) return winningSegment;
+                    }
+                    return this._getSegmentByNaturalProbability();
+                } else {
+                    const unbetSegments = this.segmentsData.filter(seg => !this.currentBets[seg.id]);
+                    if (unbetSegments.length > 0) {
+                        return unbetSegments[Math.floor(Math.random() * unbetSegments.length)];
+                    } else {
+                        let lowestPayoutSegment = this.segmentsData.reduce((min, seg) => seg.payout < min.payout ? seg : min, this.segmentsData[0]);
+                        return lowestPayoutSegment;
+                    }
+                }
+            },
+
 
             toggleBetButtons: function(enable) {
                 const buttons = this.bettingOptionsDiv.querySelectorAll('.ct-bet-button');
@@ -1010,27 +1027,26 @@
                 this.toggleBetButtons(false);
                 this.resultDiv.textContent = 'ঘুরছে...';
 
-                const winningSegmentData = this.getWinningSegmentByProbability();
+                const winningSegmentData = this.determineWinningSegment(); 
                 const winningSegmentIndex = this.segmentsData.findIndex(s => s.id === winningSegmentData.id);
                 
                 const anglePerVisualSegment = 360 / this.segmentsData.length;
-                // Target angle for pointer to be at the center of the winning segment
-                // The pointer is at the top (0 degrees or 360 degrees).
-                // If segment 0 (index 0) wins, wheel should rotate so segment 0's middle is at top.
-                // Angle of middle of segment i = (i * anglePerSegment) + (anglePerSegment / 2)
-                // To bring this to top (0 deg), wheel needs to rotate by -this angle.
-                let targetRotation = -((winningSegmentIndex * anglePerVisualSegment) + (anglePerVisualSegment / 2));
+                const targetAngleWithin360 = -((winningSegmentIndex * anglePerVisualSegment) + (anglePerVisualSegment / 2));
                 
-                const randomExtraRotations = Math.floor(Math.random() * 5) + 4; // 4 to 8 full rotations
-                
-                // Normalize currentRotation to avoid excessively large numbers
-                this.currentRotation %= 360;
+                const fullRotations = 20 + Math.floor(Math.random() * 10); // 20 to 29 full rotations for a 30s spin
 
-                // Calculate degrees to add
-                // Ensure targetRotation is relative to currentRotation and always positive for forward spin
-                let rotationAmount = (randomExtraRotations * 360) + ((targetRotation - this.currentRotation + 360) % 360);
+                let normalizedCurrentRotation = (this.currentRotation % 360 + 360) % 360;
                 
-                this.currentRotation += rotationAmount;
+                let degreesToTarget = (targetAngleWithin360 - normalizedCurrentRotation + 360) % 360;
+                if (degreesToTarget === 0 && fullRotations === 0) { 
+                    degreesToTarget = 360; // Ensure at least one full spin if already at target
+                }
+                
+                // The crucial part: ensure currentRotation always increases for clockwise spin
+                const totalDegreesToSpin = (fullRotations * 360) + degreesToTarget;
+                const finalRotation = this.currentRotation + totalDegreesToSpin; // Add to existing rotation
+                
+                this.currentRotation = finalRotation; 
 
                 this.wheel.style.transform = `rotate(${this.currentRotation}deg)`;
 
@@ -1040,33 +1056,28 @@
                     this.toggleBetButtons(true);
 
                     this.resultDiv.textContent = `ফলাফল: ${winningSegmentData.text}!`;
-                    let totalWinningsThisRound = 0;
-                    let hasWonAnything = false;
-
+                    
                     if (this.currentBets[winningSegmentData.id]) {
                         const betAmountOnWinningSegment = this.currentBets[winningSegmentData.id];
                         const payoutMultiplier = winningSegmentData.payout;
                         const winnings = betAmountOnWinningSegment * payoutMultiplier;
                         
-                        currentUser.balance += winnings; // Add total return (stake + profit)
-                        totalWinningsThisRound += winnings;
-                        hasWonAnything = true;
+                        currentUser.balance += winnings; 
                         this.resultDiv.textContent += ` আপনি ${winningSegmentData.text} এ ${winnings} টাকা জিতেছেন!`;
                     } else {
                         this.resultDiv.textContent += ` আপনার কোনো বেট জেতেনি।`;
                     }
                     
-                    saveAppState(); // Save main app balance
-                    updateBalanceDisplay(); // Update main app UI balance
-                    this.updateGameBalanceDisplay(); // Update game's balance display
+                    saveAppState(); 
+                    updateBalanceDisplay(); 
+                    this.updateGameBalanceDisplay(); 
 
-                    // Reset for next round
                     this.currentBets = {};
                     this.updateGameCurrentBetsDisplay();
                     const allBetButtons = this.bettingOptionsDiv.querySelectorAll('.ct-bet-button');
                     allBetButtons.forEach(btn => btn.classList.remove('active'));
 
-                }, 5100); // Slightly more than CSS transition duration
+                }, this.spinDuration + 100); 
             }
         };
 
@@ -1104,12 +1115,10 @@
         function showPage(pageId) {
             clearAlerts();
 
-            // Login checks
             const nonAuthPages = ['login-page', 'signup-page', 'policy-page'];
             if (!isLoggedIn && !nonAuthPages.includes(pageId)) {
-                 // If trying to access crazy-time-page without login, allow structure but show login prompt later
                 if (pageId === 'crazy-time-page') {
-                    // Proceed to show the page structure, login prompt will be inside the game logic if needed
+                    // Allow viewing structure, game logic will prompt login
                 } else {
                     showAlert(generalAlertArea || loginAlert, 'পেজটি দেখতে লগইন করুন।', 'danger');
                     showPage('login-page');
@@ -1117,20 +1126,18 @@
                 }
             }
             
-            // Hide all pages first by removing .active and setting display to none
             pages.forEach(page => {
                 page.classList.remove('active');
-                page.style.display = 'none'; // Explicitly set to none
+                page.style.display = 'none'; 
             });
 
             const pageToShow = document.getElementById(pageId);
             if (pageToShow) {
                 pageToShow.classList.add('active');
-                // For crazy-time-page, ensure its specific display style is applied if active
                 if (pageId === 'crazy-time-page') {
-                    pageToShow.style.display = 'flex'; // Its active state should be flex
+                    pageToShow.style.display = 'flex'; 
                 } else {
-                    pageToShow.style.display = 'block'; // Default for other pages
+                    pageToShow.style.display = 'block'; 
                 }
                 
                 updateAppUIBasedOnPage(pageId);
