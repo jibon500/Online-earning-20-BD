@@ -1,9 +1,10 @@
+
 <!DOCTYPE html>
 <html lang="bn">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Elite Earning Zone (ধীর গতির চলমান মেসেজ)</title>
+    <title>Elite Earning Zone (ক্রেজি টাইম বেটিং সহ)</title>
     <!-- Font Awesome & Google Fonts -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -55,7 +56,7 @@
         /* --- Pages Container --- */
         .pages-container { flex-grow: 1; overflow-y: auto; padding-bottom: calc(65px + 50px + 10px); scroll-behavior: smooth; }
         .page { display: none; padding: 15px 20px 25px 20px; animation: pageFadeInSimple 0.3s ease-out; }
-        .page.active { display: block; }
+        .page.active { display: block; } /* This will be 'flex' for crazy-time-page when active */
         @keyframes pageFadeInSimple { from { opacity: 0; } to { opacity: 1; } }
         .page h2 { color: var(--primary-color); margin-bottom: 20px; text-align: center; font-size: 1.6em; font-weight: 700; display: flex; align-items: center; justify-content: center;} .page h2 i { margin-right: 10px; font-size: 0.9em;}
         .page p { line-height: 1.7; color: var(--medium-text); margin-bottom: 18px; font-family: var(--font-bengali); font-size: 0.95em; }
@@ -121,7 +122,6 @@
         .marquee-header p {
             display: inline-block;
             padding-left: 100%; /* Start off screen right */
-            /* >>> SLOWED DOWN ANIMATION <<< */
             animation: marquee-scroll 30s linear infinite; /* Changed 15s to 30s */
             font-size: 0.95em; /* Slightly larger font */
             font-weight: 500;
@@ -305,6 +305,177 @@
          .policy-content p { margin-bottom: 15px; font-size: 0.95em; line-height: 1.7; color: var(--medium-text); font-family: var(--font-bengali); }
          .policy-content p i { color: var(--medium-text); font-style: italic; }
 
+        /* --- Crazy Time Game Styles --- */
+        #crazy-time-page {
+            background-color: #2c3e50;
+            padding: 0;
+            /* display: flex; NO - this will be set by JS */
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-family: Arial, sans-serif;
+            overflow-x: hidden;
+            height: 100%;
+        }
+        /* When #crazy-time-page is active, it uses flex display */
+        #crazy-time-page.active {
+            display: flex !important; /* Ensure it overrides .page display: block */
+        }
+
+
+        #crazy-time-page .ct-game-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            padding: 10px; /* Padding for smaller screens */
+            box-sizing: border-box;
+        }
+
+        #crazy-time-page .ct-wheel-container {
+            position: relative;
+            width: 280px; /* Slightly smaller for mobile view within app */
+            height: 280px;
+            margin-bottom: 20px;
+        }
+
+        #crazy-time-page .ct-wheel {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            position: relative;
+            overflow: hidden;
+            border: 8px solid #f39c12;
+            box-shadow: 0 0 15px rgba(0,0,0,0.5);
+            transition: transform 5s cubic-bezier(0.25, 0.1, 0.25, 1);
+        }
+
+        #crazy-time-page .ct-wheel-segment-text { /* Style for text divs added to wheel */
+            position: absolute;
+            transform-origin: center center;
+            text-align: center;
+            color: white;
+            font-weight: bold;
+            font-size: 10px;
+            text-shadow: 1px 1px 1px black;
+            z-index: 5;
+            pointer-events: none; /* So they don't interfere with wheel clicks if any */
+        }
+
+
+        #crazy-time-page .ct-wheel-center-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #e74c3c;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 50%;
+            font-size: 16px;
+            font-weight: bold;
+            z-index: 10;
+            border: 4px solid #f1c40f;
+            text-align: center;
+            line-height: 1.1;
+        }
+
+        #crazy-time-page .ct-pointer {
+            position: absolute;
+            top: -15px; /* Adjusted if wheel container size changes */
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 15px solid transparent;
+            border-right: 15px solid transparent;
+            border-top: 25px solid #e74c3c;
+            z-index: 10;
+        }
+
+        #crazy-time-page .ct-controls {
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        #crazy-time-page button#ct-spinButton {
+            padding: 12px 25px;
+            font-size: 16px;
+            background-color: #27ae60;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-top: 10px;
+        }
+
+        #crazy-time-page button#ct-spinButton:hover {
+            background-color: #2ecc71;
+        }
+
+        #crazy-time-page button#ct-spinButton:disabled {
+            background-color: #95a5a6;
+            cursor: not-allowed;
+        }
+
+        #crazy-time-page .ct-info-display {
+            background-color: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            width: 90%;
+            max-width: 380px; /* Max width within game page */
+            box-sizing: border-box;
+        }
+
+        #crazy-time-page .ct-info-display p {
+            margin: 5px 0;
+            color: #ecf0f1;
+            font-size: 16px;
+        }
+
+        #crazy-time-page #ct-result {
+            font-size: 18px; /* Slightly smaller for consistency */
+            color: #ecf0f1;
+            padding: 8px 15px;
+            background-color: rgba(0,0,0,0.3);
+            border-radius: 5px;
+            min-height: 30px;
+            display: inline-block;
+        }
+        
+        #crazy-time-page .ct-betting-options {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 8px; /* Slightly smaller gap */
+            margin-bottom: 20px;
+            max-width: 100%;
+        }
+
+        #crazy-time-page .ct-bet-button {
+            padding: 8px 10px; /* Adjust padding */
+            font-size: 11px; /* Smaller font for more buttons */
+            border: 2px solid transparent;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: white;
+            min-width: 70px; /* Adjust min-width */
+            text-align: center;
+            font-family: var(--font-bengali); /* Use app font */
+        }
+
+        #crazy-time-page .ct-bet-button.active {
+            border-color: #f1c40f; /* Yellow border for active bet */
+            box-shadow: 0 0 10px #f1c40f;
+        }
+        #crazy-time-page .ct-bet-button:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
     </style>
 </head>
 <body>
@@ -352,7 +523,6 @@
                              <div class="user-name" id="profile-user-name">ব্যবহারকারী</div>
                              <div class="user-phone" id="profile-user-phone">01xxxxxxxxx</div>
                          </div>
-                         <!-- Updated Balance Section for Coins -->
                          <div class="balance-section-home" id="profile-balance-section">
                              <span class="balance-hidden-placeholder-home" id="balance-hidden-symbol">কয়েন দেখুন</span>
                              <span class="balance-value-home" id="profile-balance-value">
@@ -362,8 +532,6 @@
                          </div>
                       </div>
                   </div>
-
-                  <!-- >>> Marquee Header <<< -->
                   <div class="marquee-header">
                       <p><i class="fas fa-bullhorn"></i>🌟 ছাত্রছাত্রীদের জন্য সোনালী সুযোগ! 🌟
 💯 ১০০% পেমেন্ট গ্যারান্টি সহ একটি নির্ভরযোগ্য প্ল্যাটফর্মে কাজ করুন!
@@ -373,10 +541,7 @@
 💼 আরও বেশি আয় করতে চাইলে VIP প্যাকেজ কিনে উপার্জন বাড়ান!
 ⏳ আজই যোগ দিন — সুযোগ সীমিত!</p>
                   </div>
-
-                  <!-- Scrollable Content -->
                   <h3 class="home-section-title" style="padding: 0 20px;">অপশনস</h3>
-                  <!-- Updated home actions grid (3x2) -->
                   <div class="home-actions" style="padding: 0 12px; grid-template-columns: repeat(3, 1fr);">
                        <div class="action-card deposit" onclick="showPage('deposit-page')"> <i class="fas fa-wallet"></i> <p>ডিপোজিট (৳)</p> </div>
                       <div class="action-card withdraw" onclick="showPage('withdraw-page')"> <i class="fas fa-money-bill-wave"></i> <p>উইথড্র (কয়েন)</p> </div>
@@ -385,17 +550,13 @@
                       <div class="action-card earning" onclick="showMonetagEarningAd()"> <i class="fas fa-coins"></i> <p>আর্নিং অ্যাড (VIP)</p> </div>
                       <div class="action-card unlimited" onclick="showUnlimitedAd()"> <i class="fas fa-infinity"></i> <p>আনলিমিটেড অ্যাড</p> </div>
                   </div>
-
-                  <!-- Daily Ad View Section -->
                   <div id="daily-ad-view-section">
                       <h3 class="home-section-title" style="padding: 0;">আজকের VIP অ্যাড</h3>
                       <div class="ad-view-container">
                           <div id="ad-view-progress-info"></div>
                       </div>
                   </div>
-
-            </div> <!-- End of Home Page -->
-
+            </div>
 
             <!-- Referral Page -->
             <div id="refer-page" class="page">
@@ -412,8 +573,6 @@
             <div id="deposit-page" class="page">
                 <h2><i class="fas fa-university"></i> ডিপোজিট (৳)</h2>
                 <div id="deposit-alert" class="alert"></div>
-
-                <!-- Important Info Box -->
                 <div class="deposit-info">
                     <strong><i class="fas fa-info-circle"></i> গুরুত্বপূর্ণ:</strong>
                     <ol>
@@ -422,16 +581,11 @@
                         <li>সাধারণত ৫ মিনিটের মধ্যে কয়েন যোগ হয়।</li>
                     </ol>
                 </div>
-
-                <!-- >>> MODIFIED DEPOSIT NUMBER SECTION <<< -->
                 <p class="deposit-instruction-text">Send Money করুন শুধুমাত্র নগদে</p>
                 <div class="deposit-number-box">
                     <span id="deposit-number-display">01814892156</span>
                     <button type="button" class="btn-copy" onclick="copyDepositNumber()"><i class="fas fa-copy"></i> কপি</button>
                 </div>
-                <!-- >>> END OF MODIFIED SECTION <<< -->
-
-                <!-- Deposit Form -->
                 <form id="deposit-form">
                     <input type="hidden" id="deposit-method" value="nagad">
                      <div class="form-group">
@@ -471,6 +625,35 @@
                 <div id="vip-purchase-feedback" style="text-align: center; margin: 15px 0; font-weight: 500;"></div>
                 <div class="vip-grid" id="vip-plan-list"> <!-- Loading message/spinner --> </div>
             </div>
+            
+            <!-- Crazy Time Game Page -->
+            <div id="crazy-time-page" class="page">
+                <!-- Content from the Crazy Time HTML, with ID adjustments -->
+                <div class="ct-game-container">
+                    <div class="ct-info-display">
+                        <p>আপনার ব্যালেন্স: <span id="ct-balanceDisplay">0</span> টাকা</p>
+                        <p>বর্তমান বেট: <span id="ct-currentBetsDisplay">এখনও কোনো বেট নেই</span></p>
+                        <p>ফলাফল: <span id="ct-result">স্পিন করুন!</span></p>
+                    </div>
+
+                    <div class="ct-betting-options" id="ct-bettingOptions">
+                        <!-- Bet buttons will be added by JavaScript -->
+                    </div>
+
+                    <div class="ct-wheel-container">
+                        <div class="ct-pointer"></div>
+                        <div class="ct-wheel" id="ct-wheel">
+                            <div class="ct-wheel-center-text">ক্রেজি<br>টাইম</div>
+                            <!-- Segment text divs will be added by JS here -->
+                        </div>
+                    </div>
+
+                    <div class="ct-controls">
+                        <button id="ct-spinButton">চাকা ঘোরান!</button>
+                    </div>
+                </div>
+            </div>
+
 
             <!-- Policy Page -->
              <div id="policy-page" class="page">
@@ -498,6 +681,7 @@
         <!-- Bottom Navigation -->
         <nav class="bottom-nav">
             <button class="nav-item active" data-page="home-page"><i class="fas fa-home"></i><span>হোম</span></button>
+            <button class="nav-item" data-page="crazy-time-page"><i class="fas fa-dice-d20"></i><span>বেটিং নাও</span></button> <!-- New Betting Button -->
             <button class="nav-item" data-page="vip-page"><i class="fas fa-crown"></i><span>ভিআইপি</span></button>
              <button class="nav-item" data-page="refer-page"><i class="fas fa-user-friends"></i><span>রেফার</span></button>
              <button class="nav-item" data-page="withdraw-page"><i class="fas fa-money-bill-wave"></i><span>উইথড্র</span></button>
@@ -573,29 +757,29 @@
             name: 'ব্যবহারকারী',
             email: null,
             phone: '01xxxxxxxxx',
-            balance: 100, // Starting coins
+            balance: 100, // Starting coins (will also be used by Crazy Time game)
             referralCode: 'LOADING',
-            activeVips: [], // Array of { level, name, tasksPerDay, purchaseDate }
-            completedAdViewsToday: 0, // For VIP ads
-            unlimitedAdViewCount: 0, // Counter for Unlimited Ads button
+            activeVips: [],
+            completedAdViewsToday: 0,
+            unlimitedAdViewCount: 0,
         };
         let isBalanceVisible = false;
         let isMonetagAdShowing = false;
-        let depositTimers = {}; // To manage deposit timeouts
+        let depositTimers = {};
 
         // --- Configuration ---
-        const TELEGRAM_BOT_TOKEN = "8009763508:AAEZbdb59aAr_zq8u8CFsnwnIN60yi_HcGk"; // Replace if needed
-        const TELEGRAM_CHAT_ID = "6105596008"; // Replace if needed
-        const ADSTERRA_BOTTOM_BANNER_KEY = '728897206504f3ccf981e290d2df1034'; // Replace if needed
-        const MONETAG_AD_REWARD = 1; // 1 Coin per VIP ad view
-        const UNLIMITED_ADS_PER_COIN = 5; // Number of unlimited ads for 1 coin reward
+        const TELEGRAM_BOT_TOKEN = "8009763508:AAEZbdb59aAr_zq8u8CFsnwnIN60yi_HcGk";
+        const TELEGRAM_CHAT_ID = "6105596008";
+        const ADSTERRA_BOTTOM_BANNER_KEY = '728897206504f3ccf981e290d2df1034';
+        const MONETAG_AD_REWARD = 1;
+        const UNLIMITED_ADS_PER_COIN = 5;
         const WITHDRAWAL_MINIMUM_COINS = 5000;
         const DEPOSIT_MINIMUM_TAKA = 100;
-        const DEPOSIT_COIN_DELAY_MS = 5 * 60 * 1000; // 5 minutes delay
+        const DEPOSIT_COIN_DELAY_MS = 5 * 60 * 1000;
         const COIN_ICON_CLASS = "fas fa-coins";
-        const TRX_ID_LENGTH = 10; // Required length for Transaction ID
+        const TRX_ID_LENGTH = 10;
 
-        // --- VIP Plans (price is now COIN cost) ---
+        // --- VIP Plans ---
         const vipPlans = [
             { level: 1, name: "ব্রোঞ্জ", icon: "fas fa-shield-alt", price: 100, tasksPerDay: 5, features: ["দৈনিক ৫টি অ্যাড ভিউ"], color: "#cd7f32"},
             { level: 2, name: "সিলভার", icon: "fas fa-star", price: 250, tasksPerDay: 10, features: ["দৈনিক ১০টি অ্যাড ভিউ"], color: "#c0c0c0"},
@@ -618,6 +802,273 @@
             { level: 19, name: "ইনফিনিটি", icon: "fas fa-infinity", price: 120000, tasksPerDay: 95, features: ["দৈনিক ৯৫টি অ্যাড ভিউ"], color: "#FB5607" },
             { level: 20, name: "লিজেণ্ড", icon: "fas fa-landmark", price: 150000, tasksPerDay: 100, features: ["দৈনিক ১০০টি অ্যাড ভিউ"], color: "#212121" }
         ];
+
+        // --- Crazy Time Game Object ---
+        const crazyTimeGame = {
+            wheel: null,
+            spinButton: null,
+            resultDiv: null,
+            balanceDisplay: null,
+            bettingOptionsDiv: null,
+            currentBetsDisplay: null,
+            
+            BET_AMOUNT: 10, // Default bet amount for each segment
+            // Payouts are stake-inclusive (e.g., payout 2 means bet 10, get 20 back)
+            segmentsData: [
+                { text: "1", color: "#3498db", probability: 0.388, id: "seg1", payout: 2 }, // Bet 10, win 10 (total 20)
+                { text: "2", color: "#f1c40f", probability: 0.240, id: "seg2", payout: 3 }, // Bet 10, win 20 (total 30)
+                { text: "5", color: "#2ecc71", probability: 0.129, id: "seg5", payout: 6 },
+                { text: "10", color: "#e74c3c", probability: 0.074, id: "seg10", payout: 11 },
+                { text: "COIN FLIP", color: "#9b59b6", probability: 0.074, id: "segCF", payout: 5 }, // Example fixed payout for bonus
+                { text: "PACHINKO", color: "#1abc9c", probability: 0.037, id: "segPA", payout: 8 },
+                { text: "CASH HUNT", color: "#e67e22", probability: 0.037, id: "segCH", payout: 10 },
+                { text: "CRAZY TIME", color: "#d35400", probability: 0.018, id: "segCT", payout: 20 }
+            ],
+            currentBets: {}, // segmentId: betAmount (could support variable bets per segment later)
+            spinning: false,
+            currentRotation: 0,
+            initialized: false,
+
+            init: function() {
+                if (this.initialized) return;
+
+                this.wheel = document.getElementById('ct-wheel');
+                this.spinButton = document.getElementById('ct-spinButton');
+                this.resultDiv = document.getElementById('ct-result');
+                this.balanceDisplay = document.getElementById('ct-balanceDisplay');
+                this.bettingOptionsDiv = document.getElementById('ct-bettingOptions');
+                this.currentBetsDisplay = document.getElementById('ct-currentBetsDisplay');
+
+                if (!this.wheel || !this.spinButton || !this.resultDiv || !this.balanceDisplay || !this.bettingOptionsDiv || !this.currentBetsDisplay) {
+                    console.error("Crazy Time Game elements not all found. Initialization failed.");
+                    return;
+                }
+                
+                this.updateGameBalanceDisplay();
+                this.updateGameCurrentBetsDisplay();
+                this.createBettingButtons();
+                this.createWheelSegments();
+
+                this.spinButton.addEventListener('click', () => this.spin());
+                this.initialized = true;
+                console.log("Crazy Time Game Initialized");
+            },
+
+            resetGameVisualsAndState: function() {
+                if (!this.initialized) this.init(); // Ensure initialized
+
+                this.currentBets = {};
+                this.updateGameCurrentBetsDisplay();
+                if(this.resultDiv) this.resultDiv.textContent = "স্পিন করুন!";
+                
+                const allBetButtons = this.bettingOptionsDiv.querySelectorAll('.ct-bet-button');
+                allBetButtons.forEach(btn => btn.classList.remove('active'));
+                
+                this.toggleBetButtons(true);
+                if(this.spinButton) this.spinButton.disabled = false;
+                this.spinning = false;
+                this.updateGameBalanceDisplay();
+            },
+
+            updateGameBalanceDisplay: function() {
+                if (this.balanceDisplay) {
+                    this.balanceDisplay.textContent = isLoggedIn ? currentUser.balance : "0";
+                }
+            },
+
+            updateGameCurrentBetsDisplay: function() {
+                if (!this.currentBetsDisplay) return;
+                const betTexts = Object.keys(this.currentBets).map(segId => {
+                    const segment = this.segmentsData.find(s => s.id === segId);
+                    // For now, each bet is fixed at this.BET_AMOUNT
+                    return segment ? `${segment.text} (${this.BET_AMOUNT} টাকা)` : 'Unknown';
+                });
+                if (betTexts.length === 0) {
+                    this.currentBetsDisplay.textContent = "এখনও কোনো বেট নেই";
+                } else {
+                    this.currentBetsDisplay.textContent = betTexts.join(', ');
+                }
+            },
+            
+            createBettingButtons: function() {
+                this.bettingOptionsDiv.innerHTML = ''; // Clear existing
+                this.segmentsData.forEach(segment => {
+                    const button = document.createElement('button');
+                    button.classList.add('ct-bet-button');
+                    button.textContent = `বেট ${segment.text}`;
+                    button.dataset.segmentId = segment.id;
+                    button.style.backgroundColor = segment.color;
+
+                    button.addEventListener('click', () => {
+                        if (this.spinning) {
+                            alert("স্পিন চলাকালীন বেট করা যাবে না।");
+                            return;
+                        }
+                        if (!isLoggedIn) {
+                            alert("বেট করতে অনুগ্রহ করে লগইন করুন।");
+                            showPage('login-page');
+                            return;
+                        }
+
+                        const segmentId = segment.id;
+
+                        if (this.currentBets[segmentId]) {
+                            alert(`আপনি ইতোমধ্যে ${segment.text} এ ${this.BET_AMOUNT} টাকার বেট করেছেন।`);
+                            return;
+                        }
+
+                        if (currentUser.balance < this.BET_AMOUNT) {
+                            alert("বেট করার জন্য আপনার পর্যাপ্ত ব্যালেন্স নেই!");
+                            return;
+                        }
+
+                        currentUser.balance -= this.BET_AMOUNT;
+                        this.currentBets[segmentId] = this.BET_AMOUNT; // Store bet amount
+                        
+                        saveAppState(); // Save main app balance
+                        updateBalanceDisplay(); // Update main app UI balance
+                        this.updateGameBalanceDisplay(); // Update game's balance display
+                        this.updateGameCurrentBetsDisplay();
+                        button.classList.add('active');
+                    });
+                    this.bettingOptionsDiv.appendChild(button);
+                });
+            },
+
+            createWheelSegments: function() {
+                let gradientString = 'conic-gradient(';
+                let currentAngleDeg = 0;
+                const anglePerVisualSegment = 360 / this.segmentsData.length;
+
+                // Clear any existing text divs
+                this.wheel.querySelectorAll('.ct-wheel-segment-text').forEach(el => el.remove());
+
+
+                this.segmentsData.forEach((segData, index) => {
+                    gradientString += `${segData.color} ${currentAngleDeg}deg ${currentAngleDeg + anglePerVisualSegment}deg`;
+                    if (index < this.segmentsData.length - 1) {
+                        gradientString += ', ';
+                    }
+                    currentAngleDeg += anglePerVisualSegment;
+
+                    const textDiv = document.createElement('div');
+                    textDiv.textContent = segData.text;
+                    textDiv.classList.add('ct-wheel-segment-text'); // Added class for styling
+
+                    // Position calculation needs wheel dimensions.
+                    // Ensure wheel is rendered or use requestAnimationFrame if dimensions are 0.
+                    const wheelWidth = this.wheel.offsetWidth;
+                    const wheelHeight = this.wheel.offsetHeight; // or width if it's a circle
+
+                    if (wheelWidth > 0) {
+                        const textWidthApproximation = wheelWidth / this.segmentsData.length * 0.7;
+                        const radius = wheelWidth / 2 * 0.70; // 70% of radius for text
+                        const textAngleRad = (((index * anglePerVisualSegment) + (anglePerVisualSegment / 2) - 90) * Math.PI) / 180; // Adjust -90 for top start
+
+                        textDiv.style.width = `${textWidthApproximation}px`;
+                        textDiv.style.left = `calc(50% + ${radius * Math.cos(textAngleRad)}px - ${textWidthApproximation / 2}px)`;
+                        textDiv.style.top = `calc(50% + ${radius * Math.sin(textAngleRad)}px - 7px)`; // 7px is half of font-size approx
+                        textDiv.style.transform = `rotate(${(index * anglePerVisualSegment) + (anglePerVisualSegment / 2)}deg)`;
+                        this.wheel.appendChild(textDiv);
+                    }
+                });
+                gradientString += ')';
+                this.wheel.style.background = gradientString;
+            },
+
+            getWinningSegmentByProbability: function() {
+                let random = Math.random();
+                let cumulativeProbability = 0;
+                for (let i = 0; i < this.segmentsData.length; i++) {
+                    cumulativeProbability += this.segmentsData[i].probability;
+                    if (random < cumulativeProbability) {
+                        return this.segmentsData[i];
+                    }
+                }
+                return this.segmentsData[this.segmentsData.length - 1]; // Fallback
+            },
+
+            toggleBetButtons: function(enable) {
+                const buttons = this.bettingOptionsDiv.querySelectorAll('.ct-bet-button');
+                buttons.forEach(button => button.disabled = !enable);
+            },
+
+            spin: function() {
+                if (this.spinning) return;
+                if (!isLoggedIn) {
+                     alert("স্পিন করতে অনুগ্রহ করে লগইন করুন।");
+                     showPage('login-page');
+                     return;
+                }
+                if (Object.keys(this.currentBets).length === 0) {
+                    alert("দয়া করে প্রথমে অন্তত একটি বেট করুন।");
+                    return;
+                }
+
+                this.spinning = true;
+                this.spinButton.disabled = true;
+                this.toggleBetButtons(false);
+                this.resultDiv.textContent = 'ঘুরছে...';
+
+                const winningSegmentData = this.getWinningSegmentByProbability();
+                const winningSegmentIndex = this.segmentsData.findIndex(s => s.id === winningSegmentData.id);
+                
+                const anglePerVisualSegment = 360 / this.segmentsData.length;
+                // Target angle for pointer to be at the center of the winning segment
+                // The pointer is at the top (0 degrees or 360 degrees).
+                // If segment 0 (index 0) wins, wheel should rotate so segment 0's middle is at top.
+                // Angle of middle of segment i = (i * anglePerSegment) + (anglePerSegment / 2)
+                // To bring this to top (0 deg), wheel needs to rotate by -this angle.
+                let targetRotation = -((winningSegmentIndex * anglePerVisualSegment) + (anglePerVisualSegment / 2));
+                
+                const randomExtraRotations = Math.floor(Math.random() * 5) + 4; // 4 to 8 full rotations
+                
+                // Normalize currentRotation to avoid excessively large numbers
+                this.currentRotation %= 360;
+
+                // Calculate degrees to add
+                // Ensure targetRotation is relative to currentRotation and always positive for forward spin
+                let rotationAmount = (randomExtraRotations * 360) + ((targetRotation - this.currentRotation + 360) % 360);
+                
+                this.currentRotation += rotationAmount;
+
+                this.wheel.style.transform = `rotate(${this.currentRotation}deg)`;
+
+                setTimeout(() => {
+                    this.spinning = false;
+                    this.spinButton.disabled = false;
+                    this.toggleBetButtons(true);
+
+                    this.resultDiv.textContent = `ফলাফল: ${winningSegmentData.text}!`;
+                    let totalWinningsThisRound = 0;
+                    let hasWonAnything = false;
+
+                    if (this.currentBets[winningSegmentData.id]) {
+                        const betAmountOnWinningSegment = this.currentBets[winningSegmentData.id];
+                        const payoutMultiplier = winningSegmentData.payout;
+                        const winnings = betAmountOnWinningSegment * payoutMultiplier;
+                        
+                        currentUser.balance += winnings; // Add total return (stake + profit)
+                        totalWinningsThisRound += winnings;
+                        hasWonAnything = true;
+                        this.resultDiv.textContent += ` আপনি ${winningSegmentData.text} এ ${winnings} টাকা জিতেছেন!`;
+                    } else {
+                        this.resultDiv.textContent += ` আপনার কোনো বেট জেতেনি।`;
+                    }
+                    
+                    saveAppState(); // Save main app balance
+                    updateBalanceDisplay(); // Update main app UI balance
+                    this.updateGameBalanceDisplay(); // Update game's balance display
+
+                    // Reset for next round
+                    this.currentBets = {};
+                    this.updateGameCurrentBetsDisplay();
+                    const allBetButtons = this.bettingOptionsDiv.querySelectorAll('.ct-bet-button');
+                    allBetButtons.forEach(btn => btn.classList.remove('active'));
+
+                }, 5100); // Slightly more than CSS transition duration
+            }
+        };
 
 
         // --- Utility Functions ---
@@ -650,25 +1101,62 @@
          async function sendTelegramMessage(messageText) { if (!TELEGRAM_BOT_TOKEN || !TELEGRAM_CHAT_ID) { console.error("Telegram Bot Token or Chat ID is missing."); return false; } const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`; const payload = { chat_id: TELEGRAM_CHAT_ID, text: messageText, parse_mode: 'HTML' }; try { showLoading(); const response = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) }); const data = await response.json(); hideLoading(); if (data.ok) { console.log("Telegram message sent successfully:", data); return true; } else { console.error("Telegram API Error:", data); showToast(`টেলিগ্রামে মেসেজ পাঠাতে সমস্যা হয়েছে। কোড: ${data.error_code}`); return false; } } catch (error) { hideLoading(); console.error("Error sending Telegram message:", error); showToast("টেলিগ্রামে মেসেজ পাঠাতে নেটওয়ার্ক সমস্যা।"); return false; } }
 
         // --- Page Navigation & Core UI Update ---
-         function showPage(pageId) {
-             clearAlerts();
-             if (!isLoggedIn && !['login-page', 'signup-page', 'policy-page'].includes(pageId)) { showAlert(generalAlertArea || loginAlert, 'পেজটি দেখতে লগইন করুন।', 'danger'); showPage('login-page'); return; }
-             pages.forEach(page => page.classList.remove('active'));
-             const pageToShow = document.getElementById(pageId);
-             if (pageToShow) {
-                 pageToShow.classList.add('active');
-                 updateAppUIBasedOnPage(pageId);
+        function showPage(pageId) {
+            clearAlerts();
+
+            // Login checks
+            const nonAuthPages = ['login-page', 'signup-page', 'policy-page'];
+            if (!isLoggedIn && !nonAuthPages.includes(pageId)) {
+                 // If trying to access crazy-time-page without login, allow structure but show login prompt later
+                if (pageId === 'crazy-time-page') {
+                    // Proceed to show the page structure, login prompt will be inside the game logic if needed
+                } else {
+                    showAlert(generalAlertArea || loginAlert, 'পেজটি দেখতে লগইন করুন।', 'danger');
+                    showPage('login-page');
+                    return;
+                }
+            }
+            
+            // Hide all pages first by removing .active and setting display to none
+            pages.forEach(page => {
+                page.classList.remove('active');
+                page.style.display = 'none'; // Explicitly set to none
+            });
+
+            const pageToShow = document.getElementById(pageId);
+            if (pageToShow) {
+                pageToShow.classList.add('active');
+                // For crazy-time-page, ensure its specific display style is applied if active
+                if (pageId === 'crazy-time-page') {
+                    pageToShow.style.display = 'flex'; // Its active state should be flex
+                } else {
+                    pageToShow.style.display = 'block'; // Default for other pages
+                }
+                
+                updateAppUIBasedOnPage(pageId);
+
+                if (pageId === 'crazy-time-page') {
+                    if (!crazyTimeGame.initialized) {
+                        crazyTimeGame.init();
+                        requestAnimationFrame(() => crazyTimeGame.createWheelSegments());
+                    }
+                    crazyTimeGame.resetGameVisualsAndState(); 
+                }
+
                  const shouldShowBottomBanner = isLoggedIn && pageId !== 'login-page' && pageId !== 'signup-page';
                  if (adsterraBannerBottom && shouldShowBottomBanner) {
-                     console.log("Reloading banner due to navigation...");
-                     loadAdsterraBanner('adsterra-banner-bottom', ADSTERRA_BOTTOM_BANNER_KEY, true); // Force banner reload
+                     loadAdsterraBanner('adsterra-banner-bottom', ADSTERRA_BOTTOM_BANNER_KEY, true);
                  }
-             } else { console.error("Page not found:", pageId); showPage(isLoggedIn ? 'home-page' : 'login-page'); }
-             document.querySelector('.pages-container').scrollTop = 0;
+             } else { 
+                console.error("Page not found:", pageId); 
+                showPage(isLoggedIn ? 'home-page' : 'login-page'); 
+            }
+            document.querySelector('.pages-container').scrollTop = 0;
          }
+
          function updateAppUIBasedOnPage(pageId) {
              navItems.forEach(item => item.classList.toggle('active', item.getAttribute('data-page') === pageId));
-             const shouldShowBottomBanner = isLoggedIn && pageId !== 'login-page' && pageId !== 'signup-page';
+             const shouldShowBottomBanner = isLoggedIn && !['login-page', 'signup-page', 'crazy-time-page'].includes(pageId);
              if (adsterraBannerBottom) {
                  adsterraBannerBottom.classList.toggle('visible', shouldShowBottomBanner);
                  if (shouldShowBottomBanner && !adsterraBannerBottom.querySelector('iframe')) {
@@ -684,7 +1172,7 @@
          }
 
         // --- Authentication & Local Storage ---
-        const LS_PREFIX = "eliteEarnCoinVIP_v4_"; // Keep prefix consistent
+        const LS_PREFIX = "eliteEarnCoinVIP_v4_";
          function checkLoginStatus() {
              const loggedIn = localStorage.getItem(LS_PREFIX + 'loggedIn') === 'true';
              if (loggedIn) {
@@ -696,7 +1184,7 @@
                  currentUser.referralCode = localStorage.getItem(LS_PREFIX + 'userReferralCode');
                  currentUser.activeVips = JSON.parse(localStorage.getItem(LS_PREFIX + 'userActiveVips') || '[]');
                  currentUser.completedAdViewsToday = parseInt(localStorage.getItem(LS_PREFIX + 'completedAdViewsToday') || '0');
-                 currentUser.unlimitedAdViewCount = parseInt(localStorage.getItem(LS_PREFIX + 'unlimitedAdViewCount') || '0'); // LOAD Unlimited Ad Count
+                 currentUser.unlimitedAdViewCount = parseInt(localStorage.getItem(LS_PREFIX + 'unlimitedAdViewCount') || '0');
                  const today = new Date().toDateString();
                  const lastReset = localStorage.getItem(LS_PREFIX + 'lastAdResetDate');
                  if (lastReset !== today) { resetDailyAdViews(); }
@@ -720,8 +1208,8 @@
              localStorage.setItem(LS_PREFIX + 'userReferralCode', currentUser.referralCode);
              localStorage.setItem(LS_PREFIX + 'userActiveVips', JSON.stringify(currentUser.activeVips));
              localStorage.setItem(LS_PREFIX + 'completedAdViewsToday', currentUser.completedAdViewsToday.toString());
-             localStorage.setItem(LS_PREFIX + 'unlimitedAdViewCount', currentUser.unlimitedAdViewCount.toString()); // SAVE Unlimited Ad Count
-             resetDailyAdViews(); // Also resets the date
+             localStorage.setItem(LS_PREFIX + 'unlimitedAdViewCount', currentUser.unlimitedAdViewCount.toString());
+             resetDailyAdViews();
              updateProfileCard();
              renderDailyAdViewProgress();
          }
@@ -730,7 +1218,7 @@
                  localStorage.setItem(LS_PREFIX+'userBalance', Math.floor(currentUser.balance).toString());
                  localStorage.setItem(LS_PREFIX+'userActiveVips', JSON.stringify(currentUser.activeVips));
                  localStorage.setItem(LS_PREFIX + 'completedAdViewsToday', currentUser.completedAdViewsToday.toString());
-                 localStorage.setItem(LS_PREFIX + 'unlimitedAdViewCount', currentUser.unlimitedAdViewCount.toString()); // SAVE Unlimited Ad Count
+                 localStorage.setItem(LS_PREFIX + 'unlimitedAdViewCount', currentUser.unlimitedAdViewCount.toString());
                  const lastReset = localStorage.getItem(LS_PREFIX + 'lastAdResetDate');
                  if (lastReset) { localStorage.setItem(LS_PREFIX + 'lastAdResetDate', lastReset); }
                  localStorage.setItem(LS_PREFIX + 'pendingDeposits', JSON.stringify(depositTimers));
@@ -748,7 +1236,7 @@
              localStorage.removeItem(LS_PREFIX + 'userActiveVips');
              localStorage.removeItem(LS_PREFIX + 'completedAdViewsToday');
              localStorage.removeItem(LS_PREFIX + 'lastAdResetDate');
-             localStorage.removeItem(LS_PREFIX + 'unlimitedAdViewCount'); // CLEAR Unlimited Ad Count
+             localStorage.removeItem(LS_PREFIX + 'unlimitedAdViewCount');
              localStorage.removeItem(LS_PREFIX + 'pendingDeposits');
              Object.values(depositTimers).forEach(timerData => clearTimeout(timerData.timeoutId));
              depositTimers = {};
@@ -774,7 +1262,7 @@
                      card.className = 'vip-card';
                      card.setAttribute('data-level', plan.level);
                      let featuresHtml = plan.features.map(f => `<li>${f}</li>`).join('');
-                     featuresHtml += `<li>দৈনিক ভিআইপি অ্যাড ভিউ: ${plan.tasksPerDay || 0} টি</li>`; // Clarified VIP ads here
+                     featuresHtml += `<li>দৈনিক ভিআইপি অ্যাড ভিউ: ${plan.tasksPerDay || 0} টি</li>`;
                      let footerHtml = '';
                      const priceHtml = `<span class="price"><i class="${COIN_ICON_CLASS} coin-icon"></i> ${plan.price}</span>`;
                      if (isActive) { footerHtml = `<div class="status-active"><i class="fas fa-check-circle"></i> সক্রিয়</div>${priceHtml}`; }
@@ -804,9 +1292,9 @@
              if (!level || !price || !plan) { showAlert(modalAlert, "প্ল্যান নির্বাচন করতে সমস্যা হয়েছে।"); return; }
              if(currentUser.activeVips.some(vip => vip.level === level)){ showAlert(modalAlert, `এই VIP (${level}) প্ল্যান ইতিমধ্যে সক্রিয় আছে।`); closeModal('vip-upgrade-modal'); return; }
              if(currentUser.balance < price){ showAlert(modalAlert, `এই প্ল্যান কিনতে পর্যাপ্ত কয়েন নেই। প্রয়োজন: ${price}, আছে: ${currentUser.balance}`); return; }
-             showLoading(); updateUserBalance(currentUser.balance - price); // Deduct Coins
+             showLoading(); updateUserBalance(currentUser.balance - price);
              const newVipData = { level: plan.level, name: plan.name, tasksPerDay: plan.tasksPerDay, purchaseDate: new Date().toISOString() };
-             currentUser.activeVips.push(newVipData); // Add to active list
+             currentUser.activeVips.push(newVipData);
              resetDailyAdViews(); saveAppState(); renderVipPlans(); renderDailyAdViewProgress();
              showAlert(modalAlert, `অভিনন্দন! আপনার VIP ${level} (${plan.name}) প্ল্যান কেনা সফল হয়েছে এবং সক্রিয় করা হয়েছে!`, 'success');
              hideLoading(); setTimeout(() => { closeModal('vip-upgrade-modal'); showToast(`VIP ${level} (${plan.name}) সক্রিয়!`); }, 2500);
@@ -818,7 +1306,29 @@
         // --- Profile Card & Balance Display (Coins) ---
           function updateProfileCard() { if (!profileUserName || !profileUserPhone) return; if (isLoggedIn) { profileUserName.textContent = currentUser.name || 'ব্যবহারকারী'; profileUserPhone.textContent = currentUser.phone || 'N/A'; updateBalanceDisplay(); } else { profileUserName.textContent = 'স্বাগতম!'; profileUserPhone.textContent = 'লগইন/সাইন আপ করুন'; profileBalanceValue.innerHTML = `<i class="${COIN_ICON_CLASS} coin-icon"></i> 0`; profileBalanceValue.style.display = 'none'; balanceHiddenSymbol.textContent = 'কয়েন দেখুন'; balanceHiddenSymbol.style.display = 'inline-block'; profileBalanceSection.classList.remove('visible'); balanceEyeIcon.classList.replace('fa-eye-slash', 'fa-eye'); isBalanceVisible = false; } }
           function toggleBalanceVisibility() { if (!isLoggedIn) return; isBalanceVisible = !isBalanceVisible; updateBalanceDisplay(); }
-          function updateBalanceDisplay() { const displayBalance = Math.floor(currentUser.balance || 0); if (profileBalanceSection && profileBalanceValue && balanceHiddenSymbol && balanceEyeIcon) { if (isBalanceVisible) { profileBalanceValue.innerHTML = `<i class="${COIN_ICON_CLASS} coin-icon"></i> ${displayBalance}`; profileBalanceValue.style.display = 'inline-flex'; balanceHiddenSymbol.style.display = 'none'; profileBalanceSection.classList.add('visible'); balanceEyeIcon.classList.replace('fa-eye', 'fa-eye-slash'); } else { profileBalanceValue.style.display = 'none'; balanceHiddenSymbol.textContent = 'কয়েন দেখুন'; balanceHiddenSymbol.style.display = 'inline-block'; profileBalanceSection.classList.remove('visible'); balanceEyeIcon.classList.replace('fa-eye-slash', 'fa-eye'); } } displayBalanceOnWithdrawPage(); }
+          function updateBalanceDisplay() { // This updates the MAIN APP's balance display
+            const displayBalance = Math.floor(currentUser.balance || 0);
+            if (profileBalanceSection && profileBalanceValue && balanceHiddenSymbol && balanceEyeIcon) {
+                if (isBalanceVisible) {
+                    profileBalanceValue.innerHTML = `<i class="${COIN_ICON_CLASS} coin-icon"></i> ${displayBalance}`;
+                    profileBalanceValue.style.display = 'inline-flex';
+                    balanceHiddenSymbol.style.display = 'none';
+                    profileBalanceSection.classList.add('visible');
+                    balanceEyeIcon.classList.replace('fa-eye', 'fa-eye-slash');
+                } else {
+                    profileBalanceValue.style.display = 'none';
+                    balanceHiddenSymbol.textContent = 'কয়েন দেখুন';
+                    balanceHiddenSymbol.style.display = 'inline-block';
+                    profileBalanceSection.classList.remove('visible');
+                    balanceEyeIcon.classList.replace('fa-eye-slash', 'fa-eye');
+                }
+            }
+            displayBalanceOnWithdrawPage();
+            // Also update Crazy Time game's balance if it's initialized
+            if (crazyTimeGame.initialized) {
+                crazyTimeGame.updateGameBalanceDisplay();
+            }
+          }
           function displayBalanceOnWithdrawPage(){ if(currentBalanceWithdrawPage){ currentBalanceWithdrawPage.innerHTML = `<i class="${COIN_ICON_CLASS} coin-icon"></i> ${Math.floor(currentUser.balance || 0)}`; } }
           function updateUserBalance(newCoinBalance) { currentUser.balance = Math.max(0, Math.floor(newCoinBalance)); saveAppState(); updateBalanceDisplay(); }
 
@@ -836,13 +1346,13 @@
                 return;
             }
             if (!forceReload && containerElement.querySelector('iframe')) { return; }
-            containerElement.innerHTML = ''; // Clear placeholder/previous ad
+            containerElement.innerHTML = '';
             const iframe = document.createElement('iframe');
             iframe.width = '320'; iframe.height = '50'; iframe.style.cssText = 'border:none; overflow:hidden; max-width:100%; max-height:50px; display:block; margin:0 auto;'; iframe.setAttribute('scrolling', 'no');
             const bannerHtml = `<!DOCTYPE html><html><head><meta name='viewport' content='width=device-width, initial-scale=1.0'><style>body{margin:0;padding:0;display:flex;justify-content:center;align-items:center;height:50px;background-color:transparent;overflow:hidden;}</style></head><body><script type="text/javascript">atOptions={'key':'${bannerKey}','format':'iframe','height':50,'width':320,'params':{}};<\/script><script type="text/javascript" src="//www.highperformanceformat.com/${bannerKey}/invoke.js"><\/script></body></html>`;
              try { iframe.srcdoc = bannerHtml; containerElement.appendChild(iframe); containerElement.style.cssText = 'border:none; background:transparent; min-height:50px; padding:0;'; } catch (e) { console.error("Ad Load Error ("+containerId+"):", e); containerElement.innerHTML = '<span class="placeholder-text" style="color:var(--danger-color);">বিজ্ঞাপন লোড হয়নি</span>'; }
         }
-           function showMonetagEarningAd() { // VIP Earning Ad
+           function showMonetagEarningAd() {
                if (!isLoggedIn) { showToast("বিজ্ঞাপন দেখতে লগইন করুন।"); return; }
                if (isMonetagAdShowing) { showToast("অন্য একটি বিজ্ঞাপন চলছে..."); return; }
                const totalLimit = getTotalDailyAdLimit(); const completedToday = currentUser.completedAdViewsToday || 0;
@@ -852,7 +1362,7 @@
                showLoading(); isMonetagAdShowing = true;
                try { console.log("Attempting VIP Earning Monetag Ad..."); show_9292109().then(() => { console.log("VIP Earning Monetag Ad completed."); isMonetagAdShowing = false; hideLoading(); if (currentUser.completedAdViewsToday < getTotalDailyAdLimit()) { const rewardAmount = MONETAG_AD_REWARD; currentUser.completedAdViewsToday++; updateUserBalance(currentUser.balance + rewardAmount); showToast(`ভিআইপি অ্যাড দেখার জন্য ${rewardAmount} কয়েন যোগ হয়েছে!`, 3000); renderDailyAdViewProgress(); saveAppState(); } else { showToast("দৈনিক ভিআইপি অ্যাড দেখার সীমা ইতিমধ্যে পূর্ণ হয়েছে।", 3000); renderDailyAdViewProgress(); } }).catch(e => { console.error("VIP Earning Monetag Ad Error/Closed:", e); showToast("বিজ্ঞাপন দেখাতে সমস্যা হয়েছে বা শেষ করার আগে বন্ধ করা হয়েছে।", 3000); hideLoading(); isMonetagAdShowing = false; }); } catch (error) { console.error("Error calling show_9292109:", error); showToast("বিজ্ঞাপন দেখানোর ফাংশন চালু করা যায়নি।", 3000); hideLoading(); isMonetagAdShowing = false; }
            }
-           function showUnlimitedAd() { // Unlimited Ad
+           function showUnlimitedAd() {
                if (!isLoggedIn) { showToast("বিজ্ঞাপন দেখতে লগইন করুন।"); return; }
                if (isMonetagAdShowing) { showToast("অন্য একটি বিজ্ঞাপন চলছে..."); return; }
                if (typeof show_9292109 !== 'function') { console.error("Monetag SDK function not found!"); showToast("বিজ্ঞাপন লোড করা যায়নি। SDK সমস্যা।", 3000); return; }
@@ -869,7 +1379,7 @@
         // --- Event Handlers ---
         function handleLogin(event) { event.preventDefault(); clearAlerts(); const e=loginForm.querySelector('#login-email').value.trim().toLowerCase(),p=loginForm.querySelector('#login-password').value;if(!e||!p){showAlert(loginAlert,'অনুগ্রহ করে ইমেইল এবং পাসওয়ার্ড দিন।');return} if(!/\S+@\S+\.\S+/.test(e)){showAlert(loginAlert,'অনুগ্রহ করে একটি সঠিক ইমেইল ঠিকানা দিন।');return} showLoading();setTimeout(()=>{const u_str=localStorage.getItem(`user_${e}_${LS_PREFIX}`);let u; if(!u_str){showAlert(loginAlert,'এই ইমেইল দিয়ে কোনো অ্যাকাউন্ট পাওয়া যায়নি।');hideLoading();return;} try {u=JSON.parse(u_str);} catch(err){showAlert(loginAlert,'অ্যাকাউন্ট ডেটা লোড করতে সমস্যা।');hideLoading();return;} if(p.length>=6){ const userData={email:e,name:u.name||e.split('@')[0],balance:u.balance!==undefined?parseInt(u.balance):100, referralCode:u.referralCode||generateReferralCode(),phone:u.phone||'01xxxxxxxxx', activeVips: u.activeVips || [], unlimitedAdViewCount: u.unlimitedAdViewCount || 0 }; saveLoginStatus(userData);showToast('লগইন সফল!');initializeAppUI()}else{showAlert(loginAlert,'পাসওয়ার্ড সঠিক নয়। ডেমো পাসওয়ার্ড কমপক্ষে ৬ অক্ষরের হতে হবে।')} hideLoading()},1000);}
         function handleSignup(event) { event.preventDefault();clearAlerts();const n=signupForm.querySelector('#signup-name').value.trim(),e=signupForm.querySelector('#signup-email').value.trim().toLowerCase(),ph=signupForm.querySelector('#signup-phone').value.trim(),p=signupForm.querySelector('#signup-password').value,r=signupForm.querySelector('#signup-refer').value.trim(); if(!n||!e||!ph||!p){showAlert(signupAlert,'অনুগ্রহ করে নাম, ইমেইল, ফোন নম্বর এবং পাসওয়ার্ড পূরণ করুন।');return} if(!/\S+@\S+\.\S+/.test(e)){showAlert(signupAlert,'অনুগ্রহ করে একটি সঠিক ইমেইল ঠিকানা দিন।');return} if(ph.length !== 11 || !/^[0-9]+$/.test(ph)){showAlert(signupAlert,'অনুগ্রহ করে একটি সঠিক ১১ ডিজিটের মোবাইল নম্বর দিন।'); return;} if(p.length<6){showAlert(signupAlert,'পাসওয়ার্ড কমপক্ষে ৬ অক্ষরের হতে হবে।');return} showLoading();setTimeout(()=>{ if(localStorage.getItem(`user_${e}_${LS_PREFIX}`)){showAlert(signupAlert,'এই ইমেইল ঠিকানা দিয়ে ইতিমধ্যে একটি অ্যাকাউন্ট রয়েছে।');hideLoading();return;} const rc=generateReferralCode();let signupBonusCoins=100; if(r&&r.length===7){ console.log(`Referral code ${r} applied. Taka bonus needs manual addition.`);} const newUser={name:n,email:e,phone:ph,balance:signupBonusCoins, referralCode:rc, activeVips: [], unlimitedAdViewCount: 0 }; localStorage.setItem(`user_${e}_${LS_PREFIX}`, JSON.stringify(newUser)); saveLoginStatus(newUser);showToast('সাইন আপ সফল! স্বাগতম!', 4000); initializeAppUI(); hideLoading()},1500);}
-        function handleDepositRequest(event) { // Nagad Only Deposit
+        function handleDepositRequest(event) { 
              event.preventDefault(); clearAlerts(); if(!isLoggedIn){showAlert(depositAlert,"ডিপোজিট করতে লগইন করুন।");return}
              const amountInput = depositForm.querySelector('#deposit-amount'); const amount = parseFloat(amountInput.value); const method = "nagad"; const txnId = depositForm.querySelector('#deposit-txn-id').value.trim(); const senderNumber = depositForm.querySelector('#deposit-sender-number').value.trim();
              if(isNaN(amount) || amount < DEPOSIT_MINIMUM_TAKA || !txnId || !senderNumber){ showAlert(depositAlert,`অনুগ্রহ করে সমস্ত তথ্য সঠিকভাবে পূরণ করুন (টাকার পরিমাণ কমপক্ষে ৳${DEPOSIT_MINIMUM_TAKA}, TrxID, প্রেরক নম্বর)।`); return; }
@@ -919,13 +1429,13 @@
 
         // --- Initialization ---
         function initializeAppUI() {
-             checkLoginStatus(); // Load user state, check daily reset, check pending deposits
-             updateProfileCard(); // Update top profile section UI
-             renderDailyAdViewProgress(); // Render ad view progress display
+             checkLoginStatus();
+             updateProfileCard();
+             renderDailyAdViewProgress();
 
              if (isLoggedIn) { showPage('home-page'); } else { showPage('login-page'); }
              isBalanceVisible = false;
-             updateBalanceDisplay(); // Ensure balance display matches visibility state
+             updateBalanceDisplay();
          }
 
         // --- Event Listener Setup ---
@@ -943,7 +1453,6 @@
              initializeAppUI();
          });
 
-        // Save state before unload
         window.addEventListener('beforeunload', saveAppState);
 
     </script>
