@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>App Demo (Black Theme)</title>
+    <title>App Demo (Rewarded Ad Debug)</title>
     <style>
         body {
             font-family: 'Helvetica Neue', Arial, sans-serif;
             margin: 0;
-            background-color: #000000; /* **সম্পূর্ণ কালো ব্যাকগ্রাউন্ড** */
-            color: #ffffff; /* সাদা টেক্সট ডিফল্ট */
+            background-color: #000000;
+            color: #ffffff;
             display: flex;
             flex-direction: column;
             height: 100vh;
@@ -19,240 +19,128 @@
         .app-container {
             flex-grow: 1;
             overflow-y: auto;
-            padding-bottom: 60px; /* Space for bottom-nav */
-            background-color: #000000; /* **সম্পূর্ণ কালো ব্যাকগ্রাউন্ড** */
+            padding-bottom: 60px;
+            background-color: #000000;
         }
 
-        /* Common Header Styles */
         .app-header {
-            background-color: #1a1a1a; /* গাঢ় ধূসর, কালোর উপরে ভালো লাগবে */
+            background-color: #1a1a1a;
             color: #ffffff;
             padding: 12px 15px;
             display: flex;
             align-items: center;
             position: sticky;
             top: 0;
-            z-index: 10;
-            border-bottom: 1px solid #333333; /* হালকা বিভাজক */
+            z-index: 1001;
+            border-bottom: 1px solid #333333;
         }
-        .app-header .title {
-            font-size: 18px;
-            font-weight: bold;
-            flex-grow: 1;
-        }
-        .app-header .user-info-header {
-            display: flex;
-            align-items: center;
-            flex-grow: 1;
-        }
+        .app-header .title { font-size: 18px; font-weight: bold; flex-grow: 1; }
+        .app-header .user-info-header { display: flex; align-items: center; flex-grow: 1; }
         .app-header .avatar-small {
-            width: 35px;
-            height: 35px;
-            border-radius: 50%;
-            margin-right: 10px;
-            border: 1px solid #555555;
-            object-fit: cover;
-            background-color: #333333; /* ছবি লোড হওয়ার আগে প্লেসহোল্ডার */
+            width: 35px; height: 35px; border-radius: 50%;
+            margin-right: 10px; border: 1px solid #555555;
+            object-fit: cover; background-color: #333333;
         }
-        .app-header .user-details {
-            font-size: 12px;
-        }
-        .app-header .user-name-header {
-            font-weight: bold;
-            font-size: 14px;
-        }
-        .app-header .user-balance-header {
-            font-size: 12px;
-            opacity: 0.8;
-        }
-        .app-header .actions {
-            font-size: 22px;
-        }
-        .app-header .actions span {
-            margin-left: 15px;
-            cursor: pointer;
-        }
+        .app-header .user-details { font-size: 12px; }
+        .app-header .user-name-header { font-weight: bold; font-size: 14px; }
+        .app-header .user-balance-header { font-size: 12px; opacity: 0.9; }
+        .app-header .actions { font-size: 22px; }
+        .app-header .actions span { margin-left: 15px; cursor: pointer; }
 
-        /* Screen Content Styling */
-        .screen {
-            display: none; /* Hidden by default */
-            padding: 0;
-        }
-        .screen.active {
-            display: block;
-        }
+        .screen { display: none; padding: 0; }
+        .screen.active { display: block; }
+        .content-padding { padding: 15px; }
 
-        .content-padding {
-            padding: 15px;
-        }
-
-        /* Profile Section on Home Screen */
         .profile-summary {
-            text-align: center;
-            padding: 20px 15px;
-            background-color: #000000;
-            margin-bottom: 10px;
+            text-align: center; padding: 20px 15px;
+            background-color: #000000; margin-bottom: 10px;
         }
         .profile-summary .avatar-large {
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            margin-bottom: 12px;
-            border: 2px solid #00aaff; /* উজ্জ্বল নীল বর্ডার */
-            object-fit: cover;
-            background-color: #444444; /* ছবি লোড হওয়ার আগে প্লেসহোল্ডার */
+            width: 80px; height: 80px; border-radius: 50%;
+            margin-bottom: 12px; border: 2px solid #00aaff;
+            object-fit: cover; background-color: #444444;
         }
-        .profile-summary .user-name-profile {
-            font-size: 20px;
-            font-weight: bold;
-            color: #ffffff;
-        }
-        .profile-summary .user-balance-profile {
-            font-size: 15px;
-            color: #bbbbbb;
-            margin-top: 6px;
-        }
+        .profile-summary .user-name-profile { font-size: 20px; font-weight: bold; color: #ffffff; }
+        .profile-summary .user-balance-profile { font-size: 15px; color: #bbbbbb; margin-top: 6px; }
 
-        /* Cards for Tasks/Earnings */
         .info-card {
-            background-color: #1c1c1e;
-            color: #ffffff;
-            border-radius: 10px;
-            padding: 15px;
-            margin-bottom: 15px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            background-color: #1c1c1e; color: #ffffff; border-radius: 10px;
+            padding: 15px; margin-bottom: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.2);
         }
         .info-card h3 {
-            margin-top: 0;
-            margin-bottom: 12px;
-            font-size: 17px;
-            color: #00aaff; /* উজ্জ্বল নীল */
-            border-bottom: 1px solid #3a3a3c;
-            padding-bottom: 8px;
+            margin-top: 0; margin-bottom: 12px; font-size: 17px;
+            color: #00aaff; border-bottom: 1px solid #3a3a3c; padding-bottom: 8px;
         }
-        .info-card p {
-            margin: 8px 0;
-            font-size: 15px;
-            display: flex;
-            justify-content: space-between;
-        }
-        .info-card p span:last-child {
-            font-weight: bold;
-            color: #ffffff;
-        }
+        .info-card p { margin: 8px 0; font-size: 15px; display: flex; justify-content: space-between; }
+        .info-card p span:last-child { font-weight: bold; color: #ffffff; }
 
-        /* Buttons */
         .btn {
-            display: block;
-            width: 100%;
-            padding: 12px;
-            background-color: #007aff; /* উজ্জ্বল নীল বাটন */
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 17px;
-            font-weight: bold;
-            text-align: center;
-            cursor: pointer;
-            margin-top: 20px;
+            display: block; width: 100%; padding: 12px;
+            background-color: #007aff; color: white;
+            border: none; border-radius: 8px; font-size: 17px;
+            font-weight: bold; text-align: center; cursor: pointer; margin-top: 20px;
         }
-        .btn:hover {
-            background-color: #0056b3;
+        .btn:hover { background-color: #0056b3; }
+        .btn:disabled { background-color: #555; cursor: not-allowed; opacity: 0.7;}
+
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 6px; font-size: 14px; color: #cccccc; }
+        .form-group input, .form-group select {
+            width: calc(100% - 24px); padding: 11px; border: 1px solid #3a3a3c;
+            border-radius: 6px; font-size: 15px; background-color: #2c2c2e; color: #ffffff;
         }
 
-        /* Forms */
-        .form-group {
-            margin-bottom: 15px;
-        }
-        .form-group label {
-            display: block;
-            margin-bottom: 6px;
-            font-size: 14px;
-            color: #cccccc;
-        }
-        .form-group input,
-        .form-group select {
-            width: calc(100% - 24px);
-            padding: 11px;
-            border: 1px solid #3a3a3c;
-            border-radius: 6px;
-            font-size: 15px;
-            background-color: #2c2c2e;
-            color: #ffffff;
-        }
-
-        /* Bottom Navigation */
         .bottom-nav {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background-color: #1a1a1a;
-            border-top: 1px solid #333333;
-            display: flex;
-            justify-content: space-around;
-            padding: 8px 0;
-            box-shadow: 0 -1px 5px rgba(0,0,0,0.2);
-            z-index: 10;
+            position: fixed; bottom: 0; left: 0; right: 0;
+            background-color: #1a1a1a; border-top: 1px solid #333333;
+            display: flex; justify-content: space-around; padding: 8px 0;
+            box-shadow: 0 -1px 5px rgba(0,0,0,0.2); z-index: 1000;
         }
         .bottom-nav .nav-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            color: #8e8e93; /* iOS inactive tab color */
-            cursor: pointer;
-            padding: 5px 10px;
-            font-size: 11px;
+            display: flex; flex-direction: column; align-items: center;
+            color: #8e8e93; cursor: pointer; padding: 5px 10px; font-size: 11px;
         }
-        .bottom-nav .nav-item .icon {
-            font-size: 22px;
-            margin-bottom: 2px;
+        .bottom-nav .nav-item .icon { font-size: 22px; margin-bottom: 2px; }
+        .bottom-nav .nav-item.active { color: #00aaff; }
+         #adStatusMessage {
+            margin-top: 10px; font-size: 14px;
+            color: #ffcc00; text-align: center; min-height: 20px;
         }
-        .bottom-nav .nav-item.active {
-            color: #00aaff; /* অ্যাক্টিভ ট্যাবের জন্য উজ্জ্বল নীল */
-        }
-
     </style>
     <!-- Telegram Web App script -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <!-- **অ্যাড নেটওয়ার্কের মূল SDK স্ক্রিপ্ট** (পেজ লোড হওয়ার সাথে সাথেই লোড হবে) -->
+    <script src='//solseewuthi.net/sdk.js' async></script>
 </head>
 <body>
 
     <div class="app-container">
-
-        <!-- Screen 1: Home (Profile View) -->
+        <!-- Screen 1: Home -->
         <div id="homeScreen" class="screen active">
             <div class="app-header">
                 <div class="user-info-header">
                     <img id="headerUserAvatar" src="" alt=" " class="avatar-small">
                     <div class="user-details">
                         <div id="headerUserName" class="user-name-header">Loading...</div>
-                        <div class="user-balance-header">Taka 0</div>
+                        <div id="headerUserBalance" class="user-balance-header">Balance: 0.000000 USDT</div>
                     </div>
                 </div>
-                <div class="actions">
-                    <span>⋮</span>
-                </div>
+                <div class="actions"><span>⋮</span></div>
             </div>
-
             <div class="profile-summary">
                 <img id="profileSummaryUserAvatar" src="" alt=" " class="avatar-large">
                 <div id="profileSummaryUserName" class="user-name-profile">Loading...</div>
-                <div class="user-balance-profile">Balance: Taka 0</div>
+                <div id="profileSummaryUserBalance" class="user-balance-profile">Balance: 0.000000 USDT</div>
             </div>
-
             <div class="content-padding">
                 <div class="info-card">
-                    <h3>Today's Tasks</h3>
-                    <p><span>Total Tasks:</span> <span>100</span></p>
-                    <p><span>Completed:</span> <span>0</span></p>
-                    <p><span>Remaining:</span> <span>100</span></p>
+                    <h3>Today's Tasks (Overall Summary)</h3>
+                    <p><span>Monetag Tasks Completed Today:</span> <span id="homeMonetagTasksCompleted">0</span></p>
+                    <p><span>Daily Monetag Limit:</span> <span id="homeMonetagDailyLimit">1000</span></p>
                 </div>
-
                 <div class="info-card">
                     <h3>Earnings</h3>
-                    <p><span>Today's Earnings:</span> <span>Taka 0.00</span></p>
-                    <p><span>Lifetime Earnings:</span> <span>Taka 0.00</span></p>
+                    <p><span>Total Monetag Earnings (USDT):</span> <span id="homeTotalMonetagEarnings">0.000000</span></p>
                 </div>
             </div>
         </div>
@@ -261,56 +149,53 @@
         <div id="earnScreen" class="screen">
             <div class="app-header">
                 <div class="title">Earn Tasks</div>
-                 <div class="actions">
-                    <span>⋮</span>
-                </div>
+                <div class="actions"><span>⋮</span></div>
             </div>
             <div class="content-padding">
-                 <div style="text-align: right; font-size: 12px; color: #bbbbbb; margin-bottom:10px;">User: Developer null | Balance: BDT 1</div>
-                <div class="info-card">
-                    <h3>Today's Tasks</h3>
-                    <p><span>Total Tasks:</span> <span>20</span></p>
-                    <p><span>Completed:</span> <span>0</span></p>
-                    <p><span>Remaining:</span> <span>20</span></p>
+                <div style="text-align: right; font-size: 12px; color: #bbbbbb; margin-bottom:10px;">
+                    Test User (Dev) | Test Balance: BDT 1
                 </div>
-                <button class="btn" onclick="alert('Starting Monetag Task...')">Start Task Monetag</button>
+                <div class="info-card">
+                    <h3>Today's Monetag Tasks</h3>
+                    <p><span>Daily Limit:</span> <span id="earnMonetagDailyLimit">1000</span></p>
+                    <p><span>Completed Today:</span> <span id="earnMonetagCompletedToday">0</span></p>
+                    <p><span>Remaining Today:</span> <span id="earnMonetagRemainingToday">1000</span></p>
+                </div>
+                <button class="btn" id="startTaskMonetagButton">Start Task Monetag</button>
+                <div id="adStatusMessage"></div>
             </div>
         </div>
 
         <!-- Screen 3: Withdraw -->
         <div id="withdrawScreen" class="screen">
             <div class="app-header">
-                 <div class="title">Withdraw Funds</div>
-                 <div class="actions">
-                    <span>⋮</span>
-                </div>
+                <div class="title">Withdraw Funds</div>
+                <div class="actions"><span>⋮</span></div>
             </div>
             <div class="content-padding">
                 <div class="info-card">
-                    <p><span>Available Balance:</span> <span style="font-size:16px; color:#34c759;">BDT 1</span></p>
+                    <p><span>Available Balance:</span> <span id="withdrawUserBalance" style="font-size:16px; color:#34c759;">0.000000 USDT</span></p>
                 </div>
-
                 <div class="info-card">
-                    <h3>Request Withdrawal</h3>
+                    <h3>Request Withdrawal (Demo)</h3>
+                    <p><em>Withdrawal functionality is for demonstration only.</em></p>
                     <div class="form-group">
                         <label for="withdrawalMethod">Withdrawal Method:</label>
                         <select id="withdrawalMethod" name="withdrawalMethod">
                             <option value="">Select a method</option>
-                            <option value="bkash">bKash</option>
-                            <option value="nagad">Nagad</option>
-                            <option value="rocket">Rocket</option>
-                            <option value="bank">Bank Transfer</option>
+                            <option value="usdt_trc20">USDT (TRC20)</option>
+                            <option value="other_crypto">Other Crypto</option>
                         </select>
                     </div>
                     <div class="form-group">
-                        <label for="amount">Amount (BDT):</label>
+                        <label for="amount">Amount (USDT):</label>
                         <input type="number" id="amount" name="amount" placeholder="Enter amount">
                     </div>
                     <div class="form-group">
-                        <label for="walletAddress">Withdrawal Address/Number:</label>
-                        <input type="text" id="walletAddress" name="walletAddress" placeholder="Enter wallet address or number">
+                        <label for="walletAddress">Wallet Address:</label>
+                        <input type="text" id="walletAddress" name="walletAddress" placeholder="Enter USDT wallet address">
                     </div>
-                    <button class="btn" onclick="submitWithdrawal()">Submit Withdrawal</button>
+                    <button class="btn" onclick="submitWithdrawalDemo()">Submit Withdrawal</button>
                 </div>
             </div>
         </div>
@@ -319,169 +204,290 @@
         <div id="profileScreen" class="screen">
             <div class="app-header">
                 <div class="title">Profile</div>
-                <div class="actions">
-                    <span>⋮</span>
-                </div>
+                <div class="actions"><span>⋮</span></div>
             </div>
             <div class="content-padding">
                 <div class="info-card">
                     <h3>User Profile</h3>
                     <p><span>Name:</span> <span id="profileTabUserName">Loading...</span></p>
-                    <p><span>Email:</span> <span>user@example.com</span></p>
-                    <p><span>Joined:</span> <span>01 Jan 2024</span></p>
-                    <button class="btn" style="background-color: #ff3b30; margin-top: 20px;" onclick="alert('Logging out...')">Logout</button>
+                    <p><span>Total Balance (USDT):</span> <span id="profileTabUserBalance">0.000000</span></p>
+                    <p><span>Email (Demo):</span> <span>user@example.com</span></p>
+                    <p><span>Joined (Demo):</span> <span>01 Jan 2024</span></p>
+                    <button class="btn" style="background-color: #ff3b30; margin-top: 20px;" onclick="alert('Logout functionality not implemented.')">Logout</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Bottom Navigation -->
     <div class="bottom-nav">
-        <div class="nav-item active" data-screen="homeScreen">
-            <div class="icon">🏠</div>
-            <div>Home</div>
-        </div>
-        <div class="nav-item" data-screen="earnScreen">
-            <div class="icon">💰</div>
-            <div>Earn</div>
-        </div>
-        <div class="nav-item" data-screen="withdrawScreen">
-            <div class="icon">💸</div>
-            <div>Withdraw</div>
-        </div>
-        <div class="nav-item" data-screen="profileScreen">
-            <div class="icon">👤</div>
-            <div>Profile</div>
-        </div>
+        <div class="nav-item active" data-screen="homeScreen"> <div class="icon">🏠</div> <div>Home</div> </div>
+        <div class="nav-item" data-screen="earnScreen"> <div class="icon">💰</div> <div>Earn</div> </div>
+        <div class="nav-item" data-screen="withdrawScreen"> <div class="icon">💸</div> <div>Withdraw</div> </div>
+        <div class="nav-item" data-screen="profileScreen"> <div class="icon">👤</div> <div>Profile</div> </div>
     </div>
 
     <script>
+        const APP_VERSION = "1.2.2"; // ভার্সন আপডেট (অ্যাড SDK ডিবাগিং)
+        const LS_KEY_APP_STATE = `monetagAppUserState_v${APP_VERSION}`;
+
         const navItems = document.querySelectorAll('.bottom-nav .nav-item');
         const screens = document.querySelectorAll('.app-container .screen');
-
-        // HTML Elements for Telegram User Data
         const headerUserAvatarElement = document.getElementById('headerUserAvatar');
         const headerUserNameElement = document.getElementById('headerUserName');
+        const headerUserBalanceElement = document.getElementById('headerUserBalance');
         const profileSummaryUserAvatarElement = document.getElementById('profileSummaryUserAvatar');
         const profileSummaryUserNameElement = document.getElementById('profileSummaryUserName');
+        const profileSummaryUserBalanceElement = document.getElementById('profileSummaryUserBalance');
         const profileTabUserNameElement = document.getElementById('profileTabUserName');
+        const profileTabUserBalanceElement = document.getElementById('profileTabUserBalance');
+        const withdrawUserBalanceElement = document.getElementById('withdrawUserBalance');
 
-        // ডিফল্ট অ্যাভাটার তৈরির ফাংশন
+        const startTaskMonetagButton = document.getElementById('startTaskMonetagButton');
+        const adStatusMessageElement = document.getElementById('adStatusMessage');
+
+        const earnMonetagDailyLimitElement = document.getElementById('earnMonetagDailyLimit');
+        const earnMonetagCompletedTodayElement = document.getElementById('earnMonetagCompletedToday');
+        const earnMonetagRemainingTodayElement = document.getElementById('earnMonetagRemainingToday');
+        const homeMonetagTasksCompletedElement = document.getElementById('homeMonetagTasksCompleted');
+        const homeMonetagDailyLimitElement = document.getElementById('homeMonetagDailyLimit');
+        const homeTotalMonetagEarningsElement = document.getElementById('homeTotalMonetagEarnings');
+
+        let appState = {
+            userUSDTBalance: 0.0,
+            monetagConfig: {
+                dailyTaskLimit: 1000,
+                rewardPerTaskUSD: 0.00006,
+                adZone: '9344336'
+            },
+            todayStats: { date: new Date().toDateString(), monetagTasksCompleted: 0 },
+            telegramUser: { name: null, photoUrl: null },
+            adSdkLoaded: false // অ্যাড SDK লোড হয়েছে কিনা ট্র্যাক করার জন্য
+        };
+
+        // SDK লোড হওয়ার পর কল করার জন্য গ্লোবাল ফাংশন (যদি SDK এটি ব্যবহার করে)
+        // window.onMonetagSdkLoaded = function() { // অ্যাড নেটওয়ার্ক যদি নির্দিষ্ট কলব্যাক দেয়
+        //     console.log("Global onMonetagSdkLoaded callback executed.");
+        //     appState.adSdkLoaded = true;
+        // };
+
+        function saveState() {
+            try { localStorage.setItem(LS_KEY_APP_STATE, JSON.stringify(appState)); }
+            catch (e) { console.error("Error saving state:", e); }
+        }
+
+        function loadState() {
+            try {
+                const storedState = localStorage.getItem(LS_KEY_APP_STATE);
+                if (storedState) {
+                    const parsedState = JSON.parse(storedState);
+                    appState.userUSDTBalance = parsedState.userUSDTBalance || 0.0;
+                    if (parsedState.todayStats && parsedState.todayStats.date === new Date().toDateString()) {
+                        appState.todayStats = parsedState.todayStats;
+                    } else {
+                        appState.todayStats.date = new Date().toDateString();
+                        appState.todayStats.monetagTasksCompleted = 0;
+                    }
+                    appState.telegramUser = parsedState.telegramUser || { name: null, photoUrl: null };
+                } else {
+                    appState.todayStats.date = new Date().toDateString();
+                }
+            } catch (e) {
+                console.error("Error loading state:", e);
+                appState.todayStats.date = new Date().toDateString();
+            }
+            appState.monetagConfig.dailyTaskLimit = 1000;
+        }
+
         function createDefaultAvatar(letter = 'U', size = 80) {
             const canvas = document.createElement('canvas');
-            canvas.width = size;
-            canvas.height = size;
+            canvas.width = size; canvas.height = size;
             const context = canvas.getContext('2d');
-            // গাঢ় ব্যাকগ্রাউন্ডের জন্য উজ্জ্বল রঙের একটি সেট
             const colors = ["#ff3b30", "#ff9500", "#ffcc00", "#34c759", "#00c7be", "#30b0c7", "#007aff", "#5856d6", "#af52de", "#ff2d55"];
             context.fillStyle = colors[Math.floor(Math.random() * colors.length)];
             context.fillRect(0, 0, size, size);
-            context.font = `bold ${Math.floor(size / 1.9)}px Arial`; // ফন্ট সাইজ ও বোল্ড, কিছুটা বড়
-            context.fillStyle = "#FFFFFF"; // সাদা অক্ষর
-            context.textAlign = "center";
-            context.textBaseline = "middle";
-            context.fillText(letter.toUpperCase(), size / 2, size / 2 + size*0.04); // অক্ষর সামান্য নিচে, keskendra করার জন্য
+            context.font = `bold ${Math.floor(size / 1.9)}px Arial`;
+            context.fillStyle = "#FFFFFF"; context.textAlign = "center"; context.textBaseline = "middle";
+            context.fillText(letter.toUpperCase(), size / 2, size / 2 + size * 0.04);
             return canvas.toDataURL();
         }
 
-        // ব্যবহারকারীর তথ্য (নাম ও ছবি) সেট করার ফাংশন
-        function updateUserDataDisplay(name, photoUrl) {
-            const placeholderName = "MD_Ali_YT"; // টেলিগ্রাম থেকে ডেটা না পাওয়া গেলে ডিফল্ট নাম
-            let finalName = name || placeholderName;
-            let avatarForHeaderSrc, avatarForSummarySrc;
+        function formatUSDT(amount) { return parseFloat(amount).toFixed(6); }
 
-            if (photoUrl) {
-                avatarForHeaderSrc = photoUrl;
-                avatarForSummarySrc = photoUrl;
+        function updateDisplays() {
+            const formattedBalance = formatUSDT(appState.userUSDTBalance) + " USDT";
+            if (headerUserBalanceElement) headerUserBalanceElement.textContent = "Balance: " + formattedBalance;
+            if (profileSummaryUserBalanceElement) profileSummaryUserBalanceElement.textContent = "Balance: " + formattedBalance;
+            if (profileTabUserBalanceElement) profileTabUserBalanceElement.textContent = formattedBalance;
+            if (withdrawUserBalanceElement) withdrawUserBalanceElement.textContent = formattedBalance;
+
+            const placeholderName = "MD_Ali_YT";
+            let finalName = appState.telegramUser.name || placeholderName;
+            let avatarForHeaderSrc, avatarForSummarySrc;
+            if (appState.telegramUser.photoUrl) {
+                avatarForHeaderSrc = appState.telegramUser.photoUrl;
+                avatarForSummarySrc = appState.telegramUser.photoUrl;
             } else {
                 const initial = finalName ? finalName.charAt(0).toUpperCase() : 'U';
                 avatarForHeaderSrc = createDefaultAvatar(initial, 35);
                 avatarForSummarySrc = createDefaultAvatar(initial, 80);
             }
-
-            // DOM এ আপডেট
             if (headerUserNameElement) headerUserNameElement.textContent = finalName;
             if (profileSummaryUserNameElement) profileSummaryUserNameElement.textContent = finalName;
-            if (profileTabUserNameElement) profileTabUserNameElement.textContent = finalName; // প্রোফাইল ট্যাবেও নাম আপডেট
-
+            if (profileTabUserNameElement) profileTabUserNameElement.textContent = finalName;
             if (headerUserAvatarElement) headerUserAvatarElement.src = avatarForHeaderSrc;
             if (profileSummaryUserAvatarElement) profileSummaryUserAvatarElement.src = avatarForSummarySrc;
-        }
 
+            if (earnMonetagDailyLimitElement) earnMonetagDailyLimitElement.textContent = appState.monetagConfig.dailyTaskLimit;
+            if (earnMonetagCompletedTodayElement) earnMonetagCompletedTodayElement.textContent = appState.todayStats.monetagTasksCompleted;
+            const remainingTasks = appState.monetagConfig.dailyTaskLimit - appState.todayStats.monetagTasksCompleted;
+            if (earnMonetagRemainingTodayElement) earnMonetagRemainingTodayElement.textContent = remainingTasks > 0 ? remainingTasks : 0;
 
-        try {
-            const tg = window.Telegram.WebApp;
-            tg.ready();
+            if (homeMonetagTasksCompletedElement) homeMonetagTasksCompletedElement.textContent = appState.todayStats.monetagTasksCompleted;
+            if (homeMonetagDailyLimitElement) homeMonetagDailyLimitElement.textContent = appState.monetagConfig.dailyTaskLimit;
+            if (homeTotalMonetagEarningsElement) homeTotalMonetagEarningsElement.textContent = formatUSDT(appState.userUSDTBalance);
 
-            const userData = tg.initDataUnsafe?.user;
-            let telegramDisplayName = null;
-            let telegramPhotoUrl = null;
-
-            if (userData) {
-                const firstName = userData.first_name || '';
-                const lastName = userData.last_name || '';
-                if (firstName || lastName) {
-                    telegramDisplayName = `${firstName} ${lastName}`.trim();
-                } else if (userData.username) {
-                    telegramDisplayName = `@${userData.username}`;
+            if (startTaskMonetagButton) {
+                if (remainingTasks <= 0) {
+                    startTaskMonetagButton.textContent = "Daily Tasks Completed";
+                    startTaskMonetagButton.disabled = true;
+                } else {
+                    startTaskMonetagButton.textContent = `Start Task Monetag (${remainingTasks} left)`;
+                    startTaskMonetagButton.disabled = false;
                 }
-                telegramPhotoUrl = userData.photo_url || null;
             }
-
-            updateUserDataDisplay(telegramDisplayName, telegramPhotoUrl);
-
-            tg.expand();
-
-        } catch (e) {
-            console.error("Telegram WebApp API error or not in Telegram environment:", e);
-            updateUserDataDisplay(null, null); // ত্রুটি ঘটলে ডিফল্ট নাম ও ডিফল্ট জেনারেটেড ছবি
         }
 
+        function loadTelegramUserData() {
+            try {
+                const tg = window.Telegram.WebApp;
+                tg.ready();
+                const userData = tg.initDataUnsafe?.user;
+                if (userData) {
+                    const firstName = userData.first_name || ''; const lastName = userData.last_name || '';
+                    if (firstName || lastName) appState.telegramUser.name = `${firstName} ${lastName}`.trim();
+                    else if (userData.username) appState.telegramUser.name = `@${userData.username}`;
+                    appState.telegramUser.photoUrl = userData.photo_url || null;
+                }
+                tg.expand();
+            } catch (e) { console.error("Telegram API error on init:", e); }
+            updateDisplays(); saveState();
+        }
+        
+        function showMonetagAd() {
+            console.log("showMonetagAd function called.");
+            if (adStatusMessageElement) adStatusMessageElement.textContent = "বিজ্ঞাপন লোড করার চেষ্টা করা হচ্ছে...";
+            startTaskMonetagButton.disabled = true;
+
+            const adFunction = `show_${appState.monetagConfig.adZone}`;
+            console.log(`Attempting to call window.${adFunction}`);
+
+            // SDK সঠিকভাবে লোড হয়েছে এবং ফাংশনটি উপলব্ধ কিনা তা নিশ্চিত করা
+            // SDK লোড হতে কিছু সময় লাগতে পারে।
+            if (typeof window[adFunction] === 'function') {
+                console.log(`${adFunction} is a function. Calling it.`);
+                window[adFunction]().then(() => {
+                    console.log("Monetag Rewarded Ad: .then() block executed successfully.");
+                    if (adStatusMessageElement) adStatusMessageElement.textContent = "বিজ্ঞাপন দেখানো সফল হয়েছে!";
+
+                    appState.todayStats.monetagTasksCompleted++;
+                    appState.userUSDTBalance += appState.monetagConfig.rewardPerTaskUSD;
+                    
+                    updateDisplays();
+                    saveState();
+                    
+                    setTimeout(() => {
+                        if (adStatusMessageElement) adStatusMessageElement.textContent = `টাস্ক সম্পন্ন! আয়: +${formatUSDT(appState.monetagConfig.rewardPerTaskUSD)} USDT`;
+                    }, 1200);
+
+                }).catch((error) => {
+                    console.error("Monetag Rewarded Ad .catch() block executed. Error:", error);
+                    if (adStatusMessageElement) adStatusMessageElement.textContent = "বিজ্ঞাপন দেখানো যায়নি বা বাতিল করা হয়েছে।";
+                    updateDisplays();
+                });
+            } else {
+                console.warn(`${adFunction} is NOT a function or SDK not ready. Waiting a bit and trying again or failing.`);
+                 // অ্যাড SDK লোড হওয়ার জন্য কয়েক সেকেন্ড অপেক্ষা করা
+                if (adStatusMessageElement) adStatusMessageElement.textContent = `অ্যাড SDK প্রস্তুত নয়, ${adFunction} ফাংশনটি পাওয়া যায়নি।`;
+                // কিছু সময় পর আবার চেষ্টা করা, অথবা ইউজারকে অন্য কোনো বার্তা দেওয়া
+                setTimeout(() => {
+                    if (typeof window[adFunction] === 'function') {
+                        console.log(`Retrying call to window.${adFunction} after delay.`);
+                        showMonetagAd(); // এখানে আবার কল করলে লুপ হতে পারে, তাই শুধু একবার চেষ্টা করা ভালো
+                    } else {
+                        console.error(`Still cannot find ${adFunction} after delay. Ad SDK might have failed to load or initialize.`);
+                        if (adStatusMessageElement) adStatusMessageElement.textContent = "অ্যাড SDK লোড হয়নি বা ফাংশন তৈরি করেনি।";
+                        updateDisplays(); // বাটন সক্রিয় করতে
+                    }
+                }, 3000); // ৩ সেকেন্ড অপেক্ষা
+            }
+        }
+
+        if (startTaskMonetagButton) {
+            startTaskMonetagButton.addEventListener('click', function() {
+                console.log("Start Task Monetag button clicked.");
+                if (appState.todayStats.monetagTasksCompleted >= appState.monetagConfig.dailyTaskLimit) {
+                    if (adStatusMessageElement) adStatusMessageElement.textContent = " আজকের সব টাস্ক সম্পন্ন!";
+                    return;
+                }
+                showMonetagAd();
+            });
+        }
 
         function showScreen(screenId) {
-            screens.forEach(screen => {
-                screen.classList.remove('active');
-            });
+            screens.forEach(screen => screen.classList.remove('active'));
             const activeScreen = document.getElementById(screenId);
-            if (activeScreen) {
-                 activeScreen.classList.add('active');
-            }
-
+            if (activeScreen) activeScreen.classList.add('active');
             navItems.forEach(item => {
                 item.classList.remove('active');
-                if (item.getAttribute('data-screen') === screenId) {
-                    item.classList.add('active');
-                }
+                if (item.getAttribute('data-screen') === screenId) item.classList.add('active');
             });
-
             if (screenId === 'profileScreen' && profileTabUserNameElement && headerUserNameElement) {
-                 // প্রোফাইল ট্যাবের নাম সিঙ্ক্রোনাইজ করা
                 profileTabUserNameElement.textContent = headerUserNameElement.textContent;
+                if (profileTabUserBalanceElement) profileTabUserBalanceElement.textContent = formatUSDT(appState.userUSDTBalance);
+            }
+            if (screenId === 'earnScreen' || screenId === 'homeScreen' || screenId === 'withdrawScreen') {
+                updateDisplays();
             }
         }
 
         navItems.forEach(item => {
-            item.addEventListener('click', () => {
-                const screenId = item.getAttribute('data-screen');
-                showScreen(screenId);
-            });
+            item.addEventListener('click', () => showScreen(item.getAttribute('data-screen')));
         });
 
-        function submitWithdrawal() {
+        function submitWithdrawalDemo() {
             const method = document.getElementById('withdrawalMethod').value;
-            const amount = document.getElementById('amount').value;
+            const amount = parseFloat(document.getElementById('amount').value);
             const address = document.getElementById('walletAddress').value;
-
-            if (!method || !amount || !address) {
-                alert('Please fill in all withdrawal details.');
-                return;
-            }
-            alert(`Withdrawal Request:\nMethod: ${method}\nAmount: BDT ${amount}\nAddress: ${address}\n\nThis is a demo. No actual withdrawal will be processed.`);
+            if (!method || isNaN(amount) || amount <= 0 || !address) { alert('অনুগ্রহ করে সঠিক তথ্য দিন।'); return; }
+            if (amount > appState.userUSDTBalance) { alert('অপর্যাপ্ত ব্যালান্স!'); return; }
+            alert(`উইথড্রয়াল অনুরোধ (ডেমো):\nপরিমাণ: ${formatUSDT(amount)} USDT\nপদ্ধতি: ${method}\nঠিকানা: ${address}\n\nএই কার্যকারিতাটি শুধুমাত্র ডেমো হিসেবে দেখানো হয়েছে।`);
         }
 
-        // Initialize with the home screen
-        showScreen('homeScreen');
+        // অ্যাপ্লিকেশান শুরু
+        // SDK লোড হওয়ার জন্য একটু সময় দেওয়া window.onload এর মাধ্যমে
+        window.onload = function() {
+            console.log("Window loaded. Initializing app state and Telegram user data.");
+            loadState();
+            loadTelegramUserData(); // এটি updateDisplays এবং saveState কল করবে
+            showScreen('homeScreen'); // হোম স্ক্রিন প্রথমে দেখানো
+            // SDK লোড হওয়ার পর appState.adSdkLoaded = true; করা যেতে পারে যদি কোনো কলব্যাক থাকে
+            // যদি না থাকে, তাহলে ধরে নেওয়া হচ্ছে পেজ লোডের সাথেই sdk.js লোড হয়ে যাবে
+            // এবং show_ZONEID ফাংশন তৈরি হবে।
+            console.log("App initialized.");
+            // পেজ লোড হওয়ার পর একবার অ্যাড ফাংশন আছে কিনা চেক করা
+             setTimeout(() => {
+                const adFunction = `show_${appState.monetagConfig.adZone}`;
+                if (typeof window[adFunction] === 'function') {
+                    console.log(`Ad function ${adFunction} is available after page load and delay.`);
+                    appState.adSdkLoaded = true; // একটি ফ্ল্যাগ সেট করা যে SDK ফাংশন উপলব্ধ
+                } else {
+                    console.warn(`Ad function ${adFunction} is NOT available after page load and delay. SDK issues may persist.`);
+                    if(adStatusMessageElement && document.getElementById('earnScreen').classList.contains('active')) {
+                       adStatusMessageElement.textContent = "অ্যাড SDK লোড হতে সমস্যা হচ্ছে।";
+                    }
+                }
+            }, 2000); // ২ সেকেন্ড পর চেক
+        };
     </script>
-
 </body>
 </html>
