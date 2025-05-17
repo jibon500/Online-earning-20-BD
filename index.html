@@ -109,8 +109,8 @@
     </style>
     <!-- Telegram Web App script -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <!-- **অ্যাড নেটওয়ার্কের মূল SDK স্ক্রিপ্ট** (পেজ লোড হওয়ার সাথে সাথেই লোড হবে) -->
-    <script src='//solseewuthi.net/sdk.js' async></script>
+    <!-- Monetag Ad Network SDK -->
+    <script src='//solseewuthi.net/sdk.js' data-zone='9344336' data-sdk='show_9344336'></script>
 </head>
 <body>
 
@@ -264,12 +264,6 @@
             adSdkLoaded: false // অ্যাড SDK লোড হয়েছে কিনা ট্র্যাক করার জন্য
         };
 
-        // SDK লোড হওয়ার পর কল করার জন্য গ্লোবাল ফাংশন (যদি SDK এটি ব্যবহার করে)
-        // window.onMonetagSdkLoaded = function() { // অ্যাড নেটওয়ার্ক যদি নির্দিষ্ট কলব্যাক দেয়
-        //     console.log("Global onMonetagSdkLoaded callback executed.");
-        //     appState.adSdkLoaded = true;
-        // };
-
         function saveState() {
             try { localStorage.setItem(LS_KEY_APP_STATE, JSON.stringify(appState)); }
             catch (e) { console.error("Error saving state:", e); }
@@ -381,8 +375,6 @@
             const adFunction = `show_${appState.monetagConfig.adZone}`;
             console.log(`Attempting to call window.${adFunction}`);
 
-            // SDK সঠিকভাবে লোড হয়েছে এবং ফাংশনটি উপলব্ধ কিনা তা নিশ্চিত করা
-            // SDK লোড হতে কিছু সময় লাগতে পারে।
             if (typeof window[adFunction] === 'function') {
                 console.log(`${adFunction} is a function. Calling it.`);
                 window[adFunction]().then(() => {
@@ -406,19 +398,18 @@
                 });
             } else {
                 console.warn(`${adFunction} is NOT a function or SDK not ready. Waiting a bit and trying again or failing.`);
-                 // অ্যাড SDK লোড হওয়ার জন্য কয়েক সেকেন্ড অপেক্ষা করা
                 if (adStatusMessageElement) adStatusMessageElement.textContent = `অ্যাড SDK প্রস্তুত নয়, ${adFunction} ফাংশনটি পাওয়া যায়নি।`;
-                // কিছু সময় পর আবার চেষ্টা করা, অথবা ইউজারকে অন্য কোনো বার্তা দেওয়া
+                
                 setTimeout(() => {
                     if (typeof window[adFunction] === 'function') {
                         console.log(`Retrying call to window.${adFunction} after delay.`);
-                        showMonetagAd(); // এখানে আবার কল করলে লুপ হতে পারে, তাই শুধু একবার চেষ্টা করা ভালো
+                        showMonetagAd();
                     } else {
                         console.error(`Still cannot find ${adFunction} after delay. Ad SDK might have failed to load or initialize.`);
                         if (adStatusMessageElement) adStatusMessageElement.textContent = "অ্যাড SDK লোড হয়নি বা ফাংশন তৈরি করেনি।";
-                        updateDisplays(); // বাটন সক্রিয় করতে
+                        updateDisplays();
                     }
-                }, 3000); // ৩ সেকেন্ড অপেক্ষা
+                }, 3000);
             }
         }
 
@@ -463,30 +454,24 @@
             alert(`উইথড্রয়াল অনুরোধ (ডেমো):\nপরিমাণ: ${formatUSDT(amount)} USDT\nপদ্ধতি: ${method}\nঠিকানা: ${address}\n\nএই কার্যকারিতাটি শুধুমাত্র ডেমো হিসেবে দেখানো হয়েছে।`);
         }
 
-        // অ্যাপ্লিকেশান শুরু
-        // SDK লোড হওয়ার জন্য একটু সময় দেওয়া window.onload এর মাধ্যমে
         window.onload = function() {
             console.log("Window loaded. Initializing app state and Telegram user data.");
             loadState();
-            loadTelegramUserData(); // এটি updateDisplays এবং saveState কল করবে
-            showScreen('homeScreen'); // হোম স্ক্রিন প্রথমে দেখানো
-            // SDK লোড হওয়ার পর appState.adSdkLoaded = true; করা যেতে পারে যদি কোনো কলব্যাক থাকে
-            // যদি না থাকে, তাহলে ধরে নেওয়া হচ্ছে পেজ লোডের সাথেই sdk.js লোড হয়ে যাবে
-            // এবং show_ZONEID ফাংশন তৈরি হবে।
-            console.log("App initialized.");
-            // পেজ লোড হওয়ার পর একবার অ্যাড ফাংশন আছে কিনা চেক করা
-             setTimeout(() => {
+            loadTelegramUserData();
+            showScreen('homeScreen');
+            
+            setTimeout(() => {
                 const adFunction = `show_${appState.monetagConfig.adZone}`;
                 if (typeof window[adFunction] === 'function') {
                     console.log(`Ad function ${adFunction} is available after page load and delay.`);
-                    appState.adSdkLoaded = true; // একটি ফ্ল্যাগ সেট করা যে SDK ফাংশন উপলব্ধ
+                    appState.adSdkLoaded = true;
                 } else {
                     console.warn(`Ad function ${adFunction} is NOT available after page load and delay. SDK issues may persist.`);
                     if(adStatusMessageElement && document.getElementById('earnScreen').classList.contains('active')) {
                        adStatusMessageElement.textContent = "অ্যাড SDK লোড হতে সমস্যা হচ্ছে।";
                     }
                 }
-            }, 2000); // ২ সেকেন্ড পর চেক
+            }, 2000);
         };
     </script>
 </body>
