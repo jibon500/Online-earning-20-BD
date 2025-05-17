@@ -1,1467 +1,457 @@
-
 <!DOCTYPE html>
 <html lang="bn">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Elite Earning Zone (ক্রেজি টাইম বেটিং সহ)</title>
-    <!-- Font Awesome & Google Fonts -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;500;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
-
-    <!-- Monetag Verification -->
-    <meta name="monetag" content="35527a4139b51e79207c40ddc425fb70">
-
-    <!-- Monetag SDK Script -->
-    <script src='//whephiwums.com/sdk.js' data-zone='9292109' data-sdk='show_9292109'></script>
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>App Demo</title>
     <style>
-        /* --- Base Styles & Variables --- */
-        :root {
-            --primary-color: #6A1B9A;
-            --primary-dark: #4A148C;
-            --secondary-color: #1DE9B6;
-            --accent-color: #FFC107;
-            --success-color: #558B2F;
-            --warning-color: #FFA000; /* Amber Dark - Used for header */
-            --danger-color: #D32F2F;
-            --info-color: #1976D2; /* Blue for Unlimited Ad */
-            --light-bg: #f8f9fa;
-            --card-bg: #ffffff;
-            --dark-text: #37474F;
-            --medium-text: #546E7A;
-            --light-text: #90A4AE;
-            --border-color: #CFD8DC;
-            --white: #ffffff;
-            --shadow-light: 0 2px 4px rgba(0,0,0,0.06);
-            --shadow-medium: 0 4px 12px rgba(0, 0, 0, 0.1);
-            --font-primary: 'Poppins', 'Noto Sans Bengali', sans-serif;
-            --font-bengali: 'Noto Sans Bengali', sans-serif;
-            --coin-color: #FF9800; /* Color for coin icon/text */
-        }
-        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { font-family: var(--font-primary); background-color: var(--light-bg); color: var(--dark-text); display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 5px; }
-        .app-container { width: 100%; max-width: 430px; background-color: var(--card-bg); border-radius: 28px; box-shadow: var(--shadow-medium); overflow: hidden; height: 97vh; display: flex; flex-direction: column; position: relative; }
-
-        /* --- Loading & Toast --- */
-        .loading-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(255, 255, 255, 0.9); display: none; flex-direction: column; justify-content: center; align-items: center; z-index: 1050; }
-        .loading-overlay i { font-size: 2.8em; color: var(--primary-color); margin-bottom: 10px; animation: spin 1.5s linear infinite;}
-        .loading-overlay p { font-size: 1em; color: var(--primary-dark); font-weight: 500;}
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        .toast-notification { position: fixed; bottom: 85px; left: 50%; transform: translateX(-50%); background-color: rgba(49, 27, 146, 0.9); color: white; padding: 12px 22px; border-radius: 25px; z-index: 1051; display: none; font-size: 0.9em; text-align: center; box-shadow: 0 5px 12px rgba(0,0,0,0.25); animation: fadeInOutToast 3.5s ease-in-out; max-width: 90%; font-family: var(--font-bengali); }
-        @keyframes fadeInOutToast { 0%, 100% { opacity: 0; bottom: 65px; } 10%, 90% { opacity: 1; bottom: 85px;} }
-
-        /* --- Pages Container --- */
-        .pages-container { flex-grow: 1; overflow-y: auto; padding-bottom: calc(65px + 50px + 10px); scroll-behavior: smooth; }
-        .page { display: none; padding: 15px 20px 25px 20px; animation: pageFadeInSimple 0.3s ease-out; }
-        .page.active { display: block; } /* This will be 'flex' for crazy-time-page when active */
-        @keyframes pageFadeInSimple { from { opacity: 0; } to { opacity: 1; } }
-        .page h2 { color: var(--primary-color); margin-bottom: 20px; text-align: center; font-size: 1.6em; font-weight: 700; display: flex; align-items: center; justify-content: center;} .page h2 i { margin-right: 10px; font-size: 0.9em;}
-        .page p { line-height: 1.7; color: var(--medium-text); margin-bottom: 18px; font-family: var(--font-bengali); font-size: 0.95em; }
-        .page h3 { margin-top: 25px; margin-bottom: 12px; color: var(--dark-text); font-size: 1.1em; font-weight: 600; padding-bottom: 5px; border-bottom: 2px solid var(--secondary-color); display: inline-block; }
-
-        /* --- Forms & Inputs --- */
-         .form-group { margin-bottom: 18px; position: relative; }
-         .form-group label { display: block; margin-bottom: 6px; font-weight: 500; color: var(--medium-text); font-size: 0.95em; }
-         .form-group input[type="text"], .form-group input[type="email"], .form-group input[type="password"], .form-group input[type="number"], .form-group textarea, .form-group select { width: 100%; padding: 15px 18px; border: 1px solid var(--border-color); border-radius: 10px; font-size: 1em; background-color: #fdfdfd; color: var(--dark-text); transition: border-color 0.3s, box-shadow 0.3s; font-family: var(--font-primary); }
-         .form-group input[readonly] { background-color: #eee; cursor: not-allowed;}
-         .form-group select { appearance: none; padding-right: 40px; background-image: url("data:image/svg+xml;utf8,<svg fill='%235f6368' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/><path d='M0 0h24v24H0z' fill='none'/></svg>"); background-repeat: no-repeat; background-position: right 12px center; background-size: 24px; }
-         .form-group input:focus, .form-group textarea:focus, .form-group select:focus { outline: none; border-color: var(--primary-color); box-shadow: 0 0 0 3px rgba(103, 58, 183, 0.15); }
-         .form-group textarea { min-height: 100px; resize: vertical; }
-         .coin-icon { color: var(--coin-color); margin-right: 3px; font-size: 0.9em; }
-
-        /* --- Buttons --- */
-         .btn { display: block; width: 100%; padding: 15px; background-color: var(--primary-color); color: var(--white); border: none; border-radius: 10px; font-size: 1.1em; font-weight: 600; cursor: pointer; text-align: center; margin-top: 25px; transition: all 0.2s ease; text-decoration: none; box-shadow: 0 3px 5px rgba(103, 58, 183, 0.2); }
-         .btn:hover { background-color: var(--primary-dark); box-shadow: 0 4px 8px rgba(103, 58, 183, 0.3); transform: translateY(-1px); }
-         .btn:active { transform: scale(0.98); box-shadow: none; }
-         .btn:disabled { background-color: var(--medium-text); cursor: not-allowed; box-shadow: none; transform: none;}
-         .btn i { margin-right: 10px; }
-         .btn-small { padding: 10px 15px; font-size: 0.9em; margin-top: 10px;}
-         .btn-copy { margin-left: 10px; padding: 6px 10px; font-size: 0.8em; background-color: var(--medium-text); color: white; border-radius: 5px; cursor: pointer; border:none; } /* Added border:none */
-         .btn-copy:hover { background-color: var(--dark-text);}
-        .btn-success { background-color: var(--secondary-color); box-shadow: 0 3px 5px rgba(0, 150, 136, 0.2); } .btn-success:hover:not(:disabled) { background-color: #00796B; box-shadow: 0 4px 8px rgba(0, 150, 136, 0.3); transform: translateY(-1px); }
-        .btn-warning { background: linear-gradient(45deg, var(--accent-color), #ffb300); box-shadow: 0 3px 5px rgba(255, 193, 7, 0.2); color: var(--dark-text); } .btn-warning:hover:not(:disabled) { background: linear-gradient(45deg, #ffb300, #ffa000); box-shadow: 0 4px 8px rgba(255, 193, 7, 0.3); transform: translateY(-1px);}
-        .btn-secondary { background-color: var(--medium-text); box-shadow: 0 3px 5px rgba(117, 117, 117, 0.2); } .btn-secondary:hover:not(:disabled) { background-color: #616161; box-shadow: 0 4px 8px rgba(117, 117, 117, 0.3); transform: translateY(-1px);}
-        .btn-link { background: none; border: none; color: var(--primary-color); text-decoration: none; cursor: pointer; display: block; text-align: center; margin-top: 20px; font-size: 0.95em; padding: 5px; font-weight: 500; } .btn-link:hover { color: var(--primary-dark); text-decoration: underline;}
-
-
-        /* --- Home Page Styles --- */
-        #home-page { padding-top: 0; padding-left: 0; padding-right: 0; }
-         .user-profile-section { padding: 12px 15px; background-color: var(--card-bg); position: sticky; top: 0; z-index: 100; box-shadow: 0 1px 3px rgba(0,0,0,0.05); margin-bottom: 0; /* Removed margin-bottom */ }
-          .user-profile-card { background-color: transparent; border-radius: 0; padding: 0; margin: 0; box-shadow: none; border: none; text-align: center; display: flex; align-items: center; gap: 12px; }
-          .user-profile-card .profile-icon { width: 50px; height: 50px; border-radius: 50%; background: linear-gradient(45deg, var(--secondary-color), var(--primary-color)); color: var(--white); display: inline-flex; justify-content: center; align-items: center; margin-bottom: 0; box-shadow: 0 2px 4px rgba(0,0,0,0.1); flex-shrink: 0; }
-          .user-profile-card .profile-icon i { font-size: 1.8em; }
-          .user-details-home { text-align: left; flex-grow: 1; }
-          .user-profile-card .user-name { font-size: 1.05em; font-weight: 600; color: var(--dark-text); margin-bottom: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 150px; }
-           .user-profile-card .user-phone { font-size: 0.8em; color: var(--medium-text); margin-bottom: 0; }
-          /* Updated Balance Section for Coins */
-          .balance-section-home { cursor: pointer; display: inline-flex; align-items: center; padding: 6px 10px; border-radius: 20px; background-color: rgba(255, 152, 0, 0.1); /* Light orange bg for coins */ transition: all 0.3s ease; text-align: right; flex-shrink: 0; }
-          .balance-section-home.visible { background-color: var(--card-bg); border: 1px solid var(--coin-color); }
-          .balance-section-home .balance-hidden-placeholder-home { font-size: 1.0em; font-weight: 600; color: var(--coin-color); margin-right: 4px; }
-          .balance-section-home .balance-value-home { font-size: 1.1em; font-weight: 700; color: var(--coin-color); opacity: 0; transition: opacity 0.3s ease; display: none; align-items: center; gap: 4px;}
-           .balance-section-home .balance-visibility-icon { font-size: 1.0em; color: var(--medium-text); margin-left: 6px; transition: color 0.3s ease; }
-          .balance-section-home.visible .balance-value-home { opacity: 1; display: inline-flex; }
-          .balance-section-home.visible .balance-hidden-placeholder-home { display: none; }
-          .balance-section-home.visible .balance-visibility-icon { color: var(--coin-color); }
-
-         /* --- Marquee Header (Orange Background) --- */
-        .marquee-header {
-            background-color: var(--warning-color); /* Orange background */
-            color: #333; /* Darker text for contrast */
-            padding: 10px 0; /* Slightly more padding */
-            overflow: hidden;
-            white-space: nowrap;
-            margin: 20px 0 20px 0; /* Added margin top/bottom */
-            box-shadow: 0 2px 5px rgba(0,0,0,0.15); /* Slightly stronger shadow */
-            border-radius: 5px; /* Slight rounding */
-            margin-left: 15px; /* Add some margin */
-            margin-right: 15px;
-        }
-        .marquee-header p {
-            display: inline-block;
-            padding-left: 100%; /* Start off screen right */
-            animation: marquee-scroll 30s linear infinite; /* Changed 15s to 30s */
-            font-size: 0.95em; /* Slightly larger font */
-            font-weight: 500;
-            font-family: var(--font-bengali);
-            vertical-align: middle; /* Align text and icon */
-        }
-        .marquee-header p i { /* Icon styling */
-            margin-right: 10px;
-            font-size: 1.1em; /* Slightly larger icon */
-            color: var(--primary-dark); /* Use a theme color */
-            vertical-align: middle;
-        }
-        @keyframes marquee-scroll {
-            0%   { transform: translateX(0); }
-            100% { transform: translateX(-100%); }
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            margin: 0;
+            background-color: #000000; /* **ব্ল্যাক ব্যাকগ্রাউন্ড** */
+            color: #ffffff; /* সাদা টেক্সট ডিফল্ট */
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overscroll-behavior-y: contain;
         }
 
-
-         .home-section-title { padding: 0 20px; margin-bottom: 15px; margin-top: 0; font-size: 1.2em; font-weight: 600; color: var(--dark-text); }
-          /* Updated grid for 6 buttons (3x2) */
-          .home-actions { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; /* Reduced gap */ padding: 0 12px; margin-bottom: 25px; }
-          .action-card { background-color: var(--card-bg); padding: 15px 8px; /* Adjusted padding */ border-radius: 12px; text-align: center; box-shadow: var(--shadow-light); cursor: pointer; transition: all 0.25s ease; border: 1px solid var(--border-color); display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 95px; /* Adjusted height */ }
-         .action-card:hover:not(.disabled) { transform: translateY(-4px); box-shadow: var(--shadow-medium); }
-         .action-card i { font-size: 1.7em; /* Adjusted icon size */ margin-bottom: 8px; width: 42px; height: 42px; line-height: 42px; border-radius: 10px; color: var(--white); text-align: center; display: inline-block; }
-         .action-card p { font-weight: 500; font-size: 0.8em; /* Adjusted font size */ color: var(--dark-text); line-height: 1.3; }
-         .action-card.disabled { cursor: not-allowed; opacity: 0.6; background-color: #f0f0f0; }
-         .action-card.disabled:hover { transform: none; box-shadow: var(--shadow-light); }
-
-         /* Action Card Icon Colors */
-         .action-card.deposit i { background: linear-gradient(135deg, #4CAF50, #66BB6A); }
-         .action-card.withdraw i { background: linear-gradient(135deg, #F44336, #EF5350); }
-         .action-card.vip i { background: linear-gradient(135deg, #FFC107, #FFCA28); }
-         .action-card.refer i { background: linear-gradient(135deg, #673AB7, #7E57C2); }
-         .action-card.earning i { background: linear-gradient(135deg, #FF9800, #FFA726); } /* Coin color gradient */
-         .action-card.unlimited i { background: linear-gradient(135deg, var(--info-color), #42A5F5); } /* Blue for unlimited */
-
-
-        /* --- Daily Ad View Section (Formerly Task Section) --- */
-        #daily-ad-view-section { /* Renamed ID */
-            padding: 0 15px;
-            margin-bottom: 25px;
-            display: none; /* Hidden by default, shown if VIP level > 0 */
-        }
-        #daily-ad-view-section .ad-view-container { /* Renamed class */
-            background-color: var(--card-bg);
-            border-radius: 12px;
-            padding: 15px;
-            box-shadow: var(--shadow-light);
-            border: 1px solid var(--border-color);
-        }
-        #daily-ad-view-section h3 {
-             margin-top: 0; margin-bottom: 15px; border-bottom: none; padding-bottom: 0; text-align: center; color: var(--primary-dark); font-size: 1.1em;
-        }
-        #ad-view-progress-info { /* Renamed ID */
-            font-size: 0.9em; text-align: center; margin-top: 10px; color: var(--medium-text);
+        .app-container {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding-bottom: 60px; /* Space for bottom-nav */
+            background-color: #000000; /* **ব্ল্যাক ব্যাকগ্রাউন্ড** */
         }
 
-
-        /* --- Fixed Bottom Banner --- */
-          .fixed-bottom-banner-container { position: fixed; bottom: 65px; left: 0; right: 0; max-width: 430px; margin: 0 auto; height: 50px; background-color: #f0f2f5; display: flex; justify-content: center; align-items: center; z-index: 99; overflow: hidden; border-top: 1px solid var(--border-color); box-shadow: 0 -2px 5px rgba(0,0,0,0.05); transition: opacity 0.3s ease, visibility 0.3s ease; opacity: 0; visibility: hidden; }
-         .fixed-bottom-banner-container.visible { opacity: 1; visibility: visible; }
-          .fixed-bottom-banner-container iframe { border: none; display: block; max-width: 100%; height: 100%; }
-          .fixed-bottom-banner-container .placeholder-text { font-size: 0.85em; color: var(--medium-text); }
-
-          /* --- Bottom Nav --- */
-         .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; max-width: 430px; margin: 0 auto; height: 65px; background: var(--card-bg); display: flex; justify-content: space-around; align-items: center; box-shadow: 0 -3px 10px rgba(0, 0, 0, 0.1); border-top: 1px solid var(--border-color); border-bottom-left-radius: 28px; border-bottom-right-radius: 28px; z-index: 100; padding: 0 10px; }
-        .nav-item { background: none; border: none; color: var(--light-text); cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 8px 5px; flex-grow: 1; text-align: center; transition: color 0.2s ease, background-color 0.2s ease; border-radius: 8px; }
-        .nav-item i { font-size: 1.6em; margin-bottom: 4px; transition: transform 0.2s ease; }
-        .nav-item span { font-size: 0.8em; font-weight: 500; font-family: var(--font-bengali); }
-        .nav-item:hover:not(.active) { color: var(--medium-text); background-color: rgba(106, 27, 154, 0.05); }
-        .nav-item.active { color: var(--primary-color); }
-        .nav-item.active i { transform: scale(1.1); }
-        .nav-item.active span { font-weight: 700; }
-
-         /* --- VIP Page Styles --- */
-        .vip-grid { display: grid; grid-template-columns: 1fr; gap: 18px; margin-top: 15px; }
-         .vip-card { border: 1px solid var(--border-color); border-radius: 16px; background-color: var(--card-bg); box-shadow: var(--shadow-light); display: flex; flex-direction: column; transition: transform 0.2s ease, box-shadow 0.2s ease; position: relative; overflow: hidden; }
-         .vip-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-medium); }
-         .vip-card-header { padding: 15px 20px; background-color: #f9f9f9; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; }
-         .vip-card-header h3 { margin: 0; font-size: 1.15em; color: var(--dark-text); display: flex; align-items: center;}
-         .vip-card-header h3 i { margin-right: 10px; font-size: 1.2em; }
-         .vip-level { font-size: 0.85em; font-weight: 500; color: var(--medium-text); background-color: #eee; padding: 3px 8px; border-radius: 10px; }
-         .vip-card-body { padding: 15px 20px; }
-         .vip-card-body ul { list-style: none; padding-left: 5px; margin: 0; }
-         .vip-card-body li { margin-bottom: 8px; color: var(--medium-text); font-size: 0.9em; position: relative; padding-left: 20px; font-family: var(--font-bengali); }
-         .vip-card-body li::before { content: "\f00c"; font-family: "Font Awesome 6 Free"; font-weight: 900; color: var(--secondary-color); position: absolute; left: 0; top: 1px; font-size: 0.85em; }
-         .vip-card-footer { padding: 15px 20px; border-top: 1px solid #f0f0f0; display: flex; justify-content: space-between; align-items: center; background-color: #fafafa; }
-         /* VIP Price now in Coins */
-         .vip-card-footer .price { font-size: 1.2em; font-weight: 700; color: var(--coin-color); display: inline-flex; align-items: center; gap: 4px;}
-         .vip-card-footer .btn-buy-vip { margin-top: 0; padding: 10px 20px; font-size: 0.95em; width: auto; flex-shrink: 0; }
-         .vip-card-footer .btn-buy-vip i { margin-right: 8px; }
-         .status-active, .status-pending { font-weight: 600; font-size: 0.9em; padding: 6px 12px; border-radius: 20px; }
-         .status-active { color: var(--success-color); background-color: rgba(85, 139, 47, 0.1); }
-         .status-pending { color: var(--warning-color); background-color: rgba(255, 160, 0, 0.1); } /* Pending style might not be used now */
-         .status-active i, .status-pending i { margin-right: 6px; }
-
-        /* --- VIP Upgrade Modal Styles --- */
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.6); display: none; justify-content: center; align-items: center; z-index: 1040; padding: 15px; }
-        .modal-box { background-color: var(--card-bg); padding: 25px 30px; border-radius: 16px; box-shadow: 0 5px 20px rgba(0,0,0,0.2); max-width: 90%; width: 400px; position: relative; animation: modalFadeInScale 0.3s ease-out; }
-        @keyframes modalFadeInScale { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
-        .modal-box h3 { margin-top: 0; margin-bottom: 15px; color: var(--primary-color); text-align: center; font-size: 1.3em; }
-        .modal-box .close-modal { position: absolute; top: 10px; right: 15px; background: none; border: none; font-size: 1.8em; color: var(--medium-text); cursor: pointer; padding: 5px;}
-        .modal-box .close-modal:hover { color: var(--dark-text); }
-        /* Updated VIP Modal Text */
-        #vip-upgrade-modal p { font-size: 0.9em; margin-bottom: 15px; font-family: var(--font-bengali); line-height: 1.6; }
-        #vip-upgrade-modal .vip-cost-info { /* New class for coin cost */
-            background-color: rgba(255, 152, 0, 0.1); /* Light orange */
+        /* Common Header Styles */
+        .app-header {
+            background-color: #1a1a1a; /* গাঢ় ধূসর, কালোর উপরে ভালো লাগবে */
+            color: #ffffff;
             padding: 12px 15px;
-            border-radius: 8px;
-            margin-bottom: 18px;
-            text-align: center;
-            border: 1px dashed var(--coin-color);
-        }
-        #vip-upgrade-modal .vip-cost-info strong {
-            font-size: 1.2em;
-            color: var(--coin-color);
             display: flex;
             align-items: center;
-            justify-content: center;
-            gap: 5px;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            border-bottom: 1px solid #333333; /* হালকা বিভাজক */
         }
-        #vip-upgrade-modal #modal-alert { margin-bottom: 15px; }
+        .app-header .title {
+            font-size: 18px;
+            font-weight: bold;
+            flex-grow: 1;
+        }
+        .app-header .user-info-header {
+            display: flex;
+            align-items: center;
+            flex-grow: 1;
+        }
+        /* .app-header .avatar-small - এই অংশটি আর ব্যবহার করা হচ্ছে না */
 
+        .app-header .user-details {
+            font-size: 12px;
+            /* অ্যাভাটার না থাকলে বাম মার্জিনের প্রয়োজন নেই */
+        }
+        .app-header .user-name-header {
+            font-weight: bold;
+            font-size: 14px;
+        }
+        .app-header .user-balance-header {
+            font-size: 12px;
+            opacity: 0.8;
+        }
+        .app-header .actions {
+            font-size: 22px;
+        }
+        .app-header .actions span {
+            margin-left: 15px;
+            cursor: pointer;
+        }
 
-         /* Alert style */
-         .alert { padding: 12px 16px; margin-bottom: 15px; border-radius: 8px; font-size: 0.95em; border: 1px solid transparent; display: none; font-family: var(--font-bengali);}
-         .alert-danger { background-color: #fdecea; color: #a50e0e; border-color: #f5c6cb; }
-         .alert-success { background-color: #e6f4ea; color: #155724; border-color: #c3e6cb; }
-         .alert-warning { background-color: #fff8e1; color: #6f4e00; border-color: #ffecb3; }
-
-         /* Withdraw page radio buttons */
-         .withdraw-options { display: flex; gap: 15px; margin-top: 8px; flex-wrap: wrap;}
-         .withdraw-options label { display: flex; align-items: center; gap: 5px; font-size: 0.95em; cursor: pointer; }
-         .withdraw-options input[type="radio"] { accent-color: var(--primary-color); }
-
-         /* Referral Code Box */
-         .refer-code-box { background-color: #eee; padding: 15px 20px; border-radius: 10px; font-size: 1.3em; font-weight: 700; text-align: center; margin: 10px 0 20px 0; color: var(--primary-dark); letter-spacing: 1px; border: 1px dashed var(--border-color); }
-         #copy-feedback { text-align: center; margin-top: 10px; color: var(--success-color); font-weight: 500; height: 20px; }
-
-         /* Deposit Page Specific Styles */
-         .deposit-info { background-color: rgba(255, 193, 7, 0.1); border-left: 4px solid var(--accent-color); padding: 12px 15px; margin-bottom: 20px; border-radius: 4px; font-size: 0.9em; font-family: var(--font-bengali); color: var(--dark-text); }
-         .deposit-info strong { color: var(--warning-color); }
-         .deposit-info ol { padding-left: 20px; margin-top: 8px; }
-         .deposit-info li { margin-bottom: 5px; }
-        /* >>> NEW CSS FOR DEPOSIT NUMBER BOX <<< */
-         .deposit-number-box {
-             display: flex;
-             align-items: center;
-             justify-content: center;
-             background: #e0f2f7; /* Light cyan background */
-             padding: 12px 18px;
-             border-radius: 10px;
-             margin-bottom: 20px;
-             border: 1px dashed #00acc1; /* Cyan border */
-         }
-         .deposit-number-box span {
-             font-size: 1.3em; /* Slightly larger number */
-             font-weight: 700;
-             color: #00796b; /* Dark teal color */
-             margin-right: 15px; /* More space */
-             letter-spacing: 1px;
-         }
-         .deposit-number-box .btn-copy {
-             background-color: #0097a7; /* Cyan button */
-             flex-shrink: 0; /* Prevent button from shrinking */
-         }
-          .deposit-number-box .btn-copy:hover {
-             background-color: #00796b; /* Darker cyan on hover */
-         }
-         .deposit-instruction-text { /* Added class for the instruction */
-             text-align: center;
-             font-weight: 600; /* Bolder */
-             font-size: 1.05em;
-             color: var(--primary-dark);
-             margin-bottom: 8px; /* More space */
-             font-family: var(--font-bengali);
-         }
-
-         /* Policy Page Specific Styles */
-         .policy-content h3 { margin-top: 20px; margin-bottom: 10px; font-size: 1.2em; color: var(--primary-dark); border-bottom: none; padding-bottom: 0; }
-         .policy-content p { margin-bottom: 15px; font-size: 0.95em; line-height: 1.7; color: var(--medium-text); font-family: var(--font-bengali); }
-         .policy-content p i { color: var(--medium-text); font-style: italic; }
-
-        /* --- Crazy Time Game Styles --- */
-        #crazy-time-page {
-            background-color: #2c3e50;
+        /* Screen Content Styling */
+        .screen {
+            display: none; /* Hidden by default */
             padding: 0;
-            /* display: flex; NO - this will be set by JS */
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            font-family: Arial, sans-serif;
-            overflow-x: hidden;
-            height: 100%;
         }
-        /* When #crazy-time-page is active, it uses flex display */
-        #crazy-time-page.active {
-            display: flex !important; /* Ensure it overrides .page display: block */
+        .screen.active {
+            display: block;
         }
 
-
-        #crazy-time-page .ct-game-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            width: 100%;
-            padding: 10px; /* Padding for smaller screens */
-            box-sizing: border-box;
+        .content-padding {
+            padding: 15px;
         }
 
-        #crazy-time-page .ct-wheel-container {
-            position: relative;
-            width: 280px; /* Slightly smaller for mobile view within app */
-            height: 280px;
-            margin-bottom: 20px;
-        }
-
-        #crazy-time-page .ct-wheel {
-            width: 100%;
-            height: 100%;
-            border-radius: 50%;
-            position: relative;
-            overflow: hidden;
-            border: 8px solid #f39c12;
-            box-shadow: 0 0 15px rgba(0,0,0,0.5);
-            /* Updated transition for 30s spin */
-            transition: transform 10s cubic-bezier(0.1, 0.7, 0.3, 1);
-        }
-
-        #crazy-time-page .ct-wheel-segment-text { /* Style for text divs added to wheel */
-            position: absolute;
-            transform-origin: center center;
+        /* Profile Section on Home Screen */
+        .profile-summary {
             text-align: center;
-            color: white;
-            font-weight: bold;
-            font-size: 10px;
-            text-shadow: 1px 1px 1px black;
-            z-index: 5;
-            pointer-events: none; /* So they don't interfere with wheel clicks if any */
+            padding: 20px 15px;
+            background-color: #000000; /* ব্ল্যাক */
+            margin-bottom: 10px;
+            /* অ্যাভাটার না থাকায় বর্ডার সরানো হলো */
         }
+        /* .profile-summary .avatar-large - এই অংশটি আর ব্যবহার করা হচ্ছে না */
 
-
-        #crazy-time-page .ct-wheel-center-text {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background-color: #e74c3c;
-            color: white;
-            padding: 15px 20px;
-            border-radius: 50%;
+        .profile-summary .user-name-profile {
+            font-size: 22px; /* নামকে আরও গুরুত্ব দেওয়া হলো */
+            font-weight: bold;
+            color: #ffffff;
+            margin-top: 10px; /* অ্যাভাটার না থাকায় কিছুটা স্পেস */
+        }
+        .profile-summary .user-balance-profile {
             font-size: 16px;
-            font-weight: bold;
-            z-index: 10;
-            border: 4px solid #f1c40f;
-            text-align: center;
-            line-height: 1.1;
+            color: #bbbbbb; /* হালকা সাদা */
+            margin-top: 8px;
         }
 
-        #crazy-time-page .ct-pointer {
-            position: absolute;
-            top: -15px; /* Adjusted if wheel container size changes */
-            left: 50%;
-            transform: translateX(-50%);
-            width: 0;
-            height: 0;
-            border-left: 15px solid transparent;
-            border-right: 15px solid transparent;
-            border-top: 25px solid #e74c3c;
-            z-index: 10;
-        }
-
-        #crazy-time-page .ct-controls {
-            text-align: center;
+        /* Cards for Tasks/Earnings */
+        .info-card {
+            background-color: #1c1c1e; /* iOS ডার্ক মোডের মতো গাঢ় রঙ */
+            color: #ffffff;
+            border-radius: 10px; /* সামান্য বেশি গোলাকার */
+            padding: 15px;
             margin-bottom: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2); /* হালকা শ্যাডো */
+        }
+        .info-card h3 {
+            margin-top: 0;
+            margin-bottom: 12px;
+            font-size: 17px;
+            color: #00aaff; /* উজ্জ্বল নীল, কালোর উপরে ফুটবে */
+            border-bottom: 1px solid #3a3a3c; /* গাঢ় বিভাজক */
+            padding-bottom: 8px;
+        }
+        .info-card p {
+            margin: 8px 0;
+            font-size: 15px;
+            display: flex;
+            justify-content: space-between;
+        }
+        .info-card p span:last-child {
+            font-weight: bold;
+            color: #ffffff;
         }
 
-        #crazy-time-page button#ct-spinButton {
-            padding: 12px 25px;
-            font-size: 16px;
-            background-color: #27ae60;
+        /* Buttons */
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            background-color: #007aff; /* উজ্জ্বল নীল বাটন */
             color: white;
             border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-            margin-top: 10px;
-        }
-
-        #crazy-time-page button#ct-spinButton:hover {
-            background-color: #2ecc71;
-        }
-
-        #crazy-time-page button#ct-spinButton:disabled {
-            background-color: #95a5a6;
-            cursor: not-allowed;
-        }
-
-        #crazy-time-page .ct-info-display {
-            background-color: rgba(255, 255, 255, 0.1);
-            padding: 15px;
             border-radius: 8px;
-            margin-bottom: 15px;
-            width: 90%;
-            max-width: 380px; /* Max width within game page */
-            box-sizing: border-box;
-        }
-
-        #crazy-time-page .ct-info-display p {
-            margin: 5px 0;
-            color: #ecf0f1;
-            font-size: 16px;
-        }
-
-        #crazy-time-page #ct-result {
-            font-size: 18px; /* Slightly smaller for consistency */
-            color: #ecf0f1;
-            padding: 8px 15px;
-            background-color: rgba(0,0,0,0.3);
-            border-radius: 5px;
-            min-height: 30px;
-            display: inline-block;
-        }
-        
-        #crazy-time-page .ct-betting-options {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 8px; /* Slightly smaller gap */
-            margin-bottom: 20px;
-            max-width: 100%;
-        }
-
-        #crazy-time-page .ct-bet-button {
-            padding: 8px 10px; /* Adjust padding */
-            font-size: 11px; /* Smaller font for more buttons */
-            border: 2px solid transparent;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: all 0.3s;
-            color: white;
-            min-width: 70px; /* Adjust min-width */
+            font-size: 17px;
+            font-weight: bold;
             text-align: center;
-            font-family: var(--font-bengali); /* Use app font */
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        .btn:hover {
+            background-color: #0056b3;
         }
 
-        #crazy-time-page .ct-bet-button.active {
-            border-color: #f1c40f; /* Yellow border for active bet */
-            box-shadow: 0 0 10px #f1c40f;
+        /* Forms */
+        .form-group {
+            margin-bottom: 15px;
         }
-        #crazy-time-page .ct-bet-button:disabled {
-            opacity: 0.7;
-            cursor: not-allowed;
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 14px;
+            color: #cccccc; /* হালকা সাদা */
+        }
+        .form-group input,
+        .form-group select {
+            width: calc(100% - 24px);
+            padding: 11px;
+            border: 1px solid #3a3a3c; /* গাঢ় বর্ডার */
+            border-radius: 6px;
+            font-size: 15px;
+            background-color: #2c2c2e; /* ইনপুটের জন্য গাঢ় পটভূমি */
+            color: #ffffff; /* ইনপুটের টেক্সট সাদা */
+        }
+        .form-group select { /* select এর জন্য arrow রঙ ঠিক করতে অতিরিক্ত স্টাইল লাগতে পারে */
+             /* background-image for custom arrow might be needed for full black theme */
+        }
+
+
+        /* Bottom Navigation */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: #1a1a1a; /* হেডারর মতো */
+            border-top: 1px solid #333333;
+            display: flex;
+            justify-content: space-around;
+            padding: 8px 0;
+            box-shadow: 0 -1px 5px rgba(0,0,0,0.2);
+            z-index: 10;
+        }
+        .bottom-nav .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #8e8e93; /* iOS inactive tab color */
+            cursor: pointer;
+            padding: 5px 10px;
+            font-size: 11px;
+        }
+        .bottom-nav .nav-item .icon {
+            font-size: 22px;
+            margin-bottom: 2px;
+        }
+        .bottom-nav .nav-item.active {
+            color: #00aaff; /* অ্যাক্টিভ ট্যাবের জন্য উজ্জ্বল নীল */
         }
 
     </style>
+    <!-- Telegram Web App script -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body>
+
     <div class="app-container">
-        <!-- Loading & Toast -->
-        <div class="loading-overlay" id="loading-indicator"><i class="fas fa-sync-alt fa-spin"></i><p>অপেক্ষা করুন...</p></div>
-        <div class="toast-notification" id="toast-message"></div>
 
-        <!-- Page Container -->
-        <main class="pages-container">
-            <div id="general-alert-area" style="padding: 10px 22px 0 22px;"></div>
-
-            <!-- Login Page -->
-            <div id="login-page" class="page">
-                <div style="text-align: center; margin-bottom: 30px;"> <i class="fas fa-rocket" style="font-size: 3.5em; color: var(--primary-color); margin-bottom: 10px;"></i> <h2 style="margin-bottom: 5px; border:none;">অ্যাপে স্বাগতম!</h2> <p style="color: var(--medium-text); margin-bottom: 20px;">আপনার অ্যাকাউন্টে লগইন করুন।</p> </div>
-                <div id="login-alert" class="alert"></div>
-                <form id="login-form">
-                    <div class="form-group"> <input type="email" id="login-email" placeholder="ইমেইল" required> </div>
-                    <div class="form-group"> <input type="password" id="login-password" placeholder="পাসওয়ার্ড" required> </div>
-                    <button type="submit" class="btn"><i class="fas fa-sign-in-alt"></i> লগইন</button>
-                </form>
-                <button class="btn-link" onclick="showPage('signup-page')">অ্যাকাউন্ট নেই? সাইন আপ করুন</button>
-            </div>
-
-            <!-- Signup Page -->
-            <div id="signup-page" class="page">
-                <h2><i class="fas fa-user-plus"></i> নতুন অ্যাকাউন্ট</h2> <div id="signup-alert" class="alert"></div>
-                <form id="signup-form">
-                    <div class="form-group"> <input type="text" id="signup-name" placeholder="আপনার পুরো নাম" required> </div>
-                    <div class="form-group"> <input type="email" id="signup-email" placeholder="আপনার ইমেইল" required> </div>
-                    <div class="form-group"> <input type="text" id="signup-phone" placeholder="আপনার মোবাইল নম্বর (১১ ডিজিট)" required pattern="[0-9]{11}"> </div>
-                    <div class="form-group"> <input type="password" id="signup-password" placeholder="পাসওয়ার্ড (কমপক্ষে ৬ অক্ষর)" required> </div>
-                    <div class="form-group"> <input type="text" id="signup-refer" placeholder="রেফার কোড (ঐচ্ছিক)"> </div>
-                    <button type="submit" class="btn btn-success"><i class="fas fa-check-circle"></i> রেজিস্টার</button>
-                </form>
-                <button class="btn-link" onclick="showPage('login-page')">ইতিমধ্যে অ্যাকাউন্ট আছে? লগইন করুন</button>
-            </div>
-
-            <!-- Home Page -->
-            <div id="home-page" class="page active">
-                 <div class="user-profile-section">
-                     <div class="user-profile-card">
-                         <div class="profile-icon"><i class="fas fa-user"></i></div>
-                         <div class="user-details-home">
-                             <div class="user-name" id="profile-user-name">ব্যবহারকারী</div>
-                             <div class="user-phone" id="profile-user-phone">01xxxxxxxxx</div>
-                         </div>
-                         <div class="balance-section-home" id="profile-balance-section">
-                             <span class="balance-hidden-placeholder-home" id="balance-hidden-symbol">কয়েন দেখুন</span>
-                             <span class="balance-value-home" id="profile-balance-value">
-                                 <i class="fas fa-coins coin-icon"></i> 0
-                             </span>
-                             <i class="fas fa-eye balance-visibility-icon" id="balance-eye-icon"></i>
-                         </div>
-                      </div>
-                  </div>
-                  <div class="marquee-header">
-                      <p><i class="fas fa-bullhorn"></i>🌟 ছাত্রছাত্রীদের জন্য সোনালী সুযোগ! 🌟
-💯 ১০০% পেমেন্ট গ্যারান্টি সহ একটি নির্ভরযোগ্য প্ল্যাটফর্মে কাজ করুন!
-🗓️ প্রতিমাসের ১ তারিখে নিশ্চিত পেমেন্ট!
-📱 শুধুমাত্র বিজ্ঞাপন দেখেই আয় করুন — বাড়ির আরাম থেকে।
-🎓 অনেকে ইতোমধ্যেই লেখাপড়া ও হাতখরচ এখান থেকেই চালাচ্ছে!
-💼 আরও বেশি আয় করতে চাইলে VIP প্যাকেজ কিনে উপার্জন বাড়ান!
-⏳ আজই যোগ দিন — সুযোগ সীমিত!</p>
-                  </div>
-                  <h3 class="home-section-title" style="padding: 0 20px;">অপশনস</h3>
-                  <div class="home-actions" style="padding: 0 12px; grid-template-columns: repeat(3, 1fr);">
-                       <div class="action-card deposit" onclick="showPage('deposit-page')"> <i class="fas fa-wallet"></i> <p>ডিপোজিট (৳)</p> </div>
-                      <div class="action-card withdraw" onclick="showPage('withdraw-page')"> <i class="fas fa-money-bill-wave"></i> <p>উইথড্র (কয়েন)</p> </div>
-                      <div class="action-card vip" onclick="showPage('vip-page')"> <i class="fas fa-crown"></i> <p>ভিআইপি প্ল্যান</p> </div>
-                      <div class="action-card refer" onclick="showPage('refer-page')"> <i class="fas fa-user-friends"></i> <p>রেফার করুন</p> </div>
-                      <div class="action-card earning" onclick="showMonetagEarningAd()"> <i class="fas fa-coins"></i> <p>আর্নিং অ্যাড (VIP)</p> </div>
-                      <div class="action-card unlimited" onclick="showUnlimitedAd()"> <i class="fas fa-infinity"></i> <p>আনলিমিটেড অ্যাড</p> </div>
-                  </div>
-                  <div id="daily-ad-view-section">
-                      <h3 class="home-section-title" style="padding: 0;">আজকের VIP অ্যাড</h3>
-                      <div class="ad-view-container">
-                          <div id="ad-view-progress-info"></div>
-                      </div>
-                  </div>
-            </div>
-
-            <!-- Referral Page -->
-            <div id="refer-page" class="page">
-                <h2><i class="fas fa-gift"></i> রেফারেল বোনাস</h2> <p>বন্ধুদের সাথে আপনার রেফার কোড শেয়ার করুন। প্রতি সফল রেফারে আপনি ও আপনার বন্ধু বোনাস পাবেন!</p>
-                <label style="font-weight: 500;">আপনার রেফার কোড:</label>
-                <div class="refer-code-box" id="referral-code">---</div>
-                <button class="btn btn-success" onclick="copyReferralCode()"><i class="fas fa-copy"></i> কপি করুন</button>
-                <div id="copy-feedback"></div>
-                <h3>রেফারেল বোনাস (উদাহরণ - টাকায়)</h3>
-                <p>আপনার বন্ধু সাইন আপ করলে আপনি পাবেন <b>৳১০</b>, বন্ধু পাবে <b>৳৫</b>!</p>
-            </div>
-
-            <!-- Deposit Page (Taka, Minimum 100) -->
-            <div id="deposit-page" class="page">
-                <h2><i class="fas fa-university"></i> ডিপোজিট (৳)</h2>
-                <div id="deposit-alert" class="alert"></div>
-                <div class="deposit-info">
-                    <strong><i class="fas fa-info-circle"></i> গুরুত্বপূর্ণ:</strong>
-                    <ol>
-                        <li>নিচের নগদ নম্বরে টাকা Send Money করুন (ন্যূনতম ৳১০০)।</li>
-                        <li>সঠিক ১০ সংখ্যার TrxID এবং আপনার প্রেরক নম্বর ফর্ম এ দিন।</li>
-                        <li>সাধারণত ৫ মিনিটের মধ্যে কয়েন যোগ হয়।</li>
-                    </ol>
+        <!-- Screen 1: Home (Profile View) -->
+        <div id="homeScreen" class="screen active">
+            <div class="app-header">
+                <div class="user-info-header">
+                    <!-- অ্যাভাটার ইমেজ ট্যাগ সরানো হয়েছে -->
+                    <div class="user-details">
+                        <div id="headerUserName" class="user-name-header">Loading...</div>
+                        <div class="user-balance-header">Taka 0</div>
+                    </div>
                 </div>
-                <p class="deposit-instruction-text">Send Money করুন শুধুমাত্র নগদে</p>
-                <div class="deposit-number-box">
-                    <span id="deposit-number-display">01814892156</span>
-                    <button type="button" class="btn-copy" onclick="copyDepositNumber()"><i class="fas fa-copy"></i> কপি</button>
-                </div>
-                <form id="deposit-form">
-                    <input type="hidden" id="deposit-method" value="nagad">
-                     <div class="form-group">
-                         <label for="deposit-amount">টাকার পরিমাণ</label>
-                         <input type="number" id="deposit-amount" placeholder="৳১০০+" required min="100">
-                     </div>
-                     <div class="form-group">
-                         <label for="deposit-txn-id">TrxID (নগদ)</label>
-                         <input type="text" id="deposit-txn-id" placeholder="১০ সংখ্যার ট্রানজেকশন আইডি" required>
-                     </div>
-                     <div class="form-group">
-                         <label for="deposit-sender-number">প্রেরক নম্বর (আপনার নগদ নম্বর)</label>
-                         <input type="text" id="deposit-sender-number" placeholder="যে নম্বর থেকে টাকা পাঠিয়েছেন" required>
-                     </div>
-                     <button type="submit" class="btn btn-success"><i class="fas fa-paper-plane"></i> সাবমিট</button>
-                 </form>
-             </div>
-
-             <!-- Withdraw Page (Coins) -->
-            <div id="withdraw-page" class="page">
-                <h2><i class="fas fa-money-bill-wave"></i> কয়েন উত্তোলন</h2> <div id="withdraw-alert" class="alert"></div>
-                <p style="text-align: center; margin-bottom: 20px; color: var(--medium-text); font-size:0.95em">
-                    উইথড্র করার জন্য কয়েন: <b id="current-balance-text-wp" style="color: var(--coin-color); font-size:1.1em"><i class="fas fa-coins coin-icon"></i> 0</b>
-                </p>
-                <form id="withdraw-form">
-                    <div class="form-group"> <label>উইথড্র মাধ্যম (পেমেন্ট পাবেন টাকায়):</label> <div class="withdraw-options"> <label><input type="radio" name="payment_method" value="bkash" checked> বিকাশ</label> <label><input type="radio" name="payment_method" value="nagad"> নগদ</label> <label><input type="radio" name="payment_method" value="rocket"> রকেট</label> </div> </div>
-                    <div class="form-group"><label for="withdraw-account">অ্যাকাউন্ট নম্বর:</label> <input type="text" id="withdraw-account" placeholder="যে নম্বরে টাকা নিবেন" required></div>
-                    <div class="form-group"><label for="withdraw-amount">কয়েনের পরিমাণ:</label> <input type="number" id="withdraw-amount" placeholder="ন্যূনতম 5000" required min="5000"></div>
-                    <button type="submit" class="btn"><i class="fas fa-check-circle"></i> উইথড্র রিকোয়েস্ট</button>
-                </form>
-                <p style="font-size: 0.85em; color: var(--medium-text); margin-top: 20px; text-align: center;"><i class="fas fa-info-circle"></i> 5000 কয়েন হলে উইথড্র করতে পারবেন। ২৪ ঘণ্টার মধ্যে পেমেন্ট সম্পন্ন হবে।</p>
-            </div>
-
-            <!-- VIP Page (Purchase uses Coins) -->
-            <div id="vip-page" class="page">
-                <h2><i class="fas fa-crown"></i> ভিআইপি প্ল্যান (কয়েন)</h2> <p>আপনার সুবিধা অনুযায়ী ভিআইপি প্ল্যান বেছে নিন এবং আয় বাড়ান!</p>
-                <div id="vip-purchase-feedback" style="text-align: center; margin: 15px 0; font-weight: 500;"></div>
-                <div class="vip-grid" id="vip-plan-list"> <!-- Loading message/spinner --> </div>
-            </div>
-            
-            <!-- Crazy Time Game Page -->
-            <div id="crazy-time-page" class="page">
-                <!-- Content from the Crazy Time HTML, with ID adjustments -->
-                <div class="ct-game-container">
-                    <div class="ct-info-display">
-                        <p>আপনার ব্যালেন্স: <span id="ct-balanceDisplay">0</span> টাকা</p>
-                        <p>বর্তমান বেট: <span id="ct-currentBetsDisplay">এখনও কোনো বেট নেই</span></p>
-                        <p>ফলাফল: <span id="ct-result">স্পিন করুন!</span></p>
-                    </div>
-
-                    <div class="ct-betting-options" id="ct-bettingOptions">
-                        <!-- Bet buttons will be added by JavaScript -->
-                    </div>
-
-                    <div class="ct-wheel-container">
-                        <div class="ct-pointer"></div>
-                        <div class="ct-wheel" id="ct-wheel">
-                            <div class="ct-wheel-center-text">ক্রেজি<br>টাইম</div>
-                            <!-- Segment text divs will be added by JS here -->
-                        </div>
-                    </div>
-
-                    <div class="ct-controls">
-                        <button id="ct-spinButton">চাকা ঘোরান!</button>
-                    </div>
+                <div class="actions">
+                    <span>⋮</span>
                 </div>
             </div>
 
+            <div class="profile-summary">
+                <!-- অ্যাভাটার ইমেজ ট্যাগ সরানো হয়েছে -->
+                <div id="profileSummaryUserName" class="user-name-profile">Loading...</div>
+                <div class="user-balance-profile">Balance: Taka 0</div>
+            </div>
 
-            <!-- Policy Page -->
-             <div id="policy-page" class="page">
-                 <h2><i class="fas fa-shield-alt"></i> শর্তাবলী ও নীতিমালা</h2>
-                 <div class="policy-content">
-                     <h3>১. সাধারণ শর্তাবলী</h3> <p>এই প্ল্যাটফর্ম ব্যবহার করার মাধ্যমে আপনি আমাদের সমস্ত নিয়ম ও শর্তাবলী মেনে নিতে সম্মত হচ্ছেন। যেকোনো অবৈধ বা প্রতারণামূলক কার্যকলাপের জন্য আপনার অ্যাকাউন্ট বিনা নোটিশে বন্ধ করে দেওয়া হতে পারে।</p>
-                     <h3>২. অ্যাকাউন্ট</h3> <p>প্রতি ব্যবহারকারী শুধুমাত্র একটি অ্যাকাউন্ট ব্যবহার করতে পারবেন। একাধিক অ্যাকাউন্ট তৈরি করা বা অন্যের অ্যাকাউন্ট ব্যবহার করা নিষিদ্ধ। আপনার অ্যাকাউন্টের তথ্যের গোপনীয়তা রক্ষা করার দায়িত্ব আপনার।</p>
-                     <h3>৩. আয় এবং টাস্ক</h3> <p>ভিআইপি প্ল্যান সক্রিয় থাকলে নির্দিষ্ট সংখ্যক 'আর্নিং অ্যাড' দেখে কয়েন আয় করা যাবে। 'আনলিমিটেড অ্যাড' বাটনে ক্লিক করে অ্যাড দেখা যাবে, এবং প্রতি ৫টি অ্যাড দেখার পর ১ কয়েন মূল ব্যালেন্সে যোগ হবে। রেফার করে টাকা আয় করা যাবে (শর্ত প্রযোজ্য)। প্রতিটি কাজের মূল্য অ্যাপের মধ্যে উল্লেখ থাকবে। ভিআইপি প্ল্যান অনুযায়ী দৈনিক 'আর্নিং অ্যাড' দেখার সীমা ভিন্ন হবে। 'আনলিমিটেড অ্যাড' দেখার কোনো সীমা নেই, তবে কয়েন যোগ হবে প্রতি ৫টি ভিউ এর পর।</p>
-                     <h3>৪. ডিপোজিট (৳) ও ভিআইপি ক্রয় (কয়েন)</h3> <p>শুধুমাত্র 'নগদ' এর মাধ্যমে Send Money করে ডিপোজিট করতে পারবেন (ন্যূনতম ৳১০০)। ডিপোজিট পেজে দেওয়া নির্দিষ্ট নগদ নম্বরে টাকা পাঠানোর পর, অ্যাপের ফর্মে আপনার পাঠানো টাকার পরিমাণ, ১০ সংখ্যার TrxID এবং আপনার প্রেরক নগদ নম্বর দিয়ে সাবমিট করতে হবে। রিকোয়েস্ট সাবমিট করার ৫ মিনিট পর আপনার ডিপোজিট করা টাকার সমপরিমাণ কয়েন অ্যাকাউন্টে যোগ হবে (১ টাকা = ১ কয়েন)। ভিআইপি প্ল্যান ক্রয়ের জন্য আপনার অ্যাকাউন্টে পর্যাপ্ত কয়েন থাকতে হবে। প্ল্যান কিনলে আপনার কয়েন ব্যালেন্স থেকে প্ল্যানের মূল্য কেটে নেওয়া হবে এবং প্ল্যানটি সক্রিয় প্ল্যান তালিকায় যুক্ত হবে। ব্যবহারকারী একই সময়ে একাধিক ভিআইপি প্ল্যান সক্রিয় রাখতে পারে।</p>
-                     <h3>৫. উইথড্র (কয়েন)</h3> <p>ন্যূনতম ৫০০০ কয়েন অর্জন করার পর উইথড্র করতে পারবেন। উইথড্র করার সময় আপনার কয়েন টাকায় রূপান্তরিত হয়ে পেমেন্ট করা হবে (রেট এডমিন কর্তৃক নির্ধারিত)। রিকোয়েস্ট ২৪ ঘণ্টার মধ্যে প্রক্রিয়া করা হয়। উইথড্র রিকোয়েস্ট করলে এডমিনকে টেলিগ্রামে জানানো হবে।</p>
-                     <h3>৬. ভিআইপি মেম্বারশিপ</h3> <p>প্ল্যান ক্রয়ের মাধ্যমে দৈনিক 'আর্নিং অ্যাড' দেখার সীমা বৃদ্ধি পাবে। মেয়াদ এবং সুবিধা প্ল্যান অনুযায়ী ভিন্ন হবে। ভিআইপি প্ল্যানের মূল্য (কয়েন) অফেরতযোগ্য।</p>
-                     <h3>৭. নিষিদ্ধ কার্যকলাপ</h3> <p>ভিপিএন, প্রক্সি, অটো-ক্লিক, স্ক্রিপ্ট, এমুলেটর ব্যবহার করা কঠোরভাবে নিষিদ্ধ। ধরা পড়লে অ্যাকাউন্ট স্থায়ীভাবে বন্ধ করা হবে।</p>
-                     <h3>৮. নীতিমালার পরিবর্তন</h3> <p>কর্তৃপক্ষ যেকোনো সময় এই নীতিমালা পরিবর্তন করতে পারে।</p>
-                     <br> <p><i>সাহায্যের জন্য, যোগাযোগ করুন।</i></p> <p><i>শেষ আপডেট: ২০২৪</i></p>
-                 </div>
-             </div>
+            <div class="content-padding">
+                <div class="info-card">
+                    <h3>Today's Tasks</h3>
+                    <p><span>Total Tasks:</span> <span>100</span></p>
+                    <p><span>Completed:</span> <span>0</span></p>
+                    <p><span>Remaining:</span> <span>100</span></p>
+                </div>
 
-        </main> <!-- End Pages Container -->
-
-        <!-- Fixed Bottom Banner (Adsterra) -->
-        <div class="fixed-bottom-banner-container" id="adsterra-banner-bottom">
-            <span class="placeholder-text">বিজ্ঞাপন লোড হচ্ছে...</span>
+                <div class="info-card">
+                    <h3>Earnings</h3>
+                    <p><span>Today's Earnings:</span> <span>Taka 0.00</span></p>
+                    <p><span>Lifetime Earnings:</span> <span>Taka 0.00</span></p>
+                </div>
+            </div>
         </div>
 
-        <!-- Bottom Navigation -->
-        <nav class="bottom-nav">
-            <button class="nav-item active" data-page="home-page"><i class="fas fa-home"></i><span>হোম</span></button>
-            <button class="nav-item" data-page="crazy-time-page"><i class="fas fa-dice-d20"></i><span>বেটিং নাও</span></button> <!-- New Betting Button -->
-            <button class="nav-item" data-page="vip-page"><i class="fas fa-crown"></i><span>ভিআইপি</span></button>
-             <button class="nav-item" data-page="refer-page"><i class="fas fa-user-friends"></i><span>রেফার</span></button>
-             <button class="nav-item" data-page="withdraw-page"><i class="fas fa-money-bill-wave"></i><span>উইথড্র</span></button>
-             <button class="nav-item" data-page="policy-page"><i class="fas fa-info-circle"></i><span>নীতি</span></button>
-         </nav>
+        <!-- Screen 2: Earn -->
+        <div id="earnScreen" class="screen">
+            <div class="app-header">
+                <div class="title">Earn Tasks</div>
+                 <div class="actions">
+                    <span>⋮</span>
+                </div>
+            </div>
+            <div class="content-padding">
+                 <div style="text-align: right; font-size: 12px; color: #bbbbbb; margin-bottom:10px;">User: Developer null | Balance: BDT 1</div>
+                <div class="info-card">
+                    <h3>Today's Tasks</h3>
+                    <p><span>Total Tasks:</span> <span>20</span></p>
+                    <p><span>Completed:</span> <span>0</span></p>
+                    <p><span>Remaining:</span> <span>20</span></p>
+                </div>
+                <button class="btn" onclick="alert('Starting Monetag Task...')">Start Task Monetag</button>
+            </div>
+        </div>
 
-        <!-- VIP Upgrade Modal -->
-         <div class="modal-overlay" id="vip-upgrade-modal">
-             <div class="modal-box">
-                 <button class="close-modal" onclick="closeModal('vip-upgrade-modal')">×</button>
-                 <h3><i class="fas fa-crown"></i> ভিআইপি প্ল্যান কিনুন</h3>
-                 <div id="modal-alert" class="alert"></div>
-                 <p>আপনি কি <b id="modal-vip-level-name">Level X (Name)</b> প্ল্যানটি কিনতে চান?</p>
-                 <div class="vip-cost-info">
-                     <strong>মূল্য: <span id="modal-vip-price-display"><i class="fas fa-coins coin-icon"></i> 0</span> কয়েন</strong>
-                 </div>
-                 <p>আপনার বর্তমান ব্যালেন্স: <b id="modal-current-coins" style="color:var(--coin-color)"><i class="fas fa-coins coin-icon"></i> 0</b> কয়েন।</p>
-                 <form id="vip-upgrade-form">
-                     <input type="hidden" id="modal-vip-level" value="">
-                     <input type="hidden" id="modal-vip-price" value="">
-                     <button type="submit" class="btn btn-success"><i class="fas fa-check-circle"></i> নিশ্চিত করুন</button>
-                     <button type="button" class="btn btn-secondary" style="margin-top: 10px;" onclick="closeModal('vip-upgrade-modal')"><i class="fas fa-times-circle"></i> বাতিল করুন</button>
-                 </form>
-             </div>
-         </div>
+        <!-- Screen 3: Withdraw -->
+        <div id="withdrawScreen" class="screen">
+            <div class="app-header">
+                 <div class="title">Withdraw Funds</div>
+                 <div class="actions">
+                    <span>⋮</span>
+                </div>
+            </div>
+            <div class="content-padding">
+                <div class="info-card">
+                    <p><span>Available Balance:</span> <span style="font-size:16px; color:#34c759;">BDT 1</span></p> <!-- সবুজ রঙ কালোর উপরে ভালো ফুটবে -->
+                </div>
 
+                <div class="info-card">
+                    <h3>Request Withdrawal</h3>
+                    <div class="form-group">
+                        <label for="withdrawalMethod">Withdrawal Method:</label>
+                        <select id="withdrawalMethod" name="withdrawalMethod">
+                            <option value="">Select a method</option>
+                            <option value="bkash">bKash</option>
+                            <option value="nagad">Nagad</option>
+                            <option value="rocket">Rocket</option>
+                            <option value="bank">Bank Transfer</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="amount">Amount (BDT):</label>
+                        <input type="number" id="amount" name="amount" placeholder="Enter amount">
+                    </div>
+                    <div class="form-group">
+                        <label for="walletAddress">Withdrawal Address/Number:</label>
+                        <input type="text" id="walletAddress" name="walletAddress" placeholder="Enter wallet address or number">
+                    </div>
+                    <button class="btn" onclick="submitWithdrawal()">Submit Withdrawal</button>
+                </div>
+            </div>
+        </div>
 
-    </div> <!-- End App Container -->
+        <!-- Screen 4: Profile -->
+        <div id="profileScreen" class="screen">
+            <div class="app-header">
+                <div class="title">Profile</div>
+                <div class="actions">
+                    <span>⋮</span>
+                </div>
+            </div>
+            <div class="content-padding">
+                <div class="info-card">
+                    <h3>User Profile</h3>
+                    <p><span>Name:</span> <span id="profileTabUserName">Loading...</span></p>
+                    <p><span>Email:</span> <span>user@example.com</span></p>
+                    <p><span>Joined:</span> <span>01 Jan 2024</span></p>
+                    <button class="btn" style="background-color: #ff3b30; margin-top: 20px;" onclick="alert('Logging out...')">Logout</button> <!-- উজ্জ্বল লাল লগআউট বাটন -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Navigation -->
+    <div class="bottom-nav">
+        <div class="nav-item active" data-screen="homeScreen">
+            <div class="icon">🏠</div>
+            <div>Home</div>
+        </div>
+        <div class="nav-item" data-screen="earnScreen">
+            <div class="icon">💰</div>
+            <div>Earn</div>
+        </div>
+        <div class="nav-item" data-screen="withdrawScreen">
+            <div class="icon">💸</div>
+            <div>Withdraw</div>
+        </div>
+        <div class="nav-item" data-screen="profileScreen">
+            <div class="icon">👤</div>
+            <div>Profile</div>
+        </div>
+    </div>
 
     <script>
-        // --- DOM Elements ---
-         const appContainer = document.querySelector('.app-container');
-         const pages = document.querySelectorAll('.page');
-         const navItems = document.querySelectorAll('.nav-item');
-         const loadingIndicator = document.getElementById('loading-indicator');
-         const toastMessage = document.getElementById('toast-message');
-         const generalAlertArea = document.getElementById('general-alert-area');
-         const profileUserName = document.getElementById('profile-user-name');
-         const profileUserPhone = document.getElementById('profile-user-phone');
-         const profileBalanceSection = document.getElementById('profile-balance-section');
-         const profileBalanceValue = document.getElementById('profile-balance-value');
-         const balanceHiddenSymbol = document.getElementById('balance-hidden-symbol');
-         const balanceEyeIcon = document.getElementById('balance-eye-icon');
-         const adsterraBannerBottom = document.getElementById('adsterra-banner-bottom');
-         const referralCodeElement = document.getElementById('referral-code');
-         const copyFeedbackElement = document.getElementById('copy-feedback');
-         const currentBalanceWithdrawPage = document.getElementById('current-balance-text-wp');
-         const vipPlanListContainer = document.getElementById('vip-plan-list');
-         const vipPurchaseFeedback = document.getElementById('vip-purchase-feedback');
-         const loginForm = document.getElementById('login-form');
-         const signupForm = document.getElementById('signup-form');
-         const depositForm = document.getElementById('deposit-form');
-         const withdrawForm = document.getElementById('withdraw-form');
-         const vipUpgradeForm = document.getElementById('vip-upgrade-form');
-         const loginAlert = document.getElementById('login-alert');
-         const signupAlert = document.getElementById('signup-alert');
-         const depositAlert = document.getElementById('deposit-alert');
-         const withdrawAlert = document.getElementById('withdraw-alert');
-         const modalAlert = document.getElementById('modal-alert');
-         const dailyAdViewSection = document.getElementById('daily-ad-view-section');
-         const adViewProgressInfo = document.getElementById('ad-view-progress-info');
-         const vipUpgradeModal = document.getElementById('vip-upgrade-modal');
-         const modalVipLevelName = document.getElementById('modal-vip-level-name');
-         const modalVipLevelInput = document.getElementById('modal-vip-level');
-         const modalVipPriceInput = document.getElementById('modal-vip-price');
-         const modalVipPriceDisplay = document.getElementById('modal-vip-price-display');
-         const modalCurrentCoins = document.getElementById('modal-current-coins');
-         const depositNumberDisplay = document.getElementById('deposit-number-display');
+        const navItems = document.querySelectorAll('.bottom-nav .nav-item');
+        const screens = document.querySelectorAll('.app-container .screen');
 
-        // --- App State ---
-        let isLoggedIn = false;
-        let currentUser = {
-            name: 'ব্যবহারকারী',
-            email: null,
-            phone: '01xxxxxxxxx',
-            balance: 100, // Starting coins (will also be used by Crazy Time game)
-            referralCode: 'LOADING',
-            activeVips: [],
-            completedAdViewsToday: 0,
-            unlimitedAdViewCount: 0,
-        };
-        let isBalanceVisible = false;
-        let isMonetagAdShowing = false;
-        let depositTimers = {};
+        // HTML Elements for Telegram User Data
+        const headerUserNameElement = document.getElementById('headerUserName');
+        const profileSummaryUserNameElement = document.getElementById('profileSummaryUserName');
+        const profileTabUserNameElement = document.getElementById('profileTabUserName');
 
-        // --- Configuration ---
-        const TELEGRAM_BOT_TOKEN = "8009763508:AAEZbdb59aAr_zq8u8CFsnwnIN60yi_HcGk";
-        const TELEGRAM_CHAT_ID = "6105596008";
-        const ADSTERRA_BOTTOM_BANNER_KEY = '728897206504f3ccf981e290d2df1034';
-        const MONETAG_AD_REWARD = 1;
-        const UNLIMITED_ADS_PER_COIN = 5;
-        const WITHDRAWAL_MINIMUM_COINS = 5000;
-        const DEPOSIT_MINIMUM_TAKA = 100;
-        const DEPOSIT_COIN_DELAY_MS = 5 * 60 * 1000;
-        const COIN_ICON_CLASS = "fas fa-coins";
-        const TRX_ID_LENGTH = 10;
+        // ব্যবহারকারীর নাম সেট করার ফাংশন
+        function setTelegramUserName(name) {
+            const placeholderName = "MD_Ali_YT"; // ডিফল্ট নাম যদি টেলিগ্রাম থেকে না পাওয়া যায়
+            let finalName = name;
 
-        // --- VIP Plans ---
-        const vipPlans = [
-            { level: 1, name: "ব্রোঞ্জ", icon: "fas fa-shield-alt", price: 100, tasksPerDay: 5, features: ["দৈনিক ৫টি অ্যাড ভিউ"], color: "#cd7f32"},
-            { level: 2, name: "সিলভার", icon: "fas fa-star", price: 250, tasksPerDay: 10, features: ["দৈনিক ১০টি অ্যাড ভিউ"], color: "#c0c0c0"},
-            { level: 3, name: "গোল্ড", icon: "fas fa-medal", price: 500, tasksPerDay: 15, features: ["দৈনিক ১৫টি অ্যাড ভিউ"], color: "#ffd700"},
-            { level: 4, name: "প্লাটিনাম", icon: "fas fa-award", price: 1000, tasksPerDay: 20, features: ["দৈনিক ২০টি অ্যাড ভিউ"], color: "#e5e4e2"},
-            { level: 5, name: "ডায়মন্ড", icon: "fas fa-gem", price: 2000, tasksPerDay: 25, features: ["দৈনিক ২৫টি অ্যাড ভিউ"], color: "#b9f2ff"},
-            { level: 6, name: "এমেরাल्ड", icon: "fas fa-leaf", price: 3500, tasksPerDay: 30, features: ["দৈনিক ৩০টি অ্যাড ভিউ"], color: "#3cd070" },
-            { level: 7, name: "স্যাফায়ার", icon: "fas fa-anchor", price: 5000, tasksPerDay: 35, features: ["দৈনিক ৩৫টি অ্যাড ভিউ"], color: "#3399ff" },
-            { level: 8, name: "রুবি", icon: "fas fa-fire", price: 7500, tasksPerDay: 40, features: ["দৈনিক ৪০টি অ্যাড ভিউ"], color: "#ff6f61" },
-            { level: 9, name: "ওপাল", icon: "fas fa-moon", price: 10000, tasksPerDay: 45, features: ["দৈনিক ৪৫টি অ্যাড ভিউ"], color: "#a8c3b8" },
-            { level: 10, name: "ওনিক্স", icon: "fas fa-atom", price: 15000, tasksPerDay: 50, features: ["দৈনিক ৫০টি অ্যাড ভিউ"], color: "#4a4a4a" },
-            { level: 11, name: "জেড", icon: "fas fa-seedling", price: 20000, tasksPerDay: 55, features: ["দৈনিক ৫৫টি অ্যাড ভিউ"], color: "#00A86B" },
-            { level: 12, name: "লাভা", icon: "fas fa-fire-alt", price: 25000, tasksPerDay: 60, features: ["দৈনিক ৬০টি অ্যাড ভিউ"], color: "#CF1020" },
-            { level: 13, name: "অ্যাম্বার", icon: "fas fa-sun", price: 30000, tasksPerDay: 65, features: ["দৈনিক ৬৫টি অ্যাড ভিউ"], color: "#FFBF00" },
-            { level: 14, name: "স্কাই", icon: "fas fa-bolt", price: 40000, tasksPerDay: 70, features: ["দৈনিক ৭০টি অ্যাড ভিউ"], color: "#87CEEB" },
-            { level: 15, name: "ওশেন", icon: "fas fa-water", price: 50000, tasksPerDay: 75, features: ["দৈনিক ৭৫টি অ্যাড ভিউ"], color: "#1E90FF" },
-            { level: 16, name: "কসমিক", icon: "fas fa-rocket", price: 60000, tasksPerDay: 80, features: ["দৈনিক ৮০টি অ্যাড ভিউ"], color: "#4A4E69" },
-            { level: 17, name: "গ্যালাক্সি", icon: "fas fa-meteor", price: 75000, tasksPerDay: 85, features: ["দৈনিক ৮৫টি অ্যাড ভিউ"], color: "#9B5DE5" },
-            { level: 18, name: "সোলার", icon: "fas fa-solar-panel", price: 90000, tasksPerDay: 90, features: ["দৈনিক ৯০টি অ্যাড ভিউ"], color: "#FEE440" },
-            { level: 19, name: "ইনফিনিটি", icon: "fas fa-infinity", price: 120000, tasksPerDay: 95, features: ["দৈনিক ৯৫টি অ্যাড ভিউ"], color: "#FB5607" },
-            { level: 20, name: "লিজেণ্ড", icon: "fas fa-landmark", price: 150000, tasksPerDay: 100, features: ["দৈনিক ১০০টি অ্যাড ভিউ"], color: "#212121" }
-        ];
-
-        // --- Crazy Time Game Object ---
-        const crazyTimeGame = {
-            wheel: null,
-            spinButton: null,
-            resultDiv: null,
-            balanceDisplay: null,
-            bettingOptionsDiv: null,
-            currentBetsDisplay: null,
-            
-            BET_AMOUNT: 10, 
-            segmentsData: [
-                { text: "1", color: "#3498db", probability: 0.388, id: "seg1", payout: 2 }, 
-                { text: "2", color: "#f1c40f", probability: 0.240, id: "seg2", payout: 3 }, 
-                { text: "5", color: "#2ecc71", probability: 0.129, id: "seg5", payout: 6 },
-                { text: "10", color: "#e74c3c", probability: 0.074, id: "seg10", payout: 11 },
-                { text: "COIN FLIP", color: "#9b59b6", probability: 0.074, id: "segCF", payout: 5 }, 
-                { text: "PACHINKO", color: "#1abc9c", probability: 0.037, id: "segPA", payout: 8 },
-                { text: "CASH HUNT", color: "#e67e22", probability: 0.037, id: "segCH", payout: 10 },
-                { text: "CRAZY TIME", color: "#d35400", probability: 0.018, id: "segCT", payout: 20 }
-            ],
-            currentBets: {}, 
-            spinning: false,
-            currentRotation: 0,
-            initialized: false,
-            spinDuration: 1000, // 10 seconds for spin
-
-            init: function() {
-                if (this.initialized) return;
-
-                this.wheel = document.getElementById('ct-wheel');
-                this.spinButton = document.getElementById('ct-spinButton');
-                this.resultDiv = document.getElementById('ct-result');
-                this.balanceDisplay = document.getElementById('ct-balanceDisplay');
-                this.bettingOptionsDiv = document.getElementById('ct-bettingOptions');
-                this.currentBetsDisplay = document.getElementById('ct-currentBetsDisplay');
-
-                if (!this.wheel || !this.spinButton || !this.resultDiv || !this.balanceDisplay || !this.bettingOptionsDiv || !this.currentBetsDisplay) {
-                    console.error("Crazy Time Game elements not all found. Initialization failed.");
-                    return;
-                }
-                
-                this.updateGameBalanceDisplay();
-                this.updateGameCurrentBetsDisplay();
-                this.createBettingButtons();
-                this.createWheelSegments();
-
-                this.spinButton.addEventListener('click', () => this.spin());
-                this.initialized = true;
-                console.log("Crazy Time Game Initialized");
-            },
-
-            resetGameVisualsAndState: function() {
-                if (!this.initialized) this.init(); 
-
-                this.currentBets = {};
-                this.updateGameCurrentBetsDisplay();
-                if(this.resultDiv) this.resultDiv.textContent = "স্পিন করুন!";
-                
-                const allBetButtons = this.bettingOptionsDiv.querySelectorAll('.ct-bet-button');
-                allBetButtons.forEach(btn => btn.classList.remove('active'));
-                
-                this.toggleBetButtons(true);
-                if(this.spinButton) this.spinButton.disabled = false;
-                this.spinning = false;
-                this.updateGameBalanceDisplay();
-            },
-
-            updateGameBalanceDisplay: function() {
-                if (this.balanceDisplay) {
-                    this.balanceDisplay.textContent = isLoggedIn ? currentUser.balance : "0";
-                }
-            },
-
-            updateGameCurrentBetsDisplay: function() {
-                if (!this.currentBetsDisplay) return;
-                const betTexts = Object.keys(this.currentBets).map(segId => {
-                    const segment = this.segmentsData.find(s => s.id === segId);
-                    return segment ? `${segment.text} (${this.BET_AMOUNT} টাকা)` : 'Unknown';
-                });
-                if (betTexts.length === 0) {
-                    this.currentBetsDisplay.textContent = "এখনও কোনো বেট নেই";
-                } else {
-                    this.currentBetsDisplay.textContent = betTexts.join(', ');
-                }
-            },
-            
-            createBettingButtons: function() {
-                this.bettingOptionsDiv.innerHTML = ''; 
-                this.segmentsData.forEach(segment => {
-                    const button = document.createElement('button');
-                    button.classList.add('ct-bet-button');
-                    button.textContent = `বেট ${segment.text}`;
-                    button.dataset.segmentId = segment.id;
-                    button.style.backgroundColor = segment.color;
-
-                    button.addEventListener('click', () => {
-                        if (this.spinning) {
-                            alert("স্পিন চলাকালীন বেট করা যাবে না।");
-                            return;
-                        }
-                        if (!isLoggedIn) {
-                            alert("বেট করতে অনুগ্রহ করে লগইন করুন।");
-                            showPage('login-page');
-                            return;
-                        }
-
-                        const segmentId = segment.id;
-
-                        if (this.currentBets[segmentId]) {
-                            alert(`আপনি ইতোমধ্যে ${segment.text} এ ${this.BET_AMOUNT} টাকার বেট করেছেন।`);
-                            return;
-                        }
-
-                        if (currentUser.balance < this.BET_AMOUNT) {
-                            alert("বেট করার জন্য আপনার পর্যাপ্ত ব্যালেন্স নেই!");
-                            return;
-                        }
-
-                        currentUser.balance -= this.BET_AMOUNT;
-                        this.currentBets[segmentId] = this.BET_AMOUNT; 
-                        
-                        saveAppState(); 
-                        updateBalanceDisplay(); 
-                        this.updateGameBalanceDisplay(); 
-                        this.updateGameCurrentBetsDisplay();
-                        button.classList.add('active');
-                    });
-                    this.bettingOptionsDiv.appendChild(button);
-                });
-            },
-
-            createWheelSegments: function() {
-                let gradientString = 'conic-gradient(';
-                let currentAngleDeg = 0;
-                const anglePerVisualSegment = 360 / this.segmentsData.length;
-
-                this.wheel.querySelectorAll('.ct-wheel-segment-text').forEach(el => el.remove());
-
-                this.segmentsData.forEach((segData, index) => {
-                    gradientString += `${segData.color} ${currentAngleDeg}deg ${currentAngleDeg + anglePerVisualSegment}deg`;
-                    if (index < this.segmentsData.length - 1) {
-                        gradientString += ', ';
-                    }
-                    currentAngleDeg += anglePerVisualSegment;
-
-                    const textDiv = document.createElement('div');
-                    textDiv.textContent = segData.text;
-                    textDiv.classList.add('ct-wheel-segment-text'); 
-
-                    const wheelWidth = this.wheel.offsetWidth;
-                    if (wheelWidth > 0) {
-                        const textWidthApproximation = wheelWidth / this.segmentsData.length * 0.7;
-                        const radius = wheelWidth / 2 * 0.70; 
-                        const textAngleRad = (((index * anglePerVisualSegment) + (anglePerVisualSegment / 2) - 90) * Math.PI) / 180; 
-
-                        textDiv.style.width = `${textWidthApproximation}px`;
-                        textDiv.style.left = `calc(50% + ${radius * Math.cos(textAngleRad)}px - ${textWidthApproximation / 2}px)`;
-                        textDiv.style.top = `calc(50% + ${radius * Math.sin(textAngleRad)}px - 7px)`; 
-                        textDiv.style.transform = `rotate(${(index * anglePerVisualSegment) + (anglePerVisualSegment / 2)}deg)`;
-                        this.wheel.appendChild(textDiv);
-                    }
-                });
-                gradientString += ')';
-                this.wheel.style.background = gradientString;
-            },
-
-            _getSegmentByNaturalProbability: function() {
-                let random = Math.random();
-                let cumulativeProbability = 0;
-                for (let i = 0; i < this.segmentsData.length; i++) {
-                    cumulativeProbability += this.segmentsData[i].probability;
-                    if (random < cumulativeProbability) {
-                        return this.segmentsData[i];
-                    }
-                }
-                return this.segmentsData[this.segmentsData.length - 1]; 
-            },
-            
-            determineWinningSegment: function() {
-                const userWinsThisSpin = Math.random() < 0.40; 
-
-                if (userWinsThisSpin) {
-                    const betSegmentIds = Object.keys(this.currentBets);
-                    if (betSegmentIds.length > 0) {
-                        const randomBetSegmentId = betSegmentIds[Math.floor(Math.random() * betSegmentIds.length)];
-                        const winningSegment = this.segmentsData.find(s => s.id === randomBetSegmentId);
-                        if (winningSegment) return winningSegment;
-                    }
-                    return this._getSegmentByNaturalProbability();
-                } else {
-                    const unbetSegments = this.segmentsData.filter(seg => !this.currentBets[seg.id]);
-                    if (unbetSegments.length > 0) {
-                        return unbetSegments[Math.floor(Math.random() * unbetSegments.length)];
-                    } else {
-                        let lowestPayoutSegment = this.segmentsData.reduce((min, seg) => seg.payout < min.payout ? seg : min, this.segmentsData[0]);
-                        return lowestPayoutSegment;
-                    }
-                }
-            },
-
-
-            toggleBetButtons: function(enable) {
-                const buttons = this.bettingOptionsDiv.querySelectorAll('.ct-bet-button');
-                buttons.forEach(button => button.disabled = !enable);
-            },
-
-            spin: function() {
-                if (this.spinning) return;
-                if (!isLoggedIn) {
-                     alert("স্পিন করতে অনুগ্রহ করে লগইন করুন।");
-                     showPage('login-page');
-                     return;
-                }
-                if (Object.keys(this.currentBets).length === 0) {
-                    alert("দয়া করে প্রথমে অন্তত একটি বেট করুন।");
-                    return;
-                }
-
-                this.spinning = true;
-                this.spinButton.disabled = true;
-                this.toggleBetButtons(false);
-                this.resultDiv.textContent = 'ঘুরছে...';
-
-                const winningSegmentData = this.determineWinningSegment(); 
-                const winningSegmentIndex = this.segmentsData.findIndex(s => s.id === winningSegmentData.id);
-                
-                const anglePerVisualSegment = 360 / this.segmentsData.length;
-                const targetAngleWithin360 = -((winningSegmentIndex * anglePerVisualSegment) + (anglePerVisualSegment / 2));
-                
-                const fullRotations = 20 + Math.floor(Math.random() * 10); // 20 to 29 full rotations for a 30s spin
-
-                let normalizedCurrentRotation = (this.currentRotation % 360 + 360) % 360;
-                
-                let degreesToTarget = (targetAngleWithin360 - normalizedCurrentRotation + 360) % 360;
-                if (degreesToTarget === 0 && fullRotations === 0) { 
-                    degreesToTarget = 360; // Ensure at least one full spin if already at target
-                }
-                
-                // The crucial part: ensure currentRotation always increases for clockwise spin
-                const totalDegreesToSpin = (fullRotations * 360) + degreesToTarget;
-                const finalRotation = this.currentRotation + totalDegreesToSpin; // Add to existing rotation
-                
-                this.currentRotation = finalRotation; 
-
-                this.wheel.style.transform = `rotate(${this.currentRotation}deg)`;
-
-                setTimeout(() => {
-                    this.spinning = false;
-                    this.spinButton.disabled = false;
-                    this.toggleBetButtons(true);
-
-                    this.resultDiv.textContent = `ফলাফল: ${winningSegmentData.text}!`;
-                    
-                    if (this.currentBets[winningSegmentData.id]) {
-                        const betAmountOnWinningSegment = this.currentBets[winningSegmentData.id];
-                        const payoutMultiplier = winningSegmentData.payout;
-                        const winnings = betAmountOnWinningSegment * payoutMultiplier;
-                        
-                        currentUser.balance += winnings; 
-                        this.resultDiv.textContent += ` আপনি ${winningSegmentData.text} এ ${winnings} টাকা জিতেছেন!`;
-                    } else {
-                        this.resultDiv.textContent += ` আপনার কোনো বেট জেতেনি।`;
-                    }
-                    
-                    saveAppState(); 
-                    updateBalanceDisplay(); 
-                    this.updateGameBalanceDisplay(); 
-
-                    this.currentBets = {};
-                    this.updateGameCurrentBetsDisplay();
-                    const allBetButtons = this.bettingOptionsDiv.querySelectorAll('.ct-bet-button');
-                    allBetButtons.forEach(btn => btn.classList.remove('active'));
-
-                }, this.spinDuration + 100); 
+            if (!name || name.trim() === "" || name.trim() === "User") {
+                 // সাধারণ ব্রাউজারে বা টেলিগ্রাম ডেটা না পেলে ডিফল্ট নাম ব্যবহৃত হবে
+                finalName = placeholderName;
             }
-        };
+
+            if (headerUserNameElement) headerUserNameElement.textContent = finalName;
+            if (profileSummaryUserNameElement) profileSummaryUserNameElement.textContent = finalName;
+            if (profileTabUserNameElement) profileTabUserNameElement.textContent = finalName;
+        }
 
 
-        // --- Utility Functions ---
-         function showLoading() { if(loadingIndicator) loadingIndicator.style.display = 'flex'; }
-         function hideLoading() { if(loadingIndicator) loadingIndicator.style.display = 'none'; }
-         function showToast(message, duration = 3500) { if(!toastMessage) return; toastMessage.textContent = message; toastMessage.style.display = 'block'; toastMessage.style.animation = 'none'; void toastMessage.offsetWidth; toastMessage.style.animation = `fadeInOutToast ${duration/1000}s ease-in-out`; setTimeout(() => { if (toastMessage.style.display === 'block') { toastMessage.style.display = 'none'; } }, duration); }
-         function showAlert(alertElement, message, type = 'danger') { if (!alertElement) { console.error("Alert Error:", message); return; } alertElement.innerHTML = message; alertElement.className = `alert alert-${type}`; alertElement.style.display = 'block'; setTimeout(() => { if(alertElement.style.display === 'block') { alertElement.style.display = 'none'; } }, 6000); }
-         function clearAlerts() { [loginAlert, signupAlert, depositAlert, withdrawAlert, generalAlertArea, modalAlert].forEach(el => { if(el) { el.style.display = 'none'; el.textContent = ''; if (el.id === 'general-alert-area' || el.id === 'modal-alert') el.innerHTML = ''; else el.className = 'alert'; } }); }
-         function generateReferralCode() { return Math.random().toString(36).substring(2, 9).toUpperCase(); }
-         function copyToClipboard(text, buttonElement) { navigator.clipboard.writeText(text).then(() => { const originalText = buttonElement.innerHTML; buttonElement.innerHTML = '<i class="fas fa-check"></i> কপিড'; buttonElement.disabled = true; setTimeout(() => { buttonElement.innerHTML = originalText; buttonElement.disabled = false; }, 1500); }).catch(err => { showToast("কপি করা যায়নি!"); console.error('Clipboard copy failed:', err); }); }
-         function openModal(modalId) { const modal = document.getElementById(modalId); if (modal) modal.style.display = 'flex'; }
-         function closeModal(modalId) { const modal = document.getElementById(modalId); if (modal) modal.style.display = 'none'; }
-         function getTotalDailyAdLimit() { if (!currentUser || !currentUser.activeVips || currentUser.activeVips.length === 0) return 0; return currentUser.activeVips.reduce((sum, vip) => sum + (vip.tasksPerDay || 0), 0); }
-         function copyDepositNumber() {
-             if (depositNumberDisplay) {
-                 const numberToCopy = depositNumberDisplay.textContent.trim();
-                 navigator.clipboard.writeText(numberToCopy).then(() => {
-                     showToast('নগদ নম্বর কপি করা হয়েছে!', 2500);
-                 }).catch(err => {
-                     showToast('কপি করতে সমস্যা হয়েছে।');
-                     console.error('Failed to copy deposit number:', err);
-                 });
-             } else {
-                 console.error("Deposit number element not found.");
-             }
-         }
+        try {
+            const tg = window.Telegram.WebApp;
+            tg.ready();
 
+            // Override body background for black theme if Telegram theme is different
+            // document.body.style.backgroundColor = "#000000"; // জাভাস্ক্রিপ্ট দিয়েও করা যায়, তবে CSS এই বেশি উপযুক্ত
+            // tg.themeParams.bg_color = "#000000"; // এটা শুধু টেলিগ্রামের কাছে রিপোর্টিং, UI সরাসরি চেঞ্জ করবে না
+            // tg.setHeaderColor('#1a1a1a'); // হেডারের রঙ জাভাস্ক্রিপ্ট দিয়ে সেট করা
 
-        // --- Telegram Integration ---
-         async function sendTelegramMessage(messageText) { if (!TELEGRAM_BOT_TOKEN || !TELEGRAM_CHAT_ID) { console.error("Telegram Bot Token or Chat ID is missing."); return false; } const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`; const payload = { chat_id: TELEGRAM_CHAT_ID, text: messageText, parse_mode: 'HTML' }; try { showLoading(); const response = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) }); const data = await response.json(); hideLoading(); if (data.ok) { console.log("Telegram message sent successfully:", data); return true; } else { console.error("Telegram API Error:", data); showToast(`টেলিগ্রামে মেসেজ পাঠাতে সমস্যা হয়েছে। কোড: ${data.error_code}`); return false; } } catch (error) { hideLoading(); console.error("Error sending Telegram message:", error); showToast("টেলিগ্রামে মেসেজ পাঠাতে নেটওয়ার্ক সমস্যা।"); return false; } }
+            const userData = tg.initDataUnsafe?.user;
+            let telegramDisplayName = null;
 
-        // --- Page Navigation & Core UI Update ---
-        function showPage(pageId) {
-            clearAlerts();
-
-            const nonAuthPages = ['login-page', 'signup-page', 'policy-page'];
-            if (!isLoggedIn && !nonAuthPages.includes(pageId)) {
-                if (pageId === 'crazy-time-page') {
-                    // Allow viewing structure, game logic will prompt login
-                } else {
-                    showAlert(generalAlertArea || loginAlert, 'পেজটি দেখতে লগইন করুন।', 'danger');
-                    showPage('login-page');
-                    return;
+            if (userData) {
+                const firstName = userData.first_name || '';
+                const lastName = userData.last_name || '';
+                if (firstName || lastName) {
+                    telegramDisplayName = `${firstName} ${lastName}`.trim();
+                } else if (userData.username) {
+                    telegramDisplayName = `@${userData.username}`;
                 }
             }
-            
-            pages.forEach(page => {
-                page.classList.remove('active');
-                page.style.display = 'none'; 
+
+            setTelegramUserName(telegramDisplayName); // প্রাপ্ত নাম অথবা ডিফল্ট নাম সেট করবে
+
+            tg.expand();
+
+        } catch (e) {
+            console.error("Telegram WebApp API error or not in Telegram environment:", e);
+            setTelegramUserName(null); // ত্রুটি ঘটলে ডিফল্ট নাম ব্যবহার করা হবে
+            // alert("Could not connect to Telegram. Displaying default data. Please open this app through your Telegram bot.");
+        }
+
+
+        function showScreen(screenId) {
+            screens.forEach(screen => {
+                screen.classList.remove('active');
+            });
+            const activeScreen = document.getElementById(screenId);
+            if (activeScreen) {
+                 activeScreen.classList.add('active');
+            }
+
+
+            navItems.forEach(item => {
+                item.classList.remove('active');
+                if (item.getAttribute('data-screen') === screenId) {
+                    item.classList.add('active');
+                }
             });
 
-            const pageToShow = document.getElementById(pageId);
-            if (pageToShow) {
-                pageToShow.classList.add('active');
-                if (pageId === 'crazy-time-page') {
-                    pageToShow.style.display = 'flex'; 
-                } else {
-                    pageToShow.style.display = 'block'; 
-                }
-                
-                updateAppUIBasedOnPage(pageId);
-
-                if (pageId === 'crazy-time-page') {
-                    if (!crazyTimeGame.initialized) {
-                        crazyTimeGame.init();
-                        requestAnimationFrame(() => crazyTimeGame.createWheelSegments());
-                    }
-                    crazyTimeGame.resetGameVisualsAndState(); 
-                }
-
-                 const shouldShowBottomBanner = isLoggedIn && pageId !== 'login-page' && pageId !== 'signup-page';
-                 if (adsterraBannerBottom && shouldShowBottomBanner) {
-                     loadAdsterraBanner('adsterra-banner-bottom', ADSTERRA_BOTTOM_BANNER_KEY, true);
-                 }
-             } else { 
-                console.error("Page not found:", pageId); 
-                showPage(isLoggedIn ? 'home-page' : 'login-page'); 
+            if (screenId === 'profileScreen') {
+                // প্রোফাইল স্ক্রিনে ব্যবহারকারীর নাম পুনরায় সেট করা, যদি প্রয়োজন হয়
+                // যেহেতু নাম আগেই সেট করা হয়েছে, তাই সাধারণত প্রয়োজন নেই,
+                // তবে ডাইনামিক কিছু থাকলে এখানে করা যেতে পারে।
+                // profileTabUserNameElement.textContent = headerUserNameElement.textContent;
             }
-            document.querySelector('.pages-container').scrollTop = 0;
-         }
-
-         function updateAppUIBasedOnPage(pageId) {
-             navItems.forEach(item => item.classList.toggle('active', item.getAttribute('data-page') === pageId));
-             const shouldShowBottomBanner = isLoggedIn && !['login-page', 'signup-page', 'crazy-time-page'].includes(pageId);
-             if (adsterraBannerBottom) {
-                 adsterraBannerBottom.classList.toggle('visible', shouldShowBottomBanner);
-                 if (shouldShowBottomBanner && !adsterraBannerBottom.querySelector('iframe')) {
-                     loadAdsterraBanner('adsterra-banner-bottom', ADSTERRA_BOTTOM_BANNER_KEY);
-                 } else if (!shouldShowBottomBanner) {
-                     adsterraBannerBottom.innerHTML = '<span class="placeholder-text">বিজ্ঞাপন লোড হচ্ছে...</span>';
-                 }
-             }
-             if (pageId === 'home-page' && isLoggedIn) { updateProfileCard(); renderDailyAdViewProgress(); }
-             if (pageId === 'refer-page' && isLoggedIn) { displayReferralCode(); }
-             if (pageId === 'withdraw-page' && isLoggedIn) { displayBalanceOnWithdrawPage(); }
-             if (pageId === 'vip-page' && isLoggedIn) { renderVipPlans(); }
-         }
-
-        // --- Authentication & Local Storage ---
-        const LS_PREFIX = "eliteEarnCoinVIP_v4_";
-         function checkLoginStatus() {
-             const loggedIn = localStorage.getItem(LS_PREFIX + 'loggedIn') === 'true';
-             if (loggedIn) {
-                 isLoggedIn = true;
-                 currentUser.email = localStorage.getItem(LS_PREFIX + 'userEmail');
-                 currentUser.name = localStorage.getItem(LS_PREFIX + 'userName');
-                 currentUser.phone = localStorage.getItem(LS_PREFIX + 'userPhone') || '01xxxxxxxxx';
-                 currentUser.balance = parseInt(localStorage.getItem(LS_PREFIX + 'userBalance')) || 0;
-                 currentUser.referralCode = localStorage.getItem(LS_PREFIX + 'userReferralCode');
-                 currentUser.activeVips = JSON.parse(localStorage.getItem(LS_PREFIX + 'userActiveVips') || '[]');
-                 currentUser.completedAdViewsToday = parseInt(localStorage.getItem(LS_PREFIX + 'completedAdViewsToday') || '0');
-                 currentUser.unlimitedAdViewCount = parseInt(localStorage.getItem(LS_PREFIX + 'unlimitedAdViewCount') || '0');
-                 const today = new Date().toDateString();
-                 const lastReset = localStorage.getItem(LS_PREFIX + 'lastAdResetDate');
-                 if (lastReset !== today) { resetDailyAdViews(); }
-                 checkPendingDeposits();
-             } else {
-                 isLoggedIn = false;
-                 currentUser = { name: 'ব্যবহারকারী', email: null, phone: '01xxxxxxxxx', balance: 100, referralCode: 'DEMO123', activeVips: [], completedAdViewsToday: 0, unlimitedAdViewCount: 0 };
-             }
-         }
-         function saveLoginStatus(user) {
-             isLoggedIn = true;
-             user.activeVips = user.activeVips || [];
-             if(!user.referralCode){user.referralCode=generateReferralCode()}
-             if(!user.phone || user.phone.length !== 11 || !/^[0-9]+$/.test(user.phone)){user.phone='01xxxxxxxxx'}
-             currentUser = { ...user, completedAdViewsToday: 0, unlimitedAdViewCount: user.unlimitedAdViewCount || 0 };
-             localStorage.setItem(LS_PREFIX + 'loggedIn', 'true');
-             localStorage.setItem(LS_PREFIX + 'userEmail', currentUser.email);
-             localStorage.setItem(LS_PREFIX + 'userName', currentUser.name);
-             localStorage.setItem(LS_PREFIX + 'userPhone', currentUser.phone);
-             localStorage.setItem(LS_PREFIX + 'userBalance', Math.floor(currentUser.balance).toString());
-             localStorage.setItem(LS_PREFIX + 'userReferralCode', currentUser.referralCode);
-             localStorage.setItem(LS_PREFIX + 'userActiveVips', JSON.stringify(currentUser.activeVips));
-             localStorage.setItem(LS_PREFIX + 'completedAdViewsToday', currentUser.completedAdViewsToday.toString());
-             localStorage.setItem(LS_PREFIX + 'unlimitedAdViewCount', currentUser.unlimitedAdViewCount.toString());
-             resetDailyAdViews();
-             updateProfileCard();
-             renderDailyAdViewProgress();
-         }
-        function saveAppState() {
-             if(isLoggedIn){
-                 localStorage.setItem(LS_PREFIX+'userBalance', Math.floor(currentUser.balance).toString());
-                 localStorage.setItem(LS_PREFIX+'userActiveVips', JSON.stringify(currentUser.activeVips));
-                 localStorage.setItem(LS_PREFIX + 'completedAdViewsToday', currentUser.completedAdViewsToday.toString());
-                 localStorage.setItem(LS_PREFIX + 'unlimitedAdViewCount', currentUser.unlimitedAdViewCount.toString());
-                 const lastReset = localStorage.getItem(LS_PREFIX + 'lastAdResetDate');
-                 if (lastReset) { localStorage.setItem(LS_PREFIX + 'lastAdResetDate', lastReset); }
-                 localStorage.setItem(LS_PREFIX + 'pendingDeposits', JSON.stringify(depositTimers));
-             }
         }
-         function clearLoginStatus() {
-             isLoggedIn = false;
-             currentUser = { name: 'ব্যবহারকারী', email: null, phone: '01xxxxxxxxx', balance: 100, referralCode: 'DEMO123', activeVips: [], completedAdViewsToday: 0, unlimitedAdViewCount: 0 };
-             localStorage.removeItem(LS_PREFIX + 'loggedIn');
-             localStorage.removeItem(LS_PREFIX + 'userEmail');
-             localStorage.removeItem(LS_PREFIX + 'userName');
-             localStorage.removeItem(LS_PREFIX + 'userPhone');
-             localStorage.removeItem(LS_PREFIX + 'userBalance');
-             localStorage.removeItem(LS_PREFIX + 'userReferralCode');
-             localStorage.removeItem(LS_PREFIX + 'userActiveVips');
-             localStorage.removeItem(LS_PREFIX + 'completedAdViewsToday');
-             localStorage.removeItem(LS_PREFIX + 'lastAdResetDate');
-             localStorage.removeItem(LS_PREFIX + 'unlimitedAdViewCount');
-             localStorage.removeItem(LS_PREFIX + 'pendingDeposits');
-             Object.values(depositTimers).forEach(timerData => clearTimeout(timerData.timeoutId));
-             depositTimers = {};
-             updateProfileCard();
-             renderDailyAdViewProgress();
-         }
 
-        // --- VIP related functions ---
-         function renderVipPlans() {
-             if (!vipPlanListContainer) return;
-             vipPlanListContainer.innerHTML = '';
-             const activeVipLevels = currentUser.activeVips.map(vip => vip.level);
-             vipPlanListContainer.classList.add('loading-vip-plans');
-             vipPlanListContainer.innerHTML = '<div style="text-align:center; padding: 30px 0;"><i class="fas fa-spinner fa-spin fa-2x" style="color: var(--primary-color);"></i><p style="margin-top:10px; color: var(--medium-text);">প্ল্যান লোড হচ্ছে...</p></div>';
-             setTimeout(() => {
-                 if (!vipPlanListContainer) return;
-                 vipPlanListContainer.innerHTML = '';
-                 vipPlanListContainer.classList.remove('loading-vip-plans');
-                 vipPlans.forEach(plan => {
-                     const isActive = activeVipLevels.includes(plan.level);
-                     const canPurchase = isLoggedIn && !isActive;
-                     const card = document.createElement('div');
-                     card.className = 'vip-card';
-                     card.setAttribute('data-level', plan.level);
-                     let featuresHtml = plan.features.map(f => `<li>${f}</li>`).join('');
-                     featuresHtml += `<li>দৈনিক ভিআইপি অ্যাড ভিউ: ${plan.tasksPerDay || 0} টি</li>`;
-                     let footerHtml = '';
-                     const priceHtml = `<span class="price"><i class="${COIN_ICON_CLASS} coin-icon"></i> ${plan.price}</span>`;
-                     if (isActive) { footerHtml = `<div class="status-active"><i class="fas fa-check-circle"></i> সক্রিয়</div>${priceHtml}`; }
-                     else if (canPurchase) { footerHtml = `<button class="btn btn-warning btn-buy-vip" onclick="openVipUpgradeModal(${plan.level}, ${plan.price}, '${plan.name}')"><i class="fas fa-shopping-cart"></i> কিনুন</button>${priceHtml}`; }
-                     else { footerHtml = `<button class="btn btn-secondary btn-buy-vip" disabled title="প্ল্যান কিনতে লগইন করুন"><i class="fas fa-ban"></i> কিনুন</button>${priceHtml}`; }
-                     card.innerHTML = ` <div class="vip-card-header"> <h3><i class="${plan.icon}" style="color: ${plan.color || 'inherit'}"></i> ${plan.name}</h3> <span class="vip-level">লেভেল ${plan.level}</span> </div> <div class="vip-card-body"> <ul>${featuresHtml}</ul> </div> <div class="vip-card-footer"> ${footerHtml} </div> `;
-                     vipPlanListContainer.appendChild(card);
-                 });
-             }, 500);
-         }
-         function openVipUpgradeModal(level, price, name) {
-              if(!isLoggedIn){ showToast("প্ল্যান কিনতে লগইন করুন।"); return; }
-              const alreadyActive = currentUser.activeVips.some(vip => vip.level === level);
-              if(alreadyActive){ showAlert(vipPurchaseFeedback || generalAlertArea, `আপনার VIP ${level} (${name}) প্ল্যান ইতিমধ্যে সক্রিয় আছে।`, 'warning'); return; }
-              if(currentUser.balance < price){ showAlert(vipPurchaseFeedback || generalAlertArea, `এই প্ল্যান (${name}) কিনতে আপনার ${price} কয়েন প্রয়োজন। আপনার আছে ${currentUser.balance} কয়েন।`, 'warning'); return; }
-              clearAlerts();
-              modalVipLevelName.textContent = `Level ${level} (${name})`;
-              if(modalVipPriceDisplay) modalVipPriceDisplay.innerHTML = `<i class="${COIN_ICON_CLASS} coin-icon"></i> ${price}`;
-              if(modalCurrentCoins) modalCurrentCoins.innerHTML = `<i class="${COIN_ICON_CLASS} coin-icon"></i> ${currentUser.balance}`;
-              modalVipLevelInput.value = level;
-              modalVipPriceInput.value = price;
-              openModal('vip-upgrade-modal');
-         }
-         async function handleVipUpgradeSubmit(event) {
-             event.preventDefault(); clearAlerts();
-             const level = parseInt(modalVipLevelInput.value); const price = parseInt(modalVipPriceInput.value); const plan = vipPlans.find(p => p.level === level);
-             if (!level || !price || !plan) { showAlert(modalAlert, "প্ল্যান নির্বাচন করতে সমস্যা হয়েছে।"); return; }
-             if(currentUser.activeVips.some(vip => vip.level === level)){ showAlert(modalAlert, `এই VIP (${level}) প্ল্যান ইতিমধ্যে সক্রিয় আছে।`); closeModal('vip-upgrade-modal'); return; }
-             if(currentUser.balance < price){ showAlert(modalAlert, `এই প্ল্যান কিনতে পর্যাপ্ত কয়েন নেই। প্রয়োজন: ${price}, আছে: ${currentUser.balance}`); return; }
-             showLoading(); updateUserBalance(currentUser.balance - price);
-             const newVipData = { level: plan.level, name: plan.name, tasksPerDay: plan.tasksPerDay, purchaseDate: new Date().toISOString() };
-             currentUser.activeVips.push(newVipData);
-             resetDailyAdViews(); saveAppState(); renderVipPlans(); renderDailyAdViewProgress();
-             showAlert(modalAlert, `অভিনন্দন! আপনার VIP ${level} (${plan.name}) প্ল্যান কেনা সফল হয়েছে এবং সক্রিয় করা হয়েছে!`, 'success');
-             hideLoading(); setTimeout(() => { closeModal('vip-upgrade-modal'); showToast(`VIP ${level} (${plan.name}) সক্রিয়!`); }, 2500);
-             const message = `✅ <b>VIP ক্রয় (${plan.name} - Lvl ${level})</b> ✅\n------------------------------------\n📧 <b>ইউজার:</b> ${currentUser.email || 'N/A'} (${currentUser.phone})\n🪙 <b>খরচ:</b> ${price} কয়েন\n📊 <b>বর্তমান কয়েন:</b> ${currentUser.balance}\n------------------------------------\n⏰ <b>সময়:</b> ${new Date().toLocaleString('bn-BD')}`;
-             await sendTelegramMessage(message);
-         }
+        navItems.forEach(item => {
+            item.addEventListener('click', () => {
+                const screenId = item.getAttribute('data-screen');
+                showScreen(screenId);
+            });
+        });
 
+        function submitWithdrawal() {
+            const method = document.getElementById('withdrawalMethod').value;
+            const amount = document.getElementById('amount').value;
+            const address = document.getElementById('walletAddress').value;
 
-        // --- Profile Card & Balance Display (Coins) ---
-          function updateProfileCard() { if (!profileUserName || !profileUserPhone) return; if (isLoggedIn) { profileUserName.textContent = currentUser.name || 'ব্যবহারকারী'; profileUserPhone.textContent = currentUser.phone || 'N/A'; updateBalanceDisplay(); } else { profileUserName.textContent = 'স্বাগতম!'; profileUserPhone.textContent = 'লগইন/সাইন আপ করুন'; profileBalanceValue.innerHTML = `<i class="${COIN_ICON_CLASS} coin-icon"></i> 0`; profileBalanceValue.style.display = 'none'; balanceHiddenSymbol.textContent = 'কয়েন দেখুন'; balanceHiddenSymbol.style.display = 'inline-block'; profileBalanceSection.classList.remove('visible'); balanceEyeIcon.classList.replace('fa-eye-slash', 'fa-eye'); isBalanceVisible = false; } }
-          function toggleBalanceVisibility() { if (!isLoggedIn) return; isBalanceVisible = !isBalanceVisible; updateBalanceDisplay(); }
-          function updateBalanceDisplay() { // This updates the MAIN APP's balance display
-            const displayBalance = Math.floor(currentUser.balance || 0);
-            if (profileBalanceSection && profileBalanceValue && balanceHiddenSymbol && balanceEyeIcon) {
-                if (isBalanceVisible) {
-                    profileBalanceValue.innerHTML = `<i class="${COIN_ICON_CLASS} coin-icon"></i> ${displayBalance}`;
-                    profileBalanceValue.style.display = 'inline-flex';
-                    balanceHiddenSymbol.style.display = 'none';
-                    profileBalanceSection.classList.add('visible');
-                    balanceEyeIcon.classList.replace('fa-eye', 'fa-eye-slash');
-                } else {
-                    profileBalanceValue.style.display = 'none';
-                    balanceHiddenSymbol.textContent = 'কয়েন দেখুন';
-                    balanceHiddenSymbol.style.display = 'inline-block';
-                    profileBalanceSection.classList.remove('visible');
-                    balanceEyeIcon.classList.replace('fa-eye-slash', 'fa-eye');
-                }
-            }
-            displayBalanceOnWithdrawPage();
-            // Also update Crazy Time game's balance if it's initialized
-            if (crazyTimeGame.initialized) {
-                crazyTimeGame.updateGameBalanceDisplay();
-            }
-          }
-          function displayBalanceOnWithdrawPage(){ if(currentBalanceWithdrawPage){ currentBalanceWithdrawPage.innerHTML = `<i class="${COIN_ICON_CLASS} coin-icon"></i> ${Math.floor(currentUser.balance || 0)}`; } }
-          function updateUserBalance(newCoinBalance) { currentUser.balance = Math.max(0, Math.floor(newCoinBalance)); saveAppState(); updateBalanceDisplay(); }
-
-
-         // --- Referral Functions ---
-          function displayReferralCode(){ if(referralCodeElement && isLoggedIn){ referralCodeElement.textContent = currentUser.referralCode || "N/A"; } else if(referralCodeElement){ referralCodeElement.textContent = "N/A"; }}
-          function copyReferralCode() { if(!isLoggedIn || !currentUser.referralCode || currentUser.referralCode === 'LOADING...' || currentUser.referralCode === 'N/A'){ showToast("কোড পেতে লগইন করুন।"); return; } const code = currentUser.referralCode; navigator.clipboard.writeText(code).then(() => { if (copyFeedbackElement) { copyFeedbackElement.textContent = "কপি হয়েছে!"; setTimeout(() => { copyFeedbackElement.textContent = ''; }, 2000); } }).catch(err => { showToast("কপি করা যায়নি।"); if (copyFeedbackElement) copyFeedbackElement.textContent = ''; }); }
-
-
-        // --- Ad Functions ---
-        function loadAdsterraBanner(containerId, bannerKey, forceReload = false) {
-            const containerElement = document.getElementById(containerId);
-            if (!isLoggedIn || !containerElement || !bannerKey || !containerElement.classList.contains('visible')) {
-                if (containerElement && !containerElement.querySelector('iframe')) { containerElement.innerHTML = '<span class="placeholder-text">বিজ্ঞাপন লোড হচ্ছে...</span>'; }
+            if (!method || !amount || !address) {
+                alert('Please fill in all withdrawal details.');
                 return;
             }
-            if (!forceReload && containerElement.querySelector('iframe')) { return; }
-            containerElement.innerHTML = '';
-            const iframe = document.createElement('iframe');
-            iframe.width = '320'; iframe.height = '50'; iframe.style.cssText = 'border:none; overflow:hidden; max-width:100%; max-height:50px; display:block; margin:0 auto;'; iframe.setAttribute('scrolling', 'no');
-            const bannerHtml = `<!DOCTYPE html><html><head><meta name='viewport' content='width=device-width, initial-scale=1.0'><style>body{margin:0;padding:0;display:flex;justify-content:center;align-items:center;height:50px;background-color:transparent;overflow:hidden;}</style></head><body><script type="text/javascript">atOptions={'key':'${bannerKey}','format':'iframe','height':50,'width':320,'params':{}};<\/script><script type="text/javascript" src="//www.highperformanceformat.com/${bannerKey}/invoke.js"><\/script></body></html>`;
-             try { iframe.srcdoc = bannerHtml; containerElement.appendChild(iframe); containerElement.style.cssText = 'border:none; background:transparent; min-height:50px; padding:0;'; } catch (e) { console.error("Ad Load Error ("+containerId+"):", e); containerElement.innerHTML = '<span class="placeholder-text" style="color:var(--danger-color);">বিজ্ঞাপন লোড হয়নি</span>'; }
+            alert(`Withdrawal Request:\nMethod: ${method}\nAmount: BDT ${amount}\nAddress: ${address}\n\nThis is a demo. No actual withdrawal will be processed.`);
         }
-           function showMonetagEarningAd() {
-               if (!isLoggedIn) { showToast("বিজ্ঞাপন দেখতে লগইন করুন।"); return; }
-               if (isMonetagAdShowing) { showToast("অন্য একটি বিজ্ঞাপন চলছে..."); return; }
-               const totalLimit = getTotalDailyAdLimit(); const completedToday = currentUser.completedAdViewsToday || 0;
-               if (currentUser.activeVips.length === 0) { showToast("আর্নিং অ্যাড দেখতে অনুগ্রহ করে একটি ভিআইপি প্ল্যান কিনুন।", 4000); return; }
-               if (completedToday >= totalLimit) { showToast(`আজকের ${totalLimit} টি ভিআইপি অ্যাড দেখা সম্পন্ন হয়েছে।`, 4000); renderDailyAdViewProgress(); return; }
-               if (typeof show_9292109 !== 'function') { console.error("Monetag SDK function not found!"); showToast("বিজ্ঞাপন লোড করা যায়নি। SDK সমস্যা।", 3000); return; }
-               showLoading(); isMonetagAdShowing = true;
-               try { console.log("Attempting VIP Earning Monetag Ad..."); show_9292109().then(() => { console.log("VIP Earning Monetag Ad completed."); isMonetagAdShowing = false; hideLoading(); if (currentUser.completedAdViewsToday < getTotalDailyAdLimit()) { const rewardAmount = MONETAG_AD_REWARD; currentUser.completedAdViewsToday++; updateUserBalance(currentUser.balance + rewardAmount); showToast(`ভিআইপি অ্যাড দেখার জন্য ${rewardAmount} কয়েন যোগ হয়েছে!`, 3000); renderDailyAdViewProgress(); saveAppState(); } else { showToast("দৈনিক ভিআইপি অ্যাড দেখার সীমা ইতিমধ্যে পূর্ণ হয়েছে।", 3000); renderDailyAdViewProgress(); } }).catch(e => { console.error("VIP Earning Monetag Ad Error/Closed:", e); showToast("বিজ্ঞাপন দেখাতে সমস্যা হয়েছে বা শেষ করার আগে বন্ধ করা হয়েছে।", 3000); hideLoading(); isMonetagAdShowing = false; }); } catch (error) { console.error("Error calling show_9292109:", error); showToast("বিজ্ঞাপন দেখানোর ফাংশন চালু করা যায়নি।", 3000); hideLoading(); isMonetagAdShowing = false; }
-           }
-           function showUnlimitedAd() {
-               if (!isLoggedIn) { showToast("বিজ্ঞাপন দেখতে লগইন করুন।"); return; }
-               if (isMonetagAdShowing) { showToast("অন্য একটি বিজ্ঞাপন চলছে..."); return; }
-               if (typeof show_9292109 !== 'function') { console.error("Monetag SDK function not found!"); showToast("বিজ্ঞাপন লোড করা যায়নি। SDK সমস্যা।", 3000); return; }
-               showLoading(); isMonetagAdShowing = true;
-               try { console.log("Attempting Unlimited Monetag Ad..."); show_9292109().then(() => { console.log("Unlimited Monetag Ad completed."); isMonetagAdShowing = false; hideLoading(); currentUser.unlimitedAdViewCount++; console.log(`Unlimited ad view count: ${currentUser.unlimitedAdViewCount}`); if (currentUser.unlimitedAdViewCount % UNLIMITED_ADS_PER_COIN === 0) { updateUserBalance(currentUser.balance + 1); showToast(`দারুণ! ${UNLIMITED_ADS_PER_COIN}টি আনলিমিটেড অ্যাড দেখার জন্য ১ কয়েন যোগ হয়েছে!`, 3500); } else { showToast("আনলিমিটেড অ্যাড দেখা হয়েছে!", 2500); } saveAppState(); }).catch(e => { console.error("Unlimited Monetag Ad Error/Closed:", e); showToast("আনলিমিটেড অ্যাড দেখাতে সমস্যা হয়েছে বা শেষ করার আগে বন্ধ করা হয়েছে।", 3000); hideLoading(); isMonetagAdShowing = false; }); } catch (error) { console.error("Error calling show_9292109 for unlimited ad:", error); showToast("আনলিমিটেড অ্যাড দেখানোর ফাংশন চালু করা যায়নি।", 3000); hideLoading(); isMonetagAdShowing = false; }
-           }
 
-
-        // --- Daily Ad View Progress (For VIP Ads) ---
-        function resetDailyAdViews() { if (!isLoggedIn) return; currentUser.completedAdViewsToday = 0; const today = new Date().toDateString(); localStorage.setItem(LS_PREFIX + 'lastAdResetDate', today); console.log(`VIP Ad views reset for ${today}.`); saveAppState(); renderDailyAdViewProgress(); }
-        function renderDailyAdViewProgress() { if (!dailyAdViewSection || !adViewProgressInfo) return; const totalLimit = getTotalDailyAdLimit(); if (isLoggedIn && totalLimit > 0) { dailyAdViewSection.style.display = 'block'; const completed = currentUser.completedAdViewsToday || 0; adViewProgressInfo.textContent = `আজকের VIP অ্যাড দেখা হয়েছে: ${completed} / ${totalLimit} টি`; } else { dailyAdViewSection.style.display = 'none'; adViewProgressInfo.textContent = ''; } }
-
-
-        // --- Event Handlers ---
-        function handleLogin(event) { event.preventDefault(); clearAlerts(); const e=loginForm.querySelector('#login-email').value.trim().toLowerCase(),p=loginForm.querySelector('#login-password').value;if(!e||!p){showAlert(loginAlert,'অনুগ্রহ করে ইমেইল এবং পাসওয়ার্ড দিন।');return} if(!/\S+@\S+\.\S+/.test(e)){showAlert(loginAlert,'অনুগ্রহ করে একটি সঠিক ইমেইল ঠিকানা দিন।');return} showLoading();setTimeout(()=>{const u_str=localStorage.getItem(`user_${e}_${LS_PREFIX}`);let u; if(!u_str){showAlert(loginAlert,'এই ইমেইল দিয়ে কোনো অ্যাকাউন্ট পাওয়া যায়নি।');hideLoading();return;} try {u=JSON.parse(u_str);} catch(err){showAlert(loginAlert,'অ্যাকাউন্ট ডেটা লোড করতে সমস্যা।');hideLoading();return;} if(p.length>=6){ const userData={email:e,name:u.name||e.split('@')[0],balance:u.balance!==undefined?parseInt(u.balance):100, referralCode:u.referralCode||generateReferralCode(),phone:u.phone||'01xxxxxxxxx', activeVips: u.activeVips || [], unlimitedAdViewCount: u.unlimitedAdViewCount || 0 }; saveLoginStatus(userData);showToast('লগইন সফল!');initializeAppUI()}else{showAlert(loginAlert,'পাসওয়ার্ড সঠিক নয়। ডেমো পাসওয়ার্ড কমপক্ষে ৬ অক্ষরের হতে হবে।')} hideLoading()},1000);}
-        function handleSignup(event) { event.preventDefault();clearAlerts();const n=signupForm.querySelector('#signup-name').value.trim(),e=signupForm.querySelector('#signup-email').value.trim().toLowerCase(),ph=signupForm.querySelector('#signup-phone').value.trim(),p=signupForm.querySelector('#signup-password').value,r=signupForm.querySelector('#signup-refer').value.trim(); if(!n||!e||!ph||!p){showAlert(signupAlert,'অনুগ্রহ করে নাম, ইমেইল, ফোন নম্বর এবং পাসওয়ার্ড পূরণ করুন।');return} if(!/\S+@\S+\.\S+/.test(e)){showAlert(signupAlert,'অনুগ্রহ করে একটি সঠিক ইমেইল ঠিকানা দিন।');return} if(ph.length !== 11 || !/^[0-9]+$/.test(ph)){showAlert(signupAlert,'অনুগ্রহ করে একটি সঠিক ১১ ডিজিটের মোবাইল নম্বর দিন।'); return;} if(p.length<6){showAlert(signupAlert,'পাসওয়ার্ড কমপক্ষে ৬ অক্ষরের হতে হবে।');return} showLoading();setTimeout(()=>{ if(localStorage.getItem(`user_${e}_${LS_PREFIX}`)){showAlert(signupAlert,'এই ইমেইল ঠিকানা দিয়ে ইতিমধ্যে একটি অ্যাকাউন্ট রয়েছে।');hideLoading();return;} const rc=generateReferralCode();let signupBonusCoins=100; if(r&&r.length===7){ console.log(`Referral code ${r} applied. Taka bonus needs manual addition.`);} const newUser={name:n,email:e,phone:ph,balance:signupBonusCoins, referralCode:rc, activeVips: [], unlimitedAdViewCount: 0 }; localStorage.setItem(`user_${e}_${LS_PREFIX}`, JSON.stringify(newUser)); saveLoginStatus(newUser);showToast('সাইন আপ সফল! স্বাগতম!', 4000); initializeAppUI(); hideLoading()},1500);}
-        function handleDepositRequest(event) { 
-             event.preventDefault(); clearAlerts(); if(!isLoggedIn){showAlert(depositAlert,"ডিপোজিট করতে লগইন করুন।");return}
-             const amountInput = depositForm.querySelector('#deposit-amount'); const amount = parseFloat(amountInput.value); const method = "nagad"; const txnId = depositForm.querySelector('#deposit-txn-id').value.trim(); const senderNumber = depositForm.querySelector('#deposit-sender-number').value.trim();
-             if(isNaN(amount) || amount < DEPOSIT_MINIMUM_TAKA || !txnId || !senderNumber){ showAlert(depositAlert,`অনুগ্রহ করে সমস্ত তথ্য সঠিকভাবে পূরণ করুন (টাকার পরিমাণ কমপক্ষে ৳${DEPOSIT_MINIMUM_TAKA}, TrxID, প্রেরক নম্বর)।`); return; }
-             if(txnId.length !== TRX_ID_LENGTH){ showAlert(depositAlert, `ট্রানজেকশন আইডি অবশ্যই ${TRX_ID_LENGTH} সংখ্যার হতে হবে।`); return; }
-             if(senderNumber.length < 11 || !/^[0-9]+$/.test(senderNumber)){ showAlert(depositAlert, "অনুগ্রহ করে একটি সঠিক প্রেরক নগদ মোবাইল নম্বর দিন।"); return; }
-             if (depositTimers[txnId]) { showAlert(depositAlert, "এই ট্রানজেকশন আইডি দিয়ে ইতিমধ্যে একটি রিকোয়েস্ট প্রসেসিং চলছে।", "warning"); return; }
-             showLoading();
-             const message = `📥 <b>ডিপোজিট রিকোয়েস্ট (৳ Nagad)</b> 📥\n------------------------------------\n📧 <b>ইউজার:</b> ${currentUser.email || 'N/A'} (${currentUser.phone})\n💰 <b>পরিমাণ:</b> ৳${amount.toFixed(2)}\n🏧 <b>মাধ্যম:</b> ${method.toUpperCase()}\n🆔 <b>TrxID:</b> ${txnId}\n🔢 <b>প্রেরক নম্বর:</b> ${senderNumber}\n------------------------------------\n⏰ <b>সময়:</b> ${new Date().toLocaleString('bn-BD')}\n🪙 <b>ইউজারের বর্তমান কয়েন:</b> ${Math.floor(currentUser.balance)}`;
-             sendTelegramMessage(message).then(sent => {
-                 hideLoading();
-                 if (sent) {
-                     showAlert(depositAlert,"আপনার ডিপোজিট রিকোয়েস্ট সাবমিট করা হয়েছে। ৫ মিনিটের মধ্যে কয়েন যোগ করা হবে।","success"); depositForm.reset();
-                     const coinsToAdd = Math.floor(amount); const depositTime = Date.now();
-                     const timeoutId = setTimeout(() => { if(isLoggedIn && currentUser.email === localStorage.getItem(LS_PREFIX + 'userEmail')){ console.log(`Adding ${coinsToAdd} coins for deposit TxnID: ${txnId}`); updateUserBalance(currentUser.balance + coinsToAdd); showToast(`${coinsToAdd} কয়েন আপনার ডিপোজিটের জন্য যোগ করা হয়েছে!`); delete depositTimers[txnId]; savePendingDeposits(); } else { console.log(`User logged out/changed before deposit ${txnId} completed.`); delete depositTimers[txnId]; savePendingDeposits(); } }, DEPOSIT_COIN_DELAY_MS);
-                     depositTimers[txnId] = { amount: coinsToAdd, startTime: depositTime, timeoutId: timeoutId }; savePendingDeposits();
-                 } else { showAlert(depositAlert,"টেলিগ্রামে মেসেজ পাঠাতে সমস্যা হয়েছে। অনুগ্রহ করে আবার চেষ্টা করুন।"); }
-             });
-             console.log("Deposit Request Submitted", {user:currentUser.email, amount, method, txnId, sender: senderNumber, timestamp: new Date().toISOString()});
-         }
-         function savePendingDeposits() {
-             const storableTimers = {};
-             for (const txnId in depositTimers) { storableTimers[txnId] = { amount: depositTimers[txnId].amount, startTime: depositTimers[txnId].startTime }; }
-             localStorage.setItem(LS_PREFIX + 'pendingDeposits', JSON.stringify(storableTimers));
-         }
-         function checkPendingDeposits() {
-             const savedTimers = JSON.parse(localStorage.getItem(LS_PREFIX + 'pendingDeposits') || '{}'); const now = Date.now(); depositTimers = {};
-             for (const txnId in savedTimers) {
-                 const timerData = savedTimers[txnId]; const elapsedTime = now - timerData.startTime; const remainingTime = DEPOSIT_COIN_DELAY_MS - elapsedTime;
-                 if (remainingTime > 0) { console.log(`Restarting deposit timer for TxnID: ${txnId}, remaining: ${remainingTime}ms`); const newTimeoutId = setTimeout(() => { if(isLoggedIn && currentUser.email === localStorage.getItem(LS_PREFIX + 'userEmail')){ console.log(`Adding ${timerData.amount} coins from pending deposit TxnID: ${txnId}`); updateUserBalance(currentUser.balance + timerData.amount); showToast(`${timerData.amount} কয়েন আপনার ডিপোজিটের জন্য যোগ করা হয়েছে!`); delete depositTimers[txnId]; savePendingDeposits(); } else { console.log(`User logged out/changed before pending deposit ${txnId} completed.`); delete depositTimers[txnId]; savePendingDeposits(); } }, remainingTime); depositTimers[txnId] = { ...timerData, timeoutId: newTimeoutId }; } else { console.log(`Adding ${timerData.amount} coins for missed pending deposit TxnID: ${txnId}`); updateUserBalance(currentUser.balance + timerData.amount); saveAppState(); }
-             } savePendingDeposits();
-         }
-        async function handleWithdraw(event) {
-             event.preventDefault();clearAlerts();if(!isLoggedIn){showAlert(withdrawAlert,"উইথড্র করতে লগইন করুন।");return}
-             const amountInput = withdrawForm.querySelector('#withdraw-amount'); const amount = parseInt(amountInput.value); const account = withdrawForm.querySelector('#withdraw-account').value.trim(); const methodRadio = withdrawForm.querySelector('input[name="payment_method"]:checked');
-             if(isNaN(amount) || amount < WITHDRAWAL_MINIMUM_COINS || !account || !methodRadio){ showAlert(withdrawAlert,`অনুগ্রহ করে সমস্ত তথ্য সঠিকভাবে পূরণ করুন (ন্যূনতম উইথড্র ${WITHDRAWAL_MINIMUM_COINS} কয়েন)।`); return; }
-             if(account.length < 11 || !/^[0-9]+$/.test(account)){ showAlert(withdrawAlert, "অনুগ্রহ করে একটি সঠিক পেমেন্ট অ্যাকাউন্ট নম্বর দিন।"); return; }
-             if(amount > currentUser.balance){showAlert(withdrawAlert,"আপনার অ্যাকাউন্টে পর্যাপ্ত কয়েন নেই।");return}
-             const method = methodRadio.value; showLoading();
-             await new Promise(resolve => setTimeout(resolve, 1000)); const newBalance = currentUser.balance - amount; updateUserBalance(newBalance);
-             const message = `📤 <b>কয়েন উইথড্র রিকোয়েস্ট</b> 📤\n------------------------------------\n📧 <b>ইউজার:</b> ${currentUser.email || 'N/A'}\n📱 <b>ফোন:</b> ${currentUser.phone || 'N/A'}\n🪙 <b>কয়েনের পরিমাণ:</b> <b>${amount}</b> <i class="${COIN_ICON_CLASS}"></i>\n🏧 <b>পেমেন্ট মাধ্যম (টাকায়):</b> ${method.toUpperCase()}\n🔢 <b>পেমেন্ট অ্যাকাউন্ট নম্বর:</b> ${account}\n------------------------------------\n📊 <b>বর্তমান কয়েন ব্যালেন্স:</b> ${Math.floor(newBalance)} <i class="${COIN_ICON_CLASS}"></i>\n⏰ <b>সময়:</b> ${new Date().toLocaleString('bn-BD')}`;
-             const telegramSent = await sendTelegramMessage(message); hideLoading();
-             if (telegramSent) { showAlert(withdrawAlert,`${amount} কয়েন (${method} নম্বরে ${account} পেমেন্ট) উইথড্র করার রিকোয়েস্ট সফলভাবে পাঠানো হয়েছে। ২৪ ঘণ্টার মধ্যে পেমেন্ট সম্পন্ন হবে।`,"success"); withdrawForm.reset(); displayBalanceOnWithdrawPage(); }
-             else { showAlert(withdrawAlert,`উইথড্র রিকোয়েস্ট লোকালি সফল হয়েছে কিন্তু এডমিনকে জানাতে সমস্যা হয়েছে। অনুগ্রহ করে সাপোর্টে যোগাযোগ করুন।`,"warning"); withdrawForm.reset(); displayBalanceOnWithdrawPage(); }
-             console.log("Coin Withdraw Request Processed", {user:currentUser.email, coins_amount:amount, payment_method:method, payment_account:account, timestamp: new Date().toISOString(), telegram_sent: telegramSent});
-         }
-
-
-        // --- Initialization ---
-        function initializeAppUI() {
-             checkLoginStatus();
-             updateProfileCard();
-             renderDailyAdViewProgress();
-
-             if (isLoggedIn) { showPage('home-page'); } else { showPage('login-page'); }
-             isBalanceVisible = false;
-             updateBalanceDisplay();
-         }
-
-        // --- Event Listener Setup ---
-         document.addEventListener('DOMContentLoaded', () => {
-              navItems.forEach(item => item.addEventListener('click', () => showPage(item.getAttribute('data-page'))));
-              if(loginForm) loginForm.addEventListener('submit', handleLogin);
-              if(signupForm) signupForm.addEventListener('submit', handleSignup);
-              if(depositForm) depositForm.addEventListener('submit', handleDepositRequest);
-              if(withdrawForm) withdrawForm.addEventListener('submit', handleWithdraw);
-              if(vipUpgradeForm) vipUpgradeForm.addEventListener('submit', handleVipUpgradeSubmit);
-              if (profileBalanceSection) profileBalanceSection.addEventListener('click', toggleBalanceVisibility);
-
-             if(vipUpgradeModal) { vipUpgradeModal.addEventListener('click', (event) => { if (event.target === vipUpgradeModal) { closeModal('vip-upgrade-modal'); } }); }
-
-             initializeAppUI();
-         });
-
-        window.addEventListener('beforeunload', saveAppState);
-
+        // Initialize with the home screen
+        showScreen('homeScreen');
     </script>
 
 </body>
