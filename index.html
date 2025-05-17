@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>App (Black Theme - Reordered Home Content V3)</title>
+    <title>App (Black Theme - Updated History Display)</title>
     <style>
         body {
             font-family: 'Helvetica Neue', Arial, sans-serif;
@@ -123,9 +123,13 @@
 
         .withdrawal-history-card {
             background-color: #1c1c1e; color: #ffffff; border-radius: 10px;
-            padding: 15px; margin: 0 15px 15px 15px; 
+            padding: 15px; 
+            /* margin: 0 15px 15px 15px; <- আগের মার্জিন */
+            margin: 0 0 15px 0; /* পরিবর্তিত মার্জিন: এখন এটি earnings কার্ডের সমান প্রস্থের হবে */
             box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-            max-height: 220px; 
+            /* **উচ্চতা Earnings কার্ডের মতো করার চেষ্টা, 4টি আইটেমের জন্য অ্যাডজাস্ট করা হলো** */
+            max-height: 180px; /* Adjusted to fit ~4 items + header (Approx) */
+            min-height: 100px; /* To match an earnings card with one <p> */
             overflow-y: hidden; 
             position: relative;
         }
@@ -135,7 +139,7 @@
         }
         .withdrawal-list { list-style: none; padding: 0; margin: 0; height: 100%; }
         .withdrawal-list li {
-            padding: 7px 0; 
+            padding: 6px 0; /* Reduced padding a bit to fit more */
             font-size: 13px; border-bottom: 1px solid #2a2a2e;
             display: flex; justify-content: space-between;
             opacity: 0; transform: translateY(15px); 
@@ -170,13 +174,12 @@
                 <div id="profileSummaryUserBalance" class="user-balance-profile">Balance: 0.000000 USDT</div>
             </div>
             <div class="content-padding">
-            
                 <div class="info-card">
                     <h3>Today's Tasks (Overall Summary)</h3>
                     <p><span>Monetag Tasks Completed Today:</span> <span id="homeMonetagTasksCompleted">0</span></p>
                     <p><span>Daily Monetag Limit:</span> <span id="homeMonetagDailyLimit">1000</span></p>
                 </div>
-
+                
                 <div class="info-card">
                     <h3>Earnings</h3>
                     <p><span>Total Monetag Earnings (USDT):</span> <span id="homeTotalMonetagEarnings">0.000000</span></p>
@@ -277,7 +280,7 @@
     </div>
 
     <script>
-        const APP_VERSION = "1.4.3"; // Reordered Home Content - V3
+        const APP_VERSION = "1.4.4"; // Adjusted History Display
         const LS_KEY_APP_STATE = `monetagAppUserState_v${APP_VERSION}`;
 
         const navItems = document.querySelectorAll('.bottom-nav .nav-item');
@@ -528,8 +531,8 @@
             }
         }
 
-        const MAX_HISTORY_ITEMS_DISPLAY = 7; 
-        const UPDATE_HISTORY_INTERVAL = 3000;
+        const MAX_HISTORY_ITEMS_DISPLAY = 4; // ** изменено на 4 **
+        const UPDATE_HISTORY_INTERVAL = 3200; // সামান্য বেশি সময় পর পর আপডেট
 
         function generateMaskedPhoneNumber() {
             const prefixes = ["013", "014", "015", "016", "017", "018", "019"];
@@ -537,7 +540,7 @@
             for (let i = 0; i < 8; i++) { 
                 number += Math.floor(Math.random() * 10);
             }
-            return `${number.substring(0, 5)}****${number.substring(9)}`;
+            return `${number.substring(0, 5)}***${number.substring(8)}`; 
         }
 
         function generateRandomWithdrawAmount() {
@@ -573,8 +576,9 @@
 
         function startWithdrawalHistoryFeedSimulation() {
             if (withdrawalHistoryListElement) {
+                withdrawalHistoryListElement.innerHTML = '';
                 for (let i = 0; i < MAX_HISTORY_ITEMS_DISPLAY; i++) {
-                    setTimeout(addWithdrawalHistoryItemToDOM, i * 350);
+                    setTimeout(addWithdrawalHistoryItemToDOM, i * 400); 
                 }
                 historyFeedInterval = setInterval(addWithdrawalHistoryItemToDOM, UPDATE_HISTORY_INTERVAL);
             }
