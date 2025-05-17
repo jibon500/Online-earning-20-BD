@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>App (Black Theme - Telegram Icon)</title>
+    <title>App (Black Theme - Reordered Home Content V3)</title>
     <style>
         body {
             font-family: 'Helvetica Neue', Arial, sans-serif;
@@ -19,7 +19,7 @@
         .app-container {
             flex-grow: 1;
             overflow-y: auto;
-            padding-bottom: 60px; /* Space for bottom-nav */
+            padding-bottom: 60px;
             background-color: #000000;
             position: relative;
         }
@@ -112,29 +112,40 @@
         }
 
         .telegram-contact-fab {
-            position: fixed;
-            bottom: 75px; 
-            right: 20px;
-            width: 50px;
-            height: 50px;
-            background-color: #0088cc; 
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
-            z-index: 999; 
-            cursor: pointer;
-            transition: background-color 0.3s ease;
+            position: fixed; bottom: 75px; right: 20px;
+            width: 50px; height: 50px; background-color: #0088cc; 
+            border-radius: 50%; display: flex; align-items: center;
+            justify-content: center; box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+            z-index: 999; cursor: pointer; transition: background-color 0.3s ease;
         }
-        .telegram-contact-fab:hover {
-            background-color: #0077b3;
+        .telegram-contact-fab:hover { background-color: #0077b3; }
+        .telegram-contact-fab svg { width: 28px; height: 28px; fill: white; }
+
+        .withdrawal-history-card {
+            background-color: #1c1c1e; color: #ffffff; border-radius: 10px;
+            padding: 15px; margin: 0 15px 15px 15px; 
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            max-height: 220px; 
+            overflow-y: hidden; 
+            position: relative;
         }
-        .telegram-contact-fab svg { /* স্টাইল ফর SVG আইকন */
-            width: 28px; /* আইকনের আকার */
-            height: 28px;
-            fill: white; /* আইকনের রঙ */
+        .withdrawal-history-card h3 {
+            margin-top: 0; margin-bottom: 10px; font-size: 16px;
+            color: #00aaff; text-align: center;
         }
+        .withdrawal-list { list-style: none; padding: 0; margin: 0; height: 100%; }
+        .withdrawal-list li {
+            padding: 7px 0; 
+            font-size: 13px; border-bottom: 1px solid #2a2a2e;
+            display: flex; justify-content: space-between;
+            opacity: 0; transform: translateY(15px); 
+            animation: fadeInSlideUp 0.6s forwards;
+        }
+        .withdrawal-list li:last-child { border-bottom: none; }
+        .withdrawal-list .phone-number { color: #cccccc; flex-basis: 50%; }
+        .withdrawal-list .amount { color: #34c759; font-weight: bold; flex-basis: 35%; text-align: right; }
+        .withdrawal-list .status-success { color: #34c759; margin-left: 5px; font-size: 12px; flex-basis: 15%; text-align: right; }
+        @keyframes fadeInSlideUp { to { opacity: 1; transform: translateY(0); } }
     </style>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src='//solseewuthi.net/sdk.js' data-zone='9344336' data-sdk='show_9344336' async></script>
@@ -159,18 +170,25 @@
                 <div id="profileSummaryUserBalance" class="user-balance-profile">Balance: 0.000000 USDT</div>
             </div>
             <div class="content-padding">
+                {/* **Order Changed: Tasks Summary first, then Earnings, then Withdraw History** */}
                 <div class="info-card">
                     <h3>Today's Tasks (Overall Summary)</h3>
                     <p><span>Monetag Tasks Completed Today:</span> <span id="homeMonetagTasksCompleted">0</span></p>
                     <p><span>Daily Monetag Limit:</span> <span id="homeMonetagDailyLimit">1000</span></p>
                 </div>
+
                 <div class="info-card">
                     <h3>Earnings</h3>
                     <p><span>Total Monetag Earnings (USDT):</span> <span id="homeTotalMonetagEarnings">0.000000</span></p>
                 </div>
+                
+                <div class="withdrawal-history-card">
+                    <h3>Recent Withdrawals</h3>
+                    <ul class="withdrawal-list" id="withdrawalHistoryList"></ul>
+                </div>
             </div>
             <a href="https://t.me/Jobsrbot" target="_blank" class="telegram-contact-fab" title="Contact @Jobsrbot on Telegram">
-                <svg viewBox="0 0 24 24"> {/* স্ট্যান্ডার্ড টেলিগ্রাম লোগো SVG */}
+                <svg viewBox="0 0 24 24">
                     <path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.17.91-.494 1.204-1.07 1.23-.928.043-1.348-.602-2.018-1.028-.91-.588-1.428-.945-2.326-1.528-.986-.631-.339-1.001.221-1.591.133-.142 2.568-2.295 2.568-2.295s.23-.205-.065-.455c-.294-.25-.728-.094-.728-.094L8.44 13.288c-.04.023-.075.045-.117.075l-.105.061s-.37.253-.947.031c-.578-.223-.994-.37-1.128-.409-.426-.12-.76-.182-.756-.532.003-.237.207-.404.512-.584 2.813-1.656 4.593-2.671 4.593-2.671s1.033-.622 2.001-.626zm-2.448 8.528l.618-2.997-.026.018s1.631 1.496 2.017 1.831l.015.012s.313.241.303-.255l-.008-.081L18.3 7.588s.096-.515-.578-.266l-10.84 3.862s-.76.295-.865.995l.01.022s.273.92.855.712L7.89 12.3s.374-.115.864.075l.008.004-3.264 2.957s-.396.358.083.585c.48.226 1.088-.08 1.088-.08l3.829-2.653.86.793 1.108 1.021s.182.153.359.034c.176-.118.173-.25.173-.25z"/>
                 </svg>
             </a>
@@ -259,7 +277,7 @@
     </div>
 
     <script>
-        const APP_VERSION = "1.3.8"; // Added Telegram Contact FAB with new Icon
+        const APP_VERSION = "1.4.3"; // Reordered Home Content - V3
         const LS_KEY_APP_STATE = `monetagAppUserState_v${APP_VERSION}`;
 
         const navItems = document.querySelectorAll('.bottom-nav .nav-item');
@@ -286,6 +304,8 @@
         const homeMonetagTasksCompletedElement = document.getElementById('homeMonetagTasksCompleted');
         const homeMonetagDailyLimitElement = document.getElementById('homeMonetagDailyLimit');
         const homeTotalMonetagEarningsElement = document.getElementById('homeTotalMonetagEarnings');
+
+        const withdrawalHistoryListElement = document.getElementById('withdrawalHistoryList');
 
         let appState = {
             userUSDTBalance: 0.0,
@@ -496,7 +516,7 @@
                     else alert(`Minimum withdrawal for ${method} is ${minWithdrawal} USDT.`);
                     break;
                 case 'other_crypto':
-                    minWithdrawal = 10;
+                    minWithdrawal = 10; 
                      if (amount >= minWithdrawal && appState.userUSDTBalance >= amount) canProceed = true;
                     else if (appState.userUSDTBalance < amount) alert(`Insufficient balance. Your current balance is ${formatUSDT(appState.userUSDTBalance)} USDT.`);
                     else alert(`Minimum withdrawal for ${method} is ${minWithdrawal} USDT.`);
@@ -508,10 +528,63 @@
             }
         }
 
+        const MAX_HISTORY_ITEMS_DISPLAY = 7; 
+        const UPDATE_HISTORY_INTERVAL = 3000;
+
+        function generateMaskedPhoneNumber() {
+            const prefixes = ["013", "014", "015", "016", "017", "018", "019"];
+            let number = prefixes[Math.floor(Math.random() * prefixes.length)];
+            for (let i = 0; i < 8; i++) { 
+                number += Math.floor(Math.random() * 10);
+            }
+            return `${number.substring(0, 5)}****${number.substring(9)}`;
+        }
+
+        function generateRandomWithdrawAmount() {
+            const amounts = [5.12, 10.78, 22.30, 7.05, 15.50, 28.90, 8.15, 51.25, 12.84, 33.40, 5.01, 20.00];
+            return amounts[Math.floor(Math.random() * amounts.length)];
+        }
+
+        function addWithdrawalHistoryItemToDOM() {
+            if (!withdrawalHistoryListElement) return;
+
+            const phone = generateMaskedPhoneNumber();
+            const amount = generateRandomWithdrawAmount();
+
+            const listItem = document.createElement('li');
+            listItem.innerHTML = `
+                <span class="phone-number">${phone}</span>
+                <span class="amount">${formatUSDT(amount)} USDT</span>
+                <span class="status-success">✓ Success</span>
+            `;
+            
+            if (withdrawalHistoryListElement.firstChild) {
+                withdrawalHistoryListElement.insertBefore(listItem, withdrawalHistoryListElement.firstChild);
+            } else {
+                withdrawalHistoryListElement.appendChild(listItem);
+            }
+
+            if (withdrawalHistoryListElement.children.length > MAX_HISTORY_ITEMS_DISPLAY) {
+                withdrawalHistoryListElement.removeChild(withdrawalHistoryListElement.lastChild);
+            }
+        }
+
+        let historyFeedInterval;
+
+        function startWithdrawalHistoryFeedSimulation() {
+            if (withdrawalHistoryListElement) {
+                for (let i = 0; i < MAX_HISTORY_ITEMS_DISPLAY; i++) {
+                    setTimeout(addWithdrawalHistoryItemToDOM, i * 350);
+                }
+                historyFeedInterval = setInterval(addWithdrawalHistoryItemToDOM, UPDATE_HISTORY_INTERVAL);
+            }
+        }
+        
         window.onload = function() {
             loadState();
             loadTelegramUserData(); 
             showScreen('homeScreen');
+            startWithdrawalHistoryFeedSimulation(); 
             
             setTimeout(() => { 
                 const adFunction = `show_${appState.monetagConfig.adZone}`;
