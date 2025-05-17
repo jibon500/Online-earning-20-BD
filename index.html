@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="bn">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>App Demo (Rewarded Ad Debug)</title>
+    <title>App (Black Theme)</title>
     <style>
         body {
             font-family: 'Helvetica Neue', Arial, sans-serif;
@@ -107,15 +107,12 @@
             color: #ffcc00; text-align: center; min-height: 20px;
         }
     </style>
-    <!-- Telegram Web App script -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <!-- Monetag Ad Network SDK -->
-    <script src='//solseewuthi.net/sdk.js' data-zone='9344336' data-sdk='show_9344336'></script>
+    <script src='//solseewuthi.net/sdk.js' data-zone='9344336' data-sdk='show_9344336' async></script>
 </head>
 <body>
 
     <div class="app-container">
-        <!-- Screen 1: Home -->
         <div id="homeScreen" class="screen active">
             <div class="app-header">
                 <div class="user-info-header">
@@ -145,7 +142,6 @@
             </div>
         </div>
 
-        <!-- Screen 2: Earn -->
         <div id="earnScreen" class="screen">
             <div class="app-header">
                 <div class="title">Earn Tasks</div>
@@ -166,7 +162,6 @@
             </div>
         </div>
 
-        <!-- Screen 3: Withdraw -->
         <div id="withdrawScreen" class="screen">
             <div class="app-header">
                 <div class="title">Withdraw Funds</div>
@@ -177,8 +172,7 @@
                     <p><span>Available Balance:</span> <span id="withdrawUserBalance" style="font-size:16px; color:#34c759;">0.000000 USDT</span></p>
                 </div>
                 <div class="info-card">
-                    <h3>Request Withdrawal (Demo)</h3>
-                    <p><em>Withdrawal functionality is for demonstration only.</em></p>
+                    <h3>Request Withdrawal</h3>
                     <div class="form-group">
                         <label for="withdrawalMethod">Withdrawal Method:</label>
                         <select id="withdrawalMethod" name="withdrawalMethod">
@@ -195,12 +189,11 @@
                         <label for="walletAddress">Wallet Address:</label>
                         <input type="text" id="walletAddress" name="walletAddress" placeholder="Enter USDT wallet address">
                     </div>
-                    <button class="btn" onclick="submitWithdrawalDemo()">Submit Withdrawal</button>
+                    <button class="btn" onclick="submitWithdrawal()">Submit Withdrawal</button>
                 </div>
             </div>
         </div>
 
-        <!-- Screen 4: Profile -->
         <div id="profileScreen" class="screen">
             <div class="app-header">
                 <div class="title">Profile</div>
@@ -211,8 +204,8 @@
                     <h3>User Profile</h3>
                     <p><span>Name:</span> <span id="profileTabUserName">Loading...</span></p>
                     <p><span>Total Balance (USDT):</span> <span id="profileTabUserBalance">0.000000</span></p>
-                    <p><span>Email (Demo):</span> <span>user@example.com</span></p>
-                    <p><span>Joined (Demo):</span> <span>01 Jan 2024</span></p>
+                    <p><span>Email:</span> <span>user@example.com</span></p>
+                    <p><span>Joined:</span> <span>01 Jan 2024</span></p>
                     <button class="btn" style="background-color: #ff3b30; margin-top: 20px;" onclick="alert('Logout functionality not implemented.')">Logout</button>
                 </div>
             </div>
@@ -227,7 +220,7 @@
     </div>
 
     <script>
-        const APP_VERSION = "1.2.2"; // ভার্সন আপডেট (অ্যাড SDK ডিবাগিং)
+        const APP_VERSION = "1.3.1"; // No Bangla Text Version
         const LS_KEY_APP_STATE = `monetagAppUserState_v${APP_VERSION}`;
 
         const navItems = document.querySelectorAll('.bottom-nav .nav-item');
@@ -260,8 +253,7 @@
                 adZone: '9344336'
             },
             todayStats: { date: new Date().toDateString(), monetagTasksCompleted: 0 },
-            telegramUser: { name: null, photoUrl: null },
-            adSdkLoaded: false // অ্যাড SDK লোড হয়েছে কিনা ট্র্যাক করার জন্য
+            telegramUser: { name: null, photoUrl: null }
         };
 
         function saveState() {
@@ -314,7 +306,7 @@
             if (profileTabUserBalanceElement) profileTabUserBalanceElement.textContent = formattedBalance;
             if (withdrawUserBalanceElement) withdrawUserBalanceElement.textContent = formattedBalance;
 
-            const placeholderName = "MD_Ali_YT";
+            const placeholderName = "User"; // Default English placeholder
             let finalName = appState.telegramUser.name || placeholderName;
             let avatarForHeaderSrc, avatarForSummarySrc;
             if (appState.telegramUser.photoUrl) {
@@ -369,7 +361,7 @@
         
         function showMonetagAd() {
             console.log("showMonetagAd function called.");
-            if (adStatusMessageElement) adStatusMessageElement.textContent = "বিজ্ঞাপন লোড করার চেষ্টা করা হচ্ছে...";
+            if (adStatusMessageElement) adStatusMessageElement.textContent = "Loading ad...";
             startTaskMonetagButton.disabled = true;
 
             const adFunction = `show_${appState.monetagConfig.adZone}`;
@@ -379,7 +371,7 @@
                 console.log(`${adFunction} is a function. Calling it.`);
                 window[adFunction]().then(() => {
                     console.log("Monetag Rewarded Ad: .then() block executed successfully.");
-                    if (adStatusMessageElement) adStatusMessageElement.textContent = "বিজ্ঞাপন দেখানো সফল হয়েছে!";
+                    if (adStatusMessageElement) adStatusMessageElement.textContent = "Ad shown successfully!";
 
                     appState.todayStats.monetagTasksCompleted++;
                     appState.userUSDTBalance += appState.monetagConfig.rewardPerTaskUSD;
@@ -388,28 +380,18 @@
                     saveState();
                     
                     setTimeout(() => {
-                        if (adStatusMessageElement) adStatusMessageElement.textContent = `টাস্ক সম্পন্ন! আয়: +${formatUSDT(appState.monetagConfig.rewardPerTaskUSD)} USDT`;
-                    }, 1200);
+                         if (adStatusMessageElement) adStatusMessageElement.textContent = ""; // Clear message after reward
+                    }, 1500);
 
                 }).catch((error) => {
                     console.error("Monetag Rewarded Ad .catch() block executed. Error:", error);
-                    if (adStatusMessageElement) adStatusMessageElement.textContent = "বিজ্ঞাপন দেখানো যায়নি বা বাতিল করা হয়েছে।";
+                    if (adStatusMessageElement) adStatusMessageElement.textContent = "Ad could not be shown or was cancelled.";
                     updateDisplays();
                 });
             } else {
-                console.warn(`${adFunction} is NOT a function or SDK not ready. Waiting a bit and trying again or failing.`);
-                if (adStatusMessageElement) adStatusMessageElement.textContent = `অ্যাড SDK প্রস্তুত নয়, ${adFunction} ফাংশনটি পাওয়া যায়নি।`;
-                
-                setTimeout(() => {
-                    if (typeof window[adFunction] === 'function') {
-                        console.log(`Retrying call to window.${adFunction} after delay.`);
-                        showMonetagAd();
-                    } else {
-                        console.error(`Still cannot find ${adFunction} after delay. Ad SDK might have failed to load or initialize.`);
-                        if (adStatusMessageElement) adStatusMessageElement.textContent = "অ্যাড SDK লোড হয়নি বা ফাংশন তৈরি করেনি।";
-                        updateDisplays();
-                    }
-                }, 3000);
+                 console.warn(`${adFunction} is NOT a function or SDK not ready.`);
+                 if (adStatusMessageElement) adStatusMessageElement.textContent = `Ad SDK not ready, function '${adFunction}' not found.`;
+                updateDisplays();
             }
         }
 
@@ -417,7 +399,7 @@
             startTaskMonetagButton.addEventListener('click', function() {
                 console.log("Start Task Monetag button clicked.");
                 if (appState.todayStats.monetagTasksCompleted >= appState.monetagConfig.dailyTaskLimit) {
-                    if (adStatusMessageElement) adStatusMessageElement.textContent = " আজকের সব টাস্ক সম্পন্ন!";
+                    if (adStatusMessageElement) adStatusMessageElement.textContent = "All tasks for today completed!";
                     return;
                 }
                 showMonetagAd();
@@ -445,17 +427,17 @@
             item.addEventListener('click', () => showScreen(item.getAttribute('data-screen')));
         });
 
-        function submitWithdrawalDemo() {
+        function submitWithdrawal() {
             const method = document.getElementById('withdrawalMethod').value;
             const amount = parseFloat(document.getElementById('amount').value);
             const address = document.getElementById('walletAddress').value;
-            if (!method || isNaN(amount) || amount <= 0 || !address) { alert('অনুগ্রহ করে সঠিক তথ্য দিন।'); return; }
-            if (amount > appState.userUSDTBalance) { alert('অপর্যাপ্ত ব্যালান্স!'); return; }
-            alert(`উইথড্রয়াল অনুরোধ (ডেমো):\nপরিমাণ: ${formatUSDT(amount)} USDT\nপদ্ধতি: ${method}\nঠিকানা: ${address}\n\nএই কার্যকারিতাটি শুধুমাত্র ডেমো হিসেবে দেখানো হয়েছে।`);
+            if (!method || isNaN(amount) || amount <= 0 || !address) { alert('Please provide all valid details.'); return; }
+            if (amount > appState.userUSDTBalance) { alert('Insufficient balance!'); return; }
+            alert(`Withdrawal Request:\nAmount: ${formatUSDT(amount)} USDT\nMethod: ${method}\nAddress: ${address}\n\n(This functionality is not yet implemented)`);
         }
 
         window.onload = function() {
-            console.log("Window loaded. Initializing app state and Telegram user data.");
+            console.log("Window loaded. Initializing app.");
             loadState();
             loadTelegramUserData();
             showScreen('homeScreen');
@@ -463,15 +445,14 @@
             setTimeout(() => {
                 const adFunction = `show_${appState.monetagConfig.adZone}`;
                 if (typeof window[adFunction] === 'function') {
-                    console.log(`Ad function ${adFunction} is available after page load and delay.`);
-                    appState.adSdkLoaded = true;
+                    console.log(`Monetag Ad function '${adFunction}' is available.`);
                 } else {
-                    console.warn(`Ad function ${adFunction} is NOT available after page load and delay. SDK issues may persist.`);
-                    if(adStatusMessageElement && document.getElementById('earnScreen').classList.contains('active')) {
-                       adStatusMessageElement.textContent = "অ্যাড SDK লোড হতে সমস্যা হচ্ছে।";
+                    console.warn(`Monetag Ad function '${adFunction}' is NOT available after page load. The SDK in <head> with data-sdk attribute might handle initial display, or there is an issue with SDK initialization for on-demand calls.`);
+                     if (adStatusMessageElement && document.getElementById('earnScreen').classList.contains('active')) {
+                       // adStatusMessageElement.textContent = "Ad SDK loading issue detected.";
                     }
                 }
-            }, 2000);
+            }, 2500);
         };
     </script>
 </body>
