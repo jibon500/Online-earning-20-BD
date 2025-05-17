@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>App (Black Theme - English - Profile Date)</title>
+    <title>App (Black Theme - Telegram Icon)</title>
     <style>
         body {
             font-family: 'Helvetica Neue', Arial, sans-serif;
@@ -19,8 +19,9 @@
         .app-container {
             flex-grow: 1;
             overflow-y: auto;
-            padding-bottom: 60px;
+            padding-bottom: 60px; /* Space for bottom-nav */
             background-color: #000000;
+            position: relative;
         }
 
         .app-header {
@@ -104,9 +105,35 @@
         }
         .bottom-nav .nav-item .icon { font-size: 22px; margin-bottom: 2px; }
         .bottom-nav .nav-item.active { color: #00aaff; }
-         #adStatusMessage {
+        
+        #adStatusMessage {
             margin-top: 10px; font-size: 14px;
             color: #ffcc00; text-align: center; min-height: 20px;
+        }
+
+        .telegram-contact-fab {
+            position: fixed;
+            bottom: 75px; 
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            background-color: #0088cc; 
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+            z-index: 999; 
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .telegram-contact-fab:hover {
+            background-color: #0077b3;
+        }
+        .telegram-contact-fab svg { /* স্টাইল ফর SVG আইকন */
+            width: 28px; /* আইকনের আকার */
+            height: 28px;
+            fill: white; /* আইকনের রঙ */
         }
     </style>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
@@ -142,6 +169,11 @@
                     <p><span>Total Monetag Earnings (USDT):</span> <span id="homeTotalMonetagEarnings">0.000000</span></p>
                 </div>
             </div>
+            <a href="https://t.me/Jobsrbot" target="_blank" class="telegram-contact-fab" title="Contact @Jobsrbot on Telegram">
+                <svg viewBox="0 0 24 24"> {/* স্ট্যান্ডার্ড টেলিগ্রাম লোগো SVG */}
+                    <path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.17.91-.494 1.204-1.07 1.23-.928.043-1.348-.602-2.018-1.028-.91-.588-1.428-.945-2.326-1.528-.986-.631-.339-1.001.221-1.591.133-.142 2.568-2.295 2.568-2.295s.23-.205-.065-.455c-.294-.25-.728-.094-.728-.094L8.44 13.288c-.04.023-.075.045-.117.075l-.105.061s-.37.253-.947.031c-.578-.223-.994-.37-1.128-.409-.426-.12-.76-.182-.756-.532.003-.237.207-.404.512-.584 2.813-1.656 4.593-2.671 4.593-2.671s1.033-.622 2.001-.626zm-2.448 8.528l.618-2.997-.026.018s1.631 1.496 2.017 1.831l.015.012s.313.241.303-.255l-.008-.081L18.3 7.588s.096-.515-.578-.266l-10.84 3.862s-.76.295-.865.995l.01.022s.273.92.855.712L7.89 12.3s.374-.115.864.075l.008.004-3.264 2.957s-.396.358.083.585c.48.226 1.088-.08 1.088-.08l3.829-2.653.86.793 1.108 1.021s.182.153.359.034c.176-.118.173-.25.173-.25z"/>
+                </svg>
+            </a>
         </div>
 
         <div id="earnScreen" class="screen">
@@ -212,7 +244,7 @@
                     <p><span>Phone:</span> <span id="profileTabUserPhone">Not shared</span></p>
                     <p><span>Total Balance (USDT):</span> <span id="profileTabUserBalance">0.000000</span></p>
                     <p><span>Email:</span> <span>user@example.com</span></p>
-                    <p><span>Last Active:</span> <span id="profileTabLastActiveDate">Loading...</span></p> {/* পরিবর্তিত লাইন */}
+                    <p><span>Last Active:</span> <span id="profileTabLastActiveDate">Loading...</span></p>
                     <button class="btn" style="background-color: #ff3b30; margin-top: 20px;" onclick="alert('Logout functionality not implemented.')">Logout</button>
                 </div>
             </div>
@@ -227,7 +259,7 @@
     </div>
 
     <script>
-        const APP_VERSION = "1.3.6"; // English Only Text & Profile Last Active Date
+        const APP_VERSION = "1.3.8"; // Added Telegram Contact FAB with new Icon
         const LS_KEY_APP_STATE = `monetagAppUserState_v${APP_VERSION}`;
 
         const navItems = document.querySelectorAll('.bottom-nav .nav-item');
@@ -242,7 +274,7 @@
         const profileTabUserNameElement = document.getElementById('profileTabUserName');
         const profileTabUserPhoneElement = document.getElementById('profileTabUserPhone');
         const profileTabUserBalanceElement = document.getElementById('profileTabUserBalance');
-        const profileTabLastActiveDateElement = document.getElementById('profileTabLastActiveDate'); // নতুন এলিমেন্ট
+        const profileTabLastActiveDateElement = document.getElementById('profileTabLastActiveDate');
         const withdrawUserBalanceElement = document.getElementById('withdrawUserBalance');
 
         const startTaskMonetagButton = document.getElementById('startTaskMonetagButton');
@@ -280,12 +312,12 @@
                     if (parsedState.todayStats && parsedState.todayStats.date === new Date().toDateString()) {
                         appState.todayStats = parsedState.todayStats;
                     } else {
-                        appState.todayStats.date = new Date().toDateString(); // তারিখ আপডেট করা
+                        appState.todayStats.date = new Date().toDateString();
                         appState.todayStats.monetagTasksCompleted = 0;
                     }
                     appState.telegramUser = parsedState.telegramUser || { name: null, photoUrl: null, phoneNumber: null };
                 } else {
-                    appState.todayStats.date = new Date().toDateString(); // নতুন ব্যবহারকারী বা ক্লিয়ারড স্টোরেজ
+                    appState.todayStats.date = new Date().toDateString();
                 }
             } catch (e) {
                 console.error("Error loading state:", e);
@@ -320,7 +352,6 @@
             let finalPhoneNumber = appState.telegramUser.phoneNumber ? `Phone: ${appState.telegramUser.phoneNumber}` : "Phone: Not shared";
             let finalPhoneNumberProfileTab = appState.telegramUser.phoneNumber || "Not shared";
 
-
             let avatarForHeaderSrc, avatarForSummarySrc;
             if (appState.telegramUser.photoUrl) {
                 avatarForHeaderSrc = appState.telegramUser.photoUrl;
@@ -340,10 +371,9 @@
 
             if (profileTabUserNameElement) profileTabUserNameElement.textContent = finalName;
             if (profileTabUserPhoneElement) profileTabUserPhoneElement.textContent = finalPhoneNumberProfileTab;
-            if (profileTabLastActiveDateElement) { // প্রোফাইল ট্যাবে লাস্ট অ্যাক্টিভ তারিখ
+            if (profileTabLastActiveDateElement) {
                 profileTabLastActiveDateElement.textContent = appState.todayStats.date;
             }
-
 
             if (earnMonetagDailyLimitElement) earnMonetagDailyLimitElement.textContent = appState.monetagConfig.dailyTaskLimit;
             if (earnMonetagCompletedTodayElement) earnMonetagCompletedTodayElement.textContent = appState.todayStats.monetagTasksCompleted;
@@ -420,6 +450,12 @@
             screens.forEach(screen => screen.classList.remove('active'));
             const activeScreen = document.getElementById(screenId);
             if (activeScreen) activeScreen.classList.add('active');
+
+            const telegramFab = document.querySelector('.telegram-contact-fab');
+            if (telegramFab) {
+                telegramFab.style.display = (screenId === 'homeScreen') ? 'flex' : 'none';
+            }
+
             navItems.forEach(item => {
                 item.classList.remove('active');
                 if (item.getAttribute('data-screen') === screenId) item.classList.add('active');
@@ -460,7 +496,7 @@
                     else alert(`Minimum withdrawal for ${method} is ${minWithdrawal} USDT.`);
                     break;
                 case 'other_crypto':
-                    minWithdrawal = 10; 
+                    minWithdrawal = 10;
                      if (amount >= minWithdrawal && appState.userUSDTBalance >= amount) canProceed = true;
                     else if (appState.userUSDTBalance < amount) alert(`Insufficient balance. Your current balance is ${formatUSDT(appState.userUSDTBalance)} USDT.`);
                     else alert(`Minimum withdrawal for ${method} is ${minWithdrawal} USDT.`);
@@ -474,7 +510,7 @@
 
         window.onload = function() {
             loadState();
-            loadTelegramUserData(); // This will call updateDisplays and saveState
+            loadTelegramUserData(); 
             showScreen('homeScreen');
             
             setTimeout(() => { 
