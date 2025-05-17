@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>App Demo</title>
+    <title>App Demo (Black Theme)</title>
     <style>
         body {
             font-family: 'Helvetica Neue', Arial, sans-serif;
             margin: 0;
-            background-color: #000000; /* **ব্ল্যাক ব্যাকগ্রাউন্ড** */
+            background-color: #000000; /* **সম্পূর্ণ কালো ব্যাকগ্রাউন্ড** */
             color: #ffffff; /* সাদা টেক্সট ডিফল্ট */
             display: flex;
             flex-direction: column;
@@ -20,7 +20,7 @@
             flex-grow: 1;
             overflow-y: auto;
             padding-bottom: 60px; /* Space for bottom-nav */
-            background-color: #000000; /* **ব্ল্যাক ব্যাকগ্রাউন্ড** */
+            background-color: #000000; /* **সম্পূর্ণ কালো ব্যাকগ্রাউন্ড** */
         }
 
         /* Common Header Styles */
@@ -45,11 +45,17 @@
             align-items: center;
             flex-grow: 1;
         }
-        /* .app-header .avatar-small - এই অংশটি আর ব্যবহার করা হচ্ছে না */
-
+        .app-header .avatar-small {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            margin-right: 10px;
+            border: 1px solid #555555;
+            object-fit: cover;
+            background-color: #333333; /* ছবি লোড হওয়ার আগে প্লেসহোল্ডার */
+        }
         .app-header .user-details {
             font-size: 12px;
-            /* অ্যাভাটার না থাকলে বাম মার্জিনের প্রয়োজন নেই */
         }
         .app-header .user-name-header {
             font-weight: bold;
@@ -84,39 +90,44 @@
         .profile-summary {
             text-align: center;
             padding: 20px 15px;
-            background-color: #000000; /* ব্ল্যাক */
+            background-color: #000000;
             margin-bottom: 10px;
-            /* অ্যাভাটার না থাকায় বর্ডার সরানো হলো */
         }
-        /* .profile-summary .avatar-large - এই অংশটি আর ব্যবহার করা হচ্ছে না */
-
+        .profile-summary .avatar-large {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            margin-bottom: 12px;
+            border: 2px solid #00aaff; /* উজ্জ্বল নীল বর্ডার */
+            object-fit: cover;
+            background-color: #444444; /* ছবি লোড হওয়ার আগে প্লেসহোল্ডার */
+        }
         .profile-summary .user-name-profile {
-            font-size: 22px; /* নামকে আরও গুরুত্ব দেওয়া হলো */
+            font-size: 20px;
             font-weight: bold;
             color: #ffffff;
-            margin-top: 10px; /* অ্যাভাটার না থাকায় কিছুটা স্পেস */
         }
         .profile-summary .user-balance-profile {
-            font-size: 16px;
-            color: #bbbbbb; /* হালকা সাদা */
-            margin-top: 8px;
+            font-size: 15px;
+            color: #bbbbbb;
+            margin-top: 6px;
         }
 
         /* Cards for Tasks/Earnings */
         .info-card {
-            background-color: #1c1c1e; /* iOS ডার্ক মোডের মতো গাঢ় রঙ */
+            background-color: #1c1c1e;
             color: #ffffff;
-            border-radius: 10px; /* সামান্য বেশি গোলাকার */
+            border-radius: 10px;
             padding: 15px;
             margin-bottom: 15px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2); /* হালকা শ্যাডো */
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
         }
         .info-card h3 {
             margin-top: 0;
             margin-bottom: 12px;
             font-size: 17px;
-            color: #00aaff; /* উজ্জ্বল নীল, কালোর উপরে ফুটবে */
-            border-bottom: 1px solid #3a3a3c; /* গাঢ় বিভাজক */
+            color: #00aaff; /* উজ্জ্বল নীল */
+            border-bottom: 1px solid #3a3a3c;
             padding-bottom: 8px;
         }
         .info-card p {
@@ -157,22 +168,18 @@
             display: block;
             margin-bottom: 6px;
             font-size: 14px;
-            color: #cccccc; /* হালকা সাদা */
+            color: #cccccc;
         }
         .form-group input,
         .form-group select {
             width: calc(100% - 24px);
             padding: 11px;
-            border: 1px solid #3a3a3c; /* গাঢ় বর্ডার */
+            border: 1px solid #3a3a3c;
             border-radius: 6px;
             font-size: 15px;
-            background-color: #2c2c2e; /* ইনপুটের জন্য গাঢ় পটভূমি */
-            color: #ffffff; /* ইনপুটের টেক্সট সাদা */
+            background-color: #2c2c2e;
+            color: #ffffff;
         }
-        .form-group select { /* select এর জন্য arrow রঙ ঠিক করতে অতিরিক্ত স্টাইল লাগতে পারে */
-             /* background-image for custom arrow might be needed for full black theme */
-        }
-
 
         /* Bottom Navigation */
         .bottom-nav {
@@ -180,7 +187,7 @@
             bottom: 0;
             left: 0;
             right: 0;
-            background-color: #1a1a1a; /* হেডারর মতো */
+            background-color: #1a1a1a;
             border-top: 1px solid #333333;
             display: flex;
             justify-content: space-around;
@@ -217,7 +224,7 @@
         <div id="homeScreen" class="screen active">
             <div class="app-header">
                 <div class="user-info-header">
-                    <!-- অ্যাভাটার ইমেজ ট্যাগ সরানো হয়েছে -->
+                    <img id="headerUserAvatar" src="" alt=" " class="avatar-small">
                     <div class="user-details">
                         <div id="headerUserName" class="user-name-header">Loading...</div>
                         <div class="user-balance-header">Taka 0</div>
@@ -229,7 +236,7 @@
             </div>
 
             <div class="profile-summary">
-                <!-- অ্যাভাটার ইমেজ ট্যাগ সরানো হয়েছে -->
+                <img id="profileSummaryUserAvatar" src="" alt=" " class="avatar-large">
                 <div id="profileSummaryUserName" class="user-name-profile">Loading...</div>
                 <div class="user-balance-profile">Balance: Taka 0</div>
             </div>
@@ -280,7 +287,7 @@
             </div>
             <div class="content-padding">
                 <div class="info-card">
-                    <p><span>Available Balance:</span> <span style="font-size:16px; color:#34c759;">BDT 1</span></p> <!-- সবুজ রঙ কালোর উপরে ভালো ফুটবে -->
+                    <p><span>Available Balance:</span> <span style="font-size:16px; color:#34c759;">BDT 1</span></p>
                 </div>
 
                 <div class="info-card">
@@ -322,7 +329,7 @@
                     <p><span>Name:</span> <span id="profileTabUserName">Loading...</span></p>
                     <p><span>Email:</span> <span>user@example.com</span></p>
                     <p><span>Joined:</span> <span>01 Jan 2024</span></p>
-                    <button class="btn" style="background-color: #ff3b30; margin-top: 20px;" onclick="alert('Logging out...')">Logout</button> <!-- উজ্জ্বল লাল লগআউট বাটন -->
+                    <button class="btn" style="background-color: #ff3b30; margin-top: 20px;" onclick="alert('Logging out...')">Logout</button>
                 </div>
             </div>
         </div>
@@ -353,23 +360,52 @@
         const screens = document.querySelectorAll('.app-container .screen');
 
         // HTML Elements for Telegram User Data
+        const headerUserAvatarElement = document.getElementById('headerUserAvatar');
         const headerUserNameElement = document.getElementById('headerUserName');
+        const profileSummaryUserAvatarElement = document.getElementById('profileSummaryUserAvatar');
         const profileSummaryUserNameElement = document.getElementById('profileSummaryUserName');
         const profileTabUserNameElement = document.getElementById('profileTabUserName');
 
-        // ব্যবহারকারীর নাম সেট করার ফাংশন
-        function setTelegramUserName(name) {
-            const placeholderName = "MD_Ali_YT"; // ডিফল্ট নাম যদি টেলিগ্রাম থেকে না পাওয়া যায়
-            let finalName = name;
+        // ডিফল্ট অ্যাভাটার তৈরির ফাংশন
+        function createDefaultAvatar(letter = 'U', size = 80) {
+            const canvas = document.createElement('canvas');
+            canvas.width = size;
+            canvas.height = size;
+            const context = canvas.getContext('2d');
+            // গাঢ় ব্যাকগ্রাউন্ডের জন্য উজ্জ্বল রঙের একটি সেট
+            const colors = ["#ff3b30", "#ff9500", "#ffcc00", "#34c759", "#00c7be", "#30b0c7", "#007aff", "#5856d6", "#af52de", "#ff2d55"];
+            context.fillStyle = colors[Math.floor(Math.random() * colors.length)];
+            context.fillRect(0, 0, size, size);
+            context.font = `bold ${Math.floor(size / 1.9)}px Arial`; // ফন্ট সাইজ ও বোল্ড, কিছুটা বড়
+            context.fillStyle = "#FFFFFF"; // সাদা অক্ষর
+            context.textAlign = "center";
+            context.textBaseline = "middle";
+            context.fillText(letter.toUpperCase(), size / 2, size / 2 + size*0.04); // অক্ষর সামান্য নিচে, keskendra করার জন্য
+            return canvas.toDataURL();
+        }
 
-            if (!name || name.trim() === "" || name.trim() === "User") {
-                 // সাধারণ ব্রাউজারে বা টেলিগ্রাম ডেটা না পেলে ডিফল্ট নাম ব্যবহৃত হবে
-                finalName = placeholderName;
+        // ব্যবহারকারীর তথ্য (নাম ও ছবি) সেট করার ফাংশন
+        function updateUserDataDisplay(name, photoUrl) {
+            const placeholderName = "MD_Ali_YT"; // টেলিগ্রাম থেকে ডেটা না পাওয়া গেলে ডিফল্ট নাম
+            let finalName = name || placeholderName;
+            let avatarForHeaderSrc, avatarForSummarySrc;
+
+            if (photoUrl) {
+                avatarForHeaderSrc = photoUrl;
+                avatarForSummarySrc = photoUrl;
+            } else {
+                const initial = finalName ? finalName.charAt(0).toUpperCase() : 'U';
+                avatarForHeaderSrc = createDefaultAvatar(initial, 35);
+                avatarForSummarySrc = createDefaultAvatar(initial, 80);
             }
 
+            // DOM এ আপডেট
             if (headerUserNameElement) headerUserNameElement.textContent = finalName;
             if (profileSummaryUserNameElement) profileSummaryUserNameElement.textContent = finalName;
-            if (profileTabUserNameElement) profileTabUserNameElement.textContent = finalName;
+            if (profileTabUserNameElement) profileTabUserNameElement.textContent = finalName; // প্রোফাইল ট্যাবেও নাম আপডেট
+
+            if (headerUserAvatarElement) headerUserAvatarElement.src = avatarForHeaderSrc;
+            if (profileSummaryUserAvatarElement) profileSummaryUserAvatarElement.src = avatarForSummarySrc;
         }
 
 
@@ -377,13 +413,9 @@
             const tg = window.Telegram.WebApp;
             tg.ready();
 
-            // Override body background for black theme if Telegram theme is different
-            // document.body.style.backgroundColor = "#000000"; // জাভাস্ক্রিপ্ট দিয়েও করা যায়, তবে CSS এই বেশি উপযুক্ত
-            // tg.themeParams.bg_color = "#000000"; // এটা শুধু টেলিগ্রামের কাছে রিপোর্টিং, UI সরাসরি চেঞ্জ করবে না
-            // tg.setHeaderColor('#1a1a1a'); // হেডারের রঙ জাভাস্ক্রিপ্ট দিয়ে সেট করা
-
             const userData = tg.initDataUnsafe?.user;
             let telegramDisplayName = null;
+            let telegramPhotoUrl = null;
 
             if (userData) {
                 const firstName = userData.first_name || '';
@@ -393,16 +425,16 @@
                 } else if (userData.username) {
                     telegramDisplayName = `@${userData.username}`;
                 }
+                telegramPhotoUrl = userData.photo_url || null;
             }
 
-            setTelegramUserName(telegramDisplayName); // প্রাপ্ত নাম অথবা ডিফল্ট নাম সেট করবে
+            updateUserDataDisplay(telegramDisplayName, telegramPhotoUrl);
 
             tg.expand();
 
         } catch (e) {
             console.error("Telegram WebApp API error or not in Telegram environment:", e);
-            setTelegramUserName(null); // ত্রুটি ঘটলে ডিফল্ট নাম ব্যবহার করা হবে
-            // alert("Could not connect to Telegram. Displaying default data. Please open this app through your Telegram bot.");
+            updateUserDataDisplay(null, null); // ত্রুটি ঘটলে ডিফল্ট নাম ও ডিফল্ট জেনারেটেড ছবি
         }
 
 
@@ -415,7 +447,6 @@
                  activeScreen.classList.add('active');
             }
 
-
             navItems.forEach(item => {
                 item.classList.remove('active');
                 if (item.getAttribute('data-screen') === screenId) {
@@ -423,11 +454,9 @@
                 }
             });
 
-            if (screenId === 'profileScreen') {
-                // প্রোফাইল স্ক্রিনে ব্যবহারকারীর নাম পুনরায় সেট করা, যদি প্রয়োজন হয়
-                // যেহেতু নাম আগেই সেট করা হয়েছে, তাই সাধারণত প্রয়োজন নেই,
-                // তবে ডাইনামিক কিছু থাকলে এখানে করা যেতে পারে।
-                // profileTabUserNameElement.textContent = headerUserNameElement.textContent;
+            if (screenId === 'profileScreen' && profileTabUserNameElement && headerUserNameElement) {
+                 // প্রোফাইল ট্যাবের নাম সিঙ্ক্রোনাইজ করা
+                profileTabUserNameElement.textContent = headerUserNameElement.textContent;
             }
         }
 
