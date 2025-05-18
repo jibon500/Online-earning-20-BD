@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>App (SVG Refer Icon Update)</title>
+    <title>App (Reward for Sharing Referral)</title>
     <style>
         body {
             font-family: 'Helvetica Neue', Arial, sans-serif;
@@ -109,17 +109,16 @@
             flex-basis: 0; flex-grow: 1;
         }
         .bottom-nav .nav-item .icon { 
-            font-size: 22px; /* This will be overridden by SVG's explicit size for the SVG icon */
+            font-size: 22px;
             margin-bottom: 2px; 
-            display: flex; /* To help center SVG if needed */
-            align-items: center; /* To help center SVG if needed */
-            justify-content: center; /* To help center SVG if needed */
-            height: 24px; /* Match SVG height to ensure consistent layout */
-            width: 24px;  /* Match SVG width */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 24px; 
+            width: 24px;
         }
         .bottom-nav .nav-item .icon svg {
             display: block; 
-            /* width and height are set in the SVG tag itself (24px) */
         }
         .bottom-nav .nav-item.active { color: #00aaff; }
         
@@ -173,7 +172,6 @@
 <body>
 
     <div class="app-container">
-        <!-- HomeScreen, EarnScreen, ReferScreen, WithdrawScreen, ProfileScreen HTML remains the same as previous version -->
         <div id="homeScreen" class="screen active">
             <div class="app-header">
                 <div class="user-info-header">
@@ -247,15 +245,16 @@
         
                 <div class="info-card">
                     <h3>Referral Statistics</h3>
-                    <p><span>Total Referrals (Initiated):</span> <span id="totalReferralsCount">0</span></p>
-                    <p><span>Successful Referrals:</span> <span id="successfulReferralsCount">0</span></p>
-                    <p><span>USDT Earned from Referrals:</span> <span id="referralUsdtEarned">0.000000 USDT</span></p>
+                    <p><span>Times Link Shared/Copied:</span> <span id="totalReferralsCount">0</span></p>
+                    <p><span>USDT Earned from Sharing:</span> <span id="referralUsdtEarned">0.000000 USDT</span></p>
+                    <!-- Successful Referrals can be hidden or kept if you plan to add backend later -->
+                    <!-- <p><span>Successful Referrals (Tracked by Backend):</span> <span id="successfulReferralsCount">0</span></p> -->
                 </div>
         
                 <div class="info-card">
                     <h3>Referral Program Details</h3>
-                    <p class="referral-details-text">Share your referral link. For every friend who signs up using your link and becomes a successful referral, you will receive <strong>$0.30 USDT</strong> (30 cents).</p>
-                    <p class="referral-details-text">There are <strong>30 referral levels</strong>. Unlock additional rewards and bonuses as you achieve more successful referrals and climb these levels.</p>
+                    <p class="referral-details-text">Each time you share or copy your referral link, you will receive <strong>$0.10 USDT</strong> (10 cents) added to your balance!</p>
+                    <p class="referral-details-text">There are <strong>30 referral levels</strong>. Unlock additional rewards and bonuses based on how many times you share your link and potentially based on successful referrals if tracked via a backend system in the future.</p>
                 </div>
             </div>
         </div>
@@ -326,9 +325,8 @@
         <div class="nav-item" data-screen="earnScreen"> <div class="icon">💰</div> <div>Earn</div> </div>
         <div class="nav-item" data-screen="referScreen">
             <div class="icon">
-                <!-- SVG Icon for Refer -->
                 <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="currentColor">
-                    <path d="M0 0h24v24H0V0z" fill="none"/> <!-- Transparent background -->
+                    <path d="M0 0h24v24H0V0z" fill="none"/>
                     <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
                 </svg>
             </div>
@@ -339,17 +337,16 @@
     </div>
 
     <script>
-        // JavaScript code remains the same as the previous version.
-        // Make sure the 'YourAppName' in initializeReferralSystem() is correctly set.
-        const APP_VERSION = "1.7.0"; // SVG Refer Icon
+        const APP_VERSION = "1.8.0"; // Reward for initiating referral (sharing/copying)
         const LS_KEY_APP_STATE = `monetagAppUserState_v${APP_VERSION}`;
-        const REWARD_PER_SUCCESSFUL_REFERRAL_USDT = 0.30; 
+        const REWARD_PER_REFERRAL_INITIATION_USDT = 0.10; // 10 cents for each share/copy
 
+        // Element selectors (remains the same)
         const navItems = document.querySelectorAll('.bottom-nav .nav-item');
         const screens = document.querySelectorAll('.app-container .screen');
         const headerUserAvatarElement = document.getElementById('headerUserAvatar');
         const headerUserNameElement = document.getElementById('headerUserName');
-        const headerUserPhoneElement = document.getElementById('headerUserPhone');
+        // ... (all other element selectors)
 
         const profileSummaryUserAvatarElement = document.getElementById('profileSummaryUserAvatar');
         const profileSummaryUserNameElement = document.getElementById('profileSummaryUserName');
@@ -376,10 +373,9 @@
         const copyReferralLinkButton = document.getElementById('copyReferralLinkButton');
         const shareReferralLinkButton = document.getElementById('shareReferralLinkButton');
         const copyStatusMessageElement = document.getElementById('copyStatusMessage');
-        const totalReferralsCountElement = document.getElementById('totalReferralsCount');
-        const successfulReferralsCountElement = document.getElementById('successfulReferralsCount');
+        const totalReferralsCountElement = document.getElementById('totalReferralsCount'); // Renamed to reflect "times shared"
+        // const successfulReferralsCountElement = document.getElementById('successfulReferralsCount'); // Can be removed or hidden
         const referralUsdtEarnedElement = document.getElementById('referralUsdtEarned');
-
 
         let appState = {
             userUSDTBalance: 0.0,
@@ -393,18 +389,18 @@
             referralData: {
                 userIdForReferral: null, 
                 referralLink: '',
-                totalReferralsInitiated: 0,
-                successfulReferrals: 0,    
-                usdtEarnedFromReferrals: 0.0
+                totalReferralsInitiated: 0, // Counts how many times link is shared/copied
+                // successfulReferrals: 0, // This would require backend
+                usdtEarnedFromReferrals: 0.0 // Tracks earnings from sharing
             }
         };
 
-        function saveState() {
+        function saveState() { /* ... (same) ... */ 
             try { localStorage.setItem(LS_KEY_APP_STATE, JSON.stringify(appState)); }
             catch (e) { console.error("Error saving state:", e); }
         }
 
-        function loadState() {
+        function loadState() { /* ... (same, ensure referralData is loaded correctly) ... */ 
             try {
                 const storedState = localStorage.getItem(LS_KEY_APP_STATE);
                 if (storedState) {
@@ -423,13 +419,13 @@
                             userIdForReferral: parsedState.referralData.userIdForReferral || null,
                             referralLink: parsedState.referralData.referralLink || '',
                             totalReferralsInitiated: parsedState.referralData.totalReferralsInitiated || 0,
-                            successfulReferrals: parsedState.referralData.successfulReferrals || 0,
+                            // successfulReferrals: parsedState.referralData.successfulReferrals || 0,
                             usdtEarnedFromReferrals: parsedState.referralData.usdtEarnedFromReferrals || 0.0
                         };
                     } else { 
                         appState.referralData = {
                             userIdForReferral: null, referralLink: '',
-                            totalReferralsInitiated: 0, successfulReferrals: 0, usdtEarnedFromReferrals: 0.0
+                            totalReferralsInitiated: 0, /* successfulReferrals: 0, */ usdtEarnedFromReferrals: 0.0
                         };
                     }
                 } else { 
@@ -441,17 +437,17 @@
                 appState.todayStats.date = new Date().toDateString();
                 appState.referralData = { 
                     userIdForReferral: null, referralLink: '',
-                    totalReferralsInitiated: 0, successfulReferrals: 0, usdtEarnedFromReferrals: 0.0
+                    totalReferralsInitiated: 0, /* successfulReferrals: 0, */ usdtEarnedFromReferrals: 0.0
                 };
             }
             appState.monetagConfig.dailyTaskLimit = 1000;
         }
         
-        function generatePseudoUniqueId(length = 8) {
+        function generatePseudoUniqueId(length = 8) { /* ... (same) ... */ 
             return Math.random().toString(36).substring(2, 2 + length);
         }
 
-        function initializeReferralSystem() {
+        function initializeReferralSystem() { /* ... (same, ensure YourAppName is correct) ... */ 
             if (!appState.referralData.userIdForReferral) {
                 if (appState.telegramUser && appState.telegramUser.id) {
                     appState.referralData.userIdForReferral = `tg${appState.telegramUser.id}`;
@@ -459,15 +455,12 @@
                     appState.referralData.userIdForReferral = generatePseudoUniqueId(10);
                 }
             }
-            // !!! IMPORTANT: Replace 'YourAppName' with your actual Mini App name/path.
-            // Example: If app is at root: "https://t.me/My_Earning20BD_bot/?startapp="
-            // Example: If app is 'app.html': "https://t.me/My_Earning20BD_bot/app.html?startapp="
             const botBaseUrl = "https://t.me/My_Earning20BD_bot/YourAppName?startapp="; 
             appState.referralData.referralLink = `${botBaseUrl}ref_${appState.referralData.userIdForReferral}`;
             console.log("Referral Link Generated:", appState.referralData.referralLink);
         }
 
-        function createDefaultAvatar(letter = 'U', size = 80) {
+        function createDefaultAvatar(letter = 'U', size = 80) { /* ... (same) ... */ 
             const canvas = document.createElement('canvas');
             canvas.width = size; canvas.height = size;
             const context = canvas.getContext('2d');
@@ -482,7 +475,7 @@
 
         function formatUSDT(amount) { return parseFloat(amount).toFixed(6); }
 
-        function updateDisplays() {
+        function updateDisplays() { /* ... (same, ensure referral stats are updated) ... */
             const formattedBalance = formatUSDT(appState.userUSDTBalance) + " USDT";
             if (profileSummaryUserBalanceElement) profileSummaryUserBalanceElement.textContent = "Balance: " + formattedBalance;
             if (profileTabUserBalanceElement) profileTabUserBalanceElement.textContent = formattedBalance;
@@ -539,12 +532,12 @@
             if (document.getElementById('referScreen').classList.contains('active')) {
                 if (referralLinkElement) referralLinkElement.value = appState.referralData.referralLink;
                 if (totalReferralsCountElement) totalReferralsCountElement.textContent = appState.referralData.totalReferralsInitiated;
-                if (successfulReferralsCountElement) successfulReferralsCountElement.textContent = appState.referralData.successfulReferrals;
+                // if (successfulReferralsCountElement) successfulReferralsCountElement.textContent = appState.referralData.successfulReferrals;
                 if (referralUsdtEarnedElement) referralUsdtEarnedElement.textContent = formatUSDT(appState.referralData.usdtEarnedFromReferrals) + " USDT";
             }
         }
 
-        function loadTelegramUserData() {
+        function loadTelegramUserData() { /* ... (same) ... */ 
             try {
                 const tg = window.Telegram.WebApp;
                 tg.ready();
@@ -567,7 +560,7 @@
             saveState();
         }
         
-        function showMonetagAd() {
+        function showMonetagAd() { /* ... (same) ... */ 
             if (adStatusMessageElement) adStatusMessageElement.textContent = "Loading ad...";
             startTaskMonetagButton.disabled = true;
             const adFunction = `show_${appState.monetagConfig.adZone}`;
@@ -591,8 +584,7 @@
             }
         }
 
-
-        if (startTaskMonetagButton) {
+        if (startTaskMonetagButton) { /* ... (same) ... */ 
             startTaskMonetagButton.addEventListener('click', function() {
                 if (appState.todayStats.monetagTasksCompleted >= appState.monetagConfig.dailyTaskLimit) {
                     if (adStatusMessageElement) adStatusMessageElement.textContent = "All tasks for today completed!";
@@ -602,7 +594,7 @@
             });
         }
 
-        function showScreen(screenId) {
+        function showScreen(screenId) { /* ... (same) ... */
             screens.forEach(screen => screen.classList.remove('active'));
             const activeScreen = document.getElementById(screenId);
             if (activeScreen) activeScreen.classList.add('active');
@@ -616,11 +608,11 @@
             }
         }
 
-        navItems.forEach(item => {
+        navItems.forEach(item => { /* ... (same) ... */
             item.addEventListener('click', () => showScreen(item.getAttribute('data-screen')));
         });
 
-        function submitWithdrawalRequest() {
+        function submitWithdrawalRequest() { /* ... (same) ... */ 
             const methodElement = document.getElementById('withdrawalMethod');
             const amountElement = document.getElementById('withdrawalAmount');
             const addressElement = document.getElementById('withdrawalAddress');
@@ -662,7 +654,7 @@
         const MAX_HISTORY_ITEMS_DISPLAY = 4;
         const UPDATE_HISTORY_INTERVAL = 3200;
 
-        function generateMaskedPhoneNumber() { 
+        function generateMaskedPhoneNumber() { /* ... (same) ... */ 
             const prefixes = ["013", "014", "015", "016", "017", "018", "019"];
             let number = prefixes[Math.floor(Math.random() * prefixes.length)];
             for (let i = 0; i < 8; i++) { 
@@ -670,12 +662,12 @@
             }
             return `${number.substring(0, 5)}***${number.substring(8)}`; 
         }
-        function generateRandomWithdrawAmount() { 
+        function generateRandomWithdrawAmount() { /* ... (same) ... */ 
             const amounts = [5.12, 10.78, 22.30, 7.05, 15.50, 28.90, 8.15, 51.25, 12.84, 33.40, 5.01, 20.00];
             return amounts[Math.floor(Math.random() * amounts.length)];
         }
-        function addWithdrawalHistoryItemToDOM() { 
-            if (!withdrawalHistoryListElement) return;
+        function addWithdrawalHistoryItemToDOM() { /* ... (same) ... */ 
+             if (!withdrawalHistoryListElement) return;
             const phone = generateMaskedPhoneNumber();
             const amount = generateRandomWithdrawAmount();
             const listItem = document.createElement('li');
@@ -694,7 +686,7 @@
             }
         }
         let historyFeedInterval;
-        function startWithdrawalHistoryFeedSimulation() {
+        function startWithdrawalHistoryFeedSimulation() { /* ... (same) ... */
             if (withdrawalHistoryListElement) {
                 withdrawalHistoryListElement.innerHTML = '';
                 for (let i = 0; i < MAX_HISTORY_ITEMS_DISPLAY; i++) {
@@ -705,6 +697,15 @@
             }
         }
 
+        function processReferralInitiation() {
+            appState.referralData.totalReferralsInitiated++;
+            const rewardAmount = REWARD_PER_REFERRAL_INITIATION_USDT;
+            appState.referralData.usdtEarnedFromReferrals += rewardAmount;
+            appState.userUSDTBalance += rewardAmount; 
+            updateDisplays();
+            saveState();
+        }
+
         if (copyReferralLinkButton && referralLinkElement) {
             copyReferralLinkButton.addEventListener('click', () => {
                 referralLinkElement.select();
@@ -712,25 +713,21 @@
                 try {
                     let successful = document.execCommand('copy');
                     if (successful) {
-                        if(copyStatusMessageElement) copyStatusMessageElement.textContent = "Link Copied!";
-                        appState.referralData.totalReferralsInitiated++;
-                        updateDisplays();
-                        saveState();
+                        if(copyStatusMessageElement) copyStatusMessageElement.textContent = "Link Copied! +$0.10 Earned";
+                        processReferralInitiation(); // Process reward
                     } else {
                          if(copyStatusMessageElement) copyStatusMessageElement.textContent = "Copy failed.";
                     }
                 } catch (err) {
                     navigator.clipboard.writeText(appState.referralData.referralLink).then(() => {
-                        if(copyStatusMessageElement) copyStatusMessageElement.textContent = "Link Copied!";
-                        appState.referralData.totalReferralsInitiated++;
-                        updateDisplays();
-                        saveState();
+                        if(copyStatusMessageElement) copyStatusMessageElement.textContent = "Link Copied! +$0.10 Earned";
+                        processReferralInitiation(); // Process reward
                     }).catch(err => {
                         if(copyStatusMessageElement) copyStatusMessageElement.textContent = "Failed to copy.";
                         console.error('Failed to copy link: ', err);
                     });
                 }
-                setTimeout(() => { if(copyStatusMessageElement) copyStatusMessageElement.textContent = ""; }, 2500);
+                setTimeout(() => { if(copyStatusMessageElement) copyStatusMessageElement.textContent = ""; }, 3000);
             });
         }
 
@@ -740,26 +737,13 @@
                 const shareText = `Hi! I'm using this great app. Join with my link and earn rewards: ${linkToShare}`;
                 const telegramShareUrl = `https://t.me/share/url?url=${encodeURIComponent(linkToShare)}&text=${encodeURIComponent(shareText)}`;
                 
-                appState.referralData.totalReferralsInitiated++;
-                updateDisplays();
-                saveState();
+                processReferralInitiation(); // Process reward
+                if(copyStatusMessageElement) copyStatusMessageElement.textContent = "Sharing... +$0.10 Earned"; // Temporary message
+                setTimeout(() => { if(copyStatusMessageElement) copyStatusMessageElement.textContent = ""; }, 3000);
+
 
                 window.open(telegramShareUrl, '_blank');
             });
-        }
-        
-        function simulateSuccessfulReferral() {
-            appState.referralData.successfulReferrals++;
-            const rewardAmount = REWARD_PER_SUCCESSFUL_REFERRAL_USDT;
-            appState.referralData.usdtEarnedFromReferrals += rewardAmount;
-            appState.userUSDTBalance += rewardAmount; 
-
-            if (appState.referralData.totalReferralsInitiated < appState.referralData.successfulReferrals) {
-                appState.referralData.totalReferralsInitiated = appState.referralData.successfulReferrals;
-            }
-            console.log("Simulated successful referral. Stats:", appState.referralData);
-            updateDisplays();
-            saveState();
         }
         
         window.onload = function() {
