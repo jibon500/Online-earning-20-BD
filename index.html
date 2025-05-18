@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>App (Share Limit & Reward)</title>
+    <title>App (Delayed Share Reward - 1 Min, Msg Update)</title>
     <style>
         body {
             font-family: 'Helvetica Neue', Arial, sans-serif;
@@ -114,8 +114,8 @@
             display: flex; 
             align-items: center; 
             justify-content: center; 
-            height: 24px; /* Match SVG height to ensure consistent layout */
-            width: 24px;  /* Match SVG width */
+            height: 24px; 
+            width: 24px;
         }
         .bottom-nav .nav-item .icon svg {
             display: block; 
@@ -252,7 +252,7 @@
         
                 <div class="info-card">
                     <h3>Referral Program Details</h3>
-                    <p class="referral-details-text">Each time you share or copy your referral link, you can earn <strong>$0.10 USDT</strong> (10 cents)!</p>
+                    <p class="referral-details-text">Each time you share or copy your referral link, you can earn <strong>$0.10 USDT</strong> (10 cents)! This reward will be added <strong>1 minute after</strong> sharing/copying.</p>
                     <p class="referral-details-text">You can earn this reward for up to <strong>5 shares/copies per day</strong>.</p>
                     <p class="referral-details-text">There are <strong>30 referral levels</strong>. Unlock additional rewards and bonuses based on your activity.</p>
                 </div>
@@ -337,14 +337,14 @@
     </div>
 
     <script>
-        const APP_VERSION = "1.9.0"; // Daily Share Limit for Referral Reward
+        const APP_VERSION = "2.0.2"; // Delayed Referral Share Reward (1 minute), Message Update
         const LS_KEY_APP_STATE = `monetagAppUserState_v${APP_VERSION}`;
         const REWARD_PER_REFERRAL_INITIATION_USDT = 0.10;
-        const MAX_PAID_SHARES_PER_DAY = 5; // Max 5 paid shares per day
+        const MAX_PAID_SHARES_PER_DAY = 5;
+        const SHARE_REWARD_DELAY_MS = 60000; // 60000 milliseconds = 1 minute
 
         const navItems = document.querySelectorAll('.bottom-nav .nav-item');
         const screens = document.querySelectorAll('.app-container .screen');
-        // ... (other existing element selectors)
         const headerUserAvatarElement = document.getElementById('headerUserAvatar');
         const headerUserNameElement = document.getElementById('headerUserName');
         const headerUserPhoneElement = document.getElementById('headerUserPhone');
@@ -370,9 +370,8 @@
         const shareReferralLinkButton = document.getElementById('shareReferralLinkButton');
         const copyStatusMessageElement = document.getElementById('copyStatusMessage');
         const totalReferralsCountElement = document.getElementById('totalReferralsCount');
-        const paidSharesTodayCountElement = document.getElementById('paidSharesTodayCount'); // New element
+        const paidSharesTodayCountElement = document.getElementById('paidSharesTodayCount');
         const referralUsdtEarnedElement = document.getElementById('referralUsdtEarned');
-
 
         let appState = {
             userUSDTBalance: 0.0,
@@ -384,7 +383,7 @@
             todayStats: { 
                 date: new Date().toDateString(), 
                 monetagTasksCompleted: 0,
-                referralSharesToday: 0 // Added for daily share limit
+                referralSharesToday: 0 
             },
             telegramUser: { id: null, name: null, photoUrl: null, phoneNumber: null },
             referralData: {
@@ -392,7 +391,8 @@
                 referralLink: '',
                 totalReferralsInitiated: 0,
                 usdtEarnedFromReferrals: 0.0
-            }
+            },
+            processingShareReward: false 
         };
 
         function saveState() {
@@ -407,17 +407,14 @@
                     const parsedState = JSON.parse(storedState);
                     appState.userUSDTBalance = parsedState.userUSDTBalance || 0.0;
                     
-                    // Handle todayStats carefully for daily resets
                     if (parsedState.todayStats && parsedState.todayStats.date === new Date().toDateString()) {
                         appState.todayStats = parsedState.todayStats;
-                        // Ensure referralSharesToday is a number if it exists
                         appState.todayStats.referralSharesToday = Number(appState.todayStats.referralSharesToday) || 0;
                     } else {
-                        // New day or missing todayStats, reset all daily counters
                         appState.todayStats = {
                             date: new Date().toDateString(),
                             monetagTasksCompleted: 0,
-                            referralSharesToday: 0 // Reset for new day
+                            referralSharesToday: 0 
                         };
                     }
 
@@ -437,7 +434,6 @@
                         };
                     }
                 } else { 
-                    // First time load, initialize todayStats
                      appState.todayStats = {
                         date: new Date().toDateString(),
                         monetagTasksCompleted: 0,
@@ -445,9 +441,10 @@
                     };
                     appState.referralData.userIdForReferral = null;
                 }
+                appState.processingShareReward = false; 
             } catch (e) {
                 console.error("Error loading state:", e);
-                 appState.todayStats = { // Default on error
+                 appState.todayStats = { 
                     date: new Date().toDateString(),
                     monetagTasksCompleted: 0,
                     referralSharesToday: 0
@@ -456,6 +453,7 @@
                     userIdForReferral: null, referralLink: '',
                     totalReferralsInitiated: 0, usdtEarnedFromReferrals: 0.0
                 };
+                 appState.processingShareReward = false;
             }
             appState.monetagConfig.dailyTaskLimit = 1000;
         }
@@ -472,7 +470,6 @@
                     appState.referralData.userIdForReferral = generatePseudoUniqueId(10);
                 }
             }
-            // !!! IMPORTANT: Replace 'YourAppName' with your actual Mini App name/path.
             const botBaseUrl = "https://t.me/My_Earning20BD_bot/YourAppName?startapp="; 
             appState.referralData.referralLink = `${botBaseUrl}ref_${appState.referralData.userIdForReferral}`;
         }
@@ -500,7 +497,6 @@
 
             const placeholderName = "User";
             let finalName = appState.telegramUser.name || placeholderName;
-            // ... (rest of user info display)
             let finalPhoneNumber = appState.telegramUser.phoneNumber ? `Phone: ${appState.telegramUser.phoneNumber}` : "Phone: Not shared";
             let finalPhoneNumberProfileTab = appState.telegramUser.phoneNumber || "Not shared";
 
@@ -527,7 +523,6 @@
                 profileTabLastActiveDateElement.textContent = appState.todayStats.date;
             }
 
-
             if (earnMonetagDailyLimitElement) earnMonetagDailyLimitElement.textContent = appState.monetagConfig.dailyTaskLimit;
             if (earnMonetagCompletedTodayElement) earnMonetagCompletedTodayElement.textContent = appState.todayStats.monetagTasksCompleted;
             const remainingTasks = appState.monetagConfig.dailyTaskLimit - appState.todayStats.monetagTasksCompleted;
@@ -536,7 +531,6 @@
             if (homeMonetagTasksCompletedElement) homeMonetagTasksCompletedElement.textContent = appState.todayStats.monetagTasksCompleted;
             if (homeMonetagDailyLimitElement) homeMonetagDailyLimitElement.textContent = appState.monetagConfig.dailyTaskLimit;
             if (homeTotalMonetagEarningsElement) homeTotalMonetagEarningsElement.textContent = formatUSDT(appState.userUSDTBalance);
-
 
             if (startTaskMonetagButton) {
                 if (remainingTasks <= 0) {
@@ -582,7 +576,6 @@
         function showMonetagAd() {
             if (adStatusMessageElement) adStatusMessageElement.textContent = "Loading ad...";
             startTaskMonetagButton.disabled = true;
-            // ... (rest of monetag ad logic)
             const adFunction = `show_${appState.monetagConfig.adZone}`;
 
             if (typeof window[adFunction] === 'function') {
@@ -604,7 +597,6 @@
             }
         }
 
-
         if (startTaskMonetagButton) {
             startTaskMonetagButton.addEventListener('click', function() {
                 if (appState.todayStats.monetagTasksCompleted >= appState.monetagConfig.dailyTaskLimit) {
@@ -619,7 +611,6 @@
             screens.forEach(screen => screen.classList.remove('active'));
             const activeScreen = document.getElementById(screenId);
             if (activeScreen) activeScreen.classList.add('active');
-            // ... (rest of showScreen logic)
             navItems.forEach(item => {
                 item.classList.remove('active');
                 if (item.getAttribute('data-screen') === screenId) item.classList.add('active');
@@ -634,7 +625,6 @@
         });
 
         function submitWithdrawalRequest() {
-            // ... (withdrawal logic)
             const methodElement = document.getElementById('withdrawalMethod');
             const amountElement = document.getElementById('withdrawalAmount');
             const addressElement = document.getElementById('withdrawalAddress');
@@ -668,6 +658,7 @@
                     break;
                 default: alert('Invalid withdrawal method selected.'); return;
             }
+
             if (canProceed) {
                 alert(`Withdrawal Request Submitted:\nAmount: ${formatUSDT(amount)} USDT\nMethod: ${method}\nAddress: ${address}\n\n(This functionality is not yet implemented for actual transaction)`);
             }
@@ -676,7 +667,7 @@
         const MAX_HISTORY_ITEMS_DISPLAY = 4;
         const UPDATE_HISTORY_INTERVAL = 3200;
 
-        function generateMaskedPhoneNumber() { /* ... (same) ... */ 
+        function generateMaskedPhoneNumber() { 
             const prefixes = ["013", "014", "015", "016", "017", "018", "019"];
             let number = prefixes[Math.floor(Math.random() * prefixes.length)];
             for (let i = 0; i < 8; i++) { 
@@ -684,11 +675,11 @@
             }
             return `${number.substring(0, 5)}***${number.substring(8)}`; 
         }
-        function generateRandomWithdrawAmount() { /* ... (same) ... */ 
+        function generateRandomWithdrawAmount() { 
              const amounts = [5.12, 10.78, 22.30, 7.05, 15.50, 28.90, 8.15, 51.25, 12.84, 33.40, 5.01, 20.00];
             return amounts[Math.floor(Math.random() * amounts.length)];
         }
-        function addWithdrawalHistoryItemToDOM() { /* ... (same) ... */ 
+        function addWithdrawalHistoryItemToDOM() { 
             if (!withdrawalHistoryListElement) return;
             const phone = generateMaskedPhoneNumber();
             const amount = generateRandomWithdrawAmount();
@@ -708,7 +699,7 @@
             }
         }
         let historyFeedInterval;
-        function startWithdrawalHistoryFeedSimulation() { /* ... (same) ... */
+        function startWithdrawalHistoryFeedSimulation() {
              if (withdrawalHistoryListElement) {
                 withdrawalHistoryListElement.innerHTML = '';
                 for (let i = 0; i < MAX_HISTORY_ITEMS_DISPLAY; i++) {
@@ -719,34 +710,50 @@
             }
         }
 
-        function processReferralInitiation(actionType = "share") { // actionType can be "copy" or "share"
-            appState.referralData.totalReferralsInitiated++;
-            let message = "";
-
-            if (appState.todayStats.referralSharesToday < MAX_PAID_SHARES_PER_DAY) {
-                appState.todayStats.referralSharesToday++;
-                const rewardAmount = REWARD_PER_REFERRAL_INITIATION_USDT;
-                appState.referralData.usdtEarnedFromReferrals += rewardAmount;
-                appState.userUSDTBalance += rewardAmount; 
-                
-                if (actionType === "copy") {
-                    message = `Link Copied! +$${rewardAmount.toFixed(2)} Earned. (${appState.todayStats.referralSharesToday}/${MAX_PAID_SHARES_PER_DAY} today)`;
-                } else { // share
-                    message = `Sharing... +$${rewardAmount.toFixed(2)} Earned. (${appState.todayStats.referralSharesToday}/${MAX_PAID_SHARES_PER_DAY} today)`;
-                }
-            } else {
-                 if (actionType === "copy") {
-                    message = `Link Copied! Daily share reward limit reached.`;
-                } else { // share
-                    message = `Sharing... Daily share reward limit reached.`;
-                }
+        function processReferralInitiation(actionType = "share") {
+            if (appState.processingShareReward) {
+                if(copyStatusMessageElement) copyStatusMessageElement.textContent = "Reward processing, please wait...";
+                setTimeout(() => { if(copyStatusMessageElement) copyStatusMessageElement.textContent = ""; }, 2000);
+                return; 
             }
-            
-            if(copyStatusMessageElement) copyStatusMessageElement.textContent = message;
-            setTimeout(() => { if(copyStatusMessageElement) copyStatusMessageElement.textContent = ""; }, 3500);
 
-            updateDisplays();
-            saveState();
+            appState.referralData.totalReferralsInitiated++; 
+            let initialMessage = "";
+            if (actionType === "copy") {
+                initialMessage = `Link Copied! Processing reward...`; // Removed (wait 1 min)
+            } else { 
+                initialMessage = `Sharing... Processing reward...`; // Removed (wait 1 min)
+            }
+            if(copyStatusMessageElement) copyStatusMessageElement.textContent = initialMessage;
+            
+            appState.processingShareReward = true;
+            if(copyReferralLinkButton) copyReferralLinkButton.disabled = true;
+            if(shareReferralLinkButton) shareReferralLinkButton.disabled = true;
+
+            setTimeout(() => {
+                let finalMessage = "";
+                if (appState.todayStats.referralSharesToday < MAX_PAID_SHARES_PER_DAY) {
+                    appState.todayStats.referralSharesToday++;
+                    const rewardAmount = REWARD_PER_REFERRAL_INITIATION_USDT;
+                    appState.referralData.usdtEarnedFromReferrals += rewardAmount;
+                    appState.userUSDTBalance += rewardAmount; 
+                    
+                    finalMessage = `+$${rewardAmount.toFixed(2)} Earned! (${appState.todayStats.referralSharesToday}/${MAX_PAID_SHARES_PER_DAY} today)`;
+                } else {
+                    finalMessage = `Daily share reward limit reached. No reward this time.`;
+                }
+                
+                if(copyStatusMessageElement) copyStatusMessageElement.textContent = finalMessage;
+                setTimeout(() => { if(copyStatusMessageElement) copyStatusMessageElement.textContent = ""; }, 3500);
+
+                appState.processingShareReward = false; 
+                if(copyReferralLinkButton) copyReferralLinkButton.disabled = false;
+                if(shareReferralLinkButton) shareReferralLinkButton.disabled = false;
+
+                updateDisplays();
+                saveState();
+
+            }, SHARE_REWARD_DELAY_MS); 
         }
 
         if (copyReferralLinkButton && referralLinkElement) {
@@ -775,7 +782,7 @@
 
         if (shareReferralLinkButton) {
             shareReferralLinkButton.addEventListener('click', () => {
-                processReferralInitiation("share"); // Process reward and update counts before opening share dialog
+                processReferralInitiation("share"); 
                 
                 const linkToShare = appState.referralData.referralLink;
                 const shareText = `Hi! I'm using this great app. Join with my link and earn rewards: ${linkToShare}`;
@@ -786,8 +793,8 @@
         }
         
         window.onload = function() {
-            loadState(); // Load state first, this will also handle daily reset of referralSharesToday
-            loadTelegramUserData(); // This will initialize referral system if needed
+            loadState(); 
+            loadTelegramUserData(); 
             showScreen('homeScreen');
             startWithdrawalHistoryFeedSimulation(); 
             
