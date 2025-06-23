@@ -186,7 +186,7 @@
             <div class="profile-summary">
                 <img id="profileSummaryUserAvatar" src="" alt=" " class="avatar-large">
                 <div id="profileSummaryUserName" class="user-name-profile">Loading...</div>
-                <div id="profileSummaryUserBalance" class="user-balance-profile">Balance: 0.000 USDT</div>
+                <div id="profileSummaryUserBalance" class="user-balance-profile">Balance: 0.0000 USDT</div>
             </div>
             <div class="content-padding">
                 <div class="info-card">
@@ -197,7 +197,7 @@
                 
                 <div class="info-card">
                     <h3>Earnings</h3>
-                    <p><span>Total Monetag Earnings (USDT):</span> <span id="homeTotalMonetagEarnings">0.000</span></p>
+                    <p><span>Total Monetag Earnings (USDT):</span> <span id="homeTotalMonetagEarnings">0.0000</span></p>
                 </div>
                 
                 <div class="withdrawal-history-card">
@@ -247,7 +247,7 @@
                     <h3>Referral Statistics</h3>
                     <p><span>Times Link Shared/Copied (Overall):</span> <span id="totalReferralsCount">0</span></p>
                     <p><span>Paid Shares Today:</span> <span id="paidSharesTodayCount">0/5</span></p>
-                    <p><span>USDT Earned from Sharing:</span> <span id="referralUsdtEarned">0.000 USDT</span></p>
+                    <p><span>USDT Earned from Sharing:</span> <span id="referralUsdtEarned">0.0000 USDT</span></p>
                 </div>
         
                 <div class="info-card">
@@ -487,12 +487,12 @@
             return canvas.toDataURL();
         }
 
-        function formatUSDT(amount) { return parseFloat(amount).toFixed(6); }
+        function formatUSDT(amount) { return parseFloat(amount).toFixed(4); }
 
         function updateDisplays() {
             const formattedBalance = formatUSDT(appState.userUSDTBalance) + " USDT";
             if (profileSummaryUserBalanceElement) profileSummaryUserBalanceElement.textContent = "Balance: " + formattedBalance;
-            if (profileTabUserBalanceElement) profileTabUserBalanceElement.textContent = formattedBalance;
+            if (profileTabUserBalanceElement) profileTabUserBalanceElement.textContent = formatUSDT(appState.userUSDTBalance);
             if (withdrawUserBalanceElement) withdrawUserBalanceElement.textContent = formattedBalance;
 
             const placeholderName = "User";
