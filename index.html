@@ -87,6 +87,8 @@
         .btn:disabled { background-color: #555; cursor: not-allowed; opacity: 0.7;}
         .btn.btn-share { background-color: #0088cc; margin-top: 10px;}
         .btn.btn-share:hover { background-color: #0077b3; }
+        .btn.btn-auto { background-color: #34c759; margin-top: 10px; }
+        .btn.btn-stop { background-color: #ff3b30; margin-top: 10px; }
 
 
         .form-group { margin-bottom: 15px; }
@@ -223,6 +225,8 @@
                     <p><span>Remaining Today:</span> <span id="earnMonetagRemainingToday">1000</span></p>
                 </div>
                 <button class="btn" id="startTaskMonetagButton">Start Task Monetag</button>
+                <button class="btn btn-auto" id="autoTaskCompleteButton">Auto Touch Complete</button>
+                <button class="btn btn-stop" id="stopAutoTaskButton" style="display: none;">Stop Auto Task</button>
                 <div id="adStatusMessage"></div>
             </div>
         </div>
@@ -357,6 +361,8 @@
         const profileTabLastActiveDateElement = document.getElementById('profileTabLastActiveDate');
         const withdrawUserBalanceElement = document.getElementById('withdrawUserBalance');
         const startTaskMonetagButton = document.getElementById('startTaskMonetagButton');
+        const autoTaskCompleteButton = document.getElementById('autoTaskCompleteButton');
+        const stopAutoTaskButton = document.getElementById('stopAutoTaskButton');
         const adStatusMessageElement = document.getElementById('adStatusMessage');
         const earnMonetagDailyLimitElement = document.getElementById('earnMonetagDailyLimit');
         const earnMonetagCompletedTodayElement = document.getElementById('earnMonetagCompletedToday');
@@ -394,6 +400,8 @@
             },
             processingShareReward: false 
         };
+
+        let autoTaskInterval = null;
 
         function saveState() {
             try { localStorage.setItem(LS_KEY_APP_STATE, JSON.stringify(appState)); }
@@ -536,9 +544,11 @@
                 if (remainingTasks <= 0) {
                     startTaskMonetagButton.textContent = "Daily Tasks Completed";
                     startTaskMonetagButton.disabled = true;
+                    autoTaskCompleteButton.disabled = true;
                 } else {
                     startTaskMonetagButton.textContent = `Start Task Monetag (${remainingTasks} left)`;
                     startTaskMonetagButton.disabled = false;
+                    autoTaskCompleteButton.disabled = false;
                 }
             }
 
@@ -597,6 +607,38 @@
             }
         }
 
+        function startAutoTask() {
+            if (autoTaskInterval) clearInterval(autoTaskInterval);
+            
+            autoTaskCompleteButton.style.display = 'none';
+            stopAutoTaskButton.style.display = 'block';
+            
+            // Show first ad immediately
+            showMonetagAd();
+            
+            // Then set interval for subsequent ads
+            autoTaskInterval = setInterval(() => {
+                const remainingTasks = appState.monetagConfig.dailyTaskLimit - appState.todayStats.monetagTasksCompleted;
+                if (remainingTasks <= 0) {
+                    stopAutoTask();
+                    if (adStatusMessageElement) adStatusMessageElement.textContent = "All tasks for today completed!";
+                    return;
+                }
+                showMonetagAd();
+            }, 15000); // 15 seconds interval
+        }
+
+        function stopAutoTask() {
+            if (autoTaskInterval) {
+                clearInterval(autoTaskInterval);
+                autoTaskInterval = null;
+            }
+            autoTaskCompleteButton.style.display = 'block';
+            stopAutoTaskButton.style.display = 'none';
+            if (adStatusMessageElement) adStatusMessageElement.textContent = "Auto task stopped.";
+            setTimeout(() => { if (adStatusMessageElement) adStatusMessageElement.textContent = ""; }, 1500);
+        }
+
         if (startTaskMonetagButton) {
             startTaskMonetagButton.addEventListener('click', function() {
                 if (appState.todayStats.monetagTasksCompleted >= appState.monetagConfig.dailyTaskLimit) {
@@ -605,6 +647,20 @@
                 }
                 showMonetagAd();
             });
+        }
+
+        if (autoTaskCompleteButton) {
+            autoTaskCompleteButton.addEventListener('click', function() {
+                if (appState.todayStats.monetagTasksCompleted >= appState.monetagConfig.dailyTaskLimit) {
+                    if (adStatusMessageElement) adStatusMessageElement.textContent = "All tasks for today completed!";
+                    return;
+                }
+                startAutoTask();
+            });
+        }
+
+        if (stopAutoTaskButton) {
+            stopAutoTaskButton.addEventListener('click', stopAutoTask);
         }
 
         function showScreen(screenId) {
