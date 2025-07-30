@@ -1,1 +1,1388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Earning App</title>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <style>
+        :root {
+            --primary-color: #4361ee;
+            --secondary-color: #3f37c9;
+            --success-color: #4cc9f0;
+            --danger-color: #f72585;
+            --warning-color: #f8961e;
+            --info-color: #4895ef;
+            --dark-color: #212529;
+            --light-color: #f8f9fa;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f7fa;
+            color: #333;
+        }
+        
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+        
+        /* Sidebar Styles */
+        .sidebar {
+            width: 250px;
+            background-color: #2b2d42;
+            color: white;
+            padding: 20px 0;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .sidebar-header {
+            padding: 0 20px 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .sidebar-header h2 {
+            margin: 0;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+        }
+        
+        .sidebar-header h2 i {
+            margin-right: 10px;
+            color: var(--success-color);
+        }
+        
+        .sidebar-menu {
+            padding: 20px 0;
+        }
+        
+        .menu-item {
+            padding: 12px 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+        }
+        
+        .menu-item:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        .menu-item.active {
+            background-color: var(--primary-color);
+        }
+        
+        .menu-item i {
+            margin-right: 10px;
+            width: 20px;
+            text-align: center;
+        }
+        
+        /* Main Content Styles */
+        .main-content {
+            flex: 1;
+            padding: 20px;
+            background-color: #f5f7fa;
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .header h1 {
+            margin: 0;
+            font-size: 1.8rem;
+            color: var(--dark-color);
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+        }
+        
+        .user-info img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+        
+        .logout-btn {
+            background-color: var(--danger-color);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-left: 15px;
+        }
+        
+        /* Dashboard Cards */
+        .dashboard-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .card {
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .card-title {
+            font-size: 1rem;
+            color: #6c757d;
+            margin: 0;
+        }
+        
+        .card-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+        
+        .card-icon.users {
+            background-color: var(--info-color);
+        }
+        
+        .card-icon.earnings {
+            background-color: var(--success-color);
+        }
+        
+        .card-icon.withdrawals {
+            background-color: var(--warning-color);
+        }
+        
+        .card-icon.active {
+            background-color: var(--primary-color);
+        }
+        
+        .card-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        
+        .card-footer {
+            font-size: 0.9rem;
+            color: #6c757d;
+        }
+        
+        /* Tables */
+        .table-container {
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+        
+        .table-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .table-title {
+            margin: 0;
+            font-size: 1.3rem;
+        }
+        
+        .search-box {
+            padding: 8px 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            width: 250px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+        }
+        
+        tr:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .status {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        
+        .status.pending {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+        
+        .status.approved {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        
+        .status.rejected {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        
+        .action-btn {
+            padding: 5px 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            margin-right: 5px;
+            color: white;
+        }
+        
+        .approve-btn {
+            background-color: var(--success-color);
+        }
+        
+        .reject-btn {
+            background-color: var(--danger-color);
+        }
+        
+        .edit-btn {
+            background-color: var(--warning-color);
+        }
+        
+        .delete-btn {
+            background-color: var(--danger-color);
+        }
+        
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal-content {
+            background-color: white;
+            border-radius: 10px;
+            width: 500px;
+            max-width: 90%;
+            padding: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .modal-title {
+            margin: 0;
+            font-size: 1.3rem;
+        }
+        
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #6c757d;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+        
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+        
+        .btn {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            margin-left: 10px;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+                height: auto;
+            }
+            
+            .dashboard-cards {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h2><i class="fas fa-crown"></i> Admin Panel</h2>
+            </div>
+            <div class="sidebar-menu">
+                <div class="menu-item active" data-section="dashboard">
+                    <i class="fas fa-tachometer-alt"></i> Dashboard
+                </div>
+                <div class="menu-item" data-section="users">
+                    <i class="fas fa-users"></i> Users
+                </div>
+                <div class="menu-item" data-section="withdrawals">
+                    <i class="fas fa-money-bill-wave"></i> Withdrawals
+                </div>
+                <div class="menu-item" data-section="settings">
+                    <i class="fas fa-cog"></i> Settings
+                </div>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="header">
+                <h1 id="content-title">Dashboard</h1>
+                <div class="user-info">
+                    <img src="https://via.placeholder.com/40" alt="Admin" id="admin-avatar">
+                    <span id="admin-name">Admin User</span>
+                    <button class="logout-btn" id="logout-btn">Logout</button>
+                </div>
+            </div>
+            
+            <!-- Dashboard Section -->
+            <div id="dashboard-section" class="content-section">
+                <div class="dashboard-cards">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Total Users</h3>
+                            <div class="card-icon users">
+                                <i class="fas fa-users"></i>
+                            </div>
+                        </div>
+                        <div class="card-value" id="total-users">0</div>
+                        <div class="card-footer">All registered users</div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Total Earnings</h3>
+                            <div class="card-icon earnings">
+                                <i class="fas fa-coins"></i>
+                            </div>
+                        </div>
+                        <div class="card-value" id="total-earnings">0 USDT</div>
+                        <div class="card-footer">From all users</div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Withdrawals</h3>
+                            <div class="card-icon withdrawals">
+                                <i class="fas fa-money-bill-wave"></i>
+                            </div>
+                        </div>
+                        <div class="card-value" id="total-withdrawals">0 USDT</div>
+                        <div class="card-footer">Total withdrawn</div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Active Users</h3>
+                            <div class="card-icon active">
+                                <i class="fas fa-user-check"></i>
+                            </div>
+                        </div>
+                        <div class="card-value" id="active-users">0</div>
+                        <div class="card-footer">Active today</div>
+                    </div>
+                </div>
+                
+                <div class="table-container">
+                    <div class="table-header">
+                        <h3 class="table-title">Recent Withdrawals</h3>
+                        <input type="text" class="search-box" placeholder="Search withdrawals...">
+                    </div>
+                    <table id="recent-withdrawals">
+                        <thead>
+                            <tr>
+                                <th>User</th>
+                                <th>Amount</th>
+                                <th>Method</th>
+                                <th>Date</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Will be populated by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- Users Section -->
+            <div id="users-section" class="content-section" style="display: none;">
+                <div class="table-container">
+                    <div class="table-header">
+                        <h3 class="table-title">All Users</h3>
+                        <div>
+                            <input type="text" class="search-box" id="user-search" placeholder="Search users...">
+                            <button class="btn btn-primary" id="add-user-btn">Add User</button>
+                        </div>
+                    </div>
+                    <table id="users-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Email</th>
+                                <th>Balance</th>
+                                <th>Joined</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Will be populated by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- Withdrawals Section -->
+            <div id="withdrawals-section" class="content-section" style="display: none;">
+                <div class="table-container">
+                    <div class="table-header">
+                        <h3 class="table-title">Withdrawal Requests</h3>
+                        <input type="text" class="search-box" id="withdrawal-search" placeholder="Search withdrawals...">
+                    </div>
+                    <table id="withdrawals-table">
+                        <thead>
+                            <tr>
+                                <th>User</th>
+                                <th>Amount</th>
+                                <th>Method</th>
+                                <th>Date</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Will be populated by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- Settings Section -->
+            <div id="settings-section" class="content-section" style="display: none;">
+                <div class="table-container">
+                    <h3 class="table-title">App Settings</h3>
+                    <form id="settings-form">
+                        <div class="form-group">
+                            <label for="daily-task-limit">Daily Task Limit</label>
+                            <input type="number" class="form-control" id="daily-task-limit" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="task-reward">Task Reward (USDT)</label>
+                            <input type="number" step="0.0001" class="form-control" id="task-reward" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="referral-reward">Referral Reward (USDT)</label>
+                            <input type="number" step="0.01" class="form-control" id="referral-reward" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="daily-referral-limit">Daily Referral Limit</label>
+                            <input type="number" class="form-control" id="daily-referral-limit" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="min-withdrawal">Minimum Withdrawal (USDT)</label>
+                            <input type="number" class="form-control" id="min-withdrawal" required>
+                        </div>
+                        
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" id="cancel-settings">Cancel</button>
+                            <button type="submit" class="btn btn-primary">Save Settings</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Add User Modal -->
+    <div class="modal" id="add-user-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Add New User</h3>
+                <button class="close-btn" id="close-add-user-modal">&times;</button>
+            </div>
+            <form id="add-user-form">
+                <div class="form-group">
+                    <label for="user-email">Email</label>
+                    <input type="email" class="form-control" id="user-email" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="user-password">Password</label>
+                    <input type="password" class="form-control" id="user-password" required minlength="6">
+                </div>
+                
+                <div class="form-group">
+                    <label for="user-balance">Initial Balance (USDT)</label>
+                    <input type="number" step="0.01" class="form-control" id="user-balance" required>
+                </div>
+                
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" id="cancel-add-user">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Add User</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Edit User Modal -->
+    <div class="modal" id="edit-user-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Edit User</h3>
+                <button class="close-btn" id="close-edit-user-modal">&times;</button>
+            </div>
+            <form id="edit-user-form">
+                <input type="hidden" id="edit-user-id">
+                
+                <div class="form-group">
+                    <label for="edit-user-email">Email</label>
+                    <input type="email" class="form-control" id="edit-user-email" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="edit-user-balance">Balance (USDT)</label>
+                    <input type="number" step="0.01" class="form-control" id="edit-user-balance" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="edit-user-status">Status</label>
+                    <select class="form-control" id="edit-user-status" required>
+                        <option value="active">Active</option>
+                        <option value="banned">Banned</option>
+                    </select>
+                </div>
+                
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" id="cancel-edit-user">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Withdrawal Details Modal -->
+    <div class="modal" id="withdrawal-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Withdrawal Details</h3>
+                <button class="close-btn" id="close-withdrawal-modal">&times;</button>
+            </div>
+            <div id="withdrawal-details">
+                <!-- Will be populated by JavaScript -->
+            </div>
+            <div class="modal-footer" id="withdrawal-actions">
+                <button type="button" class="btn btn-secondary" id="cancel-withdrawal">Close</button>
+                <button type="button" class="btn btn-primary approve-btn" id="approve-withdrawal">Approve</button>
+                <button type="button" class="btn btn-danger reject-btn" id="reject-withdrawal">Reject</button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_AUTH_DOMAIN",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_STORAGE_BUCKET",
+            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
 
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+        
+        // DOM Elements
+        const menuItems = document.querySelectorAll('.menu-item');
+        const contentSections = document.querySelectorAll('.content-section');
+        const contentTitle = document.getElementById('content-title');
+        const logoutBtn = document.getElementById('logout-btn');
+        const adminName = document.getElementById('admin-name');
+        const adminAvatar = document.getElementById('admin-avatar');
+        
+        // Dashboard elements
+        const totalUsersEl = document.getElementById('total-users');
+        const totalEarningsEl = document.getElementById('total-earnings');
+        const totalWithdrawalsEl = document.getElementById('total-withdrawals');
+        const activeUsersEl = document.getElementById('active-users');
+        const recentWithdrawalsTable = document.getElementById('recent-withdrawals').querySelector('tbody');
+        
+        // Users section elements
+        const usersTable = document.getElementById('users-table').querySelector('tbody');
+        const userSearch = document.getElementById('user-search');
+        const addUserBtn = document.getElementById('add-user-btn');
+        
+        // Withdrawals section elements
+        const withdrawalsTable = document.getElementById('withdrawals-table').querySelector('tbody');
+        const withdrawalSearch = document.getElementById('withdrawal-search');
+        
+        // Settings section elements
+        const settingsForm = document.getElementById('settings-form');
+        const dailyTaskLimit = document.getElementById('daily-task-limit');
+        const taskReward = document.getElementById('task-reward');
+        const referralReward = document.getElementById('referral-reward');
+        const dailyReferralLimit = document.getElementById('daily-referral-limit');
+        const minWithdrawal = document.getElementById('min-withdrawal');
+        
+        // Modals
+        const addUserModal = document.getElementById('add-user-modal');
+        const addUserForm = document.getElementById('add-user-form');
+        const closeAddUserModal = document.getElementById('close-add-user-modal');
+        const cancelAddUser = document.getElementById('cancel-add-user');
+        
+        const editUserModal = document.getElementById('edit-user-modal');
+        const editUserForm = document.getElementById('edit-user-form');
+        const closeEditUserModal = document.getElementById('close-edit-user-modal');
+        const cancelEditUser = document.getElementById('cancel-edit-user');
+        
+        const withdrawalModal = document.getElementById('withdrawal-modal');
+        const withdrawalDetails = document.getElementById('withdrawal-details');
+        const closeWithdrawalModal = document.getElementById('close-withdrawal-modal');
+        const cancelWithdrawal = document.getElementById('cancel-withdrawal');
+        const approveWithdrawal = document.getElementById('approve-withdrawal');
+        const rejectWithdrawal = document.getElementById('reject-withdrawal');
+        
+        // Global variables
+        let currentWithdrawalId = null;
+        let currentUserId = null;
+        
+        // Initialize the admin panel
+        function initAdminPanel() {
+            // Check authentication state
+            auth.onAuthStateChanged(user => {
+                if (user) {
+                    // User is signed in
+                    adminName.textContent = user.email;
+                    
+                    // Check if user is admin
+                    checkAdminStatus(user.uid);
+                    
+                    // Load data
+                    loadDashboardData();
+                    loadUsers();
+                    loadWithdrawals();
+                    loadSettings();
+                } else {
+                    // User is signed out, redirect to login
+                    window.location.href = 'login.html';
+                }
+            });
+            
+            // Setup event listeners
+            setupEventListeners();
+        }
+        
+        // Check if user is admin
+        function checkAdminStatus(userId) {
+            db.collection('admins').doc(userId).get()
+                .then(doc => {
+                    if (!doc.exists) {
+                        // User is not admin, redirect
+                        window.location.href = 'login.html';
+                    }
+                })
+                .catch(error => {
+                    console.error("Error checking admin status:", error);
+                    window.location.href = 'login.html';
+                });
+        }
+        
+        // Setup event listeners
+        function setupEventListeners() {
+            // Menu items
+            menuItems.forEach(item => {
+                item.addEventListener('click', () => {
+                    // Remove active class from all items
+                    menuItems.forEach(i => i.classList.remove('active'));
+                    // Add active class to clicked item
+                    item.classList.add('active');
+                    
+                    // Get section to show
+                    const section = item.dataset.section;
+                    
+                    // Hide all sections
+                    contentSections.forEach(sec => sec.style.display = 'none');
+                    
+                    // Show selected section
+                    document.getElementById(`${section}-section`).style.display = 'block';
+                    
+                    // Update title
+                    contentTitle.textContent = item.textContent.trim();
+                });
+            });
+            
+            // Logout button
+            logoutBtn.addEventListener('click', () => {
+                auth.signOut()
+                    .then(() => {
+                        window.location.href = 'login.html';
+                    })
+                    .catch(error => {
+                        console.error("Error signing out:", error);
+                    });
+            });
+            
+            // Add user button
+            addUserBtn.addEventListener('click', () => {
+                addUserModal.style.display = 'flex';
+            });
+            
+            // Close add user modal
+            closeAddUserModal.addEventListener('click', () => {
+                addUserModal.style.display = 'none';
+            });
+            
+            cancelAddUser.addEventListener('click', () => {
+                addUserModal.style.display = 'none';
+            });
+            
+            // Add user form submission
+            addUserForm.addEventListener('submit', e => {
+                e.preventDefault();
+                
+                const email = document.getElementById('user-email').value;
+                const password = document.getElementById('user-password').value;
+                const balance = parseFloat(document.getElementById('user-balance').value);
+                
+                // Create user with email and password
+                auth.createUserWithEmailAndPassword(email, password)
+                    .then(userCredential => {
+                        // Add user to Firestore
+                        return db.collection('users').doc(userCredential.user.uid).set({
+                            email: email,
+                            balance: balance,
+                            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                            lastActive: firebase.firestore.FieldValue.serverTimestamp(),
+                            isAdmin: false,
+                            isBanned: false
+                        });
+                    })
+                    .then(() => {
+                        alert('User created successfully');
+                        addUserForm.reset();
+                        addUserModal.style.display = 'none';
+                        loadUsers();
+                    })
+                    .catch(error => {
+                        console.error("Error creating user:", error);
+                        alert('Error creating user: ' + error.message);
+                    });
+            });
+            
+            // Close edit user modal
+            closeEditUserModal.addEventListener('click', () => {
+                editUserModal.style.display = 'none';
+            });
+            
+            cancelEditUser.addEventListener('click', () => {
+                editUserModal.style.display = 'none';
+            });
+            
+            // Edit user form submission
+            editUserForm.addEventListener('submit', e => {
+                e.preventDefault();
+                
+                const userId = document.getElementById('edit-user-id').value;
+                const email = document.getElementById('edit-user-email').value;
+                const balance = parseFloat(document.getElementById('edit-user-balance').value);
+                const status = document.getElementById('edit-user-status').value;
+                
+                db.collection('users').doc(userId).update({
+                    email: email,
+                    balance: balance,
+                    isBanned: status === 'banned'
+                })
+                .then(() => {
+                    alert('User updated successfully');
+                    editUserModal.style.display = 'none';
+                    loadUsers();
+                })
+                .catch(error => {
+                    console.error("Error updating user:", error);
+                    alert('Error updating user: ' + error.message);
+                });
+            });
+            
+            // Close withdrawal modal
+            closeWithdrawalModal.addEventListener('click', () => {
+                withdrawalModal.style.display = 'none';
+            });
+            
+            cancelWithdrawal.addEventListener('click', () => {
+                withdrawalModal.style.display = 'none';
+            });
+            
+            // Approve withdrawal
+            approveWithdrawal.addEventListener('click', () => {
+                if (!currentWithdrawalId) return;
+                
+                db.collection('withdrawals').doc(currentWithdrawalId).update({
+                    status: 'approved',
+                    processedAt: firebase.firestore.FieldValue.serverTimestamp()
+                })
+                .then(() => {
+                    alert('Withdrawal approved successfully');
+                    withdrawalModal.style.display = 'none';
+                    loadWithdrawals();
+                    loadDashboardData();
+                })
+                .catch(error => {
+                    console.error("Error approving withdrawal:", error);
+                    alert('Error approving withdrawal: ' + error.message);
+                });
+            });
+            
+            // Reject withdrawal
+            rejectWithdrawal.addEventListener('click', () => {
+                if (!currentWithdrawalId) return;
+                
+                db.collection('withdrawals').doc(currentWithdrawalId).update({
+                    status: 'rejected',
+                    processedAt: firebase.firestore.FieldValue.serverTimestamp()
+                })
+                .then(() => {
+                    alert('Withdrawal rejected successfully');
+                    withdrawalModal.style.display = 'none';
+                    loadWithdrawals();
+                    loadDashboardData();
+                })
+                .catch(error => {
+                    console.error("Error rejecting withdrawal:", error);
+                    alert('Error rejecting withdrawal: ' + error.message);
+                });
+            });
+            
+            // Settings form submission
+            settingsForm.addEventListener('submit', e => {
+                e.preventDefault();
+                
+                const settings = {
+                    dailyTaskLimit: parseInt(dailyTaskLimit.value),
+                    rewardPerTaskUSD: parseFloat(taskReward.value),
+                    referralRewardUSD: parseFloat(referralReward.value),
+                    dailyReferralLimit: parseInt(dailyReferralLimit.value),
+                    minWithdrawalUSD: parseFloat(minWithdrawal.value),
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                };
+                
+                db.collection('settings').doc('appSettings').update(settings)
+                .then(() => {
+                    alert('Settings saved successfully');
+                })
+                .catch(error => {
+                    console.error("Error saving settings:", error);
+                    alert('Error saving settings: ' + error.message);
+                });
+            });
+            
+            // User search
+            userSearch.addEventListener('input', () => {
+                loadUsers(userSearch.value);
+            });
+            
+            // Withdrawal search
+            withdrawalSearch.addEventListener('input', () => {
+                loadWithdrawals(withdrawalSearch.value);
+            });
+        }
+        
+        // Load dashboard data
+        function loadDashboardData() {
+            // Total users
+            db.collection('users').get()
+                .then(snapshot => {
+                    totalUsersEl.textContent = snapshot.size;
+                    
+                    // Count active users (last active today)
+                    const today = new Date();
+                    today.setHours(0, 0, 0, 0);
+                    
+                    let activeCount = 0;
+                    snapshot.forEach(doc => {
+                        const user = doc.data();
+                        if (user.lastActive && user.lastActive.toDate() >= today) {
+                            activeCount++;
+                        }
+                    });
+                    
+                    activeUsersEl.textContent = activeCount;
+                })
+                .catch(error => {
+                    console.error("Error loading users:", error);
+                });
+            
+            // Total earnings (sum of all user balances)
+            db.collection('users').get()
+                .then(snapshot => {
+                    let total = 0;
+                    snapshot.forEach(doc => {
+                        const user = doc.data();
+                        total += user.balance || 0;
+                    });
+                    
+                    totalEarningsEl.textContent = total.toFixed(2) + ' USDT';
+                })
+                .catch(error => {
+                    console.error("Error calculating total earnings:", error);
+                });
+            
+            // Total withdrawals (sum of all approved withdrawals)
+            db.collection('withdrawals').where('status', '==', 'approved').get()
+                .then(snapshot => {
+                    let total = 0;
+                    snapshot.forEach(doc => {
+                        const withdrawal = doc.data();
+                        total += withdrawal.amount || 0;
+                    });
+                    
+                    totalWithdrawalsEl.textContent = total.toFixed(2) + ' USDT';
+                })
+                .catch(error => {
+                    console.error("Error calculating total withdrawals:", error);
+                });
+            
+            // Recent withdrawals
+            db.collection('withdrawals').orderBy('createdAt', 'desc').limit(5).get()
+                .then(snapshot => {
+                    recentWithdrawalsTable.innerHTML = '';
+                    
+                    if (snapshot.empty) {
+                        recentWithdrawalsTable.innerHTML = '<tr><td colspan="6">No recent withdrawals</td></tr>';
+                        return;
+                    }
+                    
+                    snapshot.forEach(doc => {
+                        const withdrawal = doc.data();
+                        const row = document.createElement('tr');
+                        
+                        row.innerHTML = `
+                            <td>${withdrawal.userEmail || 'N/A'}</td>
+                            <td>${withdrawal.amount.toFixed(2)} USDT</td>
+                            <td>${withdrawal.method || 'N/A'}</td>
+                            <td>${withdrawal.createdAt?.toDate().toLocaleDateString() || 'N/A'}</td>
+                            <td><span class="status ${withdrawal.status || 'pending'}">${withdrawal.status || 'Pending'}</span></td>
+                            <td>
+                                <button class="action-btn edit-btn view-withdrawal" data-id="${doc.id}">
+                                    <i class="fas fa-eye"></i> View
+                                </button>
+                            </td>
+                        `;
+                        
+                        recentWithdrawalsTable.appendChild(row);
+                    });
+                    
+                    // Add event listeners to view buttons
+                    document.querySelectorAll('.view-withdrawal').forEach(btn => {
+                        btn.addEventListener('click', () => {
+                            viewWithdrawal(btn.dataset.id);
+                        });
+                    });
+                })
+                .catch(error => {
+                    console.error("Error loading recent withdrawals:", error);
+                });
+        }
+        
+        // Load users
+        function loadUsers(searchTerm = '') {
+            let query = db.collection('users');
+            
+            if (searchTerm) {
+                query = query.where('email', '>=', searchTerm)
+                            .where('email', '<=', searchTerm + '\uf8ff');
+            }
+            
+            query.get()
+                .then(snapshot => {
+                    usersTable.innerHTML = '';
+                    
+                    if (snapshot.empty) {
+                        usersTable.innerHTML = '<tr><td colspan="6">No users found</td></tr>';
+                        return;
+                    }
+                    
+                    snapshot.forEach(doc => {
+                        const user = doc.data();
+                        const row = document.createElement('tr');
+                        
+                        row.innerHTML = `
+                            <td>${doc.id.substring(0, 8)}...</td>
+                            <td>${user.email || 'N/A'}</td>
+                            <td>${user.balance?.toFixed(2) || '0.00'} USDT</td>
+                            <td>${user.createdAt?.toDate().toLocaleDateString() || 'N/A'}</td>
+                            <td><span class="status ${user.isBanned ? 'rejected' : 'approved'}">${user.isBanned ? 'Banned' : 'Active'}</span></td>
+                            <td>
+                                <button class="action-btn edit-btn edit-user" data-id="${doc.id}">
+                                    <i class="fas fa-edit"></i> Edit
+                                </button>
+                                <button class="action-btn delete-btn delete-user" data-id="${doc.id}">
+                                    <i class="fas fa-trash"></i> Delete
+                                </button>
+                            </td>
+                        `;
+                        
+                        usersTable.appendChild(row);
+                    });
+                    
+                    // Add event listeners to edit buttons
+                    document.querySelectorAll('.edit-user').forEach(btn => {
+                        btn.addEventListener('click', () => {
+                            editUser(btn.dataset.id);
+                        });
+                    });
+                    
+                    // Add event listeners to delete buttons
+                    document.querySelectorAll('.delete-user').forEach(btn => {
+                        btn.addEventListener('click', () => {
+                            deleteUser(btn.dataset.id);
+                        });
+                    });
+                })
+                .catch(error => {
+                    console.error("Error loading users:", error);
+                });
+        }
+        
+        // Load withdrawals
+        function loadWithdrawals(searchTerm = '') {
+            let query = db.collection('withdrawals').orderBy('createdAt', 'desc');
+            
+            if (searchTerm) {
+                query = query.where('userEmail', '>=', searchTerm)
+                            .where('userEmail', '<=', searchTerm + '\uf8ff');
+            }
+            
+            query.get()
+                .then(snapshot => {
+                    withdrawalsTable.innerHTML = '';
+                    
+                    if (snapshot.empty) {
+                        withdrawalsTable.innerHTML = '<tr><td colspan="6">No withdrawals found</td></tr>';
+                        return;
+                    }
+                    
+                    snapshot.forEach(doc => {
+                        const withdrawal = doc.data();
+                        const row = document.createElement('tr');
+                        
+                        row.innerHTML = `
+                            <td>${withdrawal.userEmail || 'N/A'}</td>
+                            <td>${withdrawal.amount.toFixed(2)} USDT</td>
+                            <td>${withdrawal.method || 'N/A'}</td>
+                            <td>${withdrawal.createdAt?.toDate().toLocaleDateString() || 'N/A'}</td>
+                            <td><span class="status ${withdrawal.status || 'pending'}">${withdrawal.status || 'Pending'}</span></td>
+                            <td>
+                                <button class="action-btn edit-btn view-withdrawal" data-id="${doc.id}">
+                                    <i class="fas fa-eye"></i> View
+                                </button>
+                                ${withdrawal.status === 'pending' ? `
+                                <button class="action-btn approve-btn approve-withdrawal" data-id="${doc.id}">
+                                    <i class="fas fa-check"></i> Approve
+                                </button>
+                                <button class="action-btn reject-btn reject-withdrawal" data-id="${doc.id}">
+                                    <i class="fas fa-times"></i> Reject
+                                </button>
+                                ` : ''}
+                            </td>
+                        `;
+                        
+                        withdrawalsTable.appendChild(row);
+                    });
+                    
+                    // Add event listeners to view buttons
+                    document.querySelectorAll('.view-withdrawal').forEach(btn => {
+                        btn.addEventListener('click', () => {
+                            viewWithdrawal(btn.dataset.id);
+                        });
+                    });
+                    
+                    // Add event listeners to approve buttons
+                    document.querySelectorAll('.approve-withdrawal').forEach(btn => {
+                        btn.addEventListener('click', () => {
+                            approveWithdrawalAction(btn.dataset.id);
+                        });
+                    });
+                    
+                    // Add event listeners to reject buttons
+                    document.querySelectorAll('.reject-withdrawal').forEach(btn => {
+                        btn.addEventListener('click', () => {
+                            rejectWithdrawalAction(btn.dataset.id);
+                        });
+                    });
+                })
+                .catch(error => {
+                    console.error("Error loading withdrawals:", error);
+                });
+        }
+        
+        // Load settings
+        function loadSettings() {
+            db.collection('settings').doc('appSettings').get()
+                .then(doc => {
+                    if (doc.exists) {
+                        const settings = doc.data();
+                        dailyTaskLimit.value = settings.dailyTaskLimit || 1000;
+                        taskReward.value = settings.rewardPerTaskUSD || 0.0006;
+                        referralReward.value = settings.referralRewardUSD || 0.10;
+                        dailyReferralLimit.value = settings.dailyReferralLimit || 5;
+                        minWithdrawal.value = settings.minWithdrawalUSD || 10;
+                    }
+                })
+                .catch(error => {
+                    console.error("Error loading settings:", error);
+                });
+        }
+        
+        // Edit user
+        function editUser(userId) {
+            currentUserId = userId;
+            
+            db.collection('users').doc(userId).get()
+                .then(doc => {
+                    if (doc.exists) {
+                        const user = doc.data();
+                        
+                        document.getElementById('edit-user-id').value = userId;
+                        document.getElementById('edit-user-email').value = user.email || '';
+                        document.getElementById('edit-user-balance').value = user.balance || 0;
+                        document.getElementById('edit-user-status').value = user.isBanned ? 'banned' : 'active';
+                        
+                        editUserModal.style.display = 'flex';
+                    }
+                })
+                .catch(error => {
+                    console.error("Error loading user:", error);
+                });
+        }
+        
+        // Delete user
+        function deleteUser(userId) {
+            if (confirm('Are you sure you want to delete this user? This action cannot be undone.')) {
+                // Delete user from authentication
+                auth.getUser(userId)
+                    .then(() => {
+                        return auth.deleteUser(userId);
+                    })
+                    .then(() => {
+                        // Delete user from Firestore
+                        return db.collection('users').doc(userId).delete();
+                    })
+                    .then(() => {
+                        alert('User deleted successfully');
+                        loadUsers();
+                        loadDashboardData();
+                    })
+                    .catch(error => {
+                        console.error("Error deleting user:", error);
+                        alert('Error deleting user: ' + error.message);
+                    });
+            }
+        }
+        
+        // View withdrawal details
+        function viewWithdrawal(withdrawalId) {
+            currentWithdrawalId = withdrawalId;
+            
+            db.collection('withdrawals').doc(withdrawalId).get()
+                .then(doc => {
+                    if (doc.exists) {
+                        const withdrawal = doc.data();
+                        
+                        let html = `
+                            <div class="form-group">
+                                <label>User Email</label>
+                                <p>${withdrawal.userEmail || 'N/A'}</p>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Amount</label>
+                                <p>${withdrawal.amount.toFixed(2)} USDT</p>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Method</label>
+                                <p>${withdrawal.method || 'N/A'}</p>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Wallet/Account</label>
+                                <p>${withdrawal.address || 'N/A'}</p>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Date</label>
+                                <p>${withdrawal.createdAt?.toDate().toLocaleString() || 'N/A'}</p>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Status</label>
+                                <p><span class="status ${withdrawal.status || 'pending'}">${withdrawal.status || 'Pending'}</span></p>
+                            </div>
+                        `;
+                        
+                        withdrawalDetails.innerHTML = html;
+                        
+                        // Show/hide action buttons based on status
+                        if (withdrawal.status === 'pending') {
+                            document.getElementById('approve-withdrawal').style.display = 'inline-block';
+                            document.getElementById('reject-withdrawal').style.display = 'inline-block';
+                        } else {
+                            document.getElementById('approve-withdrawal').style.display = 'none';
+                            document.getElementById('reject-withdrawal').style.display = 'none';
+                        }
+                        
+                        withdrawalModal.style.display = 'flex';
+                    }
+                })
+                .catch(error => {
+                    console.error("Error loading withdrawal:", error);
+                });
+        }
+        
+        // Approve withdrawal action
+        function approveWithdrawalAction(withdrawalId) {
+            currentWithdrawalId = withdrawalId;
+            
+            db.collection('withdrawals').doc(withdrawalId).update({
+                status: 'approved',
+                processedAt: firebase.firestore.FieldValue.serverTimestamp()
+            })
+            .then(() => {
+                alert('Withdrawal approved successfully');
+                loadWithdrawals();
+                loadDashboardData();
+            })
+            .catch(error => {
+                console.error("Error approving withdrawal:", error);
+                alert('Error approving withdrawal: ' + error.message);
+            });
+        }
+        
+        // Reject withdrawal action
+        function rejectWithdrawalAction(withdrawalId) {
+            currentWithdrawalId = withdrawalId;
+            
+            db.collection('withdrawals').doc(withdrawalId).update({
+                status: 'rejected',
+                processedAt: firebase.firestore.FieldValue.serverTimestamp()
+            })
+            .then(() => {
+                alert('Withdrawal rejected successfully');
+                loadWithdrawals();
+                loadDashboardData();
+            })
+            .catch(error => {
+                console.error("Error rejecting withdrawal:", error);
+                alert('Error rejecting withdrawal: ' + error.message);
+            });
+        }
+        
+        // Initialize the admin panel when the page loads
+        window.onload = initAdminPanel;
+    </script>
+</body>
+</html>
