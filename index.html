@@ -4,7 +4,108 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>App (Delayed Share Reward - 1 Min, Msg Update)</title>
+    <!-- Add Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
     <style>
+        /* Existing styles remain the same */
+        /* Add new styles for auth pages */
+        .auth-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            padding: 20px;
+            background-color: #000000;
+        }
+        
+        .auth-card {
+            background-color: #1c1c1e;
+            border-radius: 10px;
+            padding: 25px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+        
+        .auth-title {
+            color: #00aaff;
+            text-align: center;
+            margin-bottom: 25px;
+            font-size: 22px;
+            font-weight: bold;
+        }
+        
+        .auth-form .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .auth-form label {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 14px;
+            color: #cccccc;
+        }
+        
+        .auth-form input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #3a3a3c;
+            border-radius: 6px;
+            font-size: 15px;
+            background-color: #2c2c2e;
+            color: #ffffff;
+            box-sizing: border-box;
+        }
+        
+        .auth-btn {
+            width: 100%;
+            padding: 12px;
+            background-color: #007aff;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 15px;
+        }
+        
+        .auth-btn:hover {
+            background-color: #0056b3;
+        }
+        
+        .auth-toggle {
+            text-align: center;
+            margin-top: 15px;
+            color: #8e8e93;
+            font-size: 14px;
+        }
+        
+        .auth-toggle a {
+            color: #00aaff;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        
+        .auth-error {
+            color: #ff3b30;
+            font-size: 14px;
+            text-align: center;
+            margin-top: 10px;
+            min-height: 20px;
+        }
+        
+        .auth-success {
+            color: #34c759;
+            font-size: 14px;
+            text-align: center;
+            margin-top: 10px;
+            min-height: 20px;
+        }
+        
+        /* Rest of your existing styles remain the same */
         body {
             font-family: 'Helvetica Neue', Arial, sans-serif;
             margin: 0;
@@ -22,6 +123,7 @@
             padding-bottom: 70px;
             background-color: #000000;
             position: relative;
+            display: none; /* Initially hidden until auth */
         }
 
         .app-header {
@@ -172,7 +274,58 @@
     <script src='//solseewuthi.net/sdk.js' data-zone='9344336' data-sdk='show_9344336' async></script>
 </head>
 <body>
+    <!-- Auth Pages -->
+    <div id="authContainer" class="auth-container">
+        <div id="loginCard" class="auth-card">
+            <div class="auth-title">Login to Your Account</div>
+            <form id="loginForm" class="auth-form">
+                <div class="form-group">
+                    <label for="loginEmail">Email</label>
+                    <input type="email" id="loginEmail" required placeholder="Enter your email">
+                </div>
+                <div class="form-group">
+                    <label for="loginPassword">Password</label>
+                    <input type="password" id="loginPassword" required placeholder="Enter your password">
+                </div>
+                <div id="loginError" class="auth-error"></div>
+                <div id="loginSuccess" class="auth-success"></div>
+                <button type="submit" class="auth-btn">Login</button>
+                <div class="auth-toggle">
+                    Don't have an account? <a id="showSignup">Sign up</a>
+                </div>
+            </form>
+        </div>
+        
+        <div id="signupCard" class="auth-card" style="display: none;">
+            <div class="auth-title">Create New Account</div>
+            <form id="signupForm" class="auth-form">
+                <div class="form-group">
+                    <label for="signupName">Name</label>
+                    <input type="text" id="signupName" required placeholder="Enter your name">
+                </div>
+                <div class="form-group">
+                    <label for="signupEmail">Email</label>
+                    <input type="email" id="signupEmail" required placeholder="Enter your email">
+                </div>
+                <div class="form-group">
+                    <label for="signupPassword">Password</label>
+                    <input type="password" id="signupPassword" required placeholder="Create a password">
+                </div>
+                <div class="form-group">
+                    <label for="signupConfirmPassword">Confirm Password</label>
+                    <input type="password" id="signupConfirmPassword" required placeholder="Confirm your password">
+                </div>
+                <div id="signupError" class="auth-error"></div>
+                <div id="signupSuccess" class="auth-success"></div>
+                <button type="submit" class="auth-btn">Sign Up</button>
+                <div class="auth-toggle">
+                    Already have an account? <a id="showLogin">Login</a>
+                </div>
+            </form>
+        </div>
+    </div>
 
+    <!-- Main App (hidden until authenticated) -->
     <div class="app-container">
         <div id="homeScreen" class="screen active">
             <div class="app-header">
@@ -183,7 +336,7 @@
                         <div id="headerUserPhone" class="user-phone-header">Phone: Not shared</div>
                     </div>
                 </div>
-                <div class="actions"><span>⋮</span></div>
+                <div class="actions"><span id="logoutButton">⋮</span></div>
             </div>
             <div class="profile-summary">
                 <img id="profileSummaryUserAvatar" src="" alt=" " class="avatar-large">
@@ -310,9 +463,9 @@
                     <p><span>Name:</span> <span id="profileTabUserName">Loading...</span></p>
                     <p><span>Phone:</span> <span id="profileTabUserPhone">Not shared</span></p>
                     <p><span>Total Balance (USDT):</span> <span id="profileTabUserBalance">0.0000</span></p>
-                    <p><span>Email:</span> <span>user@example.com</span></p>
+                    <p><span>Email:</span> <span id="profileTabUserEmail">user@example.com</span></p>
                     <p><span>Last Active:</span> <span id="profileTabLastActiveDate">Loading...</span></p>
-                    <button class="btn" style="background-color: #ff3b30; margin-top: 20px;" onclick="alert('Logout functionality not implemented.')">Logout</button>
+                    <button class="btn" style="background-color: #ff3b30; margin-top: 20px;" id="profileLogoutButton">Logout</button>
                 </div>
             </div>
         </div>
@@ -341,7 +494,22 @@
     </div>
 
     <script>
-        const APP_VERSION = "2.0.2"; // Delayed Referral Share Reward (1 minute), Message Update
+        // Firebase configuration
+        const firebaseConfig = {
+  apiKey: "AIzaSyAgvOSJFY8WqRoVXRWjWiOEdAmjvTz_pgU",
+  authDomain: "task-app-a3b8a.firebaseapp.com",
+  databaseURL: "https://task-app-a3b8a-default-rtdb.firebaseio.com",
+  projectId: "task-app-a3b8a",
+  storageBucket: "task-app-a3b8a.firebasestorage.app",
+  messagingSenderId: "154506156460",
+  appId: "1:154506156460:web:78124e37a074fe43218209",
+  measurementId: "G-Q2C5BLCWDT"
+};
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+
+        const APP_VERSION = "2.0.3"; // Added Firebase Auth
         const LS_KEY_APP_STATE = `monetagAppUserState_v${APP_VERSION}`;
         const REWARD_PER_REFERRAL_INITIATION_USDT = 0.10;
         const MAX_PAID_SHARES_PER_DAY = 5;
@@ -357,6 +525,7 @@
         const profileSummaryUserBalanceElement = document.getElementById('profileSummaryUserBalance');
         const profileTabUserNameElement = document.getElementById('profileTabUserName');
         const profileTabUserPhoneElement = document.getElementById('profileTabUserPhone');
+        const profileTabUserEmailElement = document.getElementById('profileTabUserEmail');
         const profileTabUserBalanceElement = document.getElementById('profileTabUserBalance');
         const profileTabLastActiveDateElement = document.getElementById('profileTabLastActiveDate');
         const withdrawUserBalanceElement = document.getElementById('withdrawUserBalance');
@@ -378,6 +547,20 @@
         const totalReferralsCountElement = document.getElementById('totalReferralsCount');
         const paidSharesTodayCountElement = document.getElementById('paidSharesTodayCount');
         const referralUsdtEarnedElement = document.getElementById('referralUsdtEarned');
+        const logoutButton = document.getElementById('logoutButton');
+        const profileLogoutButton = document.getElementById('profileLogoutButton');
+        const loginForm = document.getElementById('loginForm');
+        const signupForm = document.getElementById('signupForm');
+        const showSignup = document.getElementById('showSignup');
+        const showLogin = document.getElementById('showLogin');
+        const loginCard = document.getElementById('loginCard');
+        const signupCard = document.getElementById('signupCard');
+        const loginError = document.getElementById('loginError');
+        const signupError = document.getElementById('signupError');
+        const loginSuccess = document.getElementById('loginSuccess');
+        const signupSuccess = document.getElementById('signupSuccess');
+        const authContainer = document.getElementById('authContainer');
+        const appContainer = document.querySelector('.app-container');
 
         let appState = {
             userUSDTBalance: 0.0,
@@ -398,13 +581,191 @@
                 totalReferralsInitiated: 0,
                 usdtEarnedFromReferrals: 0.0
             },
-            processingShareReward: false 
+            processingShareReward: false,
+            userAuthData: {
+                email: null,
+                name: null,
+                lastLogin: null
+            }
         };
 
         let autoTaskInterval = null;
 
+        // Auth Functions
+        function showLoginForm() {
+            loginCard.style.display = 'block';
+            signupCard.style.display = 'none';
+            loginError.textContent = '';
+            loginSuccess.textContent = '';
+        }
+
+        function showSignupForm() {
+            loginCard.style.display = 'none';
+            signupCard.style.display = 'block';
+            signupError.textContent = '';
+            signupSuccess.textContent = '';
+        }
+
+        function handleLogin(email, password) {
+            auth.signInWithEmailAndPassword(email, password)
+                .then((userCredential) => {
+                    // Signed in
+                    const user = userCredential.user;
+                    loginSuccess.textContent = 'Login successful! Loading app...';
+                    
+                    // Update app state with user data
+                    appState.userAuthData.email = user.email;
+                    appState.userAuthData.lastLogin = new Date().toISOString();
+                    
+                    // Check if we have the user's name (from signup)
+                    if (user.displayName) {
+                        appState.userAuthData.name = user.displayName;
+                    } else {
+                        // Try to get name from email
+                        const nameFromEmail = user.email.split('@')[0];
+                        appState.userAuthData.name = nameFromEmail.charAt(0).toUpperCase() + nameFromEmail.slice(1);
+                    }
+                    
+                    // Save state and show app
+                    saveState();
+                    showApp();
+                })
+                .catch((error) => {
+                    const errorCode = error.code;
+                    const errorMessage = error.message;
+                    loginError.textContent = getAuthErrorMessage(errorCode);
+                });
+        }
+
+        function handleSignup(name, email, password) {
+            if (password !== document.getElementById('signupConfirmPassword').value) {
+                signupError.textContent = 'Passwords do not match';
+                return;
+            }
+            
+            auth.createUserWithEmailAndPassword(email, password)
+                .then((userCredential) => {
+                    // Signed up
+                    const user = userCredential.user;
+                    
+                    // Update user profile with name
+                    return user.updateProfile({
+                        displayName: name
+                    }).then(() => {
+                        signupSuccess.textContent = 'Account created successfully! Redirecting...';
+                        
+                        // Update app state with user data
+                        appState.userAuthData.email = user.email;
+                        appState.userAuthData.name = name;
+                        appState.userAuthData.lastLogin = new Date().toISOString();
+                        
+                        // Save state and show app after a delay
+                        setTimeout(() => {
+                            saveState();
+                            showApp();
+                        }, 1500);
+                    });
+                })
+                .catch((error) => {
+                    const errorCode = error.code;
+                    const errorMessage = error.message;
+                    signupError.textContent = getAuthErrorMessage(errorCode);
+                });
+        }
+
+        function handleLogout() {
+            auth.signOut().then(() => {
+                // Clear sensitive data from appState
+                appState.userAuthData = {
+                    email: null,
+                    name: null,
+                    lastLogin: null
+                };
+                
+                // Show auth screens
+                hideApp();
+                showLoginForm();
+            }).catch((error) => {
+                console.error('Logout error:', error);
+            });
+        }
+
+        function getAuthErrorMessage(errorCode) {
+            switch(errorCode) {
+                case 'auth/invalid-email':
+                    return 'Invalid email address';
+                case 'auth/user-disabled':
+                    return 'Account disabled';
+                case 'auth/user-not-found':
+                    return 'Account not found';
+                case 'auth/wrong-password':
+                    return 'Incorrect password';
+                case 'auth/email-already-in-use':
+                    return 'Email already in use';
+                case 'auth/weak-password':
+                    return 'Password should be at least 6 characters';
+                default:
+                    return 'Authentication error. Please try again.';
+            }
+        }
+
+        function showApp() {
+            authContainer.style.display = 'none';
+            appContainer.style.display = 'block';
+            updateDisplays();
+        }
+
+        function hideApp() {
+            authContainer.style.display = 'flex';
+            appContainer.style.display = 'none';
+        }
+
+        // Auth state observer
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                // User is signed in
+                if (!appState.userAuthData.email) {
+                    // Initialize user data if not already set
+                    appState.userAuthData.email = user.email;
+                    appState.userAuthData.name = user.displayName || user.email.split('@')[0];
+                    appState.userAuthData.lastLogin = new Date().toISOString();
+                    saveState();
+                }
+                showApp();
+            } else {
+                // User is signed out
+                hideApp();
+                showLoginForm();
+            }
+        });
+
+        // Event listeners for auth
+        showSignup.addEventListener('click', showSignupForm);
+        showLogin.addEventListener('click', showLoginForm);
+        
+        loginForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            handleLogin(email, password);
+        });
+        
+        signupForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const name = document.getElementById('signupName').value;
+            const email = document.getElementById('signupEmail').value;
+            const password = document.getElementById('signupPassword').value;
+            handleSignup(name, email, password);
+        });
+
+        logoutButton.addEventListener('click', handleLogout);
+        profileLogoutButton.addEventListener('click', handleLogout);
+
+        // Existing functions remain the same with minor updates to include auth data
         function saveState() {
-            try { localStorage.setItem(LS_KEY_APP_STATE, JSON.stringify(appState)); }
+            try { 
+                localStorage.setItem(LS_KEY_APP_STATE, JSON.stringify(appState)); 
+            }
             catch (e) { console.error("Error saving state:", e); }
         }
 
@@ -441,6 +802,11 @@
                             totalReferralsInitiated: 0, usdtEarnedFromReferrals: 0.0
                         };
                     }
+                    
+                    // Load auth data if exists
+                    if (parsedState.userAuthData) {
+                        appState.userAuthData = parsedState.userAuthData;
+                    }
                 } else { 
                      appState.todayStats = {
                         date: new Date().toDateString(),
@@ -474,6 +840,8 @@
             if (!appState.referralData.userIdForReferral) {
                 if (appState.telegramUser && appState.telegramUser.id) {
                     appState.referralData.userIdForReferral = `tg${appState.telegramUser.id}`;
+                } else if (appState.userAuthData && appState.userAuthData.email) {
+                    appState.referralData.userIdForReferral = `auth_${appState.userAuthData.email.replace(/[^a-zA-Z0-9]/g, '')}`;
                 } else {
                     appState.referralData.userIdForReferral = generatePseudoUniqueId(10);
                 }
@@ -503,10 +871,15 @@
             if (profileTabUserBalanceElement) profileTabUserBalanceElement.textContent = formatUSDT(appState.userUSDTBalance);
             if (withdrawUserBalanceElement) withdrawUserBalanceElement.textContent = formattedBalance;
 
-            const placeholderName = "User";
-            let finalName = appState.telegramUser.name || placeholderName;
+            // Use authenticated user name if available
+            let finalName = appState.userAuthData.name || appState.telegramUser.name || "User";
             let finalPhoneNumber = appState.telegramUser.phoneNumber ? `Phone: ${appState.telegramUser.phoneNumber}` : "Phone: Not shared";
             let finalPhoneNumberProfileTab = appState.telegramUser.phoneNumber || "Not shared";
+            
+            // Show email in profile tab if available
+            if (profileTabUserEmailElement && appState.userAuthData.email) {
+                profileTabUserEmailElement.textContent = appState.userAuthData.email;
+            }
 
             let avatarForHeaderSrc, avatarForSummarySrc;
             if (appState.telegramUser.photoUrl) {
@@ -850,7 +1223,22 @@
         
         window.onload = function() {
             loadState(); 
-            loadTelegramUserData(); 
+            
+            // Initialize the app based on auth state
+            const user = auth.currentUser;
+            if (user) {
+                // User is logged in
+                appState.userAuthData.email = user.email;
+                appState.userAuthData.name = user.displayName || user.email.split('@')[0];
+                appState.userAuthData.lastLogin = new Date().toISOString();
+                showApp();
+            } else {
+                // No user logged in
+                hideApp();
+                showLoginForm();
+            }
+            
+            loadTelegramUserData();
             showScreen('homeScreen');
             startWithdrawalHistoryFeedSimulation(); 
             
