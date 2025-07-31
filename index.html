@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>App (Fixed Auth & Admin Control)</title>
-    <!-- Add Firebase SDKs -->
+    <title>App (Fully Functional & Admin Controlled)</title>
+    <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
@@ -23,7 +23,6 @@
         .auth-toggle { text-align: center; margin-top: 15px; color: #8e8e93; font-size: 14px; }
         .auth-toggle a { color: #00aaff; text-decoration: none; cursor: pointer; }
         .auth-error { color: #ff3b30; font-size: 14px; text-align: center; margin-top: 10px; min-height: 20px; }
-        .auth-success { color: #34c759; font-size: 14px; text-align: center; margin-top: 10px; min-height: 20px; }
         .app-container { flex-grow: 1; overflow-y: auto; padding-bottom: 70px; background-color: #000000; position: relative; display: none; }
         .app-header { background-color: #1a1a1a; color: #ffffff; padding: 12px 15px; display: flex; align-items: center; position: sticky; top: 0; z-index: 1001; border-bottom: 1px solid #333333; }
         .app-header .title { font-size: 18px; font-weight: bold; flex-grow: 1; }
@@ -48,31 +47,18 @@
         .info-card p.referral-details-text { display: block; line-height: 1.5; }
         .btn { display: block; width: 100%; padding: 12px; background-color: #007aff; color: white; border: none; border-radius: 8px; font-size: 17px; font-weight: bold; text-align: center; cursor: pointer; margin-top: 20px; box-sizing: border-box; }
         .btn:hover { background-color: #0056b3; }
-        .btn:disabled { background-color: #555; cursor: not-allowed; opacity: 0.7; }
         .btn.btn-share { background-color: #0088cc; margin-top: 10px; }
-        .btn.btn-share:hover { background-color: #0077b3; }
         .btn.btn-auto { background-color: #34c759; margin-top: 10px; }
         .btn.btn-stop { background-color: #ff3b30; margin-top: 10px; }
-        .form-group { margin-bottom: 15px; }
-        .form-group label { display: block; margin-bottom: 6px; font-size: 14px; color: #cccccc; }
         .form-group input, .form-group select { width: 100%; padding: 11px; border: 1px solid #3a3a3c; border-radius: 6px; font-size: 15px; background-color: #2c2c2e; color: #ffffff; box-sizing: border-box; }
         .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background-color: #1a1a1a; border-top: 1px solid #333333; display: flex; justify-content: space-around; padding: 8px 0; box-shadow: 0 -1px 5px rgba(0,0,0,0.2); z-index: 1000; }
         .bottom-nav .nav-item { display: flex; flex-direction: column; align-items: center; color: #8e8e93; cursor: pointer; padding: 5px 10px; font-size: 11px; flex-basis: 0; flex-grow: 1; }
-        .bottom-nav .nav-item .icon { font-size: 22px; margin-bottom: 2px; display: flex; align-items: center; justify-content: center; height: 24px; width: 24px; }
-        .bottom-nav .nav-item .icon svg { display: block; }
+        .bottom-nav .nav-item .icon { font-size: 22px; margin-bottom: 2px; }
         .bottom-nav .nav-item.active { color: #00aaff; }
-        #adStatusMessage { margin-top: 10px; font-size: 14px; color: #ffcc00; text-align: center; min-height: 20px; }
-        .telegram-contact-fab { position: fixed; bottom: 75px; right: 20px; width: 50px; height: 50px; background-color: #0088cc; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 8px rgba(0,0,0,0.3); z-index: 999; cursor: pointer; transition: background-color 0.3s ease; }
-        .telegram-contact-fab:hover { background-color: #0077b3; }
+        .telegram-contact-fab { position: fixed; bottom: 75px; right: 20px; width: 50px; height: 50px; background-color: #0088cc; border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 999; }
         .telegram-contact-fab svg { width: 28px; height: 28px; fill: white; }
-        .withdrawal-history-card { background-color: #1c1c1e; color: #ffffff; border-radius: 10px; padding: 15px; margin: 0 0 15px 0; box-shadow: 0 2px 5px rgba(0,0,0,0.2); max-height: 180px; min-height: 100px; overflow-y: hidden; position: relative; }
-        .withdrawal-history-card h3 { margin-top: 0; margin-bottom: 10px; font-size: 16px; color: #00aaff; text-align: center; }
-        .withdrawal-list { list-style: none; padding: 0; margin: 0; height: 100%; }
-        .withdrawal-list li { padding: 6px 0; font-size: 13px; border-bottom: 1px solid #2a2a2e; display: flex; justify-content: space-between; opacity: 0; transform: translateY(15px); animation: fadeInSlideUp 0.6s forwards; }
-        .withdrawal-list li:last-child { border-bottom: none; }
-        .withdrawal-list .phone-number { color: #cccccc; flex-basis: 50%; }
-        .withdrawal-list .amount { color: #34c759; font-weight: bold; flex-basis: 35%; text-align: right; }
-        .withdrawal-list .status-success { color: #34c759; margin-left: 5px; font-size: 12px; flex-basis: 15%; text-align: right; }
+        .withdrawal-history-card { min-height: 100px; overflow-y: hidden; }
+        .withdrawal-list li { opacity: 0; transform: translateY(15px); animation: fadeInSlideUp 0.6s forwards; }
         @keyframes fadeInSlideUp { to { opacity: 1; transform: translateY(0); } }
     </style>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
@@ -82,510 +68,567 @@
     <!-- Auth Pages -->
     <div id="authContainer" class="auth-container">
         <div id="loginCard" class="auth-card">
-            <div class="auth-title">Login to Your Account</div>
+            <h1 class="auth-title">Login to Your Account</h1>
             <form id="loginForm" class="auth-form">
-                <div class="form-group">
-                    <label for="loginEmail">Email</label>
-                    <input type="email" id="loginEmail" required placeholder="Enter your email">
-                </div>
-                <div class="form-group">
-                    <label for="loginPassword">Password</label>
-                    <input type="password" id="loginPassword" required placeholder="Enter your password">
-                </div>
+                <div class="form-group"><label for="loginEmail">Email</label><input type="email" id="loginEmail" required></div>
+                <div class="form-group"><label for="loginPassword">Password</label><input type="password" id="loginPassword" required></div>
                 <div id="loginError" class="auth-error"></div>
                 <button type="submit" id="loginButton" class="auth-btn">Login</button>
-                <div class="auth-toggle">
-                    Don't have an account? <a id="showSignup">Sign up</a>
-                </div>
+                <p class="auth-toggle">Don't have an account? <a id="showSignup">Sign up</a></p>
             </form>
         </div>
-        
         <div id="signupCard" class="auth-card" style="display: none;">
-            <div class="auth-title">Create New Account</div>
+            <h1 class="auth-title">Create New Account</h1>
             <form id="signupForm" class="auth-form">
-                <div class="form-group">
-                    <label for="signupName">Name</label>
-                    <input type="text" id="signupName" required placeholder="Enter your name">
-                </div>
-                <div class="form-group">
-                    <label for="signupEmail">Email</label>
-                    <input type="email" id="signupEmail" required placeholder="Enter your email">
-                </div>
-                <div class="form-group">
-                    <label for="signupPassword">Password</label>
-                    <input type="password" id="signupPassword" required placeholder="Create a password (min. 6 characters)">
-                </div>
-                <div class="form-group">
-                    <label for="signupConfirmPassword">Confirm Password</label>
-                    <input type="password" id="signupConfirmPassword" required placeholder="Confirm your password">
-                </div>
+                <div class="form-group"><label for="signupName">Name</label><input type="text" id="signupName" required></div>
+                <div class="form-group"><label for="signupEmail">Email</label><input type="email" id="signupEmail" required></div>
+                <div class="form-group"><label for="signupPassword">Password</label><input type="password" id="signupPassword" required></div>
+                <div class="form-group"><label for="signupConfirmPassword">Confirm Password</label><input type="password" id="signupConfirmPassword" required></div>
                 <div id="signupError" class="auth-error"></div>
                 <button type="submit" id="signupButton" class="auth-btn">Sign Up</button>
-                <div class="auth-toggle">
-                    Already have an account? <a id="showLogin">Login</a>
-                </div>
+                <p class="auth-toggle">Already have an account? <a id="showLogin">Login</a></p>
             </form>
         </div>
     </div>
 
-    <!-- Main App (hidden until authenticated) -->
+    <!-- Main App -->
     <div class="app-container">
-        <!-- আপনার অ্যাপের বাকি অংশ এখানে অপরিবর্তিত আছে -->
-        <div id="homeScreen" class="screen active">
+        <div id="homeScreen" class="screen">
             <div class="app-header">
                 <div class="user-info-header">
                     <img id="headerUserAvatar" src="" alt=" " class="avatar-small">
                     <div class="user-details">
-                        <div id="headerUserName" class="user-name-header">Loading...</div>
-                        <div id="headerUserPhone" class="user-phone-header">Phone: Not shared</div>
+                        <div id="headerUserName" class="user-name-header"></div>
+                        <div id="headerUserPhone" class="user-phone-header"></div>
                     </div>
                 </div>
                 <div class="actions"><span id="logoutButton">⋮</span></div>
             </div>
             <div class="profile-summary">
                 <img id="profileSummaryUserAvatar" src="" alt=" " class="avatar-large">
-                <div id="profileSummaryUserName" class="user-name-profile">Loading...</div>
-                <div id="profileSummaryUserBalance" class="user-balance-profile">Balance: 0.0000 USDT</div>
+                <div id="profileSummaryUserName" class="user-name-profile"></div>
+                <div id="profileSummaryUserBalance" class="user-balance-profile"></div>
             </div>
             <div class="content-padding">
-                <div class="info-card">
-                    <h3>Today's Tasks (Overall Summary)</h3>
-                    <p><span>Monetag Tasks Completed Today:</span> <span id="homeMonetagTasksCompleted">0</span></p>
-                    <p><span>Daily Monetag Limit:</span> <span id="homeMonetagDailyLimit">1000</span></p>
-                </div>
-                
-                <div class="info-card">
-                    <h3>Earnings</h3>
-                    <p><span>Total Monetag Earnings (USDT):</span> <span id="homeTotalMonetagEarnings">0.0000</span></p>
-                </div>
-                
-                <div class="withdrawal-history-card">
-                    <h3>Recent Withdrawals</h3>
-                    <ul class="withdrawal-list" id="withdrawalHistoryList"></ul>
-                </div>
+                <div class="info-card"><h3>Summary</h3><p><span>Tasks Completed Today:</span> <span id="homeMonetagTasksCompleted"></span></p><p><span>Daily Limit:</span> <span id="homeMonetagDailyLimit"></span></p></div>
+                <div class="info-card"><h3>Earnings</h3><p><span>Total Earnings (USDT):</span> <span id="homeTotalMonetagEarnings"></span></p></div>
+                <div class="withdrawal-history-card"><h3>Recent Withdrawals</h3><ul class="withdrawal-list" id="withdrawalHistoryList"></ul></div>
             </div>
         </div>
-
         <div id="earnScreen" class="screen">
-            <div class="app-header">
-                <div class="title">Earn Tasks</div>
-                <div class="actions"><span>⋮</span></div>
-            </div>
+            <div class="app-header"><div class="title">Earn Tasks</div></div>
             <div class="content-padding">
-                <div style="text-align: right; font-size: 12px; color: #bbbbbb; margin-bottom:10px;">
-                    Test User (Dev) | Balance: USDT
-                </div>
-                <div class="info-card">
-                    <h3>Today's Monetag Tasks</h3>
-                    <p><span>Daily Limit:</span> <span id="earnMonetagDailyLimit">1000</span></p>
-                    <p><span>Completed Today:</span> <span id="earnMonetagCompletedToday">0</span></p>
-                    <p><span>Remaining Today:</span> <span id="earnMonetagRemainingToday">1000</span></p>
-                </div>
+                <div class="info-card"><h3>Monetag Tasks</h3><p><span>Daily Limit:</span> <span id="earnMonetagDailyLimit"></span></p><p><span>Completed Today:</span> <span id="earnMonetagCompletedToday"></span></p><p><span>Remaining Today:</span> <span id="earnMonetagRemainingToday"></span></p></div>
                 <button class="btn" id="startTaskMonetagButton">Start Task Monetag</button>
                 <button class="btn btn-auto" id="autoTaskCompleteButton">Auto Touch Complete</button>
                 <button class="btn btn-stop" id="stopAutoTaskButton" style="display: none;">Stop Auto Task</button>
-                <div id="adStatusMessage"></div>
+                <div id="adStatusMessage" style="text-align:center; margin-top:15px; min-height:20px;"></div>
             </div>
         </div>
-
         <div id="referScreen" class="screen">
-            <div class="app-header">
-                <div class="title">Refer & Earn</div>
-                <div class="actions"><span>⋮</span></div>
-            </div>
-            <div class="content-padding">
-                <div class="info-card">
-                    <h3>Your Unique Referral Link</h3>
-                    <div class="form-group" style="display: flex; align-items: center; gap: 10px;">
-                        <input type="text" id="referralLink" readonly style="flex-grow: 1;">
-                        <button id="copyReferralLinkButton" class="btn" style="padding: 11px 15px; margin-top: 0; width: auto; font-size: 14px; white-space: nowrap;">Copy Link</button>
-                    </div>
-                    <p id="copyStatusMessage" style="font-size: 12px; color: #34c759; min-height: 18px; margin-top: 5px; text-align: right;"></p>
+             <div class="app-header"><div class="title">Refer & Earn</div></div>
+             <div class="content-padding">
+                <div class="info-card"><h3>Your Referral Link</h3>
+                    <div class="form-group" style="display: flex; align-items: center; gap: 10px;"><input type="text" id="referralLink" readonly><button id="copyReferralLinkButton" class="btn" style="padding: 11px 15px; margin-top: 0; width: auto;">Copy</button></div>
+                    <p id="copyStatusMessage" style="font-size: 12px; color: #34c759; min-height: 18px; text-align: right;"></p>
                     <button id="shareReferralLinkButton" class="btn btn-share">Share Now</button>
                 </div>
-        
-                <div class="info-card">
-                    <h3>Referral Statistics</h3>
-                    <p><span>Times Link Shared/Copied (Overall):</span> <span id="totalReferralsCount">0</span></p>
-                    <p><span>Paid Shares Today:</span> <span id="paidSharesTodayCount">0/5</span></p>
-                    <p><span>USDT Earned from Sharing:</span> <span id="referralUsdtEarned">0.0000 USDT</span></p>
-                </div>
-        
-                <div class="info-card" id="referralProgramDetailsCard">
-                    <h3>Referral Program Details</h3>
-                    <!-- Details will be loaded from Firebase -->
-                </div>
-            </div>
+                <div class="info-card"><h3>Statistics</h3><p><span>Total Shares/Copies:</span> <span id="totalReferralsCount"></span></p><p><span>Paid Shares Today:</span> <span id="paidSharesTodayCount"></span></p><p><span>Earned from Sharing:</span> <span id="referralUsdtEarned"></span></p></div>
+                <div class="info-card" id="referralProgramDetailsCard"><h3>Program Details</h3></div>
+             </div>
         </div>
-
         <div id="withdrawScreen" class="screen">
-            <div class="app-header">
-                <div class="title">Withdraw Funds</div>
-                <div class="actions"><span>⋮</span></div>
-            </div>
+            <div class="app-header"><div class="title">Withdraw</div></div>
             <div class="content-padding">
-                <div class="info-card">
-                    <p><span>Available Balance:</span> <span id="withdrawUserBalance" style="font-size:16px; color:#34c759;">0.0000 USDT</span></p>
-                </div>
-                <div class="info-card">
-                    <h3>Request Withdrawal</h3>
-                    <div class="form-group">
-                        <label for="withdrawalMethod">Withdrawal Method:</label>
-                        <select id="withdrawalMethod" name="withdrawalMethod">
-                            <option value="">Loading methods...</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="withdrawalAmount">Amount (USDT):</label>
-                        <input type="number" id="withdrawalAmount" name="withdrawalAmount" placeholder="Enter amount">
-                    </div>
-                    <div class="form-group">
-                        <label for="withdrawalAddress">Account/Wallet Address:</label>
-                        <input type="text" id="withdrawalAddress" name="withdrawalAddress" placeholder="Enter account/wallet address">
-                    </div>
-                    <button class="btn" id="submitWithdrawalButton">Submit Withdrawal</button>
+                <div class="info-card"><p><span>Available Balance:</span> <span id="withdrawUserBalance" style="font-size:16px; color:#34c759;"></span></p></div>
+                <div class="info-card"><h3>Request Withdrawal</h3>
+                    <div class="form-group"><label>Method:</label><select id="withdrawalMethod"><option value="">Loading...</option></select></div>
+                    <div class="form-group"><label>Amount (USDT):</label><input type="number" id="withdrawalAmount" placeholder="Enter amount"></div>
+                    <div class="form-group"><label>Account/Wallet Address:</label><input type="text" id="withdrawalAddress" placeholder="Enter address"></div>
+                    <button id="submitWithdrawalButton" class="btn">Submit</button>
                 </div>
             </div>
         </div>
-
         <div id="profileScreen" class="screen">
-            <div class="app-header">
-                <div class="title">Profile</div>
-                <div class="actions"><span>⋮</span></div>
-            </div>
+            <div class="app-header"><div class="title">Profile</div></div>
             <div class="content-padding">
-                <div class="info-card">
-                    <h3>User Profile</h3>
-                    <p><span>Name:</span> <span id="profileTabUserName">Loading...</span></p>
-                    <p><span>Phone:</span> <span id="profileTabUserPhone">Not shared</span></p>
-                    <p><span>Total Balance (USDT):</span> <span id="profileTabUserBalance">0.0000</span></p>
-                    <p><span>Email:</span> <span id="profileTabUserEmail">user@example.com</span></p>
-                    <p><span>Last Active:</span> <span id="profileTabLastActiveDate">Loading...</span></p>
+                <div class="info-card"><h3>User Profile</h3>
+                    <p><span>Name:</span> <span id="profileTabUserName"></span></p>
+                    <p><span>Phone:</span> <span id="profileTabUserPhone"></span></p>
+                    <p><span>Email:</span> <span id="profileTabUserEmail"></span></p>
+                    <p><span>Balance (USDT):</span> <span id="profileTabUserBalance"></span></p>
+                    <p><span>Last Active:</span> <span id="profileTabLastActiveDate"></span></p>
                     <button class="btn" style="background-color: #ff3b30; margin-top: 20px;" id="profileLogoutButton">Logout</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <a href="https://t.me/Jobsrbot" target="_blank" class="telegram-contact-fab" id="telegramContactLink" title="Contact on Telegram">
-        <svg viewBox="0 0 24 24">
-            <path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.17.91-.494 1.204-1.07 1.23-.928.043-1.348-.602-2.018-1.028-.91-.588-1.428-.945-2.326-1.528-.986-.631-.339-1.001.221-1.591.133-.142 2.568-2.295 2.568-2.295s.23-.205-.065-.455c-.294-.25-.728-.094-.728-.094L8.44 13.288c-.04.023-.075.045-.117.075l-.105.061s-.37.253-.947.031c-.578-.223-.994-.37-1.128-.409-.426-.12-.76-.182-.756-.532.003-.237.207-.404.512-.584 2.813-1.656 4.593-2.671 4.593-2.671s1.033-.622 2.001-.626zm-2.448 8.528l.618-2.997-.026.018s1.631 1.496 2.017 1.831l.015.012s.313.241.303-.255l-.008-.081L18.3 7.588s.096-.515-.578-.266l-10.84 3.862s-.76.295-.865.995l.01.022s.273.92.855.712L7.89 12.3s.374-.115.864.075l.008.004-3.264 2.957s-.396.358.083.585c.48.226 1.088-.08 1.088-.08l3.829-2.653.86.793 1.108 1.021s.182.153.359.034c.176-.118.173-.25.173-.25z"/>
-        </svg>
+    <a href="#" id="telegramContactLink" target="_blank" class="telegram-contact-fab">
+        <svg viewBox="0 0 24 24"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.17.91-.494 1.204-1.07 1.23-.928.043-1.348-.602-2.018-1.028-.91-.588-1.428-.945-2.326-1.528-.986-.631-.339-1.001.221-1.591.133-.142 2.568-2.295 2.568-2.295s.23-.205-.065-.455c-.294-.25-.728-.094-.728-.094L8.44 13.288c-.04.023-.075.045-.117.075l-.105.061s-.37.253-.947.031c-.578-.223-.994-.37-1.128-.409-.426-.12-.76-.182-.756-.532.003-.237.207-.404.512-.584 2.813-1.656 4.593-2.671 4.593-2.671s1.033-.622 2.001-.626zm-2.448 8.528l.618-2.997-.026.018s1.631 1.496 2.017 1.831l.015.012s.313.241.303-.255l-.008-.081L18.3 7.588s.096-.515-.578-.266l-10.84 3.862s-.76.295-.865.995l.01.022s.273.92.855.712L7.89 12.3s.374-.115.864.075l.008.004-3.264 2.957s-.396.358.083.585c.48.226 1.088-.08 1.088-.08l3.829-2.653.86.793 1.108 1.021s.182.153.359.034c.176-.118.173-.25.173-.25z"/></svg>
     </a>
 
     <div class="bottom-nav">
-        <div class="nav-item active" data-screen="homeScreen"> <div class="icon">🏠</div> <div>Home</div> </div>
-        <div class="nav-item" data-screen="earnScreen"> <div class="icon">💰</div> <div>Earn</div> </div>
-        <div class="nav-item" data-screen="referScreen">
-            <div class="icon">
-                <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="currentColor">
-                    <path d="M0 0h24v24H0V0z" fill="none"/>
-                    <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
-                </svg>
-            </div>
-            <div>Refer</div>
-        </div>
-        <div class="nav-item" data-screen="withdrawScreen"> <div class="icon">💸</div> <div>Withdraw</div> </div>
-        <div class="nav-item" data-screen="profileScreen"> <div class="icon">👤</div> <div>Profile</div> </div>
+        <div class="nav-item active" data-screen="homeScreen"><div class="icon">🏠</div><div>Home</div></div>
+        <div class="nav-item" data-screen="earnScreen"><div class="icon">💰</div><div>Earn</div></div>
+        <div class="nav-item" data-screen="referScreen"><div class="icon">👥</div><div>Refer</div></div>
+        <div class="nav-item" data-screen="withdrawScreen"><div class="icon">💸</div><div>Withdraw</div></div>
+        <div class="nav-item" data-screen="profileScreen"><div class="icon">👤</div><div>Profile</div></div>
     </div>
 
-    <script>
-        // অনুগ্রহ করে এখানে আপনার নিজের ফায়ারবেস কনফিগারেশন কী (keys) ব্যবহার করুন
-       const firebaseConfig = {
-  apiKey: "AIzaSyCko7fxg5Y-xzdvnEEyUybohNOdrwgOoN0",
-  authDomain: "onlien-many-bd-2022.firebaseapp.com",
-  databaseURL: "https://onlien-many-bd-2022-default-rtdb.firebaseio.com",
-  projectId: "onlien-many-bd-2022",
-  storageBucket: "onlien-many-bd-2022.firebasestorage.app",
-  messagingSenderId: "548329521148",
-  appId: "1:548329521148:web:022a821f0eab9652d23c79",
-  measurementId: "G-WN3NCCWETD"
+<script>
+// অনুগ্রহ করে এখানে আপনার নিজের ফায়ারবেস কনফিগারেশন কী (keys) ব্যবহার করুন
+const firebaseConfig = {
+    apiKey: "AIzaSyAgvOSJFY8WqRoVXRWjWiOEdAmjvTz_pgU",
+    authDomain: "task-app-a3b8a.firebaseapp.com",
+    databaseURL: "https://task-app-a3b8a-default-rtdb.firebaseio.com",
+    projectId: "task-app-a3b8a",
+    storageBucket: "task-app-a3b8a.firebasestorage.app",
+    messagingSenderId: "154506156460",
+    appId: "1:154506156460:web:78124e37a074fe43218209",
+    measurementId: "G-Q2C5BLCWDT"
 };
-        
-        // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const db = firebase.firestore();
-        const fieldValue = firebase.firestore.FieldValue;
 
-        // সকল DOM এলিমেন্ট এখানে অপরিবর্তিত আছে
-        const navItems = document.querySelectorAll('.bottom-nav .nav-item');
-        const screens = document.querySelectorAll('.app-container .screen');
-        const headerUserAvatarElement = document.getElementById('headerUserAvatar');
-        const headerUserNameElement = document.getElementById('headerUserName');
-        const profileSummaryUserNameElement = document.getElementById('profileSummaryUserName');
-        const profileSummaryUserBalanceElement = document.getElementById('profileSummaryUserBalance');
-        const profileTabUserNameElement = document.getElementById('profileTabUserName');
-        const profileTabUserEmailElement = document.getElementById('profileTabUserEmail');
-        const profileTabUserBalanceElement = document.getElementById('profileTabUserBalance');
-        const withdrawUserBalanceElement = document.getElementById('withdrawUserBalance');
-        const homeMonetagTasksCompletedElement = document.getElementById('homeMonetagTasksCompleted');
-        const homeMonetagDailyLimitElement = document.getElementById('homeMonetagDailyLimit');
-        const earnMonetagDailyLimitElement = document.getElementById('earnMonetagDailyLimit');
-        const earnMonetagCompletedTodayElement = document.getElementById('earnMonetagCompletedToday');
-        const earnMonetagRemainingTodayElement = document.getElementById('earnMonetagRemainingToday');
-        const referralLinkElement = document.getElementById('referralLink');
-        const paidSharesTodayCountElement = document.getElementById('paidSharesTodayCount');
-        
-        const authContainer = document.getElementById('authContainer');
-        const appContainer = document.querySelector('.app-container');
-        
-        const loginForm = document.getElementById('loginForm');
-        const signupForm = document.getElementById('signupForm');
-        const loginButton = document.getElementById('loginButton');
-        const signupButton = document.getElementById('signupButton');
-        const showSignup = document.getElementById('showSignup');
-        const showLogin = document.getElementById('showLogin');
-        const loginCard = document.getElementById('loginCard');
-        const signupCard = document.getElementById('signupCard');
-        const loginError = document.getElementById('loginError');
-        const signupError = document.getElementById('signupError');
+// --- App Initialization ---
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+const fieldValue = firebase.firestore.FieldValue;
 
-        const logoutButton = document.getElementById('logoutButton');
-        const profileLogoutButton = document.getElementById('profileLogoutButton');
-        const startTaskMonetagButton = document.getElementById('startTaskMonetagButton');
-        const submitWithdrawalButton = document.getElementById('submitWithdrawalButton');
+// --- Global State ---
+let appState = {};
+let appConfig = {};
+let autoTaskInterval = null;
+let unsubscribeUserListener = null;
 
-        let appState = {};
-        let appConfig = {};
-        let unsubscribeUserListener = null;
+// --- DOM Elements ---
+const authContainer = document.getElementById('authContainer');
+const appContainer = document.querySelector('.app-container');
+const screens = document.querySelectorAll('.app-container .screen');
+const navItems = document.querySelectorAll('.bottom-nav .nav-item');
 
-        // --- মূল ফাংশন (কার্যকরী লগইন/সাইনআপ সহ) ---
+// --- Auth Related Functions ---
+const loginForm = document.getElementById('loginForm');
+const signupForm = document.getElementById('signupForm');
+const loginButton = document.getElementById('loginButton');
+const signupButton = document.getElementById('signupButton');
+const showSignup = document.getElementById('showSignup');
+const showLogin = document.getElementById('showLogin');
+const loginCard = document.getElementById('loginCard');
+const signupCard = document.getElementById('signupCard');
+const loginError = document.getElementById('loginError');
+const signupError = document.getElementById('signupError');
 
-        async function fetchAdminConfig() {
-            try {
-                const configDoc = await db.collection('config').doc('appSettings').get();
-                if (configDoc.exists) {
-                    appConfig = configDoc.data();
-                } else {
-                    console.warn("Admin config not found. Using default values.");
-                    appConfig = { dailyTaskLimit: 1000, rewardPerTaskUSD: 0.0006, adZone: '9344336', referralRewardUSDT: 0.10, maxPaidSharesPerDay: 5, withdrawalMethods: [] };
-                }
-            } catch (error) {
-                console.error("Error fetching admin config:", error);
-            }
+function showLoginForm() {
+    loginCard.style.display = 'block';
+    signupCard.style.display = 'none';
+    loginError.textContent = '';
+}
+
+function showSignupForm() {
+    loginCard.style.display = 'none';
+    signupCard.style.display = 'block';
+    signupError.textContent = '';
+}
+
+async function handleSignup(e) {
+    e.preventDefault();
+    const name = signupForm['signupName'].value.trim();
+    const email = signupForm['signupEmail'].value.trim();
+    const password = signupForm['signupPassword'].value;
+    const confirmPassword = signupForm['signupConfirmPassword'].value;
+
+    if (password !== confirmPassword) {
+        signupError.textContent = 'Passwords do not match.';
+        return;
+    }
+
+    signupError.textContent = '';
+    signupButton.disabled = true;
+    signupButton.textContent = 'Creating Account...';
+
+    try {
+        const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+        const user = userCredential.user;
+        await user.updateProfile({ displayName: name });
+        // Firestore document will be created by the auth state observer
+    } catch (error) {
+        signupError.textContent = getAuthErrorMessage(error.code);
+    } finally {
+        signupButton.disabled = false;
+        signupButton.textContent = 'Sign Up';
+    }
+}
+
+async function handleLogin(e) {
+    e.preventDefault();
+    const email = loginForm['loginEmail'].value.trim();
+    const password = loginForm['loginPassword'].value;
+
+    loginError.textContent = '';
+    loginButton.disabled = true;
+    loginButton.textContent = 'Logging In...';
+
+    try {
+        await auth.signInWithEmailAndPassword(email, password);
+    } catch (error) {
+        loginError.textContent = getAuthErrorMessage(error.code);
+    } finally {
+        loginButton.disabled = false;
+        loginButton.textContent = 'Login';
+    }
+}
+
+function handleLogout() {
+    if (unsubscribeUserListener) {
+        unsubscribeUserListener();
+        unsubscribeUserListener = null;
+    }
+    auth.signOut();
+}
+
+function getAuthErrorMessage(code) {
+    switch (code) {
+        case 'auth/user-not-found': return 'No account found with this email.';
+        case 'auth/wrong-password': return 'Incorrect password.';
+        case 'auth/email-already-in-use': return 'This email is already registered.';
+        case 'auth/weak-password': return 'Password must be at least 6 characters.';
+        case 'auth/invalid-email': return 'Please enter a valid email address.';
+        default: return 'An error occurred. Please try again.';
+    }
+}
+
+// --- Core App Logic ---
+
+async function fetchAdminConfig() {
+    try {
+        const configDoc = await db.collection('config').doc('appSettings').get();
+        if (configDoc.exists) {
+            appConfig = configDoc.data();
+        } else {
+            console.warn("Admin config not found. Using default values.");
+            appConfig = { dailyTaskLimit: 1000, rewardPerTaskUSD: 0.0006, adZone: '9344336', referralRewardUSDT: 0.10, maxPaidSharesPerDay: 5, withdrawalMethods: [], contactTelegramUrl: '#' };
         }
-        
-        function showLoginForm() {
-            loginCard.style.display = 'block';
-            signupCard.style.display = 'none';
-            loginError.textContent = '';
-        }
+    } catch (error) {
+        console.error("Error fetching admin config:", error);
+    }
+}
 
-        function showSignupForm() {
-            loginCard.style.display = 'none';
-            signupCard.style.display = 'block';
-            signupError.textContent = '';
-        }
+async function initializeUserSession(user) {
+    const userRef = db.collection('users').doc(user.uid);
+    if (unsubscribeUserListener) unsubscribeUserListener();
 
-        async function createUserDocument(user, additionalData = {}) {
-            const userRef = db.collection('users').doc(user.uid);
-            const doc = await userRef.get();
-            if (!doc.exists) {
-                const { email } = user;
-                const name = additionalData.name || user.displayName || email.split('@')[0];
-                const newUserState = {
-                    uid: user.uid,
-                    email,
-                    name,
-                    balanceUSDT: 0.0,
-                    createdAt: fieldValue.serverTimestamp(),
-                    lastLogin: fieldValue.serverTimestamp(),
-                    isDisabled: false,
-                    todayStats: { date: new Date().toDateString(), monetagTasksCompleted: 0, referralSharesToday: 0 },
-                    referralData: { userIdForReferral: `ref_${user.uid.substring(0, 8)}`, totalReferralsInitiated: 0, usdtEarnedFromReferrals: 0.0 }
-                };
-                await userRef.set(newUserState);
-            }
-        }
-
-        function handleLogin(e) {
-            e.preventDefault();
-            const email = loginForm['loginEmail'].value;
-            const password = loginForm['loginPassword'].value;
-
-            loginError.textContent = '';
-            loginButton.disabled = true;
-            loginButton.textContent = 'Logging in...';
-
-            auth.signInWithEmailAndPassword(email, password)
-                .catch((error) => {
-                    loginError.textContent = getAuthErrorMessage(error.code);
-                })
-                .finally(() => {
-                    loginButton.disabled = false;
-                    loginButton.textContent = 'Login';
-                });
-        }
-        
-        function handleSignup(e) {
-            e.preventDefault();
-            const name = signupForm['signupName'].value;
-            const email = signupForm['signupEmail'].value;
-            const password = signupForm['signupPassword'].value;
-            const confirmPassword = signupForm['signupConfirmPassword'].value;
-
-            if (password !== confirmPassword) {
-                signupError.textContent = 'Passwords do not match';
-                return;
-            }
-
-            signupError.textContent = '';
-            signupButton.disabled = true;
-            signupButton.textContent = 'Signing Up...';
-
-            auth.createUserWithEmailAndPassword(email, password)
-                .then(userCredential => {
-                    const user = userCredential.user;
-                    // Chain promises: first update profile, then create DB doc
-                    return user.updateProfile({ displayName: name })
-                               .then(() => createUserDocument(user, { name }));
-                })
-                .then(() => {
-                    // Success is handled by onAuthStateChanged
-                })
-                .catch((error) => {
-                    signupError.textContent = getAuthErrorMessage(error.code);
-                })
-                .finally(() => {
-                    signupButton.disabled = false;
-                    signupButton.textContent = 'Sign Up';
-                });
-        }
-
-        function handleLogout() {
-            if (unsubscribeUserListener) {
-                unsubscribeUserListener();
-                unsubscribeUserListener = null;
-            }
-            auth.signOut();
-        }
-
-        function getAuthErrorMessage(errorCode) {
-            switch(errorCode) {
-                case 'auth/invalid-email': return 'Invalid email address';
-                case 'auth/user-disabled': return 'This account has been disabled';
-                case 'auth/user-not-found': return 'No account found with this email';
-                case 'auth/wrong-password': return 'Incorrect password';
-                case 'auth/email-already-in-use': return 'This email is already in use';
-                case 'auth/weak-password': return 'Password should be at least 6 characters';
-                default: return 'An authentication error occurred. Please try again.';
-            }
-        }
-
-        function showApp() {
-            authContainer.style.display = 'none';
-            appContainer.style.display = 'block';
-            updateDisplays();
-        }
-
-        function hideApp() {
-            authContainer.style.display = 'flex';
-            appContainer.style.display = 'none';
-        }
-
-        async function initializeUser(user) {
-            const userRef = db.collection('users').doc(user.uid);
-            
-            if (unsubscribeUserListener) unsubscribeUserListener();
-            
-            unsubscribeUserListener = userRef.onSnapshot(async (doc) => {
-                if (doc.exists) {
-                    appState = doc.data();
-                    if (appState.isDisabled) {
-                        alert("Your account has been disabled by the administrator.");
-                        handleLogout();
-                        return;
-                    }
-                    const today = new Date().toDateString();
-                    if (appState.todayStats.date !== today) {
-                        await userRef.update({
-                            'todayStats.date': today,
-                            'todayStats.monetagTasksCompleted': 0,
-                            'todayStats.referralSharesToday': 0
-                        });
-                    } else {
-                        updateDisplays();
-                    }
-                } else {
-                    // Fallback to create document if it doesn't exist for some reason
-                    await createUserDocument(user);
-                }
-            }, (error) => {
-                console.error("Error listening to user data:", error);
-            });
-
-            await userRef.update({ lastLogin: fieldValue.serverTimestamp() }).catch(() => {});
-        }
-
-        function updateDisplays() {
-            if (!appState || !appConfig) return;
-            const formattedBalance = (appState.balanceUSDT || 0).toFixed(4) + " USDT";
-            profileSummaryUserBalanceElement.textContent = "Balance: " + formattedBalance;
-            profileTabUserBalanceElement.textContent = (appState.balanceUSDT || 0).toFixed(4);
-            withdrawUserBalanceElement.textContent = formattedBalance;
-            headerUserNameElement.textContent = appState.name || "User";
-            profileSummaryUserNameElement.textContent = appState.name || "User";
-            profileTabUserNameElement.textContent = appState.name || "User";
-            profileTabUserEmailElement.textContent = appState.email || "N/A";
-
-            const dailyLimit = appConfig.dailyTaskLimit || 1000;
-            const tasksCompleted = appState.todayStats ? appState.todayStats.monetagTasksCompleted : 0;
-            const remainingTasks = dailyLimit - tasksCompleted;
-
-            earnMonetagDailyLimitElement.textContent = dailyLimit;
-            earnMonetagCompletedTodayElement.textContent = tasksCompleted;
-            earnMonetagRemainingTodayElement.textContent = Math.max(0, remainingTasks);
-            homeMonetagTasksCompletedElement.textContent = tasksCompleted;
-            homeMonetagDailyLimitElement.textContent = dailyLimit;
-
-            startTaskMonetagButton.disabled = remainingTasks <= 0;
-            startTaskMonetagButton.textContent = remainingTasks <= 0 ? "Daily Tasks Completed" : `Start Task Monetag (${remainingTasks} left)`;
-            
-            const botBaseUrl = "https://t.me/My_Earning20BD_bot/YourAppName?startapp=";
-            referralLinkElement.value = appState.referralData ? `${botBaseUrl}${appState.referralData.userIdForReferral}` : "";
-            const maxShares = appConfig.maxPaidSharesPerDay || 5;
-            paidSharesTodayCountElement.textContent = `${appState.todayStats ? appState.todayStats.referralSharesToday : 0}/${maxShares}`;
-        }
-        
-        // --- Event Listeners and Initialization ---
-
-        showSignup.addEventListener('click', showSignupForm);
-        showLogin.addEventListener('click', showLoginForm);
-        loginForm.addEventListener('submit', handleLogin);
-        signupForm.addEventListener('submit', handleSignup);
-        logoutButton.addEventListener('click', handleLogout);
-        profileLogoutButton.addEventListener('click', handleLogout);
-        // ... অন্যান্য event listeners অপরিবর্তিত আছে ...
-        function showScreen(screenId) {
-             document.querySelectorAll('.app-container .screen').forEach(s => s.classList.remove('active'));
-             document.getElementById(screenId).classList.add('active');
-             document.querySelectorAll('.bottom-nav .nav-item').forEach(n => {
-                n.classList.toggle('active', n.dataset.screen === screenId);
-             });
-             updateDisplays();
-        }
-        navItems.forEach(item => item.addEventListener('click', () => showScreen(item.getAttribute('data-screen'))));
-
-
-        // Auth state observer
-        auth.onAuthStateChanged(async (user) => {
-            if (user) {
-                await fetchAdminConfig();
-                await initializeUser(user);
-                showApp();
-            } else {
-                hideApp();
-            }
-        });
-
-        window.onload = function() {
-            // Initialization is handled by onAuthStateChanged
+    // Create user document if it doesn't exist
+    const doc = await userRef.get();
+    if (!doc.exists) {
+        const newUserState = {
+            uid: user.uid, email: user.email, name: user.displayName,
+            balanceUSDT: 0.0, createdAt: fieldValue.serverTimestamp(),
+            lastLogin: fieldValue.serverTimestamp(), isDisabled: false,
+            todayStats: { date: new Date().toDateString(), monetagTasksCompleted: 0, referralSharesToday: 0 },
+            referralData: { userIdForReferral: `ref_${user.uid.substring(0, 8)}`, totalReferralsInitiated: 0, usdtEarnedFromReferrals: 0.0, processingShareReward: false }
         };
-        
-        // বাকি সকল ফাংশন (showMonetagAd, submitWithdrawalRequest, ইত্যাদি) আগের মতোই থাকবে।
-        // শুধুমাত্র ডেটা সেভ এবং লোডের জন্য appState এবং appConfig ব্যবহার করবে।
+        await userRef.set(newUserState);
+    }
 
-    </script>
+    // Set up real-time listener
+    unsubscribeUserListener = userRef.onSnapshot(async (doc) => {
+        appState = doc.data();
+        if (appState.isDisabled) {
+            alert("Your account has been disabled.");
+            handleLogout();
+            return;
+        }
+
+        const today = new Date().toDateString();
+        if (appState.todayStats.date !== today) {
+            await userRef.update({
+                'todayStats.date': today,
+                'todayStats.monetagTasksCompleted': 0,
+                'todayStats.referralSharesToday': 0
+            });
+        } else {
+            updateAllDisplays();
+        }
+    }, console.error);
+
+    await userRef.update({ lastLogin: fieldValue.serverTimestamp() });
+}
+
+function showScreen(screenId) {
+    screens.forEach(s => s.classList.remove('active'));
+    document.getElementById(screenId)?.classList.add('active');
+    navItems.forEach(n => n.classList.toggle('active', n.dataset.screen === screenId));
+    updateAllDisplays();
+}
+
+// --- UI Update Functions ---
+
+function updateAllDisplays() {
+    if (!appState || !appConfig) return;
+    updateHeadersAndProfile();
+    updateEarnScreen();
+    updateReferralScreen();
+    updateWithdrawScreen();
+}
+
+function updateHeadersAndProfile() {
+    const name = appState.name || "User";
+    const balance = (appState.balanceUSDT || 0).toFixed(4);
+    const email = appState.email || 'N/A';
+    const lastActive = appState.lastLogin ? new Date(appState.lastLogin.seconds * 1000).toLocaleDateString() : 'N/A';
+    const avatarSrc = createDefaultAvatar(name.charAt(0));
+
+    // Headers
+    document.getElementById('headerUserAvatar').src = avatarSrc;
+    document.getElementById('headerUserName').textContent = name;
+    document.getElementById('profileSummaryUserAvatar').src = avatarSrc;
+    document.getElementById('profileSummaryUserName').textContent = name;
+    document.getElementById('profileSummaryUserBalance').textContent = `Balance: ${balance} USDT`;
+    
+    // Profile Tab
+    document.getElementById('profileTabUserName').textContent = name;
+    document.getElementById('profileTabUserEmail').textContent = email;
+    document.getElementById('profileTabUserBalance').textContent = balance;
+    document.getElementById('profileTabLastActiveDate').textContent = lastActive;
+    
+    // Home Screen
+    document.getElementById('homeTotalMonetagEarnings').textContent = balance;
+}
+
+function updateEarnScreen() {
+    const limit = appConfig.dailyTaskLimit || 0;
+    const completed = appState.todayStats?.monetagTasksCompleted || 0;
+    const remaining = Math.max(0, limit - completed);
+    
+    document.getElementById('earnMonetagDailyLimit').textContent = limit;
+    document.getElementById('earnMonetagCompletedToday').textContent = completed;
+    document.getElementById('earnMonetagRemainingToday').textContent = remaining;
+    document.getElementById('homeMonetagDailyLimit').textContent = limit;
+    document.getElementById('homeMonetagTasksCompleted').textContent = completed;
+    
+    const startButton = document.getElementById('startTaskMonetagButton');
+    startButton.disabled = remaining <= 0;
+    startButton.textContent = remaining > 0 ? `Start Task Monetag (${remaining} left)` : 'Daily Tasks Completed';
+    document.getElementById('autoTaskCompleteButton').disabled = remaining <= 0;
+}
+
+function updateReferralScreen() {
+    const botBaseUrl = "https://t.me/My_Earning20BD_bot/YourAppName?startapp=";
+    document.getElementById('referralLink').value = appState.referralData ? `${botBaseUrl}${appState.referralData.userIdForReferral}` : "";
+    document.getElementById('totalReferralsCount').textContent = appState.referralData?.totalReferralsInitiated || 0;
+    document.getElementById('paidSharesTodayCount').textContent = `${appState.todayStats?.referralSharesToday || 0}/${appConfig.maxPaidSharesPerDay || 0}`;
+    document.getElementById('referralUsdtEarned').textContent = `${(appState.referralData?.usdtEarnedFromReferrals || 0).toFixed(4)} USDT`;
+
+    const detailsCard = document.getElementById('referralProgramDetailsCard');
+    detailsCard.innerHTML = `<h3>Program Details</h3>
+        <p class="referral-details-text">Earn <strong>$${(appConfig.referralRewardUSDT || 0).toFixed(2)} USDT</strong> for each of the first <strong>${appConfig.maxPaidSharesPerDay || 0} shares/copies</strong> per day.</p>
+        <p class="referral-details-text">Reward is added <strong>1 minute after</strong> sharing/copying.</p>`;
+}
+
+function updateWithdrawScreen() {
+    document.getElementById('withdrawUserBalance').textContent = `${(appState.balanceUSDT || 0).toFixed(4)} USDT`;
+    const methodSelect = document.getElementById('withdrawalMethod');
+    methodSelect.innerHTML = '<option value="">Select a method</option>';
+    (appConfig.withdrawalMethods || []).forEach(method => {
+        if (method.enabled) {
+            const option = document.createElement('option');
+            option.value = method.name.toLowerCase();
+            option.textContent = `${method.name} (Min. ${method.min} USDT)`;
+            option.dataset.min = method.min;
+            methodSelect.appendChild(option);
+        }
+    });
+}
+
+// --- Feature Functions ---
+
+function showMonetagAd() {
+    const limit = appConfig.dailyTaskLimit || 0;
+    const completed = appState.todayStats?.monetagTasksCompleted || 0;
+    if (completed >= limit) {
+        document.getElementById('adStatusMessage').textContent = "Daily task limit reached.";
+        return;
+    }
+
+    document.getElementById('adStatusMessage').textContent = "Loading ad...";
+    document.getElementById('startTaskMonetagButton').disabled = true;
+
+    const adFunction = `show_${appConfig.adZone || '9344336'}`;
+    if (typeof window[adFunction] === 'function') {
+        window[adFunction]().then(() => {
+            document.getElementById('adStatusMessage').textContent = "Task completed successfully!";
+            const userRef = db.collection('users').doc(auth.currentUser.uid);
+            userRef.update({
+                'todayStats.monetagTasksCompleted': fieldValue.increment(1),
+                'balanceUSDT': fieldValue.increment(appConfig.rewardPerTaskUSD || 0)
+            });
+            setTimeout(() => document.getElementById('adStatusMessage').textContent = "", 2000);
+        }).catch(() => {
+            document.getElementById('adStatusMessage').textContent = "Ad failed or was cancelled.";
+            document.getElementById('startTaskMonetagButton').disabled = false;
+        });
+    } else {
+        document.getElementById('adStatusMessage').textContent = "Ad SDK not ready.";
+    }
+}
+
+function startAutoTask() {
+    stopAutoTask();
+    document.getElementById('autoTaskCompleteButton').style.display = 'none';
+    document.getElementById('stopAutoTaskButton').style.display = 'block';
+    
+    showMonetagAd(); // First ad
+    autoTaskInterval = setInterval(() => {
+        if ((appState.todayStats?.monetagTasksCompleted || 0) >= (appConfig.dailyTaskLimit || 0)) {
+            stopAutoTask();
+        } else {
+            showMonetagAd();
+        }
+    }, 5000);
+}
+
+function stopAutoTask() {
+    if (autoTaskInterval) clearInterval(autoTaskInterval);
+    autoTaskInterval = null;
+    document.getElementById('autoTaskCompleteButton').style.display = 'block';
+    document.getElementById('stopAutoTaskButton').style.display = 'none';
+}
+
+async function processReferralInitiation(actionType) {
+    if (appState.referralData?.processingShareReward) {
+        document.getElementById('copyStatusMessage').textContent = "Reward processing, please wait...";
+        return;
+    }
+    const userRef = db.collection('users').doc(auth.currentUser.uid);
+    userRef.update({ 'referralData.processingShareReward': true, 'referralData.totalReferralsInitiated': fieldValue.increment(1) });
+    document.getElementById('copyStatusMessage').textContent = "Processing reward (wait 1 min)...";
+
+    setTimeout(() => {
+        // Re-fetch the latest state to check share count
+        userRef.get().then(doc => {
+            const latestState = doc.data();
+            if ((latestState.todayStats.referralSharesToday || 0) < (appConfig.maxPaidSharesPerDay || 0)) {
+                const reward = appConfig.referralRewardUSDT || 0;
+                userRef.update({
+                    'todayStats.referralSharesToday': fieldValue.increment(1),
+                    'referralData.usdtEarnedFromReferrals': fieldValue.increment(reward),
+                    'balanceUSDT': fieldValue.increment(reward)
+                });
+                document.getElementById('copyStatusMessage').textContent = `+${reward.toFixed(2)} USDT earned!`;
+            } else {
+                document.getElementById('copyStatusMessage').textContent = `Daily reward limit reached.`;
+            }
+            userRef.update({ 'referralData.processingShareReward': false });
+            setTimeout(() => document.getElementById('copyStatusMessage').textContent = "", 3000);
+        });
+    }, 60000); // 1 minute delay
+}
+
+async function submitWithdrawalRequest() {
+    const methodSelect = document.getElementById('withdrawalMethod');
+    const amount = parseFloat(document.getElementById('withdrawalAmount').value);
+    const address = document.getElementById('withdrawalAddress').value.trim();
+    const method = methodSelect.value;
+    const min = parseFloat(methodSelect.options[methodSelect.selectedIndex]?.dataset.min || 0);
+    
+    if (!method || !amount || !address) { alert('Please fill all fields.'); return; }
+    if (amount < min) { alert(`Minimum withdrawal for ${method} is ${min} USDT.`); return; }
+    if (amount > appState.balanceUSDT) { alert('Insufficient balance.'); return; }
+    
+    document.getElementById('submitWithdrawalButton').disabled = true;
+    try {
+        await db.collection('withdrawalRequests').add({
+            userId: auth.currentUser.uid, userName: appState.name,
+            amount, method, address, status: 'pending', timestamp: fieldValue.serverTimestamp()
+        });
+        await db.collection('users').doc(auth.currentUser.uid).update({ balanceUSDT: fieldValue.increment(-amount) });
+        alert('Withdrawal request submitted successfully.');
+        document.getElementById('withdrawalAmount').value = '';
+        document.getElementById('withdrawalAddress').value = '';
+    } catch (error) {
+        alert('Error submitting request. Please try again.');
+    } finally {
+        document.getElementById('submitWithdrawalButton').disabled = false;
+    }
+}
+
+
+// --- Utility and Simulation Functions ---
+function createDefaultAvatar(letter) {
+    const canvas = document.createElement('canvas');
+    canvas.width = 80; canvas.height = 80;
+    const context = canvas.getContext('2d');
+    context.fillStyle = "#007aff";
+    context.fillRect(0, 0, 80, 80);
+    context.font = `bold 42px Arial`;
+    context.fillStyle = "#FFFFFF"; context.textAlign = "center"; context.textBaseline = "middle";
+    context.fillText(letter.toUpperCase(), 40, 42);
+    return canvas.toDataURL();
+}
+
+function startWithdrawalHistoryFeedSimulation() {
+    const list = document.getElementById('withdrawalHistoryList');
+    setInterval(() => {
+        const phone = `01****${Math.floor(1000 + Math.random() * 9000)}`;
+        const amount = (Math.random() * 20 + 5).toFixed(2);
+        const li = document.createElement('li');
+        li.innerHTML = `<span class="phone-number">${phone}</span><span class="amount">${amount} USDT</span><span class="status-success">✓ Success</span>`;
+        list.prepend(li);
+        if (list.children.length > 5) list.lastChild.remove();
+    }, 3500);
+}
+
+
+// --- Event Listeners Initialization ---
+function addAllEventListeners() {
+    // Auth
+    showLogin.addEventListener('click', showLoginForm);
+    showSignup.addEventListener('click', showSignupForm);
+    loginForm.addEventListener('submit', handleLogin);
+    signupForm.addEventListener('submit', handleSignup);
+    document.getElementById('logoutButton').addEventListener('click', handleLogout);
+    document.getElementById('profileLogoutButton').addEventListener('click', handleLogout);
+
+    // Navigation
+    navItems.forEach(item => item.addEventListener('click', () => showScreen(item.dataset.screen)));
+
+    // Features
+    document.getElementById('startTaskMonetagButton').addEventListener('click', showMonetagAd);
+    document.getElementById('autoTaskCompleteButton').addEventListener('click', startAutoTask);
+    document.getElementById('stopAutoTaskButton').addEventListener('click', stopAutoTask);
+    document.getElementById('submitWithdrawalButton').addEventListener('click', submitWithdrawalRequest);
+    document.getElementById('copyReferralLinkButton').addEventListener('click', () => {
+        navigator.clipboard.writeText(document.getElementById('referralLink').value);
+        processReferralInitiation('copy');
+    });
+    document.getElementById('shareReferralLinkButton').addEventListener('click', () => {
+        processReferralInitiation('share');
+        const link = document.getElementById('referralLink').value;
+        window.open(`https://t.me/share/url?url=${encodeURIComponent(link)}`);
+    });
+}
+
+// --- Main Execution Flow ---
+auth.onAuthStateChanged(async (user) => {
+    if (user) {
+        authContainer.style.display = 'none';
+        await fetchAdminConfig();
+        await initializeUserSession(user);
+        appContainer.style.display = 'flex'; // Use flex for proper layout
+        showScreen('homeScreen');
+    } else {
+        appContainer.style.display = 'none';
+        authContainer.style.display = 'flex';
+        showLoginForm();
+    }
+});
+
+window.onload = () => {
+    addAllEventListeners();
+    startWithdrawalHistoryFeedSimulation();
+};
+
+</script>
 </body>
 </html>
