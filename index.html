@@ -3,426 +3,1340 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>App (Layout & Payment Fixed)</title>
-    <!-- Firebase SDKs -->
-    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
+    <title>App (Delayed Share Reward - 1 Min, Msg Update)</title>
     <style>
-        /* আপনার দেওয়া সকল CSS এখানে অপরিবর্তিত আছে */
-        body { font-family: 'Helvetica Neue', Arial, sans-serif; margin: 0; background-color: #000000; color: #ffffff; display: flex; flex-direction: column; height: 100vh; overscroll-behavior-y: contain; }
-        .auth-container { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; padding: 20px; background-color: #000000; }
-        .auth-card { background-color: #1c1c1e; border-radius: 10px; padding: 25px; width: 100%; max-width: 400px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
-        .auth-title { color: #00aaff; text-align: center; margin-bottom: 25px; font-size: 22px; font-weight: bold; }
-        .auth-form .form-group { margin-bottom: 15px; }
-        .auth-form label { display: block; margin-bottom: 6px; font-size: 14px; color: #cccccc; }
-        .auth-form input { width: 100%; padding: 12px; border: 1px solid #3a3a3c; border-radius: 6px; font-size: 15px; background-color: #2c2c2e; color: #ffffff; box-sizing: border-box; }
-        .auth-btn { width: 100%; padding: 12px; background-color: #007aff; color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 15px; }
-        .auth-btn:hover { background-color: #0056b3; }
-        .auth-btn:disabled { background-color: #555555; cursor: not-allowed; opacity: 0.7; }
-        .auth-toggle { text-align: center; margin-top: 15px; color: #8e8e93; font-size: 14px; }
-        .auth-toggle a { color: #00aaff; text-decoration: none; cursor: pointer; }
-        .auth-error { color: #ff3b30; font-size: 14px; text-align: center; margin-top: 10px; min-height: 20px; }
-        .app-container { flex-grow: 1; overflow-y: auto; padding-bottom: 70px; background-color: #000000; position: relative; display: none; }
-        .app-header { background-color: #1a1a1a; color: #ffffff; padding: 12px 15px; display: flex; align-items: center; position: sticky; top: 0; z-index: 1001; border-bottom: 1px solid #333333; }
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            margin: 0;
+            background-color: #000000;
+            color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overscroll-behavior-y: contain;
+        }
+
+        .app-container {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding-bottom: 70px;
+            background-color: #000000;
+            position: relative;
+        }
+
+        .app-header {
+            background-color: #1a1a1a;
+            color: #ffffff;
+            padding: 12px 15px;
+            display: flex;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1001;
+            border-bottom: 1px solid #333333;
+        }
         .app-header .title { font-size: 18px; font-weight: bold; flex-grow: 1; }
         .app-header .user-info-header { display: flex; align-items: center; flex-grow: 1; }
-        .app-header .avatar-small { width: 35px; height: 35px; border-radius: 50%; margin-right: 10px; border: 1px solid #555555; object-fit: cover; background-color: #333333; }
+        .app-header .avatar-small {
+            width: 35px; height: 35px; border-radius: 50%;
+            margin-right: 10px; border: 1px solid #555555;
+            object-fit: cover; background-color: #333333;
+        }
         .app-header .user-details { font-size: 12px; line-height: 1.3; }
         .app-header .user-name-header { font-weight: bold; font-size: 14px; }
         .app-header .user-phone-header { font-size: 11px; opacity: 0.7; }
         .app-header .actions { font-size: 22px; }
         .app-header .actions span { margin-left: 15px; cursor: pointer; }
+
         .screen { display: none; padding: 0; }
         .screen.active { display: block; }
         .content-padding { padding: 15px; }
-        .profile-summary { text-align: center; padding: 20px 15px; background-color: #000000; margin-bottom: 10px; }
-        .profile-summary .avatar-large { width: 80px; height: 80px; border-radius: 50%; margin-bottom: 12px; border: 2px solid #00aaff; object-fit: cover; background-color: #444444; }
+
+        .profile-summary {
+            text-align: center; padding: 20px 15px;
+            background-color: #000000; margin-bottom: 10px;
+        }
+        .profile-summary .avatar-large {
+            width: 80px; height: 80px; border-radius: 50%;
+            margin-bottom: 12px; border: 2px solid #00aaff;
+            object-fit: cover; background-color: #444444;
+        }
         .profile-summary .user-name-profile { font-size: 20px; font-weight: bold; color: #ffffff; }
         .profile-summary .user-balance-profile { font-size: 15px; color: #bbbbbb; margin-top: 6px; }
-        .info-card { background-color: #1c1c1e; color: #ffffff; border-radius: 10px; padding: 15px; margin-bottom: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
-        .info-card h3 { margin-top: 0; margin-bottom: 12px; font-size: 17px; color: #00aaff; border-bottom: 1px solid #3a3a3c; padding-bottom: 8px; }
+
+        .info-card {
+            background-color: #1c1c1e; color: #ffffff; border-radius: 10px;
+            padding: 15px; margin-bottom: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        .info-card h3 {
+            margin-top: 0; margin-bottom: 12px; font-size: 17px;
+            color: #00aaff; border-bottom: 1px solid #3a3a3c; padding-bottom: 8px;
+        }
         .info-card p { margin: 8px 0; font-size: 15px; display: flex; justify-content: space-between; }
         .info-card p span:last-child { font-weight: bold; color: #ffffff; }
         .info-card p.referral-details-text { display: block; line-height: 1.5; }
-        .btn { display: block; width: 100%; padding: 12px; background-color: #007aff; color: white; border: none; border-radius: 8px; font-size: 17px; font-weight: bold; text-align: center; cursor: pointer; margin-top: 20px; box-sizing: border-box; }
+
+        .btn {
+            display: block; width: 100%; padding: 12px;
+            background-color: #007aff; color: white;
+            border: none; border-radius: 8px; font-size: 17px;
+            font-weight: bold; text-align: center; cursor: pointer; margin-top: 20px;
+            box-sizing: border-box;
+        }
         .btn:hover { background-color: #0056b3; }
-        .btn.btn-share { background-color: #0088cc; margin-top: 10px; }
-        .btn.btn-auto { background-color: #34c759; margin-top: 10px; }
-        .btn.btn-stop { background-color: #ff3b30; margin-top: 10px; }
-        .form-group input, .form-group select { width: 100%; padding: 11px; border: 1px solid #3a3a3c; border-radius: 6px; font-size: 15px; background-color: #2c2c2e; color: #ffffff; box-sizing: border-box; }
-        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background-color: #1a1a1a; border-top: 1px solid #333333; display: flex; justify-content: space-around; padding: 8px 0; box-shadow: 0 -1px 5px rgba(0,0,0,0.2); z-index: 1000; }
-        .bottom-nav .nav-item { display: flex; flex-direction: column; align-items: center; color: #8e8e93; cursor: pointer; padding: 5px 10px; font-size: 11px; flex-basis: 0; flex-grow: 1; }
-        .bottom-nav .nav-item .icon { font-size: 22px; margin-bottom: 2px; }
+        .btn:disabled { background-color: #555; cursor: not-allowed; opacity: 0.7;}
+        .btn.btn-share { background-color: #0088cc; margin-top: 10px;}
+        .btn.btn-share:hover { background-color: #0077b3; }
+
+
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 6px; font-size: 14px; color: #cccccc; }
+        .form-group input, .form-group select {
+            width: 100%; padding: 11px; border: 1px solid #3a3a3c;
+            border-radius: 6px; font-size: 15px; background-color: #2c2c2e; color: #ffffff;
+            box-sizing: border-box;
+        }
+
+        .bottom-nav {
+            position: fixed; bottom: 0; left: 0; right: 0;
+            background-color: #1a1a1a; border-top: 1px solid #333333;
+            display: flex; justify-content: space-around; padding: 8px 0;
+            box-shadow: 0 -1px 5px rgba(0,0,0,0.2); z-index: 1000;
+        }
+        .bottom-nav .nav-item {
+            display: flex; flex-direction: column; align-items: center;
+            color: #8e8e93; cursor: pointer; padding: 5px 10px; font-size: 11px;
+            flex-basis: 0; flex-grow: 1;
+        }
+        .bottom-nav .nav-item .icon { 
+            font-size: 22px; 
+            margin-bottom: 2px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            height: 24px; 
+            width: 24px;
+        }
+        .bottom-nav .nav-item .icon svg {
+            display: block; 
+        }
         .bottom-nav .nav-item.active { color: #00aaff; }
-        .telegram-contact-fab { position: fixed; bottom: 75px; right: 20px; width: 50px; height: 50px; background-color: #0088cc; border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 999; }
+        
+        #adStatusMessage {
+            margin-top: 10px; font-size: 14px;
+            color: #ffcc00; text-align: center; min-height: 20px;
+        }
+
+        .telegram-contact-fab {
+            position: fixed; bottom: 75px; right: 20px;
+            width: 50px; height: 50px; background-color: #0088cc; 
+            border-radius: 50%; display: flex; align-items: center;
+            justify-content: center; box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+            z-index: 999; 
+            cursor: pointer; transition: background-color 0.3s ease;
+        }
+        .telegram-contact-fab:hover { background-color: #0077b3; }
         .telegram-contact-fab svg { width: 28px; height: 28px; fill: white; }
-        .withdrawal-history-card { min-height: 100px; overflow-y: hidden; }
-        .withdrawal-list li { opacity: 0; transform: translateY(15px); animation: fadeInSlideUp 0.6s forwards; }
+
+        .withdrawal-history-card {
+            background-color: #1c1c1e; color: #ffffff; border-radius: 10px;
+            padding: 15px; 
+            margin: 0 0 15px 0;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            max-height: 180px; 
+            min-height: 100px;
+            overflow-y: hidden; 
+            position: relative;
+        }
+        .withdrawal-history-card h3 {
+            margin-top: 0; margin-bottom: 10px; font-size: 16px;
+            color: #00aaff; text-align: center;
+        }
+        .withdrawal-list { list-style: none; padding: 0; margin: 0; height: 100%; }
+        .withdrawal-list li {
+            padding: 6px 0; 
+            font-size: 13px; border-bottom: 1px solid #2a2a2e;
+            display: flex; justify-content: space-between;
+            opacity: 0; transform: translateY(15px); 
+            animation: fadeInSlideUp 0.6s forwards;
+        }
+        .withdrawal-list li:last-child { border-bottom: none; }
+        .withdrawal-list .phone-number { color: #cccccc; flex-basis: 50%; }
+        .withdrawal-list .amount { color: #34c759; font-weight: bold; flex-basis: 35%; text-align: right; }
+        .withdrawal-list .status-success { color: #34c759; margin-left: 5px; font-size: 12px; flex-basis: 15%; text-align: right; }
         @keyframes fadeInSlideUp { to { opacity: 1; transform: translateY(0); } }
+
+        /* Login Screen Styles */
+        #loginScreen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background-color: #000000;
+            padding: 20px;
+            box-sizing: border-box;
+            text-align: center;
+        }
+        #loginScreen h2 {
+            color: #00aaff;
+            margin-bottom: 30px;
+        }
+        #loginScreen .login-options {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            width: 100%;
+            max-width: 300px;
+        }
+        #loginScreen .login-options button {
+            background-color: #007aff;
+            color: white;
+            border: none;
+            padding: 15px 20px;
+            border-radius: 8px;
+            font-size: 18px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        #loginScreen .login-options button.google {
+            background-color: #db4437; /* Google Red */
+        }
+        #loginScreen .login-options button.telegram {
+            background-color: #0088cc; /* Telegram Blue */
+        }
+        #loginScreen .login-options button:hover {
+            opacity: 0.9;
+        }
+        #loginScreen .login-options button img {
+            width: 24px;
+            height: 24px;
+        }
+        #loginScreen p.error-message {
+            color: #ff3b30;
+            margin-top: 15px;
+            font-size: 14px;
+            min-height: 20px;
+        }
     </style>
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+    <!-- Telegram Web App SDK -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <!-- Monetag SDK -->
     <script src='//solseewuthi.net/sdk.js' data-zone='9344336' data-sdk='show_9344336' async></script>
 </head>
 <body>
-    <!-- Auth Pages -->
-    <div id="authContainer" class="auth-container">
-        <div id="loginCard" class="auth-card">
-            <h1 class="auth-title">Login to Your Account</h1>
-            <form id="loginForm" class="auth-form">
-                <div class="form-group"><label for="loginEmail">Email</label><input type="email" id="loginEmail" required></div>
-                <div class="form-group"><label for="loginPassword">Password</label><input type="password" id="loginPassword" required></div>
-                <div id="loginError" class="auth-error"></div>
-                <button type="submit" id="loginButton" class="auth-btn">Login</button>
-                <p class="auth-toggle">Don't have an account? <a id="showSignup">Sign up</a></p>
-            </form>
+
+    <!-- Login Screen -->
+    <div id="loginScreen" class="screen active">
+        <h2>Welcome to Our App!</h2>
+        <div class="login-options">
+            <button id="signInWithGoogle">
+                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google icon"> Sign in with Google
+            </button>
+            <button id="signInWithTelegram" class="telegram">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/8/82/Telegram_logo.svg" alt="Telegram icon"> Sign in with Telegram
+            </button>
         </div>
-        <div id="signupCard" class="auth-card" style="display: none;">
-            <h1 class="auth-title">Create New Account</h1>
-            <form id="signupForm" class="auth-form">
-                <div class="form-group"><label for="signupName">Name</label><input type="text" id="signupName" required></div>
-                <div class="form-group"><label for="signupEmail">Email</label><input type="email" id="signupEmail" required></div>
-                <div class="form-group"><label for="signupPassword">Password</label><input type="password" id="signupPassword" required></div>
-                <div class="form-group"><label for="signupConfirmPassword">Confirm Password</label><input type="password" id="signupConfirmPassword" required></div>
-                <div id="signupError" class="auth-error"></div>
-                <button type="submit" id="signupButton" class="auth-btn">Sign Up</button>
-                <p class="auth-toggle">Already have an account? <a id="showLogin">Login</a></p>
-            </form>
-        </div>
+        <p id="loginErrorMessage" class="error-message"></p>
     </div>
 
-    <!-- Main App -->
     <div class="app-container">
         <div id="homeScreen" class="screen">
             <div class="app-header">
                 <div class="user-info-header">
                     <img id="headerUserAvatar" src="" alt=" " class="avatar-small">
                     <div class="user-details">
-                        <div id="headerUserName" class="user-name-header"></div>
-                        <div id="headerUserPhone" class="user-phone-header"></div>
+                        <div id="headerUserName" class="user-name-header">Loading...</div>
+                        <div id="headerUserPhone" class="user-phone-header">Phone: Not shared</div>
                     </div>
                 </div>
-                <div class="actions"><span id="logoutButton">⋮</span></div>
+                <div class="actions">
+                    <span id="logoutButtonHeader">⋮</span>
+                </div>
             </div>
             <div class="profile-summary">
                 <img id="profileSummaryUserAvatar" src="" alt=" " class="avatar-large">
-                <div id="profileSummaryUserName" class="user-name-profile"></div>
-                <div id="profileSummaryUserBalance" class="user-balance-profile"></div>
+                <div id="profileSummaryUserName" class="user-name-profile">Loading...</div>
+                <div id="profileSummaryUserBalance" class="user-balance-profile">Balance: 0.0000 USDT</div>
             </div>
             <div class="content-padding">
-                <div class="info-card"><h3>Summary</h3><p><span>Tasks Completed Today:</span> <span id="homeMonetagTasksCompleted"></span></p><p><span>Daily Limit:</span> <span id="homeMonetagDailyLimit"></span></p></div>
-                <div class="info-card"><h3>Earnings</h3><p><span>Total Earnings (USDT):</span> <span id="homeTotalMonetagEarnings"></span></p></div>
-                <div class="withdrawal-history-card"><h3>Recent Withdrawals</h3><ul class="withdrawal-list" id="withdrawalHistoryList"></ul></div>
+                <div class="info-card">
+                    <h3>Today's Tasks (Overall Summary)</h3>
+                    <p><span>Monetag Tasks Completed Today:</span> <span id="homeMonetagTasksCompleted">0</span></p>
+                    <p><span>Daily Monetag Limit:</span> <span id="homeMonetagDailyLimit">1000</span></p>
+                </div>
+                
+                <div class="info-card">
+                    <h3>Earnings</h3>
+                    <p><span>Total Monetag Earnings (USDT):</span> <span id="homeTotalMonetagEarnings">0.0000</span></p>
+                </div>
+                
+                <div class="withdrawal-history-card">
+                    <h3>Recent Withdrawals</h3>
+                    <ul class="withdrawal-list" id="withdrawalHistoryList"></ul>
+                </div>
             </div>
         </div>
+
         <div id="earnScreen" class="screen">
-            <div class="app-header"><div class="title">Earn Tasks</div></div>
+            <div class="app-header">
+                <div class="title">Earn Tasks</div>
+                <div class="actions">
+                    <span id="logoutButtonEarn">⋮</span>
+                </div>
+            </div>
             <div class="content-padding">
-                <div class="info-card"><h3>Monetag Tasks</h3><p><span>Daily Limit:</span> <span id="earnMonetagDailyLimit"></span></p><p><span>Completed Today:</span> <span id="earnMonetagCompletedToday"></span></p><p><span>Remaining Today:</span> <span id="earnMonetagRemainingToday"></span></p></div>
+                <div style="text-align: right; font-size: 12px; color: #bbbbbb; margin-bottom:10px;">
+                    Test User (Dev) | Test Balance: BDT 1
+                </div>
+                <div class="info-card">
+                    <h3>Today's Monetag Tasks</h3>
+                    <p><span>Daily Limit:</span> <span id="earnMonetagDailyLimit">1000</span></p>
+                    <p><span>Completed Today:</span> <span id="earnMonetagCompletedToday">0</span></p>
+                    <p><span>Remaining Today:</span> <span id="earnMonetagRemainingToday">1000</span></p>
+                </div>
                 <button class="btn" id="startTaskMonetagButton">Start Task Monetag</button>
-                <button class="btn btn-auto" id="autoTaskCompleteButton">Auto Touch Complete</button>
-                <button class="btn btn-stop" id="stopAutoTaskButton" style="display: none;">Stop Auto Task</button>
-                <div id="adStatusMessage" style="text-align:center; margin-top:15px; min-height:20px;"></div>
+                <div id="adStatusMessage"></div>
             </div>
         </div>
+
         <div id="referScreen" class="screen">
-             <div class="app-header"><div class="title">Refer & Earn</div></div>
-             <div class="content-padding">
-                <div class="info-card"><h3>Your Referral Link</h3>
-                    <div class="form-group" style="display: flex; align-items: center; gap: 10px;"><input type="text" id="referralLink" readonly><button id="copyReferralLinkButton" class="btn" style="padding: 11px 15px; margin-top: 0; width: auto;">Copy</button></div>
-                    <p id="copyStatusMessage" style="font-size: 12px; color: #34c759; min-height: 18px; text-align: right;"></p>
+            <div class="app-header">
+                <div class="title">Refer & Earn</div>
+                <div class="actions">
+                    <span id="logoutButtonRefer">⋮</span>
+                </div>
+            </div>
+            <div class="content-padding">
+                <div class="info-card">
+                    <h3>Your Unique Referral Link</h3>
+                    <div class="form-group" style="display: flex; align-items: center; gap: 10px;">
+                        <input type="text" id="referralLink" readonly style="flex-grow: 1;">
+                        <button id="copyReferralLinkButton" class="btn" style="padding: 11px 15px; margin-top: 0; width: auto; font-size: 14px; white-space: nowrap;">Copy Link</button>
+                    </div>
+                    <p id="copyStatusMessage" style="font-size: 12px; color: #34c759; min-height: 18px; margin-top: 5px; text-align: right;"></p>
                     <button id="shareReferralLinkButton" class="btn btn-share">Share Now</button>
                 </div>
-                <div class="info-card"><h3>Statistics</h3><p><span>Total Shares/Copies:</span> <span id="totalReferralsCount"></span></p><p><span>Paid Shares Today:</span> <span id="paidSharesTodayCount"></span></p><p><span>Earned from Sharing:</span> <span id="referralUsdtEarned"></span></p></div>
-                <div class="info-card" id="referralProgramDetailsCard"><h3>Program Details</h3></div>
-             </div>
-        </div>
-        <div id="withdrawScreen" class="screen">
-            <div class="app-header"><div class="title">Withdraw</div></div>
-            <div class="content-padding">
-                <div class="info-card"><p><span>Available Balance:</span> <span id="withdrawUserBalance" style="font-size:16px; color:#34c759;"></span></p></div>
-                <div class="info-card"><h3>Request Withdrawal</h3>
-                    <div class="form-group"><label>Method:</label><select id="withdrawalMethod"><option value="">Loading...</option></select></div>
-                    <div class="form-group"><label>Amount (USDT):</label><input type="number" id="withdrawalAmount" placeholder="Enter amount"></div>
-                    <div class="form-group"><label>Account/Wallet Address:</label><input type="text" id="withdrawalAddress" placeholder="Enter address"></div>
-                    <button id="submitWithdrawalButton" class="btn">Submit</button>
+        
+                <div class="info-card">
+                    <h3>Referral Statistics</h3>
+                    <p><span>Times Link Shared/Copied (Overall):</span> <span id="totalReferralsCount">0</span></p>
+                    <p><span>Paid Shares Today:</span> <span id="paidSharesTodayCount">0/5</span></p>
+                    <p><span>USDT Earned from Sharing:</span> <span id="referralUsdtEarned">0.0000 USDT</span></p>
+                </div>
+        
+                <div class="info-card">
+                    <h3>Referral Program Details</h3>
+                    <p class="referral-details-text">Each time you share or copy your referral link, you can earn <strong>$0.10 USDT</strong> (10 cents)! This reward will be added <strong>1 minute after</strong> sharing/copying.</p>
+                    <p class="referral-details-text">You can earn this reward for up to <strong>5 shares/copies per day</strong>.</p>
+                    <p class="referral-details-text">There are <strong>30 referral levels</strong>. Unlock additional rewards and bonuses based on your activity.</p>
                 </div>
             </div>
         </div>
-        <div id="profileScreen" class="screen">
-            <div class="app-header"><div class="title">Profile</div></div>
+
+        <div id="withdrawScreen" class="screen">
+            <div class="app-header">
+                <div class="title">Withdraw Funds</div>
+                <div class="actions">
+                    <span id="logoutButtonWithdraw">⋮</span>
+                </div>
+            </div>
             <div class="content-padding">
-                <div class="info-card"><h3>User Profile</h3>
-                    <p><span>Name:</span> <span id="profileTabUserName"></span></p>
-                    <p><span>Phone:</span> <span id="profileTabUserPhone"></span></p>
-                    <p><span>Email:</span> <span id="profileTabUserEmail"></span></p>
-                    <p><span>Balance (USDT):</span> <span id="profileTabUserBalance"></span></p>
-                    <p><span>Last Active:</span> <span id="profileTabLastActiveDate"></span></p>
-                    <button class="btn" style="background-color: #ff3b30; margin-top: 20px;" id="profileLogoutButton">Logout</button>
+                <div class="info-card">
+                    <p><span>Available Balance:</span> <span id="withdrawUserBalance" style="font-size:16px; color:#34c759;">0.0000 USDT</span></p>
+                </div>
+                <div class="info-card">
+                    <h3>Request Withdrawal</h3>
+                    <div class="form-group">
+                        <label for="withdrawalMethod">Withdrawal Method:</label>
+                        <select id="withdrawalMethod" name="withdrawalMethod">
+                            <option value="">Select a method</option>
+                            <option value="nagad">Nagad (Min. 20 USDT)</option>
+                            <option value="bkash">bKash (Min. 20 USDT)</option>
+                            <option value="upay">Upay (Min. 20 USDT)</option>
+                            <option value="rocket">Rocket (Min. 20 USDT)</option>
+                            <option value="webmoney">WebMoney (Min. 5 USDT)</option>
+                            <option value="other_crypto">Other Crypto</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="withdrawalAmount">Amount (USDT):</label>
+                        <input type="number" id="withdrawalAmount" name="withdrawalAmount" placeholder="Enter amount">
+                    </div>
+                    <div class="form-group">
+                        <label for="withdrawalAddress">Account/Wallet Address:</label>
+                        <input type="text" id="withdrawalAddress" name="withdrawalAddress" placeholder="Enter account/wallet address">
+                    </div>
+                    <button class="btn" onclick="submitWithdrawalRequest()">Submit Withdrawal</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="profileScreen" class="screen">
+            <div class="app-header">
+                <div class="title">Profile</div>
+                <div class="actions">
+                    <span id="logoutButtonProfile">⋮</span>
+                </div>
+            </div>
+            <div class="content-padding">
+                <div class="info-card">
+                    <h3>User Profile</h3>
+                    <p><span>Name:</span> <span id="profileTabUserName">Loading...</span></p>
+                    <p><span>Phone:</span> <span id="profileTabUserPhone">Not shared</span></p>
+                    <p><span>Total Balance (USDT):</span> <span id="profileTabUserBalance">0.0000</span></p>
+                    <p><span>Email:</span> <span id="profileTabUserEmail">Loading...</span></p>
+                    <p><span>Last Active:</span> <span id="profileTabLastActiveDate">Loading...</span></p>
+                    <button class="btn" style="background-color: #ff3b30; margin-top: 20px;" id="logoutButtonMain">Logout</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <a href="#" id="telegramContactLink" target="_blank" class="telegram-contact-fab">
-        <svg viewBox="0 0 24 24"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.17.91-.494 1.204-1.07 1.23-.928.043-1.348-.602-2.018-1.028-.91-.588-1.428-.945-2.326-1.528-.986-.631-.339-1.001.221-1.591.133-.142 2.568-2.295 2.568-2.295s.23-.205-.065-.455c-.294-.25-.728-.094-.728-.094L8.44 13.288c-.04.023-.075.045-.117.075l-.105.061s-.37.253-.947.031c-.578-.223-.994-.37-1.128-.409-.426-.12-.76-.182-.756-.532.003-.237.207-.404.512-.584 2.813-1.656 4.593-2.671 4.593-2.671s1.033-.622 2.001-.626zm-2.448 8.528l.618-2.997-.026.018s1.631 1.496 2.017 1.831l.015.012s.313.241.303-.255l-.008-.081L18.3 7.588s.096-.515-.578-.266l-10.84 3.862s-.76.295-.865.995l.01.022s.273.92.855.712L7.89 12.3s.374-.115.864.075l.008.004-3.264 2.957s-.396.358.083.585c.48.226 1.088-.08 1.088-.08l3.829-2.653.86.793 1.108 1.021s.182.153.359.034c.176-.118.173-.25.173-.25z"/></svg>
+    <a href="https://t.me/Jobsrbot" target="_blank" class="telegram-contact-fab" title="Contact @Jobsrbot on Telegram">
+        <svg viewBox="0 0 24 24">
+            <path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.17.91-.494 1.204-1.07 1.23-.928.043-1.348-.602-2.018-1.028-.91-.588-1.428-.945-2.326-1.528-.986-.631-.339-1.001.221-1.591.133-.142 2.568-2.295 2.568-2.295s.23-.205-.065-.455c-.294-.25-.728-.094-.728-.094L8.44 13.288c-.04.023-.075.045-.117.075l-.105.061s-.37.253-.947.031c-.578-.223-.994-.37-1.128-.409-.426-.12-.76-.182-.756-.532.003-.237.207-.404.512-.584 2.813-1.656 4.593-2.671 4.593-2.671s1.033-.622 2.001-.626zm-2.448 8.528l.618-2.997-.026.018s1.631 1.496 2.017 1.831l.015.012s.313.241.303-.255l-.008-.081L18.3 7.588s.096-.515-.578-.266l-10.84 3.862s-.76.295-.865.995l.01.022s.273.92.855.712L7.89 12.3s.374-.115.864.075l.008.004-3.264 2.957s-.396.358.083.585c.48.226 1.088-.08 1.088-.08l3.829-2.653.86.793 1.108 1.021s.182.153.359.034c.176-.118.173-.25.173-.25z"/>
+        </svg>
     </a>
 
     <div class="bottom-nav">
-        <div class="nav-item active" data-screen="homeScreen"><div class="icon">🏠</div><div>Home</div></div>
-        <div class="nav-item" data-screen="earnScreen"><div class="icon">💰</div><div>Earn</div></div>
-        <div class="nav-item" data-screen="referScreen"><div class="icon">👥</div><div>Refer</div></div>
-        <div class="nav-item" data-screen="withdrawScreen"><div class="icon">💸</div><div>Withdraw</div></div>
-        <div class="nav-item" data-screen="profileScreen"><div class="icon">👤</div><div>Profile</div></div>
+        <div class="nav-item active" data-screen="homeScreen"> <div class="icon">🏠</div> <div>Home</div> </div>
+        <div class="nav-item" data-screen="earnScreen"> <div class="icon">💰</div> <div>Earn</div> </div>
+        <div class="nav-item" data-screen="referScreen">
+            <div class="icon">
+                <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="currentColor">
+                    <path d="M0 0h24v24H0V0z" fill="none"/>
+                    <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
+                </svg>
+            </div>
+            <div>Refer</div>
+        </div>
+        <div class="nav-item" data-screen="withdrawScreen"> <div class="icon">💸</div> <div>Withdraw</div> </div>
+        <div class="nav-item" data-screen="profileScreen"> <div class="icon">👤</div> <div>Profile</div> </div>
     </div>
 
-<script>
-// অনুগ্রহ করে এখানে আপনার নিজের ফায়ারবেস কনফিগারেশন কী (keys) ব্যবহার করুন
-const firebaseConfig = {
-    apiKey: "AIzaSyAgvOSJFY8WqRoVXRWjWiOEdAmjvTz_pgU",
-    authDomain: "task-app-a3b8a.firebaseapp.com",
-    databaseURL: "https://task-app-a3b8a-default-rtdb.firebaseio.com",
-    projectId: "task-app-a3b8a",
-    storageBucket: "task-app-a3b8a.firebasestorage.app",
-    messagingSenderId: "154506156460",
-    appId: "1:154506156460:web:78124e37a074fe43218209",
-    measurementId: "G-Q2C5BLCWDT"
+    <script>
+        // Firebase Configuration - REPLACE WITH YOUR ACTUAL FIREBASE CONFIG
+        const firebaseConfig = {
+  apiKey: "AIzaSyD2FTKNuMyk8aF_ZKhrQBU3mYIyZuCIJfA",
+  authDomain: "tunamant-app-c7a40.firebaseapp.com",
+  databaseURL: "https://tunamant-app-c7a40-default-rtdb.firebaseio.com",
+  projectId: "tunamant-app-c7a40",
+  storageBucket: "tunamant-app-c7a40.firebasestorage.app",
+  messagingSenderId: "452663327716",
+  appId: "1:452663327716:web:936957f84f65c819bd65f1",
+  measurementId: "G-DXXQVH6Q8Q"
 };
 
-// --- App Initialization ---
-firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
-const db = firebase.firestore();
-const fieldValue = firebase.firestore.FieldValue;
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
 
-// --- Global State ---
-let appState = {};
-let appConfig = {};
-let autoTaskInterval = null;
-let unsubscribeUserListener = null;
+        const APP_VERSION = "2.0.2"; // Delayed Referral Share Reward (1 minute), Message Update
+        const LS_KEY_APP_STATE = `monetagAppUserState_v${APP_VERSION}`;
+        const REWARD_PER_REFERRAL_INITIATION_USDT = 0.10;
+        const MAX_PAID_SHARES_PER_DAY = 5;
+        const SHARE_REWARD_DELAY_MS = 60000; // 60000 milliseconds = 1 minute
 
-// --- DOM Elements ---
-const authContainer = document.getElementById('authContainer');
-const appContainer = document.querySelector('.app-container');
-const screens = document.querySelectorAll('.app-container .screen');
-const navItems = document.querySelectorAll('.bottom-nav .nav-item');
-const loginForm = document.getElementById('loginForm');
-const signupForm = document.getElementById('signupForm');
-const loginButton = document.getElementById('loginButton');
-const signupButton = document.getElementById('signupButton');
-const showSignup = document.getElementById('showSignup');
-const showLogin = document.getElementById('showLogin');
-const loginCard = document.getElementById('loginCard');
-const signupCard = document.getElementById('signupCard');
-const loginError = document.getElementById('loginError');
-const signupError = document.getElementById('signupError');
+        const navItems = document.querySelectorAll('.bottom-nav .nav-item');
+        const screens = document.querySelectorAll('.app-container .screen');
+        const loginScreen = document.getElementById('loginScreen');
+        const appContainer = document.querySelector('.app-container');
 
-// --- Auth Functions ---
-function showLoginForm() { loginCard.style.display = 'block'; signupCard.style.display = 'none'; loginError.textContent = ''; }
-function showSignupForm() { loginCard.style.display = 'none'; signupCard.style.display = 'block'; signupError.textContent = ''; }
+        const headerUserAvatarElement = document.getElementById('headerUserAvatar');
+        const headerUserNameElement = document.getElementById('headerUserName');
+        const headerUserPhoneElement = document.getElementById('headerUserPhone'); // Note: Phone number might not be directly available from Firebase/Google Auth
+        const profileSummaryUserAvatarElement = document.getElementById('profileSummaryUserAvatar');
+        const profileSummaryUserNameElement = document.getElementById('profileSummaryUserName');
+        const profileSummaryUserBalanceElement = document.getElementById('profileSummaryUserBalance');
+        const profileTabUserNameElement = document.getElementById('profileTabUserName');
+        const profileTabUserPhoneElement = document.getElementById('profileTabUserPhone'); // Note: Phone number might not be directly available
+        const profileTabUserBalanceElement = document.getElementById('profileTabUserBalance');
+        const profileTabUserEmailElement = document.getElementById('profileTabUserEmail'); // Added for email display
+        const profileTabLastActiveDateElement = document.getElementById('profileTabLastActiveDate');
+        const withdrawUserBalanceElement = document.getElementById('withdrawUserBalance');
+        const startTaskMonetagButton = document.getElementById('startTaskMonetagButton');
+        const adStatusMessageElement = document.getElementById('adStatusMessage');
+        const earnMonetagDailyLimitElement = document.getElementById('earnMonetagDailyLimit');
+        const earnMonetagCompletedTodayElement = document.getElementById('earnMonetagCompletedToday');
+        const earnMonetagRemainingTodayElement = document.getElementById('earnMonetagRemainingToday');
+        const homeMonetagTasksCompletedElement = document.getElementById('homeMonetagTasksCompleted');
+        const homeMonetagDailyLimitElement = document.getElementById('homeMonetagDailyLimit');
+        const homeTotalMonetagEarningsElement = document.getElementById('homeTotalMonetagEarnings');
+        const withdrawalHistoryListElement = document.getElementById('withdrawalHistoryList');
+        const referralLinkElement = document.getElementById('referralLink');
+        const copyReferralLinkButton = document.getElementById('copyReferralLinkButton');
+        const shareReferralLinkButton = document.getElementById('shareReferralLinkButton');
+        const copyStatusMessageElement = document.getElementById('copyStatusMessage');
+        const totalReferralsCountElement = document.getElementById('totalReferralsCount');
+        const paidSharesTodayCountElement = document.getElementById('paidSharesTodayCount');
+        const referralUsdtEarnedElement = document.getElementById('referralUsdtEarned');
 
-async function handleSignup(e) {
-    e.preventDefault();
-    const name = signupForm['signupName'].value.trim();
-    const email = signupForm['signupEmail'].value.trim();
-    const password = signupForm['signupPassword'].value;
-    const confirmPassword = signupForm['signupConfirmPassword'].value;
+        // Login Screen Elements
+        const signInWithGoogleButton = document.getElementById('signInWithGoogle');
+        const signInWithTelegramButton = document.getElementById('signInWithTelegram');
+        const loginErrorMessage = document.getElementById('loginErrorMessage');
 
-    if (password !== confirmPassword) { signupError.textContent = 'Passwords do not match.'; return; }
-    signupError.textContent = '';
-    signupButton.disabled = true;
-    signupButton.textContent = 'Creating Account...';
-    try {
-        const userCredential = await auth.createUserWithEmailAndPassword(email, password);
-        await userCredential.user.updateProfile({ displayName: name });
-    } catch (error) {
-        signupError.textContent = getAuthErrorMessage(error.code);
-    } finally {
-        signupButton.disabled = false;
-        signupButton.textContent = 'Sign Up';
-    }
-}
+        // Logout Buttons (all of them)
+        const logoutButtons = document.querySelectorAll('[id^="logoutButton"]');
 
-async function handleLogin(e) {
-    e.preventDefault();
-    const email = loginForm['loginEmail'].value.trim();
-    const password = loginForm['loginPassword'].value;
-    loginError.textContent = '';
-    loginButton.disabled = true;
-    loginButton.textContent = 'Logging In...';
-    try {
-        await auth.signInWithEmailAndPassword(email, password);
-    } catch (error) {
-        loginError.textContent = getAuthErrorMessage(error.code);
-    } finally {
-        loginButton.disabled = false;
-        loginButton.textContent = 'Login';
-    }
-}
 
-function handleLogout() {
-    if (unsubscribeUserListener) unsubscribeUserListener();
-    unsubscribeUserListener = null;
-    auth.signOut();
-}
-
-function getAuthErrorMessage(code) {
-    switch (code) {
-        case 'auth/user-not-found': return 'No account found with this email.';
-        case 'auth/wrong-password': return 'Incorrect password.';
-        case 'auth/email-already-in-use': return 'This email is already registered.';
-        case 'auth/weak-password': return 'Password must be at least 6 characters.';
-        case 'auth/invalid-email': return 'Please enter a valid email address.';
-        default: return 'An error occurred. Please try again.';
-    }
-}
-
-// --- Core App Logic ---
-
-async function fetchAdminConfig() {
-    try {
-        const configDoc = await db.collection('config').doc('appSettings').get();
-        if (configDoc.exists) {
-            appConfig = configDoc.data();
-        } else {
-            console.warn("Admin config not found. Using default values.");
-            // **FIX:** ডিফল্ট পেমেন্ট মেথড যোগ করা হয়েছে
-            appConfig = { 
-                dailyTaskLimit: 1000, rewardPerTaskUSD: 0.0006, adZone: '9344336', 
-                referralRewardUSDT: 0.10, maxPaidSharesPerDay: 5, contactTelegramUrl: '#',
-                withdrawalMethods: [
-                    { name: 'Nagad', min: 20, enabled: true },
-                    { name: 'bKash', min: 20, enabled: true },
-                    { name: 'Upay', min: 20, enabled: true },
-                    { name: 'WebMoney', min: 10, enabled: true },
-                ]
-            };
-        }
-    } catch (error) {
-        console.error("Error fetching admin config:", error);
-    }
-}
-
-async function initializeUserSession(user) {
-    const userRef = db.collection('users').doc(user.uid);
-    if (unsubscribeUserListener) unsubscribeUserListener();
-
-    const doc = await userRef.get();
-    if (!doc.exists) {
-        const newUserState = {
-            uid: user.uid, email: user.email, name: user.displayName,
-            balanceUSDT: 0.0, createdAt: fieldValue.serverTimestamp(),
-            lastLogin: fieldValue.serverTimestamp(), isDisabled: false,
-            todayStats: { date: new Date().toDateString(), monetagTasksCompleted: 0, referralSharesToday: 0 },
-            referralData: { userIdForReferral: `ref_${user.uid.substring(0, 8)}`, totalReferralsInitiated: 0, usdtEarnedFromReferrals: 0.0, processingShareReward: false }
+        let appState = {
+            userUSDTBalance: 0.0,
+            monetagConfig: {
+                dailyTaskLimit: 1000,
+                rewardPerTaskUSD: 0.0006,
+                adZone: '9344336'
+            },
+            todayStats: { 
+                date: new Date().toDateString(), 
+                monetagTasksCompleted: 0,
+                referralSharesToday: 0 
+            },
+            telegramUser: { id: null, name: null, photoUrl: null, phoneNumber: null }, // Still relevant for Telegram WebApp context
+            firebaseUser: { uid: null, email: null, displayName: null, photoURL: null }, // Firebase user data
+            referralData: {
+                userIdForReferral: null, 
+                referralLink: '',
+                totalReferralsInitiated: 0,
+                usdtEarnedFromReferrals: 0.0
+            },
+            processingShareReward: false 
         };
-        await userRef.set(newUserState);
-    }
 
-    unsubscribeUserListener = userRef.onSnapshot(async (doc) => {
-        appState = doc.data();
-        if (appState.isDisabled) { alert("Your account has been disabled."); handleLogout(); return; }
+        // --- Firebase Integration Start ---
 
-        const today = new Date().toDateString();
-        if (appState.todayStats.date !== today) {
-            await userRef.update({
-                'todayStats.date': today,
-                'todayStats.monetagTasksCompleted': 0,
-                'todayStats.referralSharesToday': 0
+        // Function to save user data to Firestore
+        async function saveUserToFirestore(user) {
+            const userRef = db.collection('users').doc(user.uid);
+            const doc = await userRef.get();
+
+            let userDataToSave = {
+                uid: user.uid,
+                email: user.email,
+                displayName: user.displayName || 'Anonymous User',
+                photoURL: user.photoURL || '',
+                lastLogin: firebase.firestore.FieldValue.serverTimestamp(),
+                // Initial data for new users, existing data will be merged
+                userUSDTBalance: appState.userUSDTBalance,
+                monetagTasksCompleted: appState.todayStats.monetagTasksCompleted,
+                referralSharesToday: appState.todayStats.referralSharesToday,
+                totalReferralsInitiated: appState.referralData.totalReferralsInitiated,
+                usdtEarnedFromReferrals: appState.referralData.usdtEarnedFromReferrals
+            };
+
+            if (doc.exists) {
+                // If user exists, update existing fields and merge new ones
+                const existingData = doc.data();
+                userDataToSave = {
+                    ...existingData, // Keep existing data
+                    ...userDataToSave, // Overwrite with latest login data and sync relevant appState fields
+                    lastLogin: firebase.firestore.FieldValue.serverTimestamp(), // Update last login
+                    userUSDTBalance: appState.userUSDTBalance, // Always sync current balance
+                    monetagTasksCompleted: appState.todayStats.monetagTasksCompleted, // Sync daily stats
+                    referralSharesToday: appState.todayStats.referralSharesToday,
+                    totalReferralsInitiated: appState.referralData.totalReferralsInitiated,
+                    usdtEarnedFromReferrals: appState.referralData.usdtEarnedFromReferrals
+                };
+            } else {
+                // For a new user, set initial values
+                userDataToSave.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+                userDataToSave.monetagTasksCompleted = 0;
+                userDataToSave.referralSharesToday = 0;
+                userDataToSave.totalReferralsInitiated = 0;
+                userDataToSave.usdtEarnedFromReferrals = 0.0;
+                userDataToSave.userUSDTBalance = 0.0;
+                userDataToSave.isAdmin = false; // Default for new users
+            }
+
+            // Sync Telegram data if available and not already set
+            if (appState.telegramUser.id && !userDataToSave.telegramId) {
+                userDataToSave.telegramId = appState.telegramUser.id;
+                userDataToSave.telegramUsername = appState.telegramUser.name;
+                userDataToSave.telegramPhotoUrl = appState.telegramUser.photoUrl;
+            }
+            if (appState.telegramUser.phoneNumber && !userDataToSave.phoneNumber) {
+                userDataToSave.phoneNumber = appState.telegramUser.phoneNumber;
+            }
+
+            await userRef.set(userDataToSave, { merge: true });
+            console.log("User data saved/updated in Firestore.");
+        }
+
+        // Function to load user data from Firestore
+        async function loadUserFromFirestore(uid) {
+            const userRef = db.collection('users').doc(uid);
+            const doc = await userRef.get();
+
+            if (doc.exists) {
+                const data = doc.data();
+                console.log("User data loaded from Firestore:", data);
+                
+                // Update appState with data from Firestore
+                appState.userUSDTBalance = data.userUSDTBalance || 0.0;
+                
+                // Reset daily stats if it's a new day or load from Firestore
+                if (data.todayStats && data.todayStats.date === new Date().toDateString()) {
+                    appState.todayStats = data.todayStats;
+                    appState.todayStats.monetagTasksCompleted = Number(data.monetagTasksCompleted) || 0;
+                    appState.todayStats.referralSharesToday = Number(data.referralSharesToday) || 0;
+                } else {
+                    // Reset daily stats for a new day
+                    appState.todayStats = {
+                        date: new Date().toDateString(),
+                        monetagTasksCompleted: 0,
+                        referralSharesToday: 0
+                    };
+                    // And update Firestore for new day's initial stats
+                    await userRef.update({
+                        monetagTasksCompleted: 0,
+                        referralSharesToday: 0,
+                        'todayStats.date': new Date().toDateString()
+                    });
+                }
+                
+                appState.referralData.totalReferralsInitiated = data.totalReferralsInitiated || 0;
+                appState.referralData.usdtEarnedFromReferrals = data.usdtEarnedFromReferrals || 0.0;
+
+                // Sync Firebase user details to appState
+                appState.firebaseUser.uid = data.uid;
+                appState.firebaseUser.email = data.email;
+                appState.firebaseUser.displayName = data.displayName;
+                appState.firebaseUser.photoURL = data.photoURL;
+
+                // Sync Telegram user details if present in Firestore
+                appState.telegramUser.id = data.telegramId || null;
+                appState.telegramUser.name = data.telegramUsername || null;
+                appState.telegramUser.photoUrl = data.telegramPhotoUrl || null;
+                appState.telegramUser.phoneNumber = data.phoneNumber || null; // This will come from Firebase if saved there
+                
+                initializeReferralSystem();
+                updateDisplays();
+                saveState(); // Save to local storage after loading from Firebase
+                return true;
+            }
+            return false; // User document not found
+        }
+
+        // Function to update only specific fields to Firestore
+        async function updateFirestoreUserField(field, value) {
+            if (auth.currentUser) {
+                const userRef = db.collection('users').doc(auth.currentUser.uid);
+                const updateData = {};
+                updateData[field] = value;
+                await userRef.update(updateData);
+            }
+        }
+
+        // --- Authentication Functions ---
+        signInWithGoogleButton.addEventListener('click', () => {
+            const provider = new firebase.auth.GoogleAuthProvider();
+            auth.signInWithPopup(provider)
+                .then((result) => {
+                    // This gives you a Google Access Token. You can use it to access the Google API.
+                    const credential = GoogleAuthProvider.credentialFromResult(result);
+                    const token = credential.accessToken;
+                    // The signed-in user info.
+                    const user = result.user;
+                    console.log("Google Sign-in successful:", user);
+                    loginErrorMessage.textContent = "";
+                    // Handled by onAuthStateChanged
+                })
+                .catch((error) => {
+                    // Handle Errors here.
+                    const errorCode = error.code;
+                    const errorMessage = error.message;
+                    console.error("Google Sign-in error:", errorMessage);
+                    loginErrorMessage.textContent = `Login failed: ${errorMessage}`;
+                });
+        });
+
+        signInWithTelegramButton.addEventListener('click', () => {
+            // For Telegram Web App, we'd normally use the data passed from the bot.
+            // If direct Telegram login is desired (not via bot), it's more complex
+            // and often requires a backend to handle auth. Here's a placeholder
+            // that tries to use Telegram WebApp data if available, otherwise prompts.
+            
+            try {
+                const tg = window.Telegram.WebApp;
+                tg.ready();
+                const initData = tg.initData; // This contains the user info.
+                
+                if (initData) {
+                    // In a real scenario, you'd send `initData` to your backend
+                    // for server-side validation and Firebase custom token creation.
+                    // Then, you'd use signInWithCustomToken(token) here.
+                    console.warn("Telegram WebApp data available. For full Telegram login, a backend is required to validate initData and create a Firebase custom token.");
+                    loginErrorMessage.textContent = "Telegram login requires server integration. Using available WebApp data for user details.";
+                    
+                    const userData = tg.initDataUnsafe?.user;
+                     if (userData) {
+                        // This is a simplified demo. Real Firebase-Telegram auth needs backend.
+                        // We'll simulate a login if WebApp data is present.
+                        console.log("Telegram WebApp User Data:", userData);
+                        auth.signInAnonymously() // Fallback to anonymous for demo
+                            .then((userCredential) => {
+                                const user = userCredential.user;
+                                console.log("Signed in anonymously for Telegram WebApp user:", user.uid);
+                                // Update appState with Telegram user info
+                                appState.telegramUser.id = userData.id;
+                                const firstName = userData.first_name || ''; 
+                                const lastName = userData.last_name || '';
+                                if (firstName || lastName) appState.telegramUser.name = `${firstName} ${lastName}`.trim();
+                                else if (userData.username) appState.telegramUser.name = `@${userData.username}`;
+                                appState.telegramUser.photoUrl = userData.photo_url || null;
+                                // Then link this info to the anonymous Firebase user
+                                db.collection('users').doc(user.uid).set({
+                                    telegramId: userData.id,
+                                    telegramUsername: appState.telegramUser.name,
+                                    telegramPhotoUrl: appState.telegramUser.photoUrl,
+                                    displayName: appState.telegramUser.name || 'Telegram User',
+                                    photoURL: appState.telegramUser.photoUrl,
+                                    // ... other initial fields for a new user if not merged later
+                                }, { merge: true }).then(() => {
+                                    console.log("Telegram data associated with anonymous Firebase user.");
+                                    // onAuthStateChanged will handle the rest
+                                });
+                            })
+                            .catch(error => {
+                                console.error("Anonymous sign-in for Telegram WebApp failed:", error);
+                                loginErrorMessage.textContent = `Telegram login failed: ${error.message}`;
+                            });
+
+                    } else {
+                        loginErrorMessage.textContent = "Telegram WebApp user data not available. Please open from Telegram.";
+                        console.warn("Telegram WebApp user data not available.");
+                    }
+
+                } else {
+                    loginErrorMessage.textContent = "Telegram WebApp not initialized. Please open from Telegram.";
+                    console.warn("Telegram WebApp is not initialized or initData is empty.");
+                }
+            } catch (e) {
+                console.error("Error accessing Telegram WebApp:", e);
+                loginErrorMessage.textContent = "Telegram login error. Please ensure you're opening from Telegram.";
+            }
+        });
+
+        // Logout functionality
+        function logoutUser() {
+            auth.signOut().then(() => {
+                console.log("User signed out.");
+                // Clear local state (except for general config)
+                appState = {
+                    userUSDTBalance: 0.0,
+                    monetagConfig: {
+                        dailyTaskLimit: 1000,
+                        rewardPerTaskUSD: 0.0006,
+                        adZone: '9344336'
+                    },
+                    todayStats: { 
+                        date: new Date().toDateString(), 
+                        monetagTasksCompleted: 0,
+                        referralSharesToday: 0 
+                    },
+                    telegramUser: { id: null, name: null, photoUrl: null, phoneNumber: null },
+                    firebaseUser: { uid: null, email: null, displayName: null, photoURL: null },
+                    referralData: {
+                        userIdForReferral: null, 
+                        referralLink: '',
+                        totalReferralsInitiated: 0,
+                        usdtEarnedFromReferrals: 0.0
+                    },
+                    processingShareReward: false 
+                };
+                localStorage.removeItem(LS_KEY_APP_STATE); // Clear specific user's LS data
+                showScreen('loginScreen'); // Show login screen
+            }).catch((error) => {
+                console.error("Error signing out:", error);
+                alert("Error logging out. Please try again.");
             });
-        } else {
-            updateAllDisplays();
         }
-    }, console.error);
 
-    await userRef.update({ lastLogin: fieldValue.serverTimestamp() });
-}
+        // Add event listeners for all logout buttons
+        logoutButtons.forEach(button => {
+            button.addEventListener('click', logoutUser);
+        });
 
-function showScreen(screenId) {
-    screens.forEach(s => s.classList.remove('active'));
-    document.getElementById(screenId)?.classList.add('active');
-    navItems.forEach(n => n.classList.toggle('active', n.dataset.screen === screenId));
-    updateAllDisplays();
-}
+        // Firebase Auth State Observer
+        auth.onAuthStateChanged(async (user) => {
+            if (user) {
+                // User is signed in.
+                console.log("Firebase User:", user);
+                appState.firebaseUser.uid = user.uid;
+                appState.firebaseUser.email = user.email;
+                appState.firebaseUser.displayName = user.displayName;
+                appState.firebaseUser.photoURL = user.photoURL;
 
-// --- UI Update Functions ---
-function updateAllDisplays() {
-    if (!appState || !appConfig) return;
-    updateHeadersAndProfile();
-    updateEarnScreen();
-    updateReferralScreen();
-    updateWithdrawScreen();
-}
-function updateHeadersAndProfile() { /* অপরিবর্তিত */ }
-function updateEarnScreen() { /* অপরিবর্তিত */ }
-function updateReferralScreen() { /* অপরিবর্তিত */ }
-function updateWithdrawScreen() {
-    document.getElementById('withdrawUserBalance').textContent = `${(appState.balanceUSDT || 0).toFixed(4)} USDT`;
-    const methodSelect = document.getElementById('withdrawalMethod');
-    methodSelect.innerHTML = '<option value="">Select a method</option>';
-    (appConfig.withdrawalMethods || []).forEach(method => {
-        if (method.enabled) {
-            const option = document.createElement('option');
-            option.value = method.name.toLowerCase();
-            option.textContent = `${method.name} (Min. ${method.min} USDT)`;
-            option.dataset.min = method.min;
-            methodSelect.appendChild(option);
+                // Load user data from Firestore or create new if not exists
+                const loaded = await loadUserFromFirestore(user.uid);
+                if (!loaded) {
+                    // New user or data not in Firestore yet, save initial state
+                    await saveUserToFirestore(user);
+                    await loadUserFromFirestore(user.uid); // Load to ensure appState is fully populated
+                }
+                
+                // If Telegram Web App is detected, try to merge its data
+                try {
+                    const tg = window.Telegram.WebApp;
+                    tg.ready();
+                    const tgUserData = tg.initDataUnsafe?.user;
+                    if (tgUserData && tgUserData.id && tgUserData.id !== appState.telegramUser.id) {
+                        // Merge Telegram data into appState and Firestore if different or not set
+                        appState.telegramUser.id = tgUserData.id;
+                        appState.telegramUser.name = tgUserData.first_name + ' ' + (tgUserData.last_name || '');
+                        appState.telegramUser.photoUrl = tgUserData.photo_url || null;
+                        
+                        await db.collection('users').doc(user.uid).set({
+                            telegramId: tgUserData.id,
+                            telegramUsername: appState.telegramUser.name,
+                            telegramPhotoUrl: appState.telegramUser.photoUrl,
+                        }, { merge: true });
+                        console.log("Telegram WebApp data merged with Firebase user.");
+                    }
+                } catch (e) {
+                    console.warn("Could not access Telegram WebApp data:", e);
+                }
+
+                initializeReferralSystem();
+                updateDisplays();
+                showScreen('homeScreen'); // Show main app screen
+            } else {
+                // User is signed out.
+                console.log("No user signed in.");
+                showScreen('loginScreen'); // Show login screen
+                // Clear appState except for global config
+                appState = {
+                    userUSDTBalance: 0.0,
+                    monetagConfig: {
+                        dailyTaskLimit: 1000,
+                        rewardPerTaskUSD: 0.0006,
+                        adZone: '9344336'
+                    },
+                    todayStats: { 
+                        date: new Date().toDateString(), 
+                        monetagTasksCompleted: 0,
+                        referralSharesToday: 0 
+                    },
+                    telegramUser: { id: null, name: null, photoUrl: null, phoneNumber: null },
+                    firebaseUser: { uid: null, email: null, displayName: null, photoURL: null },
+                    referralData: {
+                        userIdForReferral: null, 
+                        referralLink: '',
+                        totalReferralsInitiated: 0,
+                        usdtEarnedFromReferrals: 0.0
+                    },
+                    processingShareReward: false 
+                };
+                localStorage.removeItem(LS_KEY_APP_STATE);
+            }
+        });
+
+        // --- Firebase Integration End ---
+
+        function saveState() {
+            try { 
+                localStorage.setItem(LS_KEY_APP_STATE, JSON.stringify(appState)); 
+                // Also update Firestore with the latest state
+                if (auth.currentUser) {
+                    db.collection('users').doc(auth.currentUser.uid).update({
+                        userUSDTBalance: appState.userUSDTBalance,
+                        monetagTasksCompleted: appState.todayStats.monetagTasksCompleted,
+                        referralSharesToday: appState.todayStats.referralSharesToday,
+                        totalReferralsInitiated: appState.referralData.totalReferralsInitiated,
+                        usdtEarnedFromReferrals: appState.referralData.usdtEarnedFromReferrals,
+                        lastActive: firebase.firestore.FieldValue.serverTimestamp(),
+                        'todayStats.date': appState.todayStats.date // Ensure date is updated
+                    }).catch(e => console.error("Error updating Firestore on saveState:", e));
+                }
+            }
+            catch (e) { console.error("Error saving state to LocalStorage:", e); }
         }
-    });
-}
+
+        // loadState is now primarily used for initial local loading and then overridden by Firestore
+        function loadState() {
+            try {
+                const storedState = localStorage.getItem(LS_KEY_APP_STATE);
+                if (storedState) {
+                    const parsedState = JSON.parse(storedState);
+                    appState.userUSDTBalance = parsedState.userUSDTBalance || 0.0;
+                    
+                    if (parsedState.todayStats && parsedState.todayStats.date === new Date().toDateString()) {
+                        appState.todayStats = parsedState.todayStats;
+                        appState.todayStats.referralSharesToday = Number(appState.todayStats.referralSharesToday) || 0;
+                    } else {
+                        appState.todayStats = {
+                            date: new Date().toDateString(),
+                            monetagTasksCompleted: 0,
+                            referralSharesToday: 0 
+                        };
+                    }
+
+                    // Telegram user data might come from LS if not from WebApp or Firestore
+                    appState.telegramUser = parsedState.telegramUser || { id: null, name: null, photoUrl: null, phoneNumber: null };
+                    // Firebase user data will be set by onAuthStateChanged
+                    
+                    if (parsedState.referralData) {
+                        appState.referralData = {
+                            userIdForReferral: parsedState.referralData.userIdForReferral || null,
+                            referralLink: parsedState.referralData.referralLink || '',
+                            totalReferralsInitiated: parsedState.referralData.totalReferralsInitiated || 0,
+                            usdtEarnedFromReferrals: parsedState.referralData.usdtEarnedFromReferrals || 0.0
+                        };
+                    } else { 
+                        appState.referralData = {
+                            userIdForReferral: null, referralLink: '',
+                            totalReferralsInitiated: 0, usdtEarnedFromReferrals: 0.0
+                        };
+                    }
+                } else { 
+                     appState.todayStats = {
+                        date: new Date().toDateString(),
+                        monetagTasksCompleted: 0,
+                        referralSharesToday: 0
+                    };
+                    appState.referralData.userIdForReferral = null;
+                }
+                appState.processingShareReward = false; 
+            } catch (e) {
+                console.error("Error loading state from LocalStorage:", e);
+                 appState.todayStats = { 
+                    date: new Date().toDateString(),
+                    monetagTasksCompleted: 0,
+                    referralSharesToday: 0
+                };
+                appState.referralData = { 
+                    userIdForReferral: null, referralLink: '',
+                    totalReferralsInitiated: 0, usdtEarnedFromReferrals: 0.0
+                };
+                 appState.processingShareReward = false;
+            }
+            appState.monetagConfig.dailyTaskLimit = 1000;
+        }
+        
+        function generatePseudoUniqueId(length = 8) {
+            return Math.random().toString(36).substring(2, 2 + length);
+        }
+
+        function initializeReferralSystem() {
+            // Use Firebase UID as the primary referral ID if available
+            if (appState.firebaseUser.uid) {
+                appState.referralData.userIdForReferral = appState.firebaseUser.uid;
+            } else if (appState.telegramUser.id) {
+                appState.referralData.userIdForReferral = `tg${appState.telegramUser.id}`;
+            } else if (!appState.referralData.userIdForReferral) {
+                appState.referralData.userIdForReferral = generatePseudoUniqueId(10);
+            }
+            const botBaseUrl = "https://t.me/My_Earning20BD_bot/YourAppName?startapp="; 
+            appState.referralData.referralLink = `${botBaseUrl}ref_${appState.referralData.userIdForReferral}`;
+        }
+
+        function createDefaultAvatar(letter = 'U', size = 80) {
+            const canvas = document.createElement('canvas');
+            canvas.width = size; canvas.height = size;
+            const context = canvas.getContext('2d');
+            const colors = ["#ff3b30", "#ff9500", "#ffcc00", "#34c759", "#00c7be", "#30b0c7", "#007aff", "#5856d6", "#af52de", "#ff2d55"];
+            context.fillStyle = colors[Math.floor(Math.random() * colors.length)];
+            context.fillRect(0, 0, size, size);
+            context.font = `bold ${Math.floor(size / 1.9)}px Arial`;
+            context.fillStyle = "#FFFFFF"; context.textAlign = "center"; context.textBaseline = "middle";
+            context.fillText(letter.toUpperCase(), size / 2, size / 2 + size * 0.04);
+            return canvas.toDataURL();
+        }
+
+        function formatUSDT(amount) { return parseFloat(amount).toFixed(6); }
+
+        function updateDisplays() {
+            const formattedBalance = formatUSDT(appState.userUSDTBalance) + " USDT";
+            if (profileSummaryUserBalanceElement) profileSummaryUserBalanceElement.textContent = "Balance: " + formattedBalance;
+            if (profileTabUserBalanceElement) profileTabUserBalanceElement.textContent = formattedBalance;
+            if (withdrawUserBalanceElement) withdrawUserBalanceElement.textContent = formattedBalance;
+
+            const placeholderName = "User";
+            // Prefer Firebase display name, then Telegram name, then placeholder
+            let finalName = appState.firebaseUser.displayName || appState.telegramUser.name || placeholderName;
+            let finalPhoneNumber = appState.telegramUser.phoneNumber ? `Phone: ${appState.telegramUser.phoneNumber}` : "Phone: Not shared";
+            let finalPhoneNumberProfileTab = appState.telegramUser.phoneNumber || "Not shared";
+            let finalEmail = appState.firebaseUser.email || "N/A";
+
+            let avatarForHeaderSrc, avatarForSummarySrc;
+            if (appState.firebaseUser.photoURL) {
+                avatarForHeaderSrc = appState.firebaseUser.photoURL;
+                avatarForSummarySrc = appState.firebaseUser.photoURL;
+            } else if (appState.telegramUser.photoUrl) {
+                avatarForHeaderSrc = appState.telegramUser.photoUrl;
+                avatarForSummarySrc = appState.telegramUser.photoUrl;
+            } else {
+                const initial = finalName ? finalName.charAt(0).toUpperCase() : 'U';
+                avatarForHeaderSrc = createDefaultAvatar(initial, 35);
+                avatarForSummarySrc = createDefaultAvatar(initial, 80);
+            }
+            
+            if (headerUserNameElement) headerUserNameElement.textContent = finalName;
+            if (headerUserPhoneElement) headerUserPhoneElement.textContent = finalPhoneNumber;
+            if (headerUserAvatarElement) headerUserAvatarElement.src = avatarForHeaderSrc;
+
+            if (profileSummaryUserNameElement) profileSummaryUserNameElement.textContent = finalName;
+            if (profileSummaryUserAvatarElement) profileSummaryUserAvatarElement.src = avatarForSummarySrc;
+
+            if (profileTabUserNameElement) profileTabUserNameElement.textContent = finalName;
+            if (profileTabUserPhoneElement) profileTabUserPhoneElement.textContent = finalPhoneNumberProfileTab;
+            if (profileTabUserEmailElement) profileTabUserEmailElement.textContent = finalEmail; // Display email
+            if (profileTabLastActiveDateElement) {
+                profileTabLastActiveDateElement.textContent = new Date().toLocaleDateString(); // Current date for last active
+            }
+
+            if (earnMonetagDailyLimitElement) earnMonetagDailyLimitElement.textContent = appState.monetagConfig.dailyTaskLimit;
+            if (earnMonetagCompletedTodayElement) earnMonetagCompletedTodayElement.textContent = appState.todayStats.monetagTasksCompleted;
+            const remainingTasks = appState.monetagConfig.dailyTaskLimit - appState.todayStats.monetagTasksCompleted;
+            if (earnMonetagRemainingTodayElement) earnMonetagRemainingTodayElement.textContent = remainingTasks > 0 ? remainingTasks : 0;
+
+            if (homeMonetagTasksCompletedElement) homeMonetagTasksCompletedElement.textContent = appState.todayStats.monetagTasksCompleted;
+            if (homeMonetagDailyLimitElement) homeMonetagDailyLimitElement.textContent = appState.monetagConfig.dailyTaskLimit;
+            if (homeTotalMonetagEarningsElement) homeTotalMonetagEarningsElement.textContent = formatUSDT(appState.userUSDTBalance);
+
+            if (startTaskMonetagButton) {
+                if (remainingTasks <= 0) {
+                    startTaskMonetagButton.textContent = "Daily Tasks Completed";
+                    startTaskMonetagButton.disabled = true;
+                } else {
+                    startTaskMonetagButton.textContent = `Start Task Monetag (${remainingTasks} left)`;
+                    startTaskMonetagButton.disabled = false;
+                }
+            }
+
+            if (document.getElementById('referScreen').classList.contains('active')) {
+                if (referralLinkElement) referralLinkElement.value = appState.referralData.referralLink;
+                if (totalReferralsCountElement) totalReferralsCountElement.textContent = appState.referralData.totalReferralsInitiated;
+                if (paidSharesTodayCountElement) paidSharesTodayCountElement.textContent = `${appState.todayStats.referralSharesToday}/${MAX_PAID_SHARES_PER_DAY}`;
+                if (referralUsdtEarnedElement) referralUsdtEarnedElement.textContent = formatUSDT(appState.referralData.usdtEarnedFromReferrals) + " USDT";
+            }
+        }
+
+        function loadTelegramUserData() {
+            try {
+                const tg = window.Telegram.WebApp;
+                tg.ready();
+                const userData = tg.initDataUnsafe?.user;
+                if (userData) {
+                    appState.telegramUser.id = userData.id;
+                    const firstName = userData.first_name || ''; 
+                    const lastName = userData.last_name || '';
+                    if (firstName || lastName) appState.telegramUser.name = `${firstName} ${lastName}`.trim();
+                    else if (userData.username) appState.telegramUser.name = `@${userData.username}`;
+                    appState.telegramUser.photoUrl = userData.photo_url || null;
+                }
+                tg.expand();
+            } catch (e) { 
+                console.error("Telegram API error on init:", e);
+            }
+            // Referral system initialization and display updates are now handled by onAuthStateChanged
+        }
+        
+        function showMonetagAd() {
+            if (adStatusMessageElement) adStatusMessageElement.textContent = "Loading ad...";
+            startTaskMonetagButton.disabled = true;
+            const adFunction = `show_${appState.monetagConfig.adZone}`;
+
+            if (typeof window[adFunction] === 'function') {
+                window[adFunction]().then(() => {
+                    if (adStatusMessageElement) adStatusMessageElement.textContent = "Ad shown successfully!";
+                    appState.todayStats.monetagTasksCompleted++;
+                    appState.userUSDTBalance += appState.monetagConfig.rewardPerTaskUSD;
+                    updateDisplays();
+                    saveState(); // Save state to LS and Firestore
+                    setTimeout(() => { if (adStatusMessageElement) adStatusMessageElement.textContent = ""; }, 1500);
+                }).catch((error) => {
+                    console.error("Monetag Rewarded Ad error or closed:", error);
+                    if (adStatusMessageElement) adStatusMessageElement.textContent = "Ad could not be shown or was cancelled.";
+                    updateDisplays(); 
+                });
+            } else {
+                 if (adStatusMessageElement) adStatusMessageElement.textContent = `Ad SDK not ready or function not found.`;
+                updateDisplays(); 
+            }
+        }
+
+        if (startTaskMonetagButton) {
+            startTaskMonetagButton.addEventListener('click', function() {
+                if (appState.todayStats.monetagTasksCompleted >= appState.monetagConfig.dailyTaskLimit) {
+                    if (adStatusMessageElement) adStatusMessageElement.textContent = "All tasks for today completed!";
+                    return;
+                }
+                showMonetagAd();
+            });
+        }
+
+        function showScreen(screenId) {
+            // Hide all screens
+            screens.forEach(screen => screen.classList.remove('active'));
+            loginScreen.classList.remove('active');
+            appContainer.style.display = 'none'; // Temporarily hide app container
+
+            // Show the requested screen
+            const activeScreen = document.getElementById(screenId);
+            if (activeScreen) {
+                activeScreen.classList.add('active');
+                if (screenId !== 'loginScreen') {
+                    appContainer.style.display = 'block'; // Show app container for main screens
+                }
+            } else {
+                console.error("Screen not found:", screenId);
+            }
+
+            // Update bottom navigation active state
+            navItems.forEach(item => {
+                item.classList.remove('active');
+                if (item.getAttribute('data-screen') === screenId) item.classList.add('active');
+            });
+
+            // Update displays for content screens
+            if (['earnScreen', 'homeScreen', 'withdrawScreen', 'profileScreen', 'referScreen'].includes(screenId)) {
+                updateDisplays();
+            }
+        }
 
 
-// --- Feature Functions (অপরিবর্তিত) ---
-function showMonetagAd() { /* অপরিবর্তিত */ }
-function startAutoTask() { /* অপরিবর্তিত */ }
-function stopAutoTask() { /* অপরিবর্তিত */ }
-async function processReferralInitiation(actionType) { /* অপরিবর্তিত */ }
-async function submitWithdrawalRequest() { /* অপরিবর্তিত */ }
+        navItems.forEach(item => {
+            item.addEventListener('click', () => {
+                if (auth.currentUser) { // Only allow navigation if logged in
+                    showScreen(item.getAttribute('data-screen'));
+                } else {
+                    alert("Please log in to access this feature.");
+                    showScreen('loginScreen');
+                }
+            });
+        });
 
-// --- Utility and Simulation Functions (অপরিবর্তিত) ---
-function createDefaultAvatar(letter) { /* অপরিবর্তিত */ }
-function startWithdrawalHistoryFeedSimulation() { /* অপরিবর্তিত */ }
+        async function submitWithdrawalRequest() {
+            const methodElement = document.getElementById('withdrawalMethod');
+            const amountElement = document.getElementById('withdrawalAmount');
+            const addressElement = document.getElementById('withdrawalAddress');
+            const method = methodElement.value;
+            const amount = parseFloat(amountElement.value);
+            const address = addressElement.value.trim();
 
-// --- Event Listeners Initialization ---
-function addAllEventListeners() {
-    showLogin.addEventListener('click', showLoginForm);
-    showSignup.addEventListener('click', showSignupForm);
-    loginForm.addEventListener('submit', handleLogin);
-    signupForm.addEventListener('submit', handleSignup);
-    document.getElementById('logoutButton').addEventListener('click', handleLogout);
-    document.getElementById('profileLogoutButton').addEventListener('click', handleLogout);
-    navItems.forEach(item => item.addEventListener('click', () => showScreen(item.dataset.screen)));
-    document.getElementById('startTaskMonetagButton').addEventListener('click', showMonetagAd);
-    document.getElementById('autoTaskCompleteButton').addEventListener('click', startAutoTask);
-    document.getElementById('stopAutoTaskButton').addEventListener('click', stopAutoTask);
-    document.getElementById('submitWithdrawalButton').addEventListener('click', submitWithdrawalRequest);
-    document.getElementById('copyReferralLinkButton').addEventListener('click', () => { navigator.clipboard.writeText(document.getElementById('referralLink').value); processReferralInitiation('copy'); });
-    document.getElementById('shareReferralLinkButton').addEventListener('click', () => { processReferralInitiation('share'); const link = document.getElementById('referralLink').value; window.open(`https://t.me/share/url?url=${encodeURIComponent(link)}`); });
-}
+            if (!method) { alert('Please select a withdrawal method.'); return; }
+            if (isNaN(amount) || amount <= 0) { alert('Please enter a valid withdrawal amount.'); return; }
+            if (!address) { alert('Please enter your account/wallet address.'); return; }
 
-// --- Main Execution Flow ---
-auth.onAuthStateChanged(async (user) => {
-    if (user) {
-        authContainer.style.display = 'none';
-        await fetchAdminConfig();
-        await initializeUserSession(user);
-        // **FIX:** 'block' ব্যবহার করা হয়েছে সঠিক লেআউটের জন্য
-        appContainer.style.display = 'block'; 
-        showScreen('homeScreen');
-    } else {
-        appContainer.style.display = 'none';
-        authContainer.style.display = 'flex';
-        showLoginForm();
-    }
-});
+            let minWithdrawal = 0; let canProceed = false;
+            switch (method) {
+                case 'nagad': case 'bkash': case 'upay': case 'rocket':
+                    minWithdrawal = 20;
+                    if (amount >= minWithdrawal && appState.userUSDTBalance >= amount) canProceed = true;
+                    else if (appState.userUSDTBalance < amount) { alert(`Insufficient balance. Your current balance is ${formatUSDT(appState.userUSDTBalance)} USDT.`); return; }
+                    else { alert(`Minimum withdrawal for ${method} is ${minWithdrawal} USDT.`); return; }
+                    break;
+                case 'webmoney':
+                    minWithdrawal = 5;
+                    if (amount >= minWithdrawal && appState.userUSDTBalance >= amount) canProceed = true;
+                    else if (appState.userUSDTBalance < amount) { alert(`Insufficient balance. Your current balance is ${formatUSDT(appState.userUSDTBalance)} USDT.`); return; }
+                    else { alert(`Minimum withdrawal for ${method} is ${minWithdrawal} USDT.`); return; }
+                    break;
+                case 'other_crypto':
+                    minWithdrawal = 10; 
+                    if (amount >= minWithdrawal && appState.userUSDTBalance >= amount) canProceed = true;
+                    else if (appState.userUSDTBalance < amount) { alert(`Insufficient balance. Your current balance is ${formatUSDT(appState.userUSDTBalance)} USDT.`); return; }
+                    else { alert(`Minimum withdrawal for ${method} is ${minWithdrawal} USDT.`); return; }
+                    break;
+                default: alert('Invalid withdrawal method selected.'); return;
+            }
 
-window.onload = () => {
-    addAllEventListeners();
-    startWithdrawalHistoryFeedSimulation();
-};
+            if (canProceed) {
+                if (confirm(`Confirm withdrawal of ${formatUSDT(amount)} USDT via ${method} to ${address}?`)) {
+                    // Deduct balance locally
+                    appState.userUSDTBalance -= amount;
+                    updateDisplays();
+                    saveState(); // Update Firebase and LocalStorage
 
-// --- All previous functions are here, just collapsed for brevity ---
-// ... (All other functions from the previous correct version are included here without change) ...
-</script>
+                    // Record withdrawal request in Firestore
+                    if (auth.currentUser) {
+                        await db.collection('withdrawalRequests').add({
+                            uid: auth.currentUser.uid,
+                            email: auth.currentUser.email || appState.telegramUser.name || 'N/A',
+                            displayName: auth.currentUser.displayName || appState.telegramUser.name || 'N/A',
+                            method: method,
+                            amount: amount,
+                            address: address,
+                            status: 'Pending', // For admin panel to manage
+                            timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                        }).then(() => {
+                            alert('Withdrawal request submitted successfully! It will be processed soon.');
+                            // Clear form fields
+                            methodElement.value = '';
+                            amountElement.value = '';
+                            addressElement.value = '';
+                        }).catch(error => {
+                            console.error("Error submitting withdrawal request:", error);
+                            alert('Failed to submit withdrawal request. Please try again.');
+                            // Revert balance if Firestore update fails
+                            appState.userUSDTBalance += amount;
+                            updateDisplays();
+                            saveState();
+                        });
+                    } else {
+                        alert("You must be logged in to submit a withdrawal request.");
+                        appState.userUSDTBalance += amount; // Revert balance if not logged in
+                        updateDisplays();
+                    }
+                }
+            }
+        }
+
+
+        const MAX_HISTORY_ITEMS_DISPLAY = 4;
+        const UPDATE_HISTORY_INTERVAL = 3200;
+
+        function generateMaskedPhoneNumber() { 
+            const prefixes = ["013", "014", "015", "016", "017", "018", "019"];
+            let number = prefixes[Math.floor(Math.random() * prefixes.length)];
+            for (let i = 0; i < 8; i++) { 
+                number += Math.floor(Math.random() * 10);
+            }
+            return `${number.substring(0, 5)}***${number.substring(8)}`; 
+        }
+        function generateRandomWithdrawAmount() { 
+             const amounts = [5.12, 10.78, 22.30, 7.05, 15.50, 28.90, 8.15, 51.25, 12.84, 33.40, 5.01, 20.00];
+            return amounts[Math.floor(Math.random() * amounts.length)];
+        }
+        function addWithdrawalHistoryItemToDOM() { 
+            if (!withdrawalHistoryListElement) return;
+            const phone = generateMaskedPhoneNumber();
+            const amount = generateRandomWithdrawAmount();
+            const listItem = document.createElement('li');
+            listItem.innerHTML = `
+                <span class="phone-number">${phone}</span>
+                <span class="amount">${formatUSDT(amount)} USDT</span>
+                <span class="status-success">✓ Success</span>
+            `;
+            if (withdrawalHistoryListElement.firstChild) {
+                withdrawalHistoryListElement.insertBefore(listItem, withdrawalHistoryListElement.firstChild);
+            } else {
+                withdrawalHistoryListElement.appendChild(listItem);
+            }
+            while (withdrawalHistoryListElement.children.length > MAX_HISTORY_ITEMS_DISPLAY) {
+                withdrawalHistoryListElement.removeChild(withdrawalHistoryListElement.lastChild);
+            }
+        }
+        let historyFeedInterval;
+        function startWithdrawalHistoryFeedSimulation() {
+             if (withdrawalHistoryListElement) {
+                withdrawalHistoryListElement.innerHTML = '';
+                for (let i = 0; i < MAX_HISTORY_ITEMS_DISPLAY; i++) {
+                    setTimeout(addWithdrawalHistoryItemToDOM, i * 400); 
+                }
+                if (historyFeedInterval) clearInterval(historyFeedInterval); 
+                historyFeedInterval = setInterval(addWithdrawalHistoryItemToDOM, UPDATE_HISTORY_INTERVAL);
+            }
+        }
+
+        function processReferralInitiation(actionType = "share") {
+            if (appState.processingShareReward) {
+                if(copyStatusMessageElement) copyStatusMessageElement.textContent = "Reward processing, please wait...";
+                setTimeout(() => { if(copyStatusMessageElement) copyStatusMessageElement.textContent = ""; }, 2000);
+                return; 
+            }
+
+            appState.referralData.totalReferralsInitiated++; 
+            let initialMessage = "";
+            if (actionType === "copy") {
+                initialMessage = `Link Copied! Processing reward...`;
+            } else { 
+                initialMessage = `Sharing... Processing reward...`;
+            }
+            if(copyStatusMessageElement) copyStatusMessageElement.textContent = initialMessage;
+            
+            appState.processingShareReward = true;
+            if(copyReferralLinkButton) copyReferralLinkButton.disabled = true;
+            if(shareReferralLinkButton) shareReferralLinkButton.disabled = true;
+
+            setTimeout(() => {
+                let finalMessage = "";
+                if (appState.todayStats.referralSharesToday < MAX_PAID_SHARES_PER_DAY) {
+                    appState.todayStats.referralSharesToday++;
+                    const rewardAmount = REWARD_PER_REFERRAL_INITIATION_USDT;
+                    appState.referralData.usdtEarnedFromReferrals += rewardAmount;
+                    appState.userUSDTBalance += rewardAmount; 
+                    
+                    finalMessage = `+$${rewardAmount.toFixed(2)} Earned! (${appState.todayStats.referralSharesToday}/${MAX_PAID_SHARES_PER_DAY} today)`;
+                } else {
+                    finalMessage = `Daily share reward limit reached. No reward this time.`;
+                }
+                
+                if(copyStatusMessageElement) copyStatusMessageElement.textContent = finalMessage;
+                setTimeout(() => { if(copyStatusMessageElement) copyStatusMessageElement.textContent = ""; }, 3500);
+
+                appState.processingShareReward = false; 
+                if(copyReferralLinkButton) copyReferralLinkButton.disabled = false;
+                if(shareReferralLinkButton) shareReferralLinkButton.disabled = false;
+
+                updateDisplays();
+                saveState(); // Save state to LS and Firestore
+
+            }, SHARE_REWARD_DELAY_MS); 
+        }
+
+        if (copyReferralLinkButton && referralLinkElement) {
+            copyReferralLinkButton.addEventListener('click', () => {
+                referralLinkElement.select();
+                referralLinkElement.setSelectionRange(0, 99999);
+                try {
+                    let successful = document.execCommand('copy');
+                    if (successful) {
+                        processReferralInitiation("copy");
+                    } else {
+                         if(copyStatusMessageElement) copyStatusMessageElement.textContent = "Copy failed.";
+                         setTimeout(() => { if(copyStatusMessageElement) copyStatusMessageElement.textContent = ""; }, 2500);
+                    }
+                } catch (err) {
+                    navigator.clipboard.writeText(appState.referralData.referralLink).then(() => {
+                        processReferralInitiation("copy");
+                    }).catch(err => {
+                        if(copyStatusMessageElement) copyStatusMessageElement.textContent = "Failed to copy.";
+                        setTimeout(() => { if(copyStatusMessageElement) copyStatusMessageElement.textContent = ""; }, 2500);
+                        console.error('Failed to copy link: ', err);
+                    });
+                }
+            });
+        }
+
+        if (shareReferralLinkButton) {
+            shareReferralLinkButton.addEventListener('click', () => {
+                processReferralInitiation("share"); 
+                
+                const linkToShare = appState.referralData.referralLink;
+                const shareText = `Hi! I'm using this great app. Join with my link and earn rewards: ${linkToShare}`;
+                const telegramShareUrl = `https://t.me/share/url?url=${encodeURIComponent(linkToShare)}&text=${encodeURIComponent(shareText)}`;
+                
+                window.open(telegramShareUrl, '_blank');
+            });
+        }
+        
+        window.onload = function() {
+            loadState(); // Load initial state from LocalStorage (will be overridden by Firebase)
+            loadTelegramUserData(); // Load Telegram WebApp data if available
+            // onAuthStateChanged will determine whether to show login or home screen
+            
+            setTimeout(() => { 
+                const adFunction = `show_${appState.monetagConfig.adZone}`;
+                if (typeof window[adFunction] === 'function') {
+                    console.log(`Monetag Ad function '${adFunction}' is available.`);
+                } else {
+                    console.warn(`Monetag Ad function '${adFunction}' is NOT available. SDK issues may persist.`);
+                }
+            }, 2500);
+
+            startWithdrawalHistoryFeedSimulation();
+        };
+    </script>
 </body>
 </html>
