@@ -1,10 +1,9 @@
-<!-- user-app.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>App (Referral Fix, Withdrawal History)</title>
+    <title>App (Withdrawal History & Admin Message Fix)</title>
     <style>
         body {
             font-family: 'Helvetica Neue', Arial, sans-serif;
@@ -154,9 +153,16 @@
         .withdrawal-list li:last-child { border-bottom: none; }
         .withdrawal-list .phone-number { color: #cccccc; flex-basis: 50%; }
         .withdrawal-list .amount { color: #34c759; font-weight: bold; flex-basis: 35%; text-align: right; }
-        .withdrawal-list .status-success { color: #34c759; margin-left: 5px; font-size: 12px; flex-basis: 15%; text-align: right; }
+        .withdrawal-list .status-badge {
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: bold;
+        }
+        .status-pending { background-color: rgba(255, 204, 0, 0.2); color: #ffcc00; }
+        .status-approved { background-color: rgba(52, 199, 89, 0.2); color: #34c759; }
+        .status-rejected { background-color: rgba(255, 59, 48, 0.2); color: #ff3b30; }
         @keyframes fadeInSlideUp { to { opacity: 1; transform: translateY(0); } }
-        /* New CSS for Blocked Popup Modal */
         .modal {
             display: none;
             position: fixed;
@@ -224,7 +230,6 @@
             background-color: #0077b3;
         }
         .hidden { display: none !important; }
-        /* --- New Styles for Admin Message Box --- */
         .admin-message-box {
             background-color: #1c1c1e;
             color: #ffffff;
@@ -233,6 +238,8 @@
             margin-bottom: 15px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.2);
             text-align: center;
+            overflow: hidden;
+            position: relative;
         }
         .admin-message-box h3 {
             margin-top: 0;
@@ -242,12 +249,16 @@
             border-bottom: 1px solid #3a3a3c;
             padding-bottom: 8px;
         }
-        .admin-message-box marquee {
-            font-size: 14px;
-            color: #ffffff;
+        .admin-message-marquee {
+            white-space: nowrap;
+            display: inline-block;
+            animation: marqueeScroll 20s linear infinite;
+            padding-left: 100%;
         }
-        /* --- End New Styles --- */
-        /* --- New Styles for Withdrawal History Modal --- */
+        @keyframes marqueeScroll {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-100%); }
+        }
         .withdrawal-history-modal .modal-content {
              max-width: 90%;
              padding: 0;
@@ -316,17 +327,14 @@
             color: #777;
             font-style: italic;
         }
-        /* --- End New Styles --- */
     </style>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src='//solseewuthi.net/sdk.js' data-zone='9344336' data-sdk='show_9344336' async></script>
-    <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 </head>
 <body>
     <div class="app-container">
-        <!-- New Blocked Popup Modal - Only visible when user is blocked -->
         <div id="blockedModal" class="modal">
           <div class="modal-content">
             <span class="close">&times;</span>
@@ -338,7 +346,6 @@
           </div>
         </div>
         
-        <!-- --- New Withdrawal History Modal --- -->
         <div id="withdrawalHistoryModal" class="modal withdrawal-history-modal">
           <div class="modal-content">
             <div class="modal-header">
@@ -362,7 +369,6 @@
             </div>
           </div>
         </div>
-        <!-- --- End New Modal --- -->
         
         <div id="homeScreen" class="screen active">
             <div class="app-header">
@@ -381,12 +387,11 @@
                 <div id="profileSummaryUserBalance" class="user-balance-profile">Balance: 0.0000 USDT</div>
             </div>
             <div class="content-padding">
-                <!-- New Admin Message Box -->
                 <div id="adminMessageBox" class="admin-message-box hidden">
                     <h3>Important Notice</h3>
-                    <marquee id="adminMessageText" behavior="scroll" direction="left" scrollamount="5">
+                    <div class="admin-message-marquee" id="adminMessageText">
                         <!-- Message will be loaded from Firebase -->
-                    </marquee>
+                    </div>
                 </div>
                 <div class="info-card">
                     <h3>Today's Tasks (Overall Summary)</h3>
@@ -529,7 +534,6 @@
         <div class="nav-item" data-screen="profileScreen"> <div class="icon">👤</div> <div>Profile</div> </div>
     </div>
     <script>
-        // Firebase Config
         const firebaseConfig = {
             apiKey: "AIzaSyD3BGZ0MVLpbQbIpLUAnYvWNEIyk7Y6S0Q",
             authDomain: "earning-app-80258.firebaseapp.com",
@@ -539,12 +543,11 @@
             messagingSenderId: "25930019210",
             appId: "1:25930019210:web:6441562811d3e7e9631873"
         };
-        // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
-        const APP_VERSION = "2.1.6"; // Incremented for referral fix and withdrawal history
+        const APP_VERSION = "2.2.0";
         const LS_KEY_APP_STATE = `monetagAppUserState_v${APP_VERSION}`;
-        const REWARD_PER_SUCCESSFUL_REFERRAL_USDT = 0.01; // Bonus for successful referral signup
+        const REWARD_PER_SUCCESSFUL_REFERRAL_USDT = 0.01;
         const navItems = document.querySelectorAll('.bottom-nav .nav-item');
         const screens = document.querySelectorAll('.app-container .screen');
         const headerUserAvatarElement = document.getElementById('headerUserAvatar');
@@ -576,18 +579,14 @@
         const totalReferralsCountElement = document.getElementById('totalReferralsCount');
         const successfulReferralsCountElement = document.getElementById('successfulReferralsCount');
         const referralUsdtEarnedElement = document.getElementById('referralUsdtEarned');
-        // New: Get the modals and close buttons
         const blockedModal = document.getElementById("blockedModal");
         const spanClose = document.getElementsByClassName("close")[0];
-        // --- New: Get withdrawal history modal elements ---
         const withdrawalHistoryModal = document.getElementById("withdrawalHistoryModal");
         const closeWithdrawalHistoryModal = document.getElementById("closeWithdrawalHistoryModal");
         const openWithdrawalHistoryBtn = document.getElementById("openWithdrawalHistoryBtn");
         const withdrawalHistoryModalBody = document.getElementById("withdrawalHistoryModalBody");
-        // --- New: Get admin message elements ---
         const adminMessageBox = document.getElementById('adminMessageBox');
         const adminMessageText = document.getElementById('adminMessageText');
-        // --- New: Get the submit withdrawal button ---
         const submitWithdrawalRequestBtn = document.getElementById('submitWithdrawalRequestBtn');
 
         let appState = {
@@ -595,7 +594,7 @@
             monetagConfig: {
                 dailyTaskLimit: 1000,
                 rewardPerTaskUSD: 0.0006,
-                adZone: '9344336' // Default, will be loaded from Firebase
+                adZone: '9344336'
             },
             todayStats: {
                 date: new Date().toDateString(),
@@ -611,14 +610,12 @@
             },
             processingShareReward: false,
             isBlocked: false,
-            // --- Track latest withdrawal request ID to manage button state ---
             latestWithdrawalRequestId: null
         };
         let autoTaskInterval = null;
         let userId = null;
         let userRef = null;
 
-        // When the user clicks on <span> (x), close the modal
         spanClose.onclick = function() {
             if (appState.isBlocked) {
                 alert("Your account is blocked. Please contact support.");
@@ -627,7 +624,6 @@
             blockedModal.style.display = "none";
         }
 
-        // When the user clicks anywhere outside of the modal, close it (only if not blocked)
         window.onclick = function(event) {
             if (event.target == blockedModal) {
                 if (appState.isBlocked) {
@@ -636,24 +632,20 @@
                 }
                 blockedModal.style.display = "none";
             }
-            // --- Close withdrawal history modal if clicked outside ---
             if (event.target == withdrawalHistoryModal) {
                  withdrawalHistoryModal.style.display = "none";
             }
         }
 
-        // --- Handle closing the withdrawal history modal ---
         closeWithdrawalHistoryModal.onclick = function() {
             withdrawalHistoryModal.style.display = "none";
         }
         
-        // --- Open withdrawal history modal ---
         openWithdrawalHistoryBtn.onclick = function() {
             loadWithdrawalHistoryForModal();
             withdrawalHistoryModal.style.display = "block";
         }
 
-        // Save to Firebase
         function saveState() {
             if (!userId) return;
             try {
@@ -670,23 +662,19 @@
             }
         }
 
-        // Load from Firebase
         function loadState() {
             try {
                 const tg = window.Telegram?.WebApp;
                 userId = tg?.initDataUnsafe?.user?.id?.toString();
                 if (userId) {
                     userRef = database.ref('users/' + userId);
-                    // --- Listen for real-time changes to the user's data, including isBlocked ---
                     userRef.on('value', (snapshot) => {
                         const data = snapshot.val();
                         if (data) {
                             console.log("Loading user data from Firebase...");
                             mergeState(data);
                             updateDisplays();
-                            saveState(); // Update Firebase with lastSeen etc.
-                            
-                            // Check withdrawal button state whenever user data loads/updates
+                            saveState();
                             checkWithdrawalButtonState();
                         } else {
                             console.log("No existing data found in Firebase for this user. Initializing...");
@@ -729,7 +717,6 @@
             });
         }
 
-        // --- Updated Grant Referral Bonus to record in a separate node --- //
         function grantReferralBonus(referrerId, newUserTelegramId) {
             if (!referrerId || !newUserTelegramId) return;
             console.log(`Attempting to grant bonus to referrer: ${referrerId} for new user: ${newUserTelegramId}`);
@@ -770,11 +757,10 @@
 
         function setupBlockingListener() {
              if (!userRef) return;
-             // Listen specifically for changes to the 'isBlocked' field
              userRef.child('isBlocked').on('value', (snapshot) => {
                  const isBlocked = snapshot.val() || false;
                  appState.isBlocked = isBlocked;
-                 updateDisplays(); // This will show/hide the modal
+                 updateDisplays();
                  console.log("User blocking status updated:", isBlocked);
              });
         }
@@ -808,16 +794,13 @@
                 };
             }
             appState.processingShareReward = false;
-            // Load block status
             appState.isBlocked = data.isBlocked || false;
-            // Load monetag config if available
             if (data.monetagConfig) {
                  appState.monetagConfig = {
                      ...appState.monetagConfig,
                      ...data.monetagConfig
                  };
             }
-            // --- Load latest withdrawal request ID ---
             appState.latestWithdrawalRequestId = data.latestWithdrawalRequestId || null;
         }
 
@@ -853,14 +836,12 @@
         function formatUSDT(amount) { return parseFloat(amount).toFixed(4); }
 
         function updateDisplays() {
-            // Check block status and show appropriate modal
             if (appState.isBlocked) {
-                blockedModal.style.display = "block"; // Show modal if blocked
+                blockedModal.style.display = "block";
             } else {
-                blockedModal.style.display = "none"; // Hide modal if not blocked
+                blockedModal.style.display = "none";
             }
 
-            // Update UI elements for non-blocked users (or all users if modal doesn't block interaction)
             const formattedBalance = formatUSDT(appState.userUSDTBalance) + " USDT";
             if (profileSummaryUserBalanceElement) profileSummaryUserBalanceElement.textContent = "Balance: " + formattedBalance;
             if (profileTabUserBalanceElement) profileTabUserBalanceElement.textContent = formatUSDT(appState.userUSDTBalance);
@@ -919,7 +900,7 @@
         function updateWithdrawalHistoryFromFirebase() {
             const userId = appState.telegramUser?.id;
             if (!userId) return;
-            database.ref(`withdrawals/${userId}`).orderByChild('timestamp').limitToLast(10)
+            database.ref(`withdrawals/${userId}`).orderByChild('timestamp').limitToLast(5)
                 .on('value', (snapshot) => {
                     const withdrawalHistoryListElement = document.getElementById('withdrawalHistoryList');
                     if (!withdrawalHistoryListElement) return;
@@ -932,12 +913,12 @@
                             const amount = parseFloat(request.amount);
                             let statusText = "";
                             let statusClass = "";
-                            if (request.status === 'approved') {
+                            if (request.status === 'approved' || request.status === 'success') {
                                 statusText = "✓ Success";
-                                statusClass = "status-success";
+                                statusClass = "status-approved";
                             } else if (request.status === 'rejected') {
                                 statusText = "✗ Failed";
-                                statusClass = "status-failed";
+                                statusClass = "status-rejected";
                             } else {
                                 statusText = "⏳ Pending";
                                 statusClass = "status-pending";
@@ -946,7 +927,7 @@
                             listItem.innerHTML = `
                                 <span class="phone-number">${phone}</span>
                                 <span class="amount">${formatUSDT(amount)} USDT</span>
-                                <span class="${statusClass}">${statusText}</span>
+                                <span class="status-badge ${statusClass}">${statusText}</span>
                             `;
                             withdrawalHistoryListElement.appendChild(listItem);
                         });
@@ -962,7 +943,15 @@
                 });
         }
 
-        // --- Load Withdrawal History for Modal --- //
+        function generateMaskedPhoneNumber() {
+            const prefixes = ["013", "014", "015", "016", "017", "018", "019"];
+            let number = prefixes[Math.floor(Math.random() * prefixes.length)];
+            for (let i = 0; i < 8; i++) {
+                number += Math.floor(Math.random() * 10);
+            }
+            return `${number.substring(0, 5)}***${number.substring(8)}`;
+        }
+
         function loadWithdrawalHistoryForModal() {
             const userId = appState.telegramUser?.id;
             if (!userId) {
@@ -981,7 +970,6 @@
                         return;
                     }
                     
-                    // Convert to array and sort by timestamp descending
                     const withdrawals = Object.entries(data)
                         .map(([id, details]) => ({ id, ...details }))
                         .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
@@ -993,7 +981,7 @@
                         let statusClass = 'status-pending';
                         let statusText = 'Pending';
                         
-                        if (request.status === 'approved') {
+                        if (request.status === 'approved' || request.status === 'success') {
                             statusClass = 'status-approved';
                             statusText = 'Approved';
                         } else if (request.status === 'rejected') {
@@ -1017,14 +1005,13 @@
                 });
         }
 
-        // --- Updated Listen for Admin Message --- //
         function listenForAdminMessage() {
             const adminMessageRef = database.ref('adminMessage');
             adminMessageRef.on('value', (snapshot) => {
                 const data = snapshot.val();
                 console.log("Admin message data received:", data);
                 if (data && data.text) {
-                    adminMessageText.textContent = data.text;
+                    adminMessageText.innerHTML = data.text;
                     adminMessageBox.classList.remove('hidden');
                     console.log("Admin message displayed");
                 } else {
@@ -1034,21 +1021,6 @@
             }, (error) => {
                 console.error("Error fetching admin message:", error);
                 adminMessageBox.classList.add('hidden');
-            });
-        }
-
-        // --- New Function: Listen for App Settings (like Ad Zone) --- //
-        function listenForAppSettings() {
-            const appSettingsRef = database.ref('appSettings');
-            appSettingsRef.on('value', (snapshot) => {
-                const data = snapshot.val();
-                console.log("App settings data received:", data);
-                if (data && data.adZoneId) {
-                    appState.monetagConfig.adZone = data.adZoneId;
-                    console.log("Ad Zone ID updated to:", data.adZoneId);
-                }
-            }, (error) => {
-                console.error("Error fetching app settings:", error);
             });
         }
 
@@ -1166,41 +1138,31 @@
             item.addEventListener('click', () => showScreen(item.getAttribute('data-screen')));
         });
 
-        // --- Check Withdrawal Button State based on latest request --- //
         function checkWithdrawalButtonState() {
              if (appState.latestWithdrawalRequestId && submitWithdrawalRequestBtn) {
-                  // Check status of the latest request
                   const withdrawalRequestRef = database.ref(`withdrawals/${userId}/${appState.latestWithdrawalRequestId}`);
                   withdrawalRequestRef.once('value').then(snapshot => {
                        const requestData = snapshot.val();
-                       if (requestData && (requestData.status === 'pending')) {
-                            // If there's a pending request, disable the button
+                       if (requestData && (requestData.status === 'pending' || requestData.status === 'processing')) {
                             submitWithdrawalRequestBtn.disabled = true;
                             submitWithdrawalRequestBtn.textContent = "Withdrawal Pending";
                        } else {
-                            // If request is approved/rejected or not found, enable the button
                             submitWithdrawalRequestBtn.disabled = false;
                             submitWithdrawalRequestBtn.textContent = "Submit Withdrawal";
-                            // Clear the tracked request ID as it's resolved
-                            if (requestData) { // Only clear if we confirmed it was resolved
-                                 appState.latestWithdrawalRequestId = null;
-                                 saveState();
-                            }
+                            appState.latestWithdrawalRequestId = null;
+                            saveState();
                        }
                   }).catch(err => {
                        console.error("Error checking latest withdrawal status:", err);
-                       // On error, assume it's safe to enable the button
                        submitWithdrawalRequestBtn.disabled = false;
                        submitWithdrawalRequestBtn.textContent = "Submit Withdrawal";
                   });
              } else if (submitWithdrawalRequestBtn) {
-                  // If no tracked request, enable the button
                   submitWithdrawalRequestBtn.disabled = false;
                   submitWithdrawalRequestBtn.textContent = "Submit Withdrawal";
              }
         }
 
-        // --- Modified Submit Withdrawal Request Function ---
         function submitWithdrawalRequest() {
             const methodElement = document.getElementById('withdrawalMethod');
             const amountElement = document.getElementById('withdrawalAmount');
@@ -1238,36 +1200,32 @@
             }
         }
 
-        // --- Updated Submit Withdrawal Request to Firebase ---
         function submitWithdrawalRequestToFirebase(method, amount, address) {
             const userId = appState.telegramUser?.id;
             if (!userId) {
                  alert("Error: User ID not found. Please try again after reloading.");
                  return;
             }
-            const requestId = 'req_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5); // Generate unique ID
+            const requestId = 'req_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5);
             const requestData = {
                 userId: userId,
                 amount: amount,
                 method: method,
                 address: address,
                 timestamp: new Date().toISOString(),
-                status: 'pending' // Initial status
+                status: 'pending'
             };
             database.ref(`withdrawals/${userId}/${requestId}`).set(requestData)
                 .then(() => {
-                    // Update appState with the new request ID
                     appState.latestWithdrawalRequestId = requestId;
-                    // Deduct balance from user's account
                     appState.userUSDTBalance -= amount;
-                    saveState(); // Save updated state (including latestWithdrawalRequestId) to Firebase
+                    saveState();
                     alert(`Withdrawal Request Submitted Successfully!
 Request ID: ${requestId}
 Amount: ${formatUSDT(amount)} USDT
 Method: ${method}
 Address: ${address}`);
                     
-                    // Disable the submit button and change text
                     if(submitWithdrawalRequestBtn) {
                          submitWithdrawalRequestBtn.disabled = true;
                          submitWithdrawalRequestBtn.textContent = "Withdrawal Pending";
@@ -1279,56 +1237,6 @@ Address: ${address}`);
                     console.error("Error submitting withdrawal request:", error);
                     alert("Failed to submit withdrawal request. Please try again.");
                 });
-        }
-
-        const MAX_HISTORY_ITEMS_DISPLAY = 4;
-        const UPDATE_HISTORY_INTERVAL = 3200;
-
-        function generateMaskedPhoneNumber() {
-            const prefixes = ["013", "014", "015", "016", "017", "018", "019"];
-            let number = prefixes[Math.floor(Math.random() * prefixes.length)];
-            for (let i = 0; i < 8; i++) {
-                number += Math.floor(Math.random() * 10);
-            }
-            return `${number.substring(0, 5)}***${number.substring(8)}`;
-        }
-
-        function generateRandomWithdrawAmount() {
-             const amounts = [5.12, 10.78, 22.30, 7.05, 15.50, 28.90, 8.15, 51.25, 12.84, 33.40, 5.01, 20.00];
-            return amounts[Math.floor(Math.random() * amounts.length)];
-        }
-
-        function addWithdrawalHistoryItemToDOM() {
-            if (!withdrawalHistoryListElement) return;
-            const phone = generateMaskedPhoneNumber();
-            const amount = generateRandomWithdrawAmount();
-            const listItem = document.createElement('li');
-            listItem.innerHTML = `
-                <span class="phone-number">${phone}</span>
-                <span class="amount">${formatUSDT(amount)} USDT</span>
-                <span class="status-success">✓ Success</span>
-            `;
-            if (withdrawalHistoryListElement.firstChild) {
-                withdrawalHistoryListElement.insertBefore(listItem, withdrawalHistoryListElement.firstChild);
-            } else {
-                withdrawalHistoryListElement.appendChild(listItem);
-            }
-            while (withdrawalHistoryListElement.children.length > MAX_HISTORY_ITEMS_DISPLAY) {
-                withdrawalHistoryListElement.removeChild(withdrawalHistoryListElement.lastChild);
-            }
-        }
-
-        let historyFeedInterval;
-
-        function startWithdrawalHistoryFeedSimulation() {
-             if (withdrawalHistoryListElement) {
-                withdrawalHistoryListElement.innerHTML = '';
-                for (let i = 0; i < MAX_HISTORY_ITEMS_DISPLAY; i++) {
-                    setTimeout(addWithdrawalHistoryItemToDOM, i * 400);
-                }
-                if (historyFeedInterval) clearInterval(historyFeedInterval);
-                historyFeedInterval = setInterval(addWithdrawalHistoryItemToDOM, UPDATE_HISTORY_INTERVAL);
-            }
         }
 
         function processReferralInitiation(actionType = "share") {
@@ -1381,7 +1289,6 @@ Address: ${address}`);
             });
         }
         
-        // --- Attach event listener to the new submit button ---
         if (submitWithdrawalRequestBtn) {
             submitWithdrawalRequestBtn.addEventListener('click', submitWithdrawalRequest);
         }
@@ -1389,9 +1296,7 @@ Address: ${address}`);
         window.onload = function() {
             loadState();
             listenForAdminMessage();
-            listenForAppSettings();
              showScreen('homeScreen');
-             startWithdrawalHistoryFeedSimulation();
             setTimeout(() => {
                 const adFunction = `show_${appState.monetagConfig.adZone}`;
                 if (typeof window[adFunction] === 'function') {
