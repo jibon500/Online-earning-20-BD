@@ -228,8 +228,8 @@
         }
         .hidden { display: none !important; } /* Utility class for hiding elements */
 
-        /* New styles for Salman Message Box */
-        .salman-message-box {
+        /* New styles for Admin Message Box */
+        .admin-message-box {
             background-color: #1c1c1e;
             color: #ffffff;
             border-radius: 10px;
@@ -238,7 +238,7 @@
             box-shadow: 0 2px 5px rgba(0,0,0,0.2);
             text-align: center;
         }
-        .salman-message-box h3 {
+        .admin-message-box h3 {
             margin-top: 0;
             margin-bottom: 12px;
             font-size: 17px;
@@ -246,7 +246,7 @@
             border-bottom: 1px solid #3a3a3c;
             padding-bottom: 8px;
         }
-        .salman-message-box marquee {
+        .admin-message-box marquee {
             font-size: 14px;
             color: #ffffff; /* White color for the message text */
         }
@@ -287,11 +287,11 @@
                 <div id="profileSummaryUserBalance" class="user-balance-profile">Balance: 0.0000 USDT</div>
             </div>
             <div class="content-padding">
-                <!-- New Salman Message Box -->
-                <div class="salman-message-box">
+                <!-- New Admin Message Box -->
+                <div id="adminMessageBox" class="admin-message-box hidden">
                     <h3>Important Notice</h3>
-                    <marquee behavior="scroll" direction="left" scrollamount="5">
-                        সকল ইউজারদের অবগতির জন্য জানানো যাচ্ছে যে আমাদের এপ্লিকেশনে কোন ধরনের বাগ বা সমস্যা হলে অবশ্যই কন্টাক্ট করবেন। আমাদের সাপোর্ট টিম সবসময় একটিভ।
+                    <marquee id="adminMessageText" behavior="scroll" direction="left" scrollamount="5">
+                        <!-- Message will be loaded from Firebase -->
                     </marquee>
                 </div>
                 <div class="info-card">
@@ -485,6 +485,9 @@
         // New: Get the modal and close button
         const blockedModal = document.getElementById("blockedModal");
         const spanClose = document.getElementsByClassName("close")[0];
+        // New: Get admin message elements
+        const adminMessageBox = document.getElementById('adminMessageBox');
+        const adminMessageText = document.getElementById('adminMessageText');
         let appState = {
             userUSDTBalance: 0.0,
             monetagConfig: {
@@ -823,6 +826,25 @@
                     }
                 });
         }
+        // --- New Function: Listen for Admin Message ---
+        function listenForAdminMessage() {
+            const adminMessageRef = database.ref('admin_message');
+            adminMessageRef.on('value', (snapshot) => {
+                const data = snapshot.val();
+                if (data && data.message && data.isActive) {
+                    // Display the message
+                    adminMessageText.textContent = data.message;
+                    adminMessageBox.classList.remove('hidden');
+                } else {
+                    // Hide the message box if no message or inactive
+                    adminMessageBox.classList.add('hidden');
+                }
+            }, (error) => {
+                console.error("Error fetching admin message:", error);
+                // Hide the message box on error as well
+                adminMessageBox.classList.add('hidden');
+            });
+        }
         function loadTelegramUserData() {
             try {
                 const tg = window.Telegram.WebApp;
@@ -1117,6 +1139,8 @@ Address: ${address}`);
         }
         window.onload = function() {
             loadState();
+            // --- New: Start listening for admin messages ---
+            listenForAdminMessage();
             // loadTelegramUserData(); // Loading is handled by loadState now
             // Check block status is handled in updateDisplays now
              showScreen('homeScreen'); // Otherwise, show home screen
