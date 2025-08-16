@@ -353,8 +353,7 @@
                 </div>
                 <div class="info-card">
                     <h3>Referral Program Details</h3>
-                    <p class="referral-details-text">Each time you share or copy your referral link, you can earn <strong>$0.1 USDT</strong> (1 cents)! This reward will be added <strong>1 minute after</strong> sharing/copying.</p>
-                    <p class="referral-details-text">You can earn this reward for up to <strong>5 shares/copies per day</strong>.</p>
+                    <p class="referral-details-text">Share your referral link. You will earn a <strong>$0.05 USDT</strong> bonus when someone successfully signs up using your link!</p>
                     <p class="referral-details-text">There are <strong>30 referral levels</strong>. Unlock additional rewards and bonuses based on your activity.</p>
                 </div>
             </div>
@@ -446,11 +445,9 @@
         // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
-        const APP_VERSION = "2.0.5"; // Incremented for persistent data & improved referral/blocking
+        const APP_VERSION = "2.0.6"; // Incremented for referral and admin message fixes
         const LS_KEY_APP_STATE = `monetagAppUserState_v${APP_VERSION}`;
-        const REWARD_PER_REFERRAL_INITIATION_USDT = 0.10;
-        const MAX_PAID_SHARES_PER_DAY = 5;
-        const SHARE_REWARD_DELAY_MS = 60000; // 60000 milliseconds = 1 minute
+        const REWARD_PER_SUCCESSFUL_REFERRAL_USDT = 0.05; // Bonus for successful referral signup
         const navItems = document.querySelectorAll('.bottom-nav .nav-item');
         const screens = document.querySelectorAll('.app-container .screen');
         const headerUserAvatarElement = document.getElementById('headerUserAvatar');
@@ -488,6 +485,7 @@
         // New: Get admin message elements
         const adminMessageBox = document.getElementById('adminMessageBox');
         const adminMessageText = document.getElementById('adminMessageText');
+
         let appState = {
             userUSDTBalance: 0.0,
             monetagConfig: {
@@ -498,14 +496,14 @@
             todayStats: {
                 date: new Date().toDateString(),
                 monetagTasksCompleted: 0,
-                referralSharesToday: 0
+                // referralSharesToday is removed as it's not used for the new logic
             },
             telegramUser: { id: null, name: null, photoUrl: null, phoneNumber: null },
             referralData: {
                 userIdForReferral: null,
                 referralLink: '',
-                totalReferralsInitiated: 0,
-                usdtEarnedFromReferrals: 0.0
+                totalReferralsInitiated: 0, // Tracks link copies/shares
+                usdtEarnedFromReferrals: 0.0 // Tracks bonuses from successful signups
             },
             processingShareReward: false,
             isBlocked: false // New property to track block status
@@ -513,6 +511,7 @@
         let autoTaskInterval = null;
         let userId = null; // Store Telegram User ID
         let userRef = null; // Reference to the user's node in Firebase
+
         // When the user clicks on <span> (x), close the modal
         spanClose.onclick = function() {
             // Do not allow closing the modal if user is blocked
@@ -522,6 +521,7 @@
             }
             blockedModal.style.display = "none";
         }
+
         // When the user clicks anywhere outside of the modal, close it (only if not blocked)
         window.onclick = function(event) {
             if (event.target == blockedModal) {
@@ -533,6 +533,7 @@
                 blockedModal.style.display = "none";
             }
         }
+
         // Save to Firebase (and optionally localStorage for backup)
         function saveState() {
             if (!userId) return; // Don't save if no user ID
@@ -552,6 +553,7 @@
                 console.error("Error saving state:", e);
             }
         }
+
         // Load from Firebase or localStorage
         function loadState() {
             try {
@@ -559,7 +561,7 @@
                 userId = tg?.initDataUnsafe?.user?.id?.toString(); // Ensure it's a string
                 if (userId) {
                     userRef = database.ref('users/' + userId); // Get reference to user's node
-                    // --- New: Listen for real-time changes to the user's data, including isBlocked ---
+                    // --- Listen for real-time changes to the user's data, including isBlocked ---
                     userRef.on('value', (snapshot) => {
                         const data = snapshot.val();
                         if (data) {
@@ -574,19 +576,15 @@
                         }
                     }, (error) => {
                         console.error("Firebase load error:", error);
-                        // Fallback to localStorage if Firebase fails completely?
-                        // loadFromLocalStorageFallback();
                     });
                 } else {
                     console.warn("No Telegram User ID found. Cannot load user data.");
-                    // Handle case where Telegram ID is not available?
-                    // loadFromLocalStorageFallback();
                 }
             } catch (e) {
                 console.error("Error during loadState:", e);
-                // loadFromLocalStorageFallback();
             }
         }
+
         // --- New Function: Initialize new user data in Firebase ---
         function initializeNewUserInFirebase() {
             if (!userId || !userRef) return;
@@ -617,6 +615,7 @@
                 console.error("Error initializing new user in Firebase:", err);
             });
         }
+
         // --- New Function: Grant Referral Bonus to Referrer ---
         function grantReferralBonus(referrerId, newUserTelegramId) {
             if (!referrerId || !newUserTelegramId) return;
@@ -627,21 +626,19 @@
                     console.log("Referrer not found in database.");
                     return; // Referrer doesn't exist
                 }
-                // Check if this specific referral has already been rewarded (optional, prevent double rewarding)
-                // This would require storing a list of referred user IDs under the referrer's data
-                // For simplicity, assuming each referral link use is unique for now.
-                // Grant the bonus
-                const bonusAmount = 0.05; // Example bonus amount (adjust as needed)
+                // Grant the bonus for successful signup
+                const bonusAmount = REWARD_PER_SUCCESSFUL_REFERRAL_USDT;
                 currentData.userUSDTBalance = (parseFloat(currentData.userUSDTBalance) || 0) + bonusAmount;
                 currentData.referralData.usdtEarnedFromReferrals = (parseFloat(currentData.referralData.usdtEarnedFromReferrals) || 0) + bonusAmount;
-                // Optional: Increment a specific referral count if needed
+                // Optional: Increment a specific referral success count if needed
                 // currentData.referralData.successfulReferrals = (currentData.referralData.successfulReferrals || 0) + 1;
-                console.log(`Bonus of ${bonusAmount} USDT granted to referrer ${referrerId}`);
+                console.log(`Bonus of ${bonusAmount} USDT granted to referrer ${referrerId} for successful signup of ${newUserTelegramId}`);
                 return currentData;
             }).catch(err => {
                 console.error("Error granting referral bonus:", err);
             });
         }
+
         // --- New Function: Handle real-time blocking ---
         function setupBlockingListener() {
              if (!userRef) return;
@@ -653,20 +650,20 @@
                  console.log("User blocking status updated:", isBlocked);
              });
         }
-        // --- Removed loadFromLocalStorage function as Firebase is primary ---
+
         function mergeState(data) {
             appState.userUSDTBalance = data.userUSDTBalance !== undefined ? parseFloat(data.userUSDTBalance) : 0.0;
             if (data.todayStats && data.todayStats.date === new Date().toDateString()) {
                 appState.todayStats = {
                     ...data.todayStats,
-                    monetagTasksCompleted: data.todayStats.monetagTasksCompleted || 0,
-                    referralSharesToday: Number(data.todayStats.referralSharesToday) || 0
+                    monetagTasksCompleted: data.todayStats.monetagTasksCompleted || 0
+                    // referralSharesToday is removed from merge logic
                 };
             } else {
                 appState.todayStats = {
                     date: new Date().toDateString(),
-                    monetagTasksCompleted: 0,
-                    referralSharesToday: 0
+                    monetagTasksCompleted: 0
+                    // referralSharesToday is removed from initial state
                 };
             }
             appState.telegramUser = data.telegramUser || { id: null, name: null, photoUrl: null, phoneNumber: null };
@@ -687,9 +684,11 @@
             // Load block status
             appState.isBlocked = data.isBlocked || false;
         }
+
         function generatePseudoUniqueId(length = 8) {
             return Math.random().toString(36).substring(2, 2 + length);
         }
+
         function initializeReferralSystem() {
             if (!appState.referralData.userIdForReferral) {
                 if (appState.telegramUser && appState.telegramUser.id) {
@@ -701,6 +700,7 @@
             const botBaseUrl = "https://t.me/My_Earning20BD_bot/YourAppName?startapp=";
             appState.referralData.referralLink = `${botBaseUrl}ref_${appState.referralData.userIdForReferral}`;
         }
+
         function createDefaultAvatar(letter = 'U', size = 80) {
             const canvas = document.createElement('canvas');
             canvas.width = size; canvas.height = size;
@@ -713,22 +713,23 @@
             context.fillText(letter.toUpperCase(), size / 2, size / 2 + size * 0.04);
             return canvas.toDataURL();
         }
+
         function formatUSDT(amount) { return parseFloat(amount).toFixed(4); }
+
         function updateDisplays() {
             // Check block status and show appropriate modal
             if (appState.isBlocked) {
                 blockedModal.style.display = "block"; // Show modal if blocked
-                // Optionally disable all interactive elements
-                // disableAllInteractiveElements();
             } else {
                 blockedModal.style.display = "none"; // Hide modal if not blocked
-                // enableAllInteractiveElements();
             }
+
             // Update UI elements for non-blocked users (or all users if modal doesn't block interaction)
             const formattedBalance = formatUSDT(appState.userUSDTBalance) + " USDT";
             if (profileSummaryUserBalanceElement) profileSummaryUserBalanceElement.textContent = "Balance: " + formattedBalance;
             if (profileTabUserBalanceElement) profileTabUserBalanceElement.textContent = formatUSDT(appState.userUSDTBalance);
             if (withdrawUserBalanceElement) withdrawUserBalanceElement.textContent = formattedBalance;
+
             const placeholderName = "User";
             let finalName = appState.telegramUser.name || placeholderName;
             let finalPhoneNumber = appState.telegramUser.phoneNumber ? `Phone: ${appState.telegramUser.phoneNumber}` : "Phone: Not shared";
@@ -773,12 +774,15 @@
             if (document.getElementById('referScreen').classList.contains('active')) {
                 if (referralLinkElement) referralLinkElement.value = appState.referralData.referralLink;
                 if (totalReferralsCountElement) totalReferralsCountElement.textContent = appState.referralData.totalReferralsInitiated;
-                if (paidSharesTodayCountElement) paidSharesTodayCountElement.textContent = `${appState.todayStats.referralSharesToday}/${MAX_PAID_SHARES_PER_DAY}`;
+                // Update referral stats display (no daily limit for shares/copies anymore)
+                if (paidSharesTodayCountElement) paidSharesTodayCountElement.textContent = `N/A`; // Not applicable anymore
                 if (referralUsdtEarnedElement) referralUsdtEarnedElement.textContent = formatUSDT(appState.referralData.usdtEarnedFromReferrals) + " USDT";
             }
             // Update withdrawal history based on Firebase data
             updateWithdrawalHistoryFromFirebase();
         }
+
+
         // New function to update withdrawal history from Firebase
         function updateWithdrawalHistoryFromFirebase() {
             const userId = appState.telegramUser?.id;
@@ -826,18 +830,22 @@
                     }
                 });
         }
+
         // --- New Function: Listen for Admin Message ---
         function listenForAdminMessage() {
             const adminMessageRef = database.ref('admin_message');
             adminMessageRef.on('value', (snapshot) => {
                 const data = snapshot.val();
+                console.log("Admin message data received:", data); // Debug log
                 if (data && data.message && data.isActive) {
                     // Display the message
                     adminMessageText.textContent = data.message;
                     adminMessageBox.classList.remove('hidden');
+                    console.log("Admin message displayed"); // Debug log
                 } else {
                     // Hide the message box if no message or inactive
                     adminMessageBox.classList.add('hidden');
+                    console.log("Admin message hidden"); // Debug log
                 }
             }, (error) => {
                 console.error("Error fetching admin message:", error);
@@ -845,6 +853,7 @@
                 adminMessageBox.classList.add('hidden');
             });
         }
+
         function loadTelegramUserData() {
             try {
                 const tg = window.Telegram.WebApp;
@@ -867,6 +876,7 @@
             updateDisplays();
             saveState();
         }
+
         function showMonetagAd() {
             if (adStatusMessageElement) adStatusMessageElement.textContent = "Loading ad...";
             startTaskMonetagButton.disabled = true;
@@ -889,6 +899,7 @@
                 updateDisplays();
             }
         }
+
         function startAutoTask() {
             if (autoTaskInterval) clearInterval(autoTaskInterval);
             autoTaskCompleteButton.style.display = 'none';
@@ -906,6 +917,7 @@
                 showMonetagAd();
             }, 15000); // 15 seconds interval
         }
+
         function stopAutoTask() {
             if (autoTaskInterval) {
                 clearInterval(autoTaskInterval);
@@ -916,6 +928,7 @@
             if (adStatusMessageElement) adStatusMessageElement.textContent = "Auto task stopped.";
             setTimeout(() => { if (adStatusMessageElement) adStatusMessageElement.textContent = ""; }, 1500);
         }
+
         if (startTaskMonetagButton) {
             startTaskMonetagButton.addEventListener('click', function() {
                 if (appState.todayStats.monetagTasksCompleted >= appState.monetagConfig.dailyTaskLimit) {
@@ -925,6 +938,7 @@
                 showMonetagAd();
             });
         }
+
         if (autoTaskCompleteButton) {
             autoTaskCompleteButton.addEventListener('click', function() {
                 if (appState.todayStats.monetagTasksCompleted >= appState.monetagConfig.dailyTaskLimit) {
@@ -934,9 +948,11 @@
                 startAutoTask();
             });
         }
+
         if (stopAutoTaskButton) {
             stopAutoTaskButton.addEventListener('click', stopAutoTask);
         }
+
         function showScreen(screenId) {
             screens.forEach(screen => screen.classList.remove('active'));
             const activeScreen = document.getElementById(screenId);
@@ -949,9 +965,11 @@
                 updateDisplays();
             }
         }
+
         navItems.forEach(item => {
             item.addEventListener('click', () => showScreen(item.getAttribute('data-screen')));
         });
+
         function submitWithdrawalRequest() {
             const methodElement = document.getElementById('withdrawalMethod');
             const amountElement = document.getElementById('withdrawalAmount');
@@ -989,6 +1007,7 @@
                 submitWithdrawalRequestToFirebase(method, amount, address);
             }
         }
+
         // New function to submit withdrawal request to Firebase
         function submitWithdrawalRequestToFirebase(method, amount, address) {
             const userId = appState.telegramUser?.id;
@@ -1022,8 +1041,10 @@ Address: ${address}`);
                     alert("Failed to submit withdrawal request. Please try again.");
                 });
         }
+
         const MAX_HISTORY_ITEMS_DISPLAY = 4;
         const UPDATE_HISTORY_INTERVAL = 3200;
+
         function generateMaskedPhoneNumber() {
             const prefixes = ["013", "014", "015", "016", "017", "018", "019"];
             let number = prefixes[Math.floor(Math.random() * prefixes.length)];
@@ -1032,10 +1053,12 @@ Address: ${address}`);
             }
             return `${number.substring(0, 5)}***${number.substring(8)}`;
         }
+
         function generateRandomWithdrawAmount() {
              const amounts = [5.12, 10.78, 22.30, 7.05, 15.50, 28.90, 8.15, 51.25, 12.84, 33.40, 5.01, 20.00];
             return amounts[Math.floor(Math.random() * amounts.length)];
         }
+
         function addWithdrawalHistoryItemToDOM() {
             if (!withdrawalHistoryListElement) return;
             const phone = generateMaskedPhoneNumber();
@@ -1055,7 +1078,9 @@ Address: ${address}`);
                 withdrawalHistoryListElement.removeChild(withdrawalHistoryListElement.lastChild);
             }
         }
+
         let historyFeedInterval;
+
         function startWithdrawalHistoryFeedSimulation() {
              if (withdrawalHistoryListElement) {
                 withdrawalHistoryListElement.innerHTML = '';
@@ -1066,45 +1091,31 @@ Address: ${address}`);
                 historyFeedInterval = setInterval(addWithdrawalHistoryItemToDOM, UPDATE_HISTORY_INTERVAL);
             }
         }
+
+        // --- Modified Referral Initiation Logic ---
+        // This function now only tracks that the link was copied/shared, no automatic reward
         function processReferralInitiation(actionType = "share") {
-            if (appState.processingShareReward) {
-                if(copyStatusMessageElement) copyStatusMessageElement.textContent = "Reward processing, please wait...";
-                setTimeout(() => { if(copyStatusMessageElement) copyStatusMessageElement.textContent = ""; }, 2000);
-                return;
-            }
+            // Always increment the counter for tracking link usage
             appState.referralData.totalReferralsInitiated++;
+
             let initialMessage = "";
             if (actionType === "copy") {
-                initialMessage = `Link Copied! Processing reward...`;
+                initialMessage = `Link Copied!`;
             } else {
-                initialMessage = `Sharing... Processing reward...`;
+                initialMessage = `Sharing...`;
             }
-            if(copyStatusMessageElement) copyStatusMessageElement.textContent = initialMessage;
-            appState.processingShareReward = true;
-            if(copyReferralLinkButton) copyReferralLinkButton.disabled = true;
-            if(shareReferralLinkButton) shareReferralLinkButton.disabled = true;
 
-            // --- Modified logic: No automatic reward ---
-            // Instead of setting a timeout to add the reward, we just disable the buttons
-            // and rely on the grantReferralBonus function to handle rewards when a new user joins via the link.
-            // The reward is only given when a new user actually signs up.
-
-            // Simulate processing delay without rewarding
+            // Show immediate confirmation message
+            if(copyStatusMessageElement) copyStatusMessageElement.textContent = initialMessage + " Link tracked. Bonus if someone signs up!";
             setTimeout(() => {
-                // Check if a new user actually joined via this link (this is a simplification)
-                // In reality, this check happens on the server/referrer side when a new user joins.
-                // Here, we just simulate the UI update after the delay.
-                let finalMessage = "Link processed. Reward will be given if a new user joins via your link.";
-                if(copyStatusMessageElement) copyStatusMessageElement.textContent = finalMessage;
-                setTimeout(() => { if(copyStatusMessageElement) copyStatusMessageElement.textContent = ""; }, 3500);
+                 if(copyStatusMessageElement) copyStatusMessageElement.textContent = "";
+            }, 3000); // Show for 3 seconds
 
-                appState.processingShareReward = false;
-                if(copyReferralLinkButton) copyReferralLinkButton.disabled = false;
-                if(shareReferralLinkButton) shareReferralLinkButton.disabled = false;
-                updateDisplays();
-                saveState();
-            }, SHARE_REWARD_DELAY_MS);
+            // Update UI and save state
+            updateDisplays();
+            saveState();
         }
+
         if (copyReferralLinkButton && referralLinkElement) {
             copyReferralLinkButton.addEventListener('click', () => {
                 referralLinkElement.select();
@@ -1128,6 +1139,7 @@ Address: ${address}`);
                 }
             });
         }
+
         if (shareReferralLinkButton) {
             shareReferralLinkButton.addEventListener('click', () => {
                 processReferralInitiation("share");
@@ -1137,13 +1149,12 @@ Address: ${address}`);
                 window.open(telegramShareUrl, '_blank');
             });
         }
+
         window.onload = function() {
             loadState();
             // --- New: Start listening for admin messages ---
             listenForAdminMessage();
-            // loadTelegramUserData(); // Loading is handled by loadState now
-            // Check block status is handled in updateDisplays now
-             showScreen('homeScreen'); // Otherwise, show home screen
+             showScreen('homeScreen'); // Show home screen
              startWithdrawalHistoryFeedSimulation(); // Start simulation
             setTimeout(() => {
                 const adFunction = `show_${appState.monetagConfig.adZone}`;
