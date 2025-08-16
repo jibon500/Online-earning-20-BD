@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>App (Persistent Data, Improved Referral, Real-time Block)</title>
+    <title>App (Referral on Signup)</title>
     <style>
         body {
             font-family: 'Helvetica Neue', Arial, sans-serif;
@@ -226,6 +226,16 @@
             background-color: #0077b3;
         }
         .hidden { display: none !important; } /* Utility class for hiding elements */
+        #copyStatusMessage {
+            font-size: 12px;
+            color: #34c759; /* Green for success */
+            min-height: 18px;
+            margin-top: 5px;
+            text-align: right;
+        }
+         #copyStatusMessage.error {
+            color: #ff3b30; /* Red for errors */
+        }
     </style>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src='//solseewuthi.net/sdk.js' data-zone='9344336' data-sdk='show_9344336' async></script>
@@ -311,19 +321,19 @@
                         <input type="text" id="referralLink" readonly style="flex-grow: 1;">
                         <button id="copyReferralLinkButton" class="btn" style="padding: 11px 15px; margin-top: 0; width: auto; font-size: 14px; white-space: nowrap;">Copy Link</button>
                     </div>
-                    <p id="copyStatusMessage" style="font-size: 12px; color: #34c759; min-height: 18px; margin-top: 5px; text-align: right;"></p>
+                    <p id="copyStatusMessage"></p>
                     <button id="shareReferralLinkButton" class="btn btn-share">Share Now</button>
                 </div>
                 <div class="info-card">
                     <h3>Referral Statistics</h3>
                     <p><span>Times Link Shared/Copied (Overall):</span> <span id="totalReferralsCount">0</span></p>
-                    <p><span>Paid Shares Today:</span> <span id="paidSharesTodayCount">0/5</span></p>
-                    <p><span>USDT Earned from Sharing:</span> <span id="referralUsdtEarned">0.0000 USDT</span></p>
+                    <p><span>Successful Referrals:</span> <span id="successfulReferralsCount">0</span></p>
+                    <p><span>USDT Earned from Referrals:</span> <span id="referralUsdtEarned">0.0000 USDT</span></p>
                 </div>
                 <div class="info-card">
                     <h3>Referral Program Details</h3>
-                    <p class="referral-details-text">Each time you share or copy your referral link, you can earn <strong>$0.1 USDT</strong> (1 cents)! This reward will be added <strong>1 minute after</strong> sharing/copying.</p>
-                    <p class="referral-details-text">You can earn this reward for up to <strong>5 shares/copies per day</strong>.</p>
+                    <p class="referral-details-text">Share your referral link with friends. When they sign up using your link, you earn a <strong>$0.05 USDT</strong> bonus!</p>
+                    <p class="referral-details-text">There is no limit to how many friends you can refer.</p>
                     <p class="referral-details-text">There are <strong>30 referral levels</strong>. Unlock additional rewards and bonuses based on your activity.</p>
                 </div>
             </div>
@@ -415,11 +425,9 @@
         // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
-        const APP_VERSION = "2.0.4"; // Incremented for persistent data & improved referral/blocking
+        const APP_VERSION = "2.0.5"; // Incremented for Referral on Signup
         const LS_KEY_APP_STATE = `monetagAppUserState_v${APP_VERSION}`;
-        const REWARD_PER_REFERRAL_INITIATION_USDT = 0.10;
-        const MAX_PAID_SHARES_PER_DAY = 5;
-        const SHARE_REWARD_DELAY_MS = 60000; // 60000 milliseconds = 1 minute
+        const REWARD_PER_SUCCESSFUL_REFERRAL_USDT = 0.05; // Reward for successful referral
         const navItems = document.querySelectorAll('.bottom-nav .nav-item');
         const screens = document.querySelectorAll('.app-container .screen');
         const headerUserAvatarElement = document.getElementById('headerUserAvatar');
@@ -449,7 +457,7 @@
         const shareReferralLinkButton = document.getElementById('shareReferralLinkButton');
         const copyStatusMessageElement = document.getElementById('copyStatusMessage');
         const totalReferralsCountElement = document.getElementById('totalReferralsCount');
-        const paidSharesTodayCountElement = document.getElementById('paidSharesTodayCount');
+        const successfulReferralsCountElement = document.getElementById('successfulReferralsCount'); // New element
         const referralUsdtEarnedElement = document.getElementById('referralUsdtEarned');
         // New: Get the modal and close button
         const blockedModal = document.getElementById("blockedModal");
@@ -465,13 +473,14 @@
             todayStats: {
                 date: new Date().toDateString(),
                 monetagTasksCompleted: 0,
-                referralSharesToday: 0
+                referralSharesToday: 0 // Kept for backward compatibility or other uses
             },
             telegramUser: { id: null, name: null, photoUrl: null, phoneNumber: null },
             referralData: {
                 userIdForReferral: null,
                 referralLink: '',
-                totalReferralsInitiated: 0,
+                totalReferralsInitiated: 0, // Counts copies/shares
+                successfulReferrals: 0, // New: Counts successful signups via link
                 usdtEarnedFromReferrals: 0.0
             },
             processingShareReward: false,
@@ -613,11 +622,11 @@
                 // For simplicity, assuming each referral link use is unique for now.
 
                 // Grant the bonus
-                const bonusAmount = 0.05; // Example bonus amount (adjust as needed)
+                const bonusAmount = REWARD_PER_SUCCESSFUL_REFERRAL_USDT;
                 currentData.userUSDTBalance = (parseFloat(currentData.userUSDTBalance) || 0) + bonusAmount;
                 currentData.referralData.usdtEarnedFromReferrals = (parseFloat(currentData.referralData.usdtEarnedFromReferrals) || 0) + bonusAmount;
-                // Optional: Increment a specific referral count if needed
-                // currentData.referralData.successfulReferrals = (currentData.referralData.successfulReferrals || 0) + 1;
+                // Increment successful referrals count
+                currentData.referralData.successfulReferrals = (currentData.referralData.successfulReferrals || 0) + 1;
 
                 console.log(`Bonus of ${bonusAmount} USDT granted to referrer ${referrerId}`);
                 return currentData;
@@ -662,12 +671,13 @@
                     userIdForReferral: data.referralData.userIdForReferral || null,
                     referralLink: data.referralData.referralLink || '',
                     totalReferralsInitiated: data.referralData.totalReferralsInitiated || 0,
+                    successfulReferrals: data.referralData.successfulReferrals || 0, // Load new field
                     usdtEarnedFromReferrals: data.referralData.usdtEarnedFromReferrals || 0.0
                 };
             } else {
                 appState.referralData = {
                     userIdForReferral: null, referralLink: '',
-                    totalReferralsInitiated: 0, usdtEarnedFromReferrals: 0.0
+                    totalReferralsInitiated: 0, successfulReferrals: 0, usdtEarnedFromReferrals: 0.0
                 };
             }
             appState.processingShareReward = false;
@@ -765,7 +775,8 @@
             if (document.getElementById('referScreen').classList.contains('active')) {
                 if (referralLinkElement) referralLinkElement.value = appState.referralData.referralLink;
                 if (totalReferralsCountElement) totalReferralsCountElement.textContent = appState.referralData.totalReferralsInitiated;
-                if (paidSharesTodayCountElement) paidSharesTodayCountElement.textContent = `${appState.todayStats.referralSharesToday}/${MAX_PAID_SHARES_PER_DAY}`;
+                // Update new referral stats
+                if (successfulReferralsCountElement) successfulReferralsCountElement.textContent = appState.referralData.successfulReferrals;
                 if (referralUsdtEarnedElement) referralUsdtEarnedElement.textContent = formatUSDT(appState.referralData.usdtEarnedFromReferrals) + " USDT";
             }
             // Update withdrawal history based on Firebase data
@@ -1049,43 +1060,60 @@ Address: ${address}`);
                 historyFeedInterval = setInterval(addWithdrawalHistoryItemToDOM, UPDATE_HISTORY_INTERVAL);
             }
         }
+
+        // --- Modified: Process Referral Initiation (Copy/Share) ---
+        // This now only counts the action, does not grant a reward.
         function processReferralInitiation(actionType = "share") {
+            // Prevent multiple rapid clicks
             if (appState.processingShareReward) {
-                if(copyStatusMessageElement) copyStatusMessageElement.textContent = "Reward processing, please wait...";
-                setTimeout(() => { if(copyStatusMessageElement) copyStatusMessageElement.textContent = ""; }, 2000);
+                if(copyStatusMessageElement) {
+                    copyStatusMessageElement.textContent = "Please wait...";
+                    copyStatusMessageElement.className = "error"; // Add error class for red color
+                }
+                setTimeout(() => {
+                    if(copyStatusMessageElement) {
+                        copyStatusMessageElement.textContent = "";
+                        copyStatusMessageElement.className = ""; // Clear class
+                    }
+                }, 2000);
                 return;
             }
-            appState.referralData.totalReferralsInitiated++;
+
+            appState.processingShareReward = true;
+            appState.referralData.totalReferralsInitiated++; // Increment count
+
             let initialMessage = "";
             if (actionType === "copy") {
-                initialMessage = `Link Copied! Processing reward...`;
+                initialMessage = `Link Copied!`;
             } else {
-                initialMessage = `Sharing... Processing reward...`;
+                initialMessage = `Sharing...`;
             }
-            if(copyStatusMessageElement) copyStatusMessageElement.textContent = initialMessage;
-            appState.processingShareReward = true;
+            if(copyStatusMessageElement) {
+                copyStatusMessageElement.textContent = initialMessage;
+                copyStatusMessageElement.className = ""; // Clear any previous error class
+            }
+
+            // Disable buttons briefly
             if(copyReferralLinkButton) copyReferralLinkButton.disabled = true;
             if(shareReferralLinkButton) shareReferralLinkButton.disabled = true;
+
+            // Small delay to give feedback
             setTimeout(() => {
-                let finalMessage = "";
-                if (appState.todayStats.referralSharesToday < MAX_PAID_SHARES_PER_DAY) {
-                    appState.todayStats.referralSharesToday++;
-                    const rewardAmount = REWARD_PER_REFERRAL_INITIATION_USDT;
-                    appState.referralData.usdtEarnedFromReferrals += rewardAmount;
-                    appState.userUSDTBalance += rewardAmount;
-                    finalMessage = `+$${rewardAmount.toFixed(2)} Earned! (${appState.todayStats.referralSharesToday}/${MAX_PAID_SHARES_PER_DAY} today)`;
-                } else {
-                    finalMessage = `Daily share reward limit reached. No reward this time.`;
-                }
-                if(copyStatusMessageElement) copyStatusMessageElement.textContent = finalMessage;
-                setTimeout(() => { if(copyStatusMessageElement) copyStatusMessageElement.textContent = ""; }, 3500);
+                 if(copyStatusMessageElement) copyStatusMessageElement.textContent = "Link action recorded!";
                 appState.processingShareReward = false;
                 if(copyReferralLinkButton) copyReferralLinkButton.disabled = false;
                 if(shareReferralLinkButton) shareReferralLinkButton.disabled = false;
-                updateDisplays();
-                saveState();
-            }, SHARE_REWARD_DELAY_MS);
+                updateDisplays(); // Update the count display
+                saveState(); // Save the incremented count
+                 setTimeout(() => {
+                    if(copyStatusMessageElement) {
+                        copyStatusMessageElement.textContent = "";
+                        copyStatusMessageElement.className = ""; // Clear class after delay
+                    }
+                }, 2000);
+            }, 500); // Very short delay for UI feedback
         }
+
         if (copyReferralLinkButton && referralLinkElement) {
             copyReferralLinkButton.addEventListener('click', () => {
                 referralLinkElement.select();
@@ -1095,15 +1123,31 @@ Address: ${address}`);
                     if (successful) {
                         processReferralInitiation("copy");
                     } else {
-                         if(copyStatusMessageElement) copyStatusMessageElement.textContent = "Copy failed.";
-                         setTimeout(() => { if(copyStatusMessageElement) copyStatusMessageElement.textContent = ""; }, 2500);
+                         if(copyStatusMessageElement) {
+                            copyStatusMessageElement.textContent = "Copy failed.";
+                            copyStatusMessageElement.className = "error";
+                        }
+                         setTimeout(() => {
+                            if(copyStatusMessageElement) {
+                                copyStatusMessageElement.textContent = "";
+                                copyStatusMessageElement.className = "";
+                            }
+                        }, 2500);
                     }
                 } catch (err) {
                     navigator.clipboard.writeText(appState.referralData.referralLink).then(() => {
                         processReferralInitiation("copy");
                     }).catch(err => {
-                        if(copyStatusMessageElement) copyStatusMessageElement.textContent = "Failed to copy.";
-                        setTimeout(() => { if(copyStatusMessageElement) copyStatusMessageElement.textContent = ""; }, 2500);
+                        if(copyStatusMessageElement) {
+                            copyStatusMessageElement.textContent = "Failed to copy.";
+                            copyStatusMessageElement.className = "error";
+                        }
+                        setTimeout(() => {
+                            if(copyStatusMessageElement) {
+                                copyStatusMessageElement.textContent = "";
+                                copyStatusMessageElement.className = "";
+                            }
+                        }, 2500);
                         console.error('Failed to copy link: ', err);
                     });
                 }
