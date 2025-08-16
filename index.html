@@ -163,8 +163,162 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 </head>
 <body>
-    <!-- বাকি HTML অপরিবর্তিত রাখা হয়েছে -->
-    <!-- ... -->
+    <div class="app-container">
+        <div id="homeScreen" class="screen active">
+            <div class="app-header">
+                <div class="user-info-header">
+                    <img id="headerUserAvatar" src="" alt=" " class="avatar-small">
+                    <div class="user-details">
+                        <div id="headerUserName" class="user-name-header">Loading...</div>
+                        <div id="headerUserPhone" class="user-phone-header">Phone: Not shared</div>
+                    </div>
+                </div>
+                <div class="actions"><span>⋮</span></div>
+            </div>
+            <div class="profile-summary">
+                <img id="profileSummaryUserAvatar" src="" alt=" " class="avatar-large">
+                <div id="profileSummaryUserName" class="user-name-profile">Loading...</div>
+                <div id="profileSummaryUserBalance" class="user-balance-profile">Balance: 0.0000 USDT</div>
+            </div>
+            <div class="content-padding">
+                <div class="info-card">
+                    <h3>Today's Tasks (Overall Summary)</h3>
+                    <p><span>Monetag Tasks Completed Today:</span> <span id="homeMonetagTasksCompleted">0</span></p>
+                    <p><span>Daily Monetag Limit:</span> <span id="homeMonetagDailyLimit">1000</span></p>
+                </div>
+                <div class="info-card">
+                    <h3>Earnings</h3>
+                    <p><span>Total Monetag Earnings (USDT):</span> <span id="homeTotalMonetagEarnings">0.0000</span></p>
+                </div>
+                <div class="withdrawal-history-card">
+                    <h3>Recent Withdrawals</h3>
+                    <ul class="withdrawal-list" id="withdrawalHistoryList"></ul>
+                </div>
+            </div>
+        </div>
+        <div id="earnScreen" class="screen">
+            <div class="app-header">
+                <div class="title">Earn Tasks</div>
+                <div class="actions"><span>⋮</span></div>
+            </div>
+            <div class="content-padding">
+                <div style="text-align: right; font-size: 12px; color: #bbbbbb; margin-bottom:10px;">
+                    Test User (Dev) | Test Balance: BDT 1
+                </div>
+                <div class="info-card">
+                    <h3>Today's Monetag Tasks</h3>
+                    <p><span>Daily Limit:</span> <span id="earnMonetagDailyLimit">1000</span></p>
+                    <p><span>Completed Today:</span> <span id="earnMonetagCompletedToday">0</span></p>
+                    <p><span>Remaining Today:</span> <span id="earnMonetagRemainingToday">1000</span></p>
+                </div>
+                <button class="btn" id="startTaskMonetagButton">Start Task Monetag</button>
+                <button class="btn btn-auto" id="autoTaskCompleteButton">Auto Touch Complete</button>
+                <button class="btn btn-stop" id="stopAutoTaskButton" style="display: none;">Stop Auto Task</button>
+                <div id="adStatusMessage"></div>
+            </div>
+        </div>
+        <div id="referScreen" class="screen">
+            <div class="app-header">
+                <div class="title">Refer & Earn</div>
+                <div class="actions"><span>⋮</span></div>
+            </div>
+            <div class="content-padding">
+                <div class="info-card">
+                    <h3>Your Unique Referral Link</h3>
+                    <div class="form-group" style="display: flex; align-items: center; gap: 10px;">
+                        <input type="text" id="referralLink" readonly style="flex-grow: 1;">
+                        <button id="copyReferralLinkButton" class="btn" style="padding: 11px 15px; margin-top: 0; width: auto; font-size: 14px; white-space: nowrap;">Copy Link</button>
+                    </div>
+                    <p id="copyStatusMessage" style="font-size: 12px; color: #34c759; min-height: 18px; margin-top: 5px; text-align: right;"></p>
+                    <button id="shareReferralLinkButton" class="btn btn-share">Share Now</button>
+                </div>
+                <div class="info-card">
+                    <h3>Referral Statistics</h3>
+                    <p><span>Times Link Shared/Copied (Overall):</span> <span id="totalReferralsCount">0</span></p>
+                    <p><span>Paid Shares Today:</span> <span id="paidSharesTodayCount">0/5</span></p>
+                    <p><span>USDT Earned from Sharing:</span> <span id="referralUsdtEarned">0.0000 USDT</span></p>
+                </div>
+                <div class="info-card">
+                    <h3>Referral Program Details</h3>
+                    <p class="referral-details-text">Each time you share or copy your referral link, you can earn <strong>$0.1 USDT</strong> (1 cents)! This reward will be added <strong>1 minute after</strong> sharing/copying.</p>
+                    <p class="referral-details-text">You can earn this reward for up to <strong>5 shares/copies per day</strong>.</p>
+                    <p class="referral-details-text">There are <strong>30 referral levels</strong>. Unlock additional rewards and bonuses based on your activity.</p>
+                </div>
+            </div>
+        </div>
+        <div id="withdrawScreen" class="screen">
+            <div class="app-header">
+                <div class="title">Withdraw Funds</div>
+                <div class="actions"><span>⋮</span></div>
+            </div>
+            <div class="content-padding">
+                <div class="info-card">
+                    <p><span>Available Balance:</span> <span id="withdrawUserBalance" style="font-size:16px; color:#34c759;">0.0000 USDT</span></p>
+                </div>
+                <div class="info-card">
+                    <h3>Request Withdrawal</h3>
+                    <div class="form-group">
+                        <label for="withdrawalMethod">Withdrawal Method:</label>
+                        <select id="withdrawalMethod" name="withdrawalMethod">
+                            <option value="">Select a method</option>
+                            <option value="nagad">Nagad (Min. 20 USDT)</option>
+                            <option value="bkash">bKash (Min. 20 USDT)</option>
+                            <option value="upay">Upay (Min. 20 USDT)</option>
+                            <option value="rocket">Rocket (Min. 20 USDT)</option>
+                            <option value="webmoney">WebMoney (Min. 5 USDT)</option>
+                            <option value="other_crypto">Other Crypto</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="withdrawalAmount">Amount (USDT):</label>
+                        <input type="number" id="withdrawalAmount" name="withdrawalAmount" placeholder="Enter amount">
+                    </div>
+                    <div class="form-group">
+                        <label for="withdrawalAddress">Account/Wallet Address:</label>
+                        <input type="text" id="withdrawalAddress" name="withdrawalAddress" placeholder="Enter account/wallet address">
+                    </div>
+                    <button class="btn" onclick="submitWithdrawalRequest()">Submit Withdrawal</button>
+                </div>
+            </div>
+        </div>
+        <div id="profileScreen" class="screen">
+            <div class="app-header">
+                <div class="title">Profile</div>
+                <div class="actions"><span>⋮</span></div>
+            </div>
+            <div class="content-padding">
+                <div class="info-card">
+                    <h3>User Profile</h3>
+                    <p><span>Name:</span> <span id="profileTabUserName">Loading...</span></p>
+                    <p><span>Phone:</span> <span id="profileTabUserPhone">Not shared</span></p>
+                    <p><span>Total Balance (USDT):</span> <span id="profileTabUserBalance">0.0000</span></p>
+                    <p><span>Email:</span> <span>user@example.com</span></p>
+                    <p><span>Last Active:</span> <span id="profileTabLastActiveDate">Loading...</span></p>
+                    <button class="btn" style="background-color: #ff3b30; margin-top: 20px;" onclick="alert('Logout functionality not implemented.')">Logout</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <a href="https://t.me/Jobsrbot" target="_blank" class="telegram-contact-fab" title="Contact @Jobsrbot on Telegram">
+        <svg viewBox="0 0 24 24">
+            <path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.17.91-.494 1.204-1.07 1.23-.928.043-1.348-.602-2.018-1.028-.91-.588-1.428-.945-2.326-1.528-.986-.631-.339-1.001.221-1.591.133-.142 2.568-2.295 2.568-2.295s.23-.205-.065-.455c-.294-.25-.728-.094-.728-.094L8.44 13.288c-.04.023-.075.045-.117.075l-.105.061s-.37.253-.947.031c-.578-.223-.994-.37-1.128-.409-.426-.12-.76-.182-.756-.532.003-.237.207-.404.512-.584 2.813-1.656 4.593-2.671 4.593-2.671s1.033-.622 2.001-.626zm-2.448 8.528l.618-2.997-.026.018s1.631 1.496 2.017 1.831l.015.012s.313.241.303-.255l-.008-.081L18.3 7.588s.096-.515-.578-.266l-10.84 3.862s-.76.295-.865.995l.01.022s.273.92.855.712L7.89 12.3s.374-.115.864.075l.008.004-3.264 2.957s-.396.358.083.585c.48.226 1.088-.08 1.088-.08l3.829-2.653.86.793 1.108 1.021s.182.153.359.034c.176-.118.173-.25.173-.25z"/>
+        </svg>
+    </a>
+    <div class="bottom-nav">
+        <div class="nav-item active" data-screen="homeScreen"> <div class="icon">🏠</div> <div>Home</div> </div>
+        <div class="nav-item" data-screen="earnScreen"> <div class="icon">💰</div> <div>Earn</div> </div>
+        <div class="nav-item" data-screen="referScreen">
+            <div class="icon">
+                <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="currentColor">
+                    <path d="M0 0h24v24H0V0z" fill="none"/>
+                    <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
+                </svg>
+            </div>
+            <div>Refer</div>
+        </div>
+        <div class="nav-item" data-screen="withdrawScreen"> <div class="icon">💸</div> <div>Withdraw</div> </div>
+        <div class="nav-item" data-screen="profileScreen"> <div class="icon">👤</div> <div>Profile</div> </div>
+    </div>
     <script>
         // Firebase Config
         const firebaseConfig = {
@@ -243,7 +397,6 @@
         // Save to Firebase
         function saveState() {
             try {
-                // Save to localStorage for fallback
                 localStorage.setItem(LS_KEY_APP_STATE, JSON.stringify(appState));
 
                 // Save to Firebase
@@ -346,7 +499,7 @@
                     appState.referralData.userIdForReferral = generatePseudoUniqueId(10);
                 }
             }
-            const botBaseUrl = "https://t.me/My_Earning20BD_bot/YourAppName?startapp=";
+            const botBaseUrl = "https://t.me/My_Earning20BD_bot/YourAppName?startapp="; 
             appState.referralData.referralLink = `${botBaseUrl}ref_${appState.referralData.userIdForReferral}`;
         }
 
@@ -426,7 +579,7 @@
                 const userData = tg.initDataUnsafe?.user;
                 if (userData) {
                     appState.telegramUser.id = userData.id;
-                    const firstName = userData.first_name || '';
+                    const firstName = userData.first_name || ''; 
                     const lastName = userData.last_name || '';
                     if (firstName || lastName) appState.telegramUser.name = `${firstName} ${lastName}`.trim();
                     else if (userData.username) appState.telegramUser.name = `@${userData.username}`;
@@ -434,7 +587,7 @@
                 }
                 initializeReferralSystem();
                 tg.expand();
-            } catch (e) {
+            } catch (e) { 
                 console.error("Telegram API error on init:", e);
                 initializeReferralSystem();
             }
@@ -457,11 +610,11 @@
                 }).catch((error) => {
                     console.error("Monetag Rewarded Ad error or closed:", error);
                     if (adStatusMessageElement) adStatusMessageElement.textContent = "Ad could not be shown or was cancelled.";
-                    updateDisplays();
+                    updateDisplays(); 
                 });
             } else {
-                if (adStatusMessageElement) adStatusMessageElement.textContent = `Ad SDK not ready or function not found.`;
-                updateDisplays();
+                 if (adStatusMessageElement) adStatusMessageElement.textContent = `Ad SDK not ready or function not found.`;
+                updateDisplays(); 
             }
         }
 
@@ -560,8 +713,8 @@
                     else alert(`Minimum withdrawal for ${method} is ${minWithdrawal} USDT.`);
                     break;
                 case 'other_crypto':
-                    minWithdrawal = 10;
-                    if (amount >= minWithdrawal && appState.userUSDTBalance >= amount) canProceed = true;
+                    minWithdrawal = 10; 
+                     if (amount >= minWithdrawal && appState.userUSDTBalance >= amount) canProceed = true;
                     else if (appState.userUSDTBalance < amount) alert(`Insufficient balance. Your current balance is ${formatUSDT(appState.userUSDTBalance)} USDT.`);
                     else alert(`Minimum withdrawal for ${method} is ${minWithdrawal} USDT.`);
                     break;
@@ -579,21 +732,21 @@ Address: ${address}
         const MAX_HISTORY_ITEMS_DISPLAY = 4;
         const UPDATE_HISTORY_INTERVAL = 3200;
 
-        function generateMaskedPhoneNumber() {
+        function generateMaskedPhoneNumber() { 
             const prefixes = ["013", "014", "015", "016", "017", "018", "019"];
             let number = prefixes[Math.floor(Math.random() * prefixes.length)];
-            for (let i = 0; i < 8; i++) {
+            for (let i = 0; i < 8; i++) { 
                 number += Math.floor(Math.random() * 10);
             }
-            return `${number.substring(0, 5)}***${number.substring(8)}`;
+            return `${number.substring(0, 5)}***${number.substring(8)}`; 
         }
 
-        function generateRandomWithdrawAmount() {
-            const amounts = [5.12, 10.78, 22.30, 7.05, 15.50, 28.90, 8.15, 51.25, 12.84, 33.40, 5.01, 20.00];
+        function generateRandomWithdrawAmount() { 
+             const amounts = [5.12, 10.78, 22.30, 7.05, 15.50, 28.90, 8.15, 51.25, 12.84, 33.40, 5.01, 20.00];
             return amounts[Math.floor(Math.random() * amounts.length)];
         }
 
-        function addWithdrawalHistoryItemToDOM() {
+        function addWithdrawalHistoryItemToDOM() { 
             if (!withdrawalHistoryListElement) return;
             const phone = generateMaskedPhoneNumber();
             const amount = generateRandomWithdrawAmount();
@@ -616,12 +769,12 @@ Address: ${address}
         let historyFeedInterval;
 
         function startWithdrawalHistoryFeedSimulation() {
-            if (withdrawalHistoryListElement) {
+             if (withdrawalHistoryListElement) {
                 withdrawalHistoryListElement.innerHTML = '';
                 for (let i = 0; i < MAX_HISTORY_ITEMS_DISPLAY; i++) {
-                    setTimeout(addWithdrawalHistoryItemToDOM, i * 400);
+                    setTimeout(addWithdrawalHistoryItemToDOM, i * 400); 
                 }
-                if (historyFeedInterval) clearInterval(historyFeedInterval);
+                if (historyFeedInterval) clearInterval(historyFeedInterval); 
                 historyFeedInterval = setInterval(addWithdrawalHistoryItemToDOM, UPDATE_HISTORY_INTERVAL);
             }
         }
@@ -630,14 +783,14 @@ Address: ${address}
             if (appState.processingShareReward) {
                 if(copyStatusMessageElement) copyStatusMessageElement.textContent = "Reward processing, please wait...";
                 setTimeout(() => { if(copyStatusMessageElement) copyStatusMessageElement.textContent = ""; }, 2000);
-                return;
+                return; 
             }
-            appState.referralData.totalReferralsInitiated++;
+            appState.referralData.totalReferralsInitiated++; 
             let initialMessage = "";
             if (actionType === "copy") {
-                initialMessage = `Link Copied! Processing reward...`;
-            } else {
-                initialMessage = `Sharing... Processing reward...`;
+                initialMessage = `Link Copied! Processing reward...`; // Removed (wait 1 min)
+            } else { 
+                initialMessage = `Sharing... Processing reward...`; // Removed (wait 1 min)
             }
             if(copyStatusMessageElement) copyStatusMessageElement.textContent = initialMessage;
             appState.processingShareReward = true;
@@ -649,19 +802,19 @@ Address: ${address}
                     appState.todayStats.referralSharesToday++;
                     const rewardAmount = REWARD_PER_REFERRAL_INITIATION_USDT;
                     appState.referralData.usdtEarnedFromReferrals += rewardAmount;
-                    appState.userUSDTBalance += rewardAmount;
+                    appState.userUSDTBalance += rewardAmount; 
                     finalMessage = `+$${rewardAmount.toFixed(2)} Earned! (${appState.todayStats.referralSharesToday}/${MAX_PAID_SHARES_PER_DAY} today)`;
                 } else {
                     finalMessage = `Daily share reward limit reached. No reward this time.`;
                 }
                 if(copyStatusMessageElement) copyStatusMessageElement.textContent = finalMessage;
                 setTimeout(() => { if(copyStatusMessageElement) copyStatusMessageElement.textContent = ""; }, 3500);
-                appState.processingShareReward = false;
+                appState.processingShareReward = false; 
                 if(copyReferralLinkButton) copyReferralLinkButton.disabled = false;
                 if(shareReferralLinkButton) shareReferralLinkButton.disabled = false;
                 updateDisplays();
                 saveState();
-            }, SHARE_REWARD_DELAY_MS);
+            }, SHARE_REWARD_DELAY_MS); 
         }
 
         if (copyReferralLinkButton && referralLinkElement) {
@@ -673,8 +826,8 @@ Address: ${address}
                     if (successful) {
                         processReferralInitiation("copy");
                     } else {
-                        if(copyStatusMessageElement) copyStatusMessageElement.textContent = "Copy failed.";
-                        setTimeout(() => { if(copyStatusMessageElement) copyStatusMessageElement.textContent = ""; }, 2500);
+                         if(copyStatusMessageElement) copyStatusMessageElement.textContent = "Copy failed.";
+                         setTimeout(() => { if(copyStatusMessageElement) copyStatusMessageElement.textContent = ""; }, 2500);
                     }
                 } catch (err) {
                     navigator.clipboard.writeText(appState.referralData.referralLink).then(() => {
@@ -690,7 +843,7 @@ Address: ${address}
 
         if (shareReferralLinkButton) {
             shareReferralLinkButton.addEventListener('click', () => {
-                processReferralInitiation("share");
+                processReferralInitiation("share"); 
                 const linkToShare = appState.referralData.referralLink;
                 const shareText = `Hi! I'm using this great app. Join with my link and earn rewards: ${linkToShare}`;
                 const telegramShareUrl = `https://t.me/share/url?url=${encodeURIComponent(linkToShare)}&text=${encodeURIComponent(shareText)}`;
@@ -699,11 +852,11 @@ Address: ${address}
         }
 
         window.onload = function() {
-            loadState();
-            loadTelegramUserData();
+            loadState(); 
+            loadTelegramUserData(); 
             showScreen('homeScreen');
-            startWithdrawalHistoryFeedSimulation();
-            setTimeout(() => {
+            startWithdrawalHistoryFeedSimulation(); 
+            setTimeout(() => { 
                 const adFunction = `show_${appState.monetagConfig.adZone}`;
                 if (typeof window[adFunction] === 'function') {
                     console.log(`Monetag Ad function '${adFunction}' is available.`);
