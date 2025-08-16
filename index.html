@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>App (Referral Fix, Withdrawal History)</title>
+    <title>App (Referral Fix)</title>
     <style>
         body {
             font-family: 'Helvetica Neue', Arial, sans-serif;
@@ -238,13 +238,13 @@
             margin-top: 0;
             margin-bottom: 12px;
             font-size: 17px;
-            color: #ffcc00;
+            color: #ffcc00; /* Yellow color for the title */
             border-bottom: 1px solid #3a3a3c;
             padding-bottom: 8px;
         }
         .admin-message-box marquee {
             font-size: 14px;
-            color: #ffffff;
+            color: #ffffff; /* White color for the message text */
         }
         /* --- End New Styles --- */
         /* --- New Styles for Withdrawal History Modal --- */
@@ -303,12 +303,12 @@
             color: #ffcc00;
         }
         .withdrawal-history-modal .status-approved {
-            background-color: rgba(52, 199, 89, 0.2);
-            color: #34c759;
+            background-color: rgba(67, 160, 71, 0.2);
+            color: #a5d6a7;
         }
         .withdrawal-history-modal .status-rejected {
-            background-color: rgba(255, 59, 48, 0.2);
-            color: #ff3b30;
+            background-color: rgba(229, 57, 53, 0.2);
+            color: #ef9a9a;
         }
         .withdrawal-history-modal .no-history {
             text-align: center;
@@ -542,7 +542,7 @@
         // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
-        const APP_VERSION = "2.1.2"; // Incremented for withdrawal history and referral fix
+        const APP_VERSION = "2.1.3"; // Incremented for referral fix
         const LS_KEY_APP_STATE = `monetagAppUserState_v${APP_VERSION}`;
         const REWARD_PER_SUCCESSFUL_REFERRAL_USDT = 0.01; // Bonus for successful referral signup
         const navItems = document.querySelectorAll('.bottom-nav .nav-item');
@@ -617,6 +617,8 @@
         let autoTaskInterval = null;
         let userId = null;
         let userRef = null;
+        // --- New: Track if we are listening for withdrawal status ---
+        let isListeningForWithdrawalStatus = false;
 
         // When the user clicks on <span> (x), close the modal
         spanClose.onclick = function() {
@@ -638,11 +640,11 @@
             }
             // --- Close withdrawal history modal if clicked outside ---
             if (event.target == withdrawalHistoryModal) {
-                withdrawalHistoryModal.style.display = "none";
+                 withdrawalHistoryModal.style.display = "none";
             }
         }
 
-        // --- Handle closing the withdrawal history modal ---
+        // --- New: Handle closing the withdrawal history modal ---
         closeWithdrawalHistoryModal.onclick = function() {
             withdrawalHistoryModal.style.display = "none";
         }
@@ -684,8 +686,6 @@
                             mergeState(data);
                             updateDisplays();
                             saveState();
-                            // Check withdrawal button state on load
-                            checkWithdrawalButtonState();
                         } else {
                             console.log("No existing data found in Firebase for this user. Initializing...");
                             initializeNewUserInFirebase();
@@ -1261,7 +1261,7 @@ Amount: ${formatUSDT(amount)} USDT
 Method: ${method}
 Address: ${address}`);
                     
-                    // Disable the submit button and change text
+                    // Disable the submit button
                     if(submitWithdrawalRequestBtn) {
                          submitWithdrawalRequestBtn.disabled = true;
                          submitWithdrawalRequestBtn.textContent = "Withdrawal Pending";
