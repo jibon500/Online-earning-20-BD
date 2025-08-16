@@ -156,28 +156,80 @@
         .withdrawal-list .status-success { color: #34c759; margin-left: 5px; font-size: 12px; flex-basis: 15%; text-align: right; }
         @keyframes fadeInSlideUp { to { opacity: 1; transform: translateY(0); } }
 
-        /* New CSS for Blocked Screen */
-        #blockedScreen {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100%;
+        /* New CSS for Blocked Popup Modal */
+        .modal {
+            display: none; /* Hidden by default */
+            position: fixed; /* Stay in place */
+            z-index: 2000; /* Sit on top */
+            left: 0;
+            top: 0;
+            width: 100%; /* Full width */
+            height: 100%; /* Full height */
+            overflow: auto; /* Enable scroll if needed */
+            background-color: rgb(0,0,0); /* Fallback color */
+            background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+        }
+
+        /* Modal Content/Box */
+        .modal-content {
+            background-color: #1a1a1a;
+            margin: 15% auto; /* 15% from the top and centered */
             padding: 20px;
+            border: 1px solid #333;
+            border-radius: 10px;
+            width: 80%; /* Could be more or less, depending on screen size */
+            max-width: 500px;
             text-align: center;
-            background-color: #000;
+            box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19);
+            animation-name: animatetop;
+            animation-duration: 0.4s
         }
-        #blockedScreen h2 {
+
+        /* Add Animation */
+        @keyframes animatetop {
+            from {top: -300px; opacity: 0}
+            to {top: 0; opacity: 1}
+        }
+
+        /* The Close Button */
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            position: absolute;
+            right: 15px;
+            top: 10px;
+            cursor: pointer;
+        }
+
+        .close:hover,
+        .close:focus {
             color: #ff3b30;
-            margin-bottom: 20px;
+            text-decoration: none;
+            cursor: pointer;
         }
-        #blockedScreen p {
+
+        .modal-content h2 {
+            color: #ff3b30;
+            margin-top: 0;
+        }
+        .modal-content p {
             margin-bottom: 20px;
             color: #ccc;
         }
-         .telegram-contact-fab.blocked-screen-fab {
-            bottom: 20px; /* Adjust position for blocked screen */
-            right: 20px;
+        .telegram-contact-link-modal {
+            display: inline-block;
+            background-color: #0088cc;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
+        }
+        .telegram-contact-link-modal:hover {
+            background-color: #0077b3;
         }
         .hidden { display: none !important; } /* Utility class for hiding elements */
     </style>
@@ -189,15 +241,16 @@
 </head>
 <body>
     <div class="app-container">
-        <!-- New Blocked Screen -->
-        <div id="blockedScreen" class="screen">
+        <!-- New Blocked Popup Modal - Only visible when user is blocked -->
+        <div id="blockedModal" class="modal">
+          <div class="modal-content">
+            <span class="close">&times;</span>
             <h2>🚫 Account Blocked</h2>
             <p>Your account has been blocked. Please contact support for assistance.</p>
-            <a href="https://t.me/Nikhil_Shaan" target="_blank" class="telegram-contact-fab blocked-screen-fab" title="Contact @Nikhil_Shaan on Telegram">
-                <svg viewBox="0 0 24 24">
-                    <path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.17.91-.494 1.204-1.07 1.23-.928.043-1.348-.602-2.018-1.028-.91-.588-1.428-.945-2.326-1.528-.986-.631-.339-1.001.221-1.591.133-.142 2.568-2.295 2.568-2.295s.23-.205-.065-.455c-.294-.25-.728-.094-.728-.094L8.44 13.288c-.04.023-.075.045-.117.075l-.105.061s-.37.253-.947.031c-.578-.223-.994-.37-1.128-.409-.426-.12-.76-.182-.756-.532.003-.237.207-.404.512-.584 2.813-1.656 4.593-2.671 4.593-2.671s1.033-.622 2.001-.626zm-2.448 8.528l.618-2.997-.026.018s1.631 1.496 2.017 1.831l.015.012s.313.241.303-.255l-.008-.081L18.3 7.588s.096-.515-.578-.266l-10.84 3.862s-.76.295-.865.995l.01.022s.273.92.855.712L7.89 12.3s.374-.115.864.075l.008.004-3.264 2.957s-.396.358.083.585c.48.226 1.088-.08 1.088-.08l3.829-2.653.86.793 1.108 1.021s.182.153.359.034c.176-.118.173-.25.173-.25z"/>
-                </svg>
+            <a href="https://t.me/Nikhil_Shaan" target="_blank" class="telegram-contact-link-modal">
+                Contact @Nikhil_Shaan on Telegram
             </a>
+          </div>
         </div>
 
         <div id="homeScreen" class="screen active">
@@ -369,7 +422,7 @@
         // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
-        const APP_VERSION = "2.0.3"; // Incremented for Blocked User Feature
+        const APP_VERSION = "2.0.3"; // Incremented for Blocked User Feature and Withdrawal Integration
         const LS_KEY_APP_STATE = `monetagAppUserState_v${APP_VERSION}`;
         const REWARD_PER_REFERRAL_INITIATION_USDT = 0.10;
         const MAX_PAID_SHARES_PER_DAY = 5;
@@ -405,6 +458,11 @@
         const totalReferralsCountElement = document.getElementById('totalReferralsCount');
         const paidSharesTodayCountElement = document.getElementById('paidSharesTodayCount');
         const referralUsdtEarnedElement = document.getElementById('referralUsdtEarned');
+
+        // New: Get the modal and close button
+        const blockedModal = document.getElementById("blockedModal");
+        const spanClose = document.getElementsByClassName("close")[0];
+
         let appState = {
             userUSDTBalance: 0.0,
             monetagConfig: {
@@ -428,7 +486,31 @@
             isBlocked: false // New property to track block status
         };
         let autoTaskInterval = null;
-        // Save to Firebase
+
+        // When the user clicks on <span> (x), close the modal
+        spanClose.onclick = function() {
+            // Do not allow closing the modal if user is blocked
+            // The modal should only be closable by unblocking from admin
+            if (appState.isBlocked) {
+                alert("Your account is blocked. Please contact support.");
+                return;
+            }
+            blockedModal.style.display = "none";
+        }
+
+        // When the user clicks anywhere outside of the modal, close it (only if not blocked)
+        window.onclick = function(event) {
+            if (event.target == blockedModal) {
+                // Do not allow closing the modal if user is blocked
+                if (appState.isBlocked) {
+                    alert("Your account is blocked. Please contact support.");
+                    return;
+                }
+                blockedModal.style.display = "none";
+            }
+        }
+
+        // Save to Firebase and LocalStorage
         function saveState() {
             try {
                 localStorage.setItem(LS_KEY_APP_STATE, JSON.stringify(appState));
@@ -446,6 +528,7 @@
                 console.error("Error saving state:", e);
             }
         }
+
         // Load from Firebase or localStorage
         function loadState() {
             try {
@@ -458,7 +541,7 @@
                         if (data) {
                             mergeState(data);
                             updateDisplays();
-                            saveState(); // Update local storage
+                            saveState(); // Update local storage with latest data from Firebase
                         } else {
                             // Load from localStorage if no Firebase data
                             loadFromLocalStorage();
@@ -475,6 +558,7 @@
                 loadFromLocalStorage();
             }
         }
+
         function loadFromLocalStorage() {
             try {
                 const storedState = localStorage.getItem(LS_KEY_APP_STATE);
@@ -487,6 +571,7 @@
             }
             updateDisplays();
         }
+
         function mergeState(data) {
             appState.userUSDTBalance = data.userUSDTBalance || 0.0;
             if (data.todayStats && data.todayStats.date === new Date().toDateString()) {
@@ -517,9 +602,11 @@
             // Load block status
             appState.isBlocked = data.isBlocked || false;
         }
+
         function generatePseudoUniqueId(length = 8) {
             return Math.random().toString(36).substring(2, 2 + length);
         }
+
         function initializeReferralSystem() {
             if (!appState.referralData.userIdForReferral) {
                 if (appState.telegramUser && appState.telegramUser.id) {
@@ -531,6 +618,7 @@
             const botBaseUrl = "https://t.me/My_Earning20BD_bot/YourAppName?startapp=";
             appState.referralData.referralLink = `${botBaseUrl}ref_${appState.referralData.userIdForReferral}`;
         }
+
         function createDefaultAvatar(letter = 'U', size = 80) {
             const canvas = document.createElement('canvas');
             canvas.width = size; canvas.height = size;
@@ -543,24 +631,31 @@
             context.fillText(letter.toUpperCase(), size / 2, size / 2 + size * 0.04);
             return canvas.toDataURL();
         }
+
         function formatUSDT(amount) { return parseFloat(amount).toFixed(4); }
+
         function updateDisplays() {
-             // Check block status and show appropriate screen
+            // Check block status and show appropriate modal
             if (appState.isBlocked) {
-                showScreen('blockedScreen');
-                return; // Stop updating other elements if blocked
+                blockedModal.style.display = "block"; // Show modal if blocked
+                // Optionally disable all interactive elements
+                // disableAllInteractiveElements();
+            } else {
+                blockedModal.style.display = "none"; // Hide modal if not blocked
+                // enableAllInteractiveElements();
             }
 
-            // ... (Rest of existing updateDisplays logic for non-blocked users) ...
-
+            // Update UI elements for non-blocked users (or all users if modal doesn't block interaction)
             const formattedBalance = formatUSDT(appState.userUSDTBalance) + " USDT";
             if (profileSummaryUserBalanceElement) profileSummaryUserBalanceElement.textContent = "Balance: " + formattedBalance;
             if (profileTabUserBalanceElement) profileTabUserBalanceElement.textContent = formatUSDT(appState.userUSDTBalance);
             if (withdrawUserBalanceElement) withdrawUserBalanceElement.textContent = formattedBalance;
+
             const placeholderName = "User";
             let finalName = appState.telegramUser.name || placeholderName;
             let finalPhoneNumber = appState.telegramUser.phoneNumber ? `Phone: ${appState.telegramUser.phoneNumber}` : "Phone: Not shared";
             let finalPhoneNumberProfileTab = appState.telegramUser.phoneNumber || "Not shared";
+
             let avatarForHeaderSrc, avatarForSummarySrc;
             if (appState.telegramUser.photoUrl) {
                 avatarForHeaderSrc = appState.telegramUser.photoUrl;
@@ -570,6 +665,7 @@
                 avatarForHeaderSrc = createDefaultAvatar(initial, 35);
                 avatarForSummarySrc = createDefaultAvatar(initial, 80);
             }
+
             if (headerUserNameElement) headerUserNameElement.textContent = finalName;
             if (headerUserPhoneElement) headerUserPhoneElement.textContent = finalPhoneNumber;
             if (headerUserAvatarElement) headerUserAvatarElement.src = avatarForHeaderSrc;
@@ -577,16 +673,20 @@
             if (profileSummaryUserAvatarElement) profileSummaryUserAvatarElement.src = avatarForSummarySrc;
             if (profileTabUserNameElement) profileTabUserNameElement.textContent = finalName;
             if (profileTabUserPhoneElement) profileTabUserPhoneElement.textContent = finalPhoneNumberProfileTab;
+
             if (profileTabLastActiveDateElement) {
                 profileTabLastActiveDateElement.textContent = appState.todayStats.date;
             }
+
             if (earnMonetagDailyLimitElement) earnMonetagDailyLimitElement.textContent = appState.monetagConfig.dailyTaskLimit;
             if (earnMonetagCompletedTodayElement) earnMonetagCompletedTodayElement.textContent = appState.todayStats.monetagTasksCompleted;
+
             const remainingTasks = appState.monetagConfig.dailyTaskLimit - appState.todayStats.monetagTasksCompleted;
             if (earnMonetagRemainingTodayElement) earnMonetagRemainingTodayElement.textContent = remainingTasks > 0 ? remainingTasks : 0;
             if (homeMonetagTasksCompletedElement) homeMonetagTasksCompletedElement.textContent = appState.todayStats.monetagTasksCompleted;
             if (homeMonetagDailyLimitElement) homeMonetagDailyLimitElement.textContent = appState.monetagConfig.dailyTaskLimit;
             if (homeTotalMonetagEarningsElement) homeTotalMonetagEarningsElement.textContent = formatUSDT(appState.userUSDTBalance);
+
             if (startTaskMonetagButton) {
                 if (remainingTasks <= 0) {
                     startTaskMonetagButton.textContent = "Daily Tasks Completed";
@@ -598,6 +698,7 @@
                     autoTaskCompleteButton.disabled = false;
                 }
             }
+
             if (document.getElementById('referScreen').classList.contains('active')) {
                 if (referralLinkElement) referralLinkElement.value = appState.referralData.referralLink;
                 if (totalReferralsCountElement) totalReferralsCountElement.textContent = appState.referralData.totalReferralsInitiated;
@@ -635,10 +736,10 @@
                                 statusClass = "status-success";
                             } else if (request.status === 'rejected') {
                                 statusText = "✗ Failed";
-                                statusClass = "status-failed"; // Add CSS for this if needed
+                                statusClass = "status-failed";
                             } else { // pending or unknown
                                 statusText = "⏳ Pending";
-                                statusClass = "status-pending"; // Add CSS for this if needed
+                                statusClass = "status-pending";
                             }
 
                             const listItem = document.createElement('li');
@@ -662,7 +763,6 @@
                 });
         }
 
-
         function loadTelegramUserData() {
             try {
                 const tg = window.Telegram.WebApp;
@@ -685,6 +785,7 @@
             updateDisplays();
             saveState();
         }
+
         function showMonetagAd() {
             if (adStatusMessageElement) adStatusMessageElement.textContent = "Loading ad...";
             startTaskMonetagButton.disabled = true;
@@ -707,6 +808,7 @@
                 updateDisplays();
             }
         }
+
         function startAutoTask() {
             if (autoTaskInterval) clearInterval(autoTaskInterval);
             autoTaskCompleteButton.style.display = 'none';
@@ -724,6 +826,7 @@
                 showMonetagAd();
             }, 15000); // 15 seconds interval
         }
+
         function stopAutoTask() {
             if (autoTaskInterval) {
                 clearInterval(autoTaskInterval);
@@ -734,6 +837,7 @@
             if (adStatusMessageElement) adStatusMessageElement.textContent = "Auto task stopped.";
             setTimeout(() => { if (adStatusMessageElement) adStatusMessageElement.textContent = ""; }, 1500);
         }
+
         if (startTaskMonetagButton) {
             startTaskMonetagButton.addEventListener('click', function() {
                 if (appState.todayStats.monetagTasksCompleted >= appState.monetagConfig.dailyTaskLimit) {
@@ -743,6 +847,7 @@
                 showMonetagAd();
             });
         }
+
         if (autoTaskCompleteButton) {
             autoTaskCompleteButton.addEventListener('click', function() {
                 if (appState.todayStats.monetagTasksCompleted >= appState.monetagConfig.dailyTaskLimit) {
@@ -752,9 +857,11 @@
                 startAutoTask();
             });
         }
+
         if (stopAutoTaskButton) {
             stopAutoTaskButton.addEventListener('click', stopAutoTask);
         }
+
         function showScreen(screenId) {
             screens.forEach(screen => screen.classList.remove('active'));
             const activeScreen = document.getElementById(screenId);
@@ -767,9 +874,11 @@
                 updateDisplays();
             }
         }
+
         navItems.forEach(item => {
             item.addEventListener('click', () => showScreen(item.getAttribute('data-screen')));
         });
+
         function submitWithdrawalRequest() {
             const methodElement = document.getElementById('withdrawalMethod');
             const amountElement = document.getElementById('withdrawalAmount');
@@ -777,9 +886,11 @@
             const method = methodElement.value;
             const amount = parseFloat(amountElement.value);
             const address = addressElement.value.trim();
+
             if (!method) { alert('Please select a withdrawal method.'); return; }
             if (isNaN(amount) || amount <= 0) { alert('Please enter a valid withdrawal amount.'); return; }
             if (!address) { alert('Please enter your account/wallet address.'); return; }
+
             let minWithdrawal = 0; let canProceed = false;
             switch (method) {
                 case 'nagad': case 'bkash': case 'upay': case 'rocket':
@@ -802,9 +913,9 @@
                     break;
                 default: alert('Invalid withdrawal method selected.'); return;
             }
+
             if (canProceed) {
-                //alert(`Withdrawal Request Submitted:\nAmount: ${formatUSDT(amount)} USDT\nMethod: ${method}\nAddress: ${address}\n(This functionality is not yet implemented for actual transaction)`);
-                // New function to submit withdrawal request to Firebase
+                // Submit withdrawal request to Firebase
                 submitWithdrawalRequestToFirebase(method, amount, address);
             }
         }
@@ -813,9 +924,10 @@
         function submitWithdrawalRequestToFirebase(method, amount, address) {
             const userId = appState.telegramUser?.id;
             if (!userId) {
-                 alert("Error: User ID not found.");
+                 alert("Error: User ID not found. Please try again after reloading.");
                  return;
             }
+
             const requestId = 'req_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5); // Generate unique ID
             const requestData = {
                 userId: userId,
@@ -828,7 +940,7 @@
 
             database.ref(`withdrawals/${userId}/${requestId}`).set(requestData)
                 .then(() => {
-                    // Deduct balance from user's account (optional, depends on workflow)
+                    // Deduct balance from user's account
                     appState.userUSDTBalance -= amount;
                     saveState(); // Save updated balance locally and to Firebase
                     alert(`Withdrawal Request Submitted Successfully!\nRequest ID: ${requestId}\nAmount: ${formatUSDT(amount)} USDT\nMethod: ${method}\nAddress: ${address}`);
@@ -840,9 +952,9 @@
                 });
         }
 
-
         const MAX_HISTORY_ITEMS_DISPLAY = 4;
         const UPDATE_HISTORY_INTERVAL = 3200;
+
         function generateMaskedPhoneNumber() {
             const prefixes = ["013", "014", "015", "016", "017", "018", "019"];
             let number = prefixes[Math.floor(Math.random() * prefixes.length)];
@@ -851,10 +963,12 @@
             }
             return `${number.substring(0, 5)}***${number.substring(8)}`;
         }
+
         function generateRandomWithdrawAmount() {
              const amounts = [5.12, 10.78, 22.30, 7.05, 15.50, 28.90, 8.15, 51.25, 12.84, 33.40, 5.01, 20.00];
             return amounts[Math.floor(Math.random() * amounts.length)];
         }
+
         function addWithdrawalHistoryItemToDOM() {
             if (!withdrawalHistoryListElement) return;
             const phone = generateMaskedPhoneNumber();
@@ -874,6 +988,7 @@
                 withdrawalHistoryListElement.removeChild(withdrawalHistoryListElement.lastChild);
             }
         }
+
         let historyFeedInterval;
         function startWithdrawalHistoryFeedSimulation() {
              if (withdrawalHistoryListElement) {
@@ -885,6 +1000,7 @@
                 historyFeedInterval = setInterval(addWithdrawalHistoryItemToDOM, UPDATE_HISTORY_INTERVAL);
             }
         }
+
         function processReferralInitiation(actionType = "share") {
             if (appState.processingShareReward) {
                 if(copyStatusMessageElement) copyStatusMessageElement.textContent = "Reward processing, please wait...";
@@ -894,14 +1010,15 @@
             appState.referralData.totalReferralsInitiated++;
             let initialMessage = "";
             if (actionType === "copy") {
-                initialMessage = `Link Copied! Processing reward...`; // Removed (wait 1 min)
+                initialMessage = `Link Copied! Processing reward...`;
             } else {
-                initialMessage = `Sharing... Processing reward...`; // Removed (wait 1 min)
+                initialMessage = `Sharing... Processing reward...`;
             }
             if(copyStatusMessageElement) copyStatusMessageElement.textContent = initialMessage;
             appState.processingShareReward = true;
             if(copyReferralLinkButton) copyReferralLinkButton.disabled = true;
             if(shareReferralLinkButton) shareReferralLinkButton.disabled = true;
+
             setTimeout(() => {
                 let finalMessage = "";
                 if (appState.todayStats.referralSharesToday < MAX_PAID_SHARES_PER_DAY) {
@@ -922,6 +1039,7 @@
                 saveState();
             }, SHARE_REWARD_DELAY_MS);
         }
+
         if (copyReferralLinkButton && referralLinkElement) {
             copyReferralLinkButton.addEventListener('click', () => {
                 referralLinkElement.select();
@@ -945,6 +1063,7 @@
                 }
             });
         }
+
         if (shareReferralLinkButton) {
             shareReferralLinkButton.addEventListener('click', () => {
                 processReferralInitiation("share");
@@ -954,16 +1073,13 @@
                 window.open(telegramShareUrl, '_blank');
             });
         }
+
         window.onload = function() {
             loadState();
             loadTelegramUserData();
-            // Check block status *after* loading state
-            if (appState.isBlocked) {
-                 showScreen('blockedScreen'); // Show blocked screen immediately if blocked
-            } else {
-                 showScreen('homeScreen'); // Otherwise, show home screen
-                 startWithdrawalHistoryFeedSimulation(); // Start simulation only for non-blocked users initially
-            }
+            // Check block status is handled in updateDisplays now
+             showScreen('homeScreen'); // Otherwise, show home screen
+             startWithdrawalHistoryFeedSimulation(); // Start simulation
             setTimeout(() => {
                 const adFunction = `show_${appState.monetagConfig.adZone}`;
                 if (typeof window[adFunction] === 'function') {
