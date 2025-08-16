@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Monitag.Mini App</title>
+    <title>App (Persistent Data, Improved Referral, Real-time Block, Scrolling Msg)</title>
     <style>
         body {
             font-family: 'Helvetica Neue', Arial, sans-serif;
@@ -59,151 +59,70 @@
         }
         .profile-summary .user-name-profile { font-size: 20px; font-weight: bold; color: #ffffff; }
         .profile-summary .user-balance-profile { font-size: 15px; color: #bbbbbb; margin-top: 6px; }
-
-        /* --- Scrolling Message Container (Only on Home Screen) --- */
-        #homeScrollingMessageContainer {
+        /* --- Updated CSS for Scrolling Message --- */
+        .scrolling-message-container {
             background-color: #2c2c2e;
-            color: #ffcc00;
-            padding: 15px;
-            border-radius: 10px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            color: #ffcc00; /* Yellow text */
+            padding: 6px 0; /* Reduced padding */
             overflow: hidden;
             white-space: nowrap;
-            border: 1px solid #3a3a3c;
-            box-sizing: border-box;
-            margin-top: 15px;
-            margin-bottom: 15px;
-            display: none;
+            border-top: 1px solid #444;
+            border-bottom: 1px solid #444;
+            margin-bottom: 10px;
         }
-        #homeScrollingMessageContainer.visible {
-            display: block;
-        }
-        #homeScrollingMessage {
+        .scrolling-message {
             display: inline-block;
             padding-left: 100%;
-            animation: scroll-left 20s linear infinite;
+            /* Slower animation: increased duration from 20s to 30s */
+            animation: scroll-left 30s linear infinite;
+            font-size: 14px; /* Slightly smaller font size */
         }
         @keyframes scroll-left {
             0%   { transform: translateX(0); }
             100% { transform: translateX(-100%); }
         }
-
+        /* --- End Updated CSS --- */
         .info-card {
-            background-color: #1c1c1e;
-            color: #ffffff;
-            border-radius: 10px;
-            padding: 15px;
-            margin-bottom: 15px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-            border: 1px solid #3a3a3c;
-            box-sizing: border-box;
+            background-color: #1c1c1e; color: #ffffff; border-radius: 10px;
+            padding: 15px; margin-bottom: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.2);
         }
         .info-card h3 {
-            margin-top: 0;
-            margin-bottom: 12px;
-            font-size: 17px;
-            color: #00aaff;
-            border-bottom: 1px solid #3a3a3c;
-            padding-bottom: 8px;
+            margin-top: 0; margin-bottom: 12px; font-size: 17px;
+            color: #00aaff; border-bottom: 1px solid #3a3a3c; padding-bottom: 8px;
         }
-        .info-card p {
-            margin: 8px 0;
-            font-size: 15px;
-            display: flex;
-            justify-content: space-between;
-        }
-        .info-card p span:last-child {
-            font-weight: bold;
-            color: #ffffff;
-        }
-
-        .withdrawal-history-card {
-            background-color: #1c1c1e;
-            color: #ffffff;
-            border-radius: 10px;
-            padding: 15px;
-            margin: 0 0 15px 0;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-            max-height: 180px;
-            min-height: 100px;
-            overflow-y: hidden;
-            position: relative;
-            border: 1px solid #3a3a3c;
+        .info-card p { margin: 8px 0; font-size: 15px; display: flex; justify-content: space-between; }
+        .info-card p span:last-child { font-weight: bold; color: #ffffff; }
+        .info-card p.referral-details-text { display: block; line-height: 1.5; }
+        .btn {
+            display: block; width: 100%; padding: 12px;
+            background-color: #007aff; color: white;
+            border: none; border-radius: 8px; font-size: 17px;
+            font-weight: bold; text-align: center; cursor: pointer; margin-top: 20px;
             box-sizing: border-box;
         }
-        .withdrawal-history-card h3 {
-            margin-top: 0;
-            margin-bottom: 10px;
-            font-size: 16px;
-            color: #00aaff;
-            text-align: center;
+        .btn:hover { background-color: #0056b3; }
+        .btn:disabled { background-color: #555; cursor: not-allowed; opacity: 0.7;}
+        .btn.btn-share { background-color: #0088cc; margin-top: 10px;}
+        .btn.btn-share:hover { background-color: #0077b3; }
+        .btn.btn-auto { background-color: #34c759; margin-top: 10px; }
+        .btn.btn-stop { background-color: #ff3b30; margin-top: 10px; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 6px; font-size: 14px; color: #cccccc; }
+        .form-group input, .form-group select {
+            width: 100%; padding: 11px; border: 1px solid #3a3a3c;
+            border-radius: 6px; font-size: 15px; background-color: #2c2c2e; color: #ffffff;
+            box-sizing: border-box;
         }
-        .withdrawal-list {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-            height: 100%;
-        }
-        .withdrawal-list li {
-            padding: 6px 0;
-            font-size: 13px;
-            border-bottom: 1px solid #2a2a2e;
-            display: flex;
-            justify-content: space-between;
-            opacity: 0;
-            transform: translateY(15px);
-            animation: fadeInSlideUp 0.6s forwards;
-        }
-        .withdrawal-list li:last-child {
-            border-bottom: none;
-        }
-        .withdrawal-list .phone-number {
-            color: #cccccc;
-            flex-basis: 50%;
-        }
-        .withdrawal-list .amount {
-            color: #34c759;
-            font-weight: bold;
-            flex-basis: 35%;
-            text-align: right;
-        }
-        .withdrawal-list .status-success {
-            color: #34c759;
-            margin-left: 5px;
-            font-size: 12px;
-            flex-basis: 15%;
-            text-align: right;
-        }
-        @keyframes fadeInSlideUp {
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
         .bottom-nav {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background-color: #1a1a1a;
-            border-top: 1px solid #333333;
-            display: flex;
-            justify-content: space-around;
-            padding: 8px 0;
-            box-shadow: 0 -1px 5px rgba(0,0,0,0.2);
-            z-index: 1000;
+            position: fixed; bottom: 0; left: 0; right: 0;
+            background-color: #1a1a1a; border-top: 1px solid #333333;
+            display: flex; justify-content: space-around; padding: 8px 0;
+            box-shadow: 0 -1px 5px rgba(0,0,0,0.2); z-index: 1000;
         }
         .bottom-nav .nav-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            color: #8e8e93;
-            cursor: pointer;
-            padding: 5px 10px;
-            font-size: 11px;
-            flex-basis: 0;
-            flex-grow: 1;
+            display: flex; flex-direction: column; align-items: center;
+            color: #8e8e93; cursor: pointer; padding: 5px 10px; font-size: 11px;
+            flex-basis: 0; flex-grow: 1;
         }
         .bottom-nav .nav-item .icon {
             font-size: 22px;
@@ -217,64 +136,81 @@
         .bottom-nav .nav-item .icon svg {
             display: block;
         }
-        .bottom-nav .nav-item.active {
-            color: #00aaff;
+        .bottom-nav .nav-item.active { color: #00aaff; }
+        #adStatusMessage {
+            margin-top: 10px; font-size: 14px;
+            color: #ffcc00; text-align: center; min-height: 20px;
         }
-
         .telegram-contact-fab {
-            position: fixed;
-            bottom: 75px;
-            right: 20px;
-            width: 50px;
-            height: 50px;
-            background-color: #0088cc;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+            position: fixed; bottom: 75px; right: 20px;
+            width: 50px; height: 50px; background-color: #0088cc;
+            border-radius: 50%; display: flex; align-items: center;
+            justify-content: center; box-shadow: 0 4px 8px rgba(0,0,0,0.3);
             z-index: 999;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
+            cursor: pointer; transition: background-color 0.3s ease;
         }
-        .telegram-contact-fab:hover {
-            background-color: #0077b3;
+        .telegram-contact-fab:hover { background-color: #0077b3; }
+        .telegram-contact-fab svg { width: 28px; height: 28px; fill: white; }
+        .withdrawal-history-card {
+            background-color: #1c1c1e; color: #ffffff; border-radius: 10px;
+            padding: 15px;
+            margin: 0 0 15px 0;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            max-height: 180px;
+            min-height: 100px;
+            overflow-y: hidden;
+            position: relative;
         }
-        .telegram-contact-fab svg {
-            width: 28px;
-            height: 28px;
-            fill: white;
+        .withdrawal-history-card h3 {
+            margin-top: 0; margin-bottom: 10px; font-size: 16px;
+            color: #00aaff; text-align: center;
         }
-
-        /* Modal for Blocked Account */
+        .withdrawal-list { list-style: none; padding: 0; margin: 0; height: 100%; }
+        .withdrawal-list li {
+            padding: 6px 0;
+            font-size: 13px; border-bottom: 1px solid #2a2a2e;
+            display: flex; justify-content: space-between;
+            opacity: 0; transform: translateY(15px);
+            animation: fadeInSlideUp 0.6s forwards;
+        }
+        .withdrawal-list li:last-child { border-bottom: none; }
+        .withdrawal-list .phone-number { color: #cccccc; flex-basis: 50%; }
+        .withdrawal-list .amount { color: #34c759; font-weight: bold; flex-basis: 35%; text-align: right; }
+        .withdrawal-list .status-success { color: #34c759; margin-left: 5px; font-size: 12px; flex-basis: 15%; text-align: right; }
+        @keyframes fadeInSlideUp { to { opacity: 1; transform: translateY(0); } }
+        /* New CSS for Blocked Popup Modal */
         .modal {
-            display: none;
-            position: fixed;
-            z-index: 2000;
+            display: none; /* Hidden by default */
+            position: fixed; /* Stay in place */
+            z-index: 2000; /* Sit on top */
             left: 0;
             top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-            background-color: rgba(0,0,0,0.4);
+            width: 100%; /* Full width */
+            height: 100%; /* Full height */
+            overflow: auto; /* Enable scroll if needed */
+            background-color: rgb(0,0,0); /* Fallback color */
+            background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
         }
+        /* Modal Content/Box */
         .modal-content {
             background-color: #1a1a1a;
-            margin: 15% auto;
+            margin: 15% auto; /* 15% from the top and centered */
             padding: 20px;
             border: 1px solid #333;
             border-radius: 10px;
-            width: 80%;
+            width: 80%; /* Could be more or less, depending on screen size */
             max-width: 500px;
             text-align: center;
             box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19);
             animation-name: animatetop;
-            animation-duration: 0.4s;
+            animation-duration: 0.4s
         }
+        /* Add Animation */
         @keyframes animatetop {
-            from { top: -300px; opacity: 0; }
-            to { top: 0; opacity: 1; }
+            from {top: -300px; opacity: 0}
+            to {top: 0; opacity: 1}
         }
+        /* The Close Button */
         .close {
             color: #aaa;
             float: right;
@@ -312,26 +248,27 @@
         .telegram-contact-link-modal:hover {
             background-color: #0077b3;
         }
+        .hidden { display: none !important; } /* Utility class for hiding elements */
     </style>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src='//solseewuthi.net/sdk.js' data-zone='9344336' data-sdk='show_9344336' async></script>
+    <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 </head>
 <body>
     <div class="app-container">
-        <!-- Blocked Account Modal -->
+        <!-- New Blocked Popup Modal - Only visible when user is blocked -->
         <div id="blockedModal" class="modal">
-            <div class="modal-content">
-                <span class="close">&times;</span>
-                <h2>🚫 Account Blocked</h2>
-                <p>Your account has been blocked. Please contact support for assistance.</p>
-                <a href="https://t.me/Nikhil_Shaan" target="_blank" class="telegram-contact-link-modal">
-                    Contact @Nikhil_Shaan on Telegram
-                </a>
-            </div>
+          <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>🚫 Account Blocked</h2>
+            <p>Your account has been blocked. Please contact support for assistance.</p>
+            <a href="https://t.me/Nikhil_Shaan" target="_blank" class="telegram-contact-link-modal">
+                Contact @Nikhil_Shaan on Telegram
+            </a>
+          </div>
         </div>
-
         <div id="homeScreen" class="screen active">
             <div class="app-header">
                 <div class="user-info-header">
@@ -347,12 +284,12 @@
                 <img id="profileSummaryUserAvatar" src="" alt=" " class="avatar-large">
                 <div id="profileSummaryUserName" class="user-name-profile">Loading...</div>
                 <div id="profileSummaryUserBalance" class="user-balance-profile">Balance: 0.0000 USDT</div>
+                <!-- --- New Scrolling Message Container --- -->
+                <div id="homeScrollingMessageContainer" class="scrolling-message-container hidden">
+                    <div id="homeScrollingMessage" class="scrolling-message"></div>
+                </div>
+                <!-- --- End New Container --- -->
             </div>
-            <!-- Scrolling Message -->
-            <div id="homeScrollingMessageContainer">
-                <div id="homeScrollingMessage"></div>
-            </div>
-
             <div class="content-padding">
                 <div class="info-card">
                     <h3>Today's Tasks (Overall Summary)</h3>
@@ -369,8 +306,6 @@
                 </div>
             </div>
         </div>
-
-        <!-- Other Screens -->
         <div id="earnScreen" class="screen">
             <div class="app-header">
                 <div class="title">Earn Tasks</div>
@@ -392,7 +327,6 @@
                 <div id="adStatusMessage"></div>
             </div>
         </div>
-
         <div id="referScreen" class="screen">
             <div class="app-header">
                 <div class="title">Refer & Earn</div>
@@ -422,7 +356,6 @@
                 </div>
             </div>
         </div>
-
         <div id="withdrawScreen" class="screen">
             <div class="app-header">
                 <div class="title">Withdraw Funds</div>
@@ -458,7 +391,6 @@
                 </div>
             </div>
         </div>
-
         <div id="profileScreen" class="screen">
             <div class="app-header">
                 <div class="title">Profile</div>
@@ -470,6 +402,11 @@
                     <p><span>Name:</span> <span id="profileTabUserName">Loading...</span></p>
                     <p><span>Phone:</span> <span id="profileTabUserPhone">Not shared</span></p>
                     <p><span>Total Balance (USDT):</span> <span id="profileTabUserBalance">0.0000</span></p>
+                     <!-- --- New Scrolling Message Container (Profile) --- -->
+                    <div id="profileScrollingMessageContainer" class="scrolling-message-container hidden">
+                        <div id="profileScrollingMessage" class="scrolling-message"></div>
+                    </div>
+                    <!-- --- End New Container --- -->
                     <p><span>Email:</span> <span>user@example.com</span></p>
                     <p><span>Last Active:</span> <span id="profileTabLastActiveDate">Loading...</span></p>
                     <button class="btn" style="background-color: #ff3b30; margin-top: 20px;" onclick="alert('Logout functionality not implemented.')">Logout</button>
@@ -477,22 +414,14 @@
             </div>
         </div>
     </div>
-
     <a href="https://t.me/Jobsrbot" target="_blank" class="telegram-contact-fab" title="Contact @Jobsrbot on Telegram">
         <svg viewBox="0 0 24 24">
             <path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.17.91-.494 1.204-1.07 1.23-.928.043-1.348-.602-2.018-1.028-.91-.588-1.428-.945-2.326-1.528-.986-.631-.339-1.001.221-1.591.133-.142 2.568-2.295 2.568-2.295s.23-.205-.065-.455c-.294-.25-.728-.094-.728-.094L8.44 13.288c-.04.023-.075.045-.117.075l-.105.061s-.37.253-.947.031c-.578-.223-.994-.37-1.128-.409-.426-.12-.76-.182-.756-.532.003-.237.207-.404.512-.584 2.813-1.656 4.593-2.671 4.593-2.671s1.033-.622 2.001-.626zm-2.448 8.528l.618-2.997-.026.018s1.631 1.496 2.017 1.831l.015.012s.313.241.303-.255l-.008-.081L18.3 7.588s.096-.515-.578-.266l-10.84 3.862s-.76.295-.865.995l.01.022s.273.92.855.712L7.89 12.3s.374-.115.864.075l.008.004-3.264 2.957s-.396.358.083.585c.48.226 1.088-.08 1.088-.08l3.829-2.653.86.793 1.108 1.021s.182.153.359.034c.176-.118.173-.25.173-.25z"/>
         </svg>
     </a>
-
     <div class="bottom-nav">
-        <div class="nav-item active" data-screen="homeScreen">
-            <div class="icon">🏠</div>
-            <div>Home</div>
-        </div>
-        <div class="nav-item" data-screen="earnScreen">
-            <div class="icon">💰</div>
-            <div>Earn</div>
-        </div>
+        <div class="nav-item active" data-screen="homeScreen"> <div class="icon">🏠</div> <div>Home</div> </div>
+        <div class="nav-item" data-screen="earnScreen"> <div class="icon">💰</div> <div>Earn</div> </div>
         <div class="nav-item" data-screen="referScreen">
             <div class="icon">
                 <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="currentColor">
@@ -502,16 +431,9 @@
             </div>
             <div>Refer</div>
         </div>
-        <div class="nav-item" data-screen="withdrawScreen">
-            <div class="icon">💸</div>
-            <div>Withdraw</div>
-        </div>
-        <div class="nav-item" data-screen="profileScreen">
-            <div class="icon">👤</div>
-            <div>Profile</div>
-        </div>
+        <div class="nav-item" data-screen="withdrawScreen"> <div class="icon">💸</div> <div>Withdraw</div> </div>
+        <div class="nav-item" data-screen="profileScreen"> <div class="icon">👤</div> <div>Profile</div> </div>
     </div>
-
     <script>
         // Firebase Config
         const firebaseConfig = {
@@ -523,14 +445,14 @@
             messagingSenderId: "25930019210",
             appId: "1:25930019210:web:6441562811d3e7e9631873"
         };
+        // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
-        const APP_VERSION = "2.0.4";
+        const APP_VERSION = "2.0.4"; // Incremented for persistent data & improved referral/blocking
         const LS_KEY_APP_STATE = `monetagAppUserState_v${APP_VERSION}`;
         const REWARD_PER_REFERRAL_INITIATION_USDT = 0.10;
         const MAX_PAID_SHARES_PER_DAY = 5;
-        const SHARE_REWARD_DELAY_MS = 60000;
-
+        const SHARE_REWARD_DELAY_MS = 60000; // 60000 milliseconds = 1 minute
         const navItems = document.querySelectorAll('.bottom-nav .nav-item');
         const screens = document.querySelectorAll('.app-container .screen');
         const headerUserAvatarElement = document.getElementById('headerUserAvatar');
@@ -562,13 +484,15 @@
         const totalReferralsCountElement = document.getElementById('totalReferralsCount');
         const paidSharesTodayCountElement = document.getElementById('paidSharesTodayCount');
         const referralUsdtEarnedElement = document.getElementById('referralUsdtEarned');
-
+        // New: Get the modal and close button
         const blockedModal = document.getElementById("blockedModal");
         const spanClose = document.getElementsByClassName("close")[0];
-
+        // --- New Elements for Scrolling Message --- //
         const homeScrollingMessageContainer = document.getElementById('homeScrollingMessageContainer');
         const homeScrollingMessageElement = document.getElementById('homeScrollingMessage');
-
+        const profileScrollingMessageContainer = document.getElementById('profileScrollingMessageContainer');
+        const profileScrollingMessageElement = document.getElementById('profileScrollingMessage');
+        // --- End New Elements --- //
         let appState = {
             userUSDTBalance: 0.0,
             monetagConfig: {
@@ -589,84 +513,176 @@
                 usdtEarnedFromReferrals: 0.0
             },
             processingShareReward: false,
-            isBlocked: false
+            isBlocked: false // New property to track block status
         };
-
         let autoTaskInterval = null;
-
+        let userId = null; // Store Telegram User ID
+        let userRef = null; // Reference to the user's node in Firebase
+        // When the user clicks on <span> (x), close the modal
         spanClose.onclick = function() {
+            // Do not allow closing the modal if user is blocked
             if (appState.isBlocked) {
                 alert("Your account is blocked. Please contact support.");
                 return;
             }
             blockedModal.style.display = "none";
-        };
-
+        }
+        // When the user clicks anywhere outside of the modal, close it (only if not blocked)
         window.onclick = function(event) {
             if (event.target == blockedModal) {
+                // Do not allow closing the modal if user is blocked
                 if (appState.isBlocked) {
                     alert("Your account is blocked. Please contact support.");
                     return;
                 }
                 blockedModal.style.display = "none";
             }
-        };
-
+        }
+        // Save to Firebase (and optionally localStorage for backup)
         function saveState() {
+            if (!userId) return; // Don't save if no user ID
             try {
-                localStorage.setItem(LS_KEY_APP_STATE, JSON.stringify(appState));
-                if (appState.telegramUser && appState.telegramUser.id) {
-                    const userId = appState.telegramUser.id;
-                    database.ref('users/' + userId).set({
+                // Save to Firebase - this is the primary source now
+                if (userRef) {
+                    userRef.set({
                         ...appState,
                         lastSeen: new Date().toISOString()
-                    }).catch(err => console.error("Firebase save error:", err));
+                    }).catch(err => {
+                        console.error("Firebase save error:", err);
+                        // Optionally, save to localStorage as a backup attempt
+                        // localStorage.setItem(LS_KEY_APP_STATE, JSON.stringify(appState));
+                    });
                 }
             } catch (e) {
                 console.error("Error saving state:", e);
             }
         }
-
+        // Load from Firebase or localStorage
         function loadState() {
             try {
                 const tg = window.Telegram?.WebApp;
-                const userId = tg?.initDataUnsafe?.user?.id;
+                userId = tg?.initDataUnsafe?.user?.id?.toString(); // Ensure it's a string
                 if (userId) {
-                    database.ref('users/' + userId).once('value').then(snapshot => {
+                    userRef = database.ref('users/' + userId); // Get reference to user's node
+                    // --- New: Listen for real-time changes to the user's data, including isBlocked ---
+                    userRef.on('value', (snapshot) => {
                         const data = snapshot.val();
                         if (data) {
+                            console.log("Loading user data from Firebase...");
                             mergeState(data);
                             updateDisplays();
-                            saveState();
+                            saveState(); // Update Firebase with lastSeen etc.
                         } else {
-                            loadFromLocalStorage();
+                            console.log("No existing data found in Firebase for this user. Initializing...");
+                            // Initialize new user data in Firebase
+                            initializeNewUserInFirebase();
                         }
-                    }).catch(err => {
-                        console.error("Firebase load error:", err);
-                        loadFromLocalStorage();
+                    }, (error) => {
+                        console.error("Firebase load error:", error);
+                        // Fallback to localStorage if Firebase fails completely?
+                        // loadFromLocalStorageFallback();
                     });
                 } else {
-                    loadFromLocalStorage();
+                    console.warn("No Telegram User ID found. Cannot load user data.");
+                    // Handle case where Telegram ID is not available?
+                    // loadFromLocalStorageFallback();
                 }
             } catch (e) {
                 console.error("Error during loadState:", e);
-                loadFromLocalStorage();
+                // loadFromLocalStorageFallback();
             }
         }
-
-        function loadFromLocalStorage() {
-            try {
-                const storedState = localStorage.getItem(LS_KEY_APP_STATE);
-                if (storedState) {
-                    const parsedState = JSON.parse(storedState);
-                    mergeState(parsedState);
+        // --- New Function: Initialize new user data in Firebase ---
+        function initializeNewUserInFirebase() {
+            if (!userId || !userRef) return;
+            // Check for referral parameter in the URL (e.g., ?startapp=ref_tg123456789)
+            const urlParams = new URLSearchParams(window.location.search);
+            const startParam = urlParams.get('startapp');
+            let referrerId = null;
+            if (startParam && startParam.startsWith('ref_')) {
+                referrerId = startParam.substring(4); // Extract the ID part after 'ref_'
+                console.log("Referral detected. Referrer ID:", referrerId);
+                // Grant bonus to referrer if valid
+                if (referrerId && referrerId !== `tg${userId}`) { // Prevent self-referral
+                     grantReferralBonus(referrerId, userId); // Pass referrer ID and new user ID
                 }
-            } catch (e) {
-                console.error("Error loading local state:", e);
             }
-            updateDisplays();
+            // Load Telegram data first to get name etc.
+            loadTelegramUserData(); // This also calls initializeReferralSystem
+            // Set initial state in Firebase
+            const initialState = {
+                ...appState,
+                lastSeen: new Date().toISOString()
+            };
+            userRef.set(initialState).then(() => {
+                console.log("New user data initialized in Firebase.");
+                 updateDisplays();
+                 saveState(); // Ensure it's saved
+            }).catch(err => {
+                console.error("Error initializing new user in Firebase:", err);
+            });
         }
-
+        // --- New Function: Grant Referral Bonus to Referrer ---
+        function grantReferralBonus(referrerId, newUserTelegramId) {
+            if (!referrerId || !newUserTelegramId) return;
+            console.log(`Attempting to grant bonus to referrer: ${referrerId} for new user: ${newUserTelegramId}`);
+            const referrerRef = database.ref('users/' + referrerId.replace('tg', '')); // Handle tg prefix if needed
+            referrerRef.transaction((currentData) => {
+                if (currentData === null) {
+                    console.log("Referrer not found in database.");
+                    return; // Referrer doesn't exist
+                }
+                // Check if this specific referral has already been rewarded (optional, prevent double rewarding)
+                // This would require storing a list of referred user IDs under the referrer's data
+                // For simplicity, assuming each referral link use is unique for now.
+                // Grant the bonus
+                const bonusAmount = 0.05; // Example bonus amount (adjust as needed)
+                currentData.userUSDTBalance = (parseFloat(currentData.userUSDTBalance) || 0) + bonusAmount;
+                currentData.referralData.usdtEarnedFromReferrals = (parseFloat(currentData.referralData.usdtEarnedFromReferrals) || 0) + bonusAmount;
+                // Optional: Increment a specific referral count if needed
+                // currentData.referralData.successfulReferrals = (currentData.referralData.successfulReferrals || 0) + 1;
+                console.log(`Bonus of ${bonusAmount} USDT granted to referrer ${referrerId}`);
+                return currentData;
+            }).catch(err => {
+                console.error("Error granting referral bonus:", err);
+            });
+        }
+        // --- New Function: Handle real-time blocking ---
+        function setupBlockingListener() {
+             if (!userRef) return;
+             // Listen specifically for changes to the 'isBlocked' field
+             userRef.child('isBlocked').on('value', (snapshot) => {
+                 const isBlocked = snapshot.val() || false;
+                 appState.isBlocked = isBlocked;
+                 updateDisplays(); // This will show/hide the modal
+                 console.log("User blocking status updated:", isBlocked);
+             });
+        }
+        // --- New Function: Listen for Admin Message --- //
+        function listenForAdminMessage() {
+            const adminMessageRef = database.ref('adminMessage');
+            adminMessageRef.on('value', (snapshot) => {
+                const messageData = snapshot.val();
+                updateScrollingMessageDisplay(messageData?.text || '');
+            });
+        }
+        // --- New Function: Update Scrolling Message Display --- //
+        function updateScrollingMessageDisplay(messageText) {
+            if (messageText && messageText.trim() !== '') {
+                // Update text
+                if(homeScrollingMessageElement) homeScrollingMessageElement.textContent = messageText;
+                if(profileScrollingMessageElement) profileScrollingMessageElement.textContent = messageText;
+                // Show container
+                if(homeScrollingMessageContainer) homeScrollingMessageContainer.classList.remove('hidden');
+                if(profileScrollingMessageContainer) profileScrollingMessageContainer.classList.remove('hidden');
+            } else {
+                // Hide container if no message
+                if(homeScrollingMessageContainer) homeScrollingMessageContainer.classList.add('hidden');
+                if(profileScrollingMessageContainer) profileScrollingMessageContainer.classList.add('hidden');
+            }
+        }
+        // --- End New Functions --- //
+        // --- Removed loadFromLocalStorage function as Firebase is primary ---
         function mergeState(data) {
             appState.userUSDTBalance = data.userUSDTBalance !== undefined ? parseFloat(data.userUSDTBalance) : 0.0;
             if (data.todayStats && data.todayStats.date === new Date().toDateString()) {
@@ -697,13 +713,12 @@
                 };
             }
             appState.processingShareReward = false;
+            // Load block status
             appState.isBlocked = data.isBlocked || false;
         }
-
         function generatePseudoUniqueId(length = 8) {
             return Math.random().toString(36).substring(2, 2 + length);
         }
-
         function initializeReferralSystem() {
             if (!appState.referralData.userIdForReferral) {
                 if (appState.telegramUser && appState.telegramUser.id) {
@@ -715,7 +730,6 @@
             const botBaseUrl = "https://t.me/My_Earning20BD_bot/YourAppName?startapp=";
             appState.referralData.referralLink = `${botBaseUrl}ref_${appState.referralData.userIdForReferral}`;
         }
-
         function createDefaultAvatar(letter = 'U', size = 80) {
             const canvas = document.createElement('canvas');
             canvas.width = size; canvas.height = size;
@@ -728,25 +742,26 @@
             context.fillText(letter.toUpperCase(), size / 2, size / 2 + size * 0.04);
             return canvas.toDataURL();
         }
-
         function formatUSDT(amount) { return parseFloat(amount).toFixed(4); }
-
         function updateDisplays() {
+            // Check block status and show appropriate modal
             if (appState.isBlocked) {
-                blockedModal.style.display = "block";
+                blockedModal.style.display = "block"; // Show modal if blocked
+                // Optionally disable all interactive elements
+                // disableAllInteractiveElements();
             } else {
-                blockedModal.style.display = "none";
+                blockedModal.style.display = "none"; // Hide modal if not blocked
+                // enableAllInteractiveElements();
             }
-
+            // Update UI elements for non-blocked users (or all users if modal doesn't block interaction)
             const formattedBalance = formatUSDT(appState.userUSDTBalance) + " USDT";
             if (profileSummaryUserBalanceElement) profileSummaryUserBalanceElement.textContent = "Balance: " + formattedBalance;
             if (profileTabUserBalanceElement) profileTabUserBalanceElement.textContent = formatUSDT(appState.userUSDTBalance);
             if (withdrawUserBalanceElement) withdrawUserBalanceElement.textContent = formattedBalance;
-
-            let finalName = appState.telegramUser.name || "User";
+            const placeholderName = "User";
+            let finalName = appState.telegramUser.name || placeholderName;
             let finalPhoneNumber = appState.telegramUser.phoneNumber ? `Phone: ${appState.telegramUser.phoneNumber}` : "Phone: Not shared";
             let finalPhoneNumberProfileTab = appState.telegramUser.phoneNumber || "Not shared";
-
             let avatarForHeaderSrc, avatarForSummarySrc;
             if (appState.telegramUser.photoUrl) {
                 avatarForHeaderSrc = appState.telegramUser.photoUrl;
@@ -756,7 +771,6 @@
                 avatarForHeaderSrc = createDefaultAvatar(initial, 35);
                 avatarForSummarySrc = createDefaultAvatar(initial, 80);
             }
-
             if (headerUserNameElement) headerUserNameElement.textContent = finalName;
             if (headerUserPhoneElement) headerUserPhoneElement.textContent = finalPhoneNumber;
             if (headerUserAvatarElement) headerUserAvatarElement.src = avatarForHeaderSrc;
@@ -764,8 +778,9 @@
             if (profileSummaryUserAvatarElement) profileSummaryUserAvatarElement.src = avatarForSummarySrc;
             if (profileTabUserNameElement) profileTabUserNameElement.textContent = finalName;
             if (profileTabUserPhoneElement) profileTabUserPhoneElement.textContent = finalPhoneNumberProfileTab;
-            if (profileTabLastActiveDateElement) profileTabLastActiveDateElement.textContent = appState.todayStats.date;
-
+            if (profileTabLastActiveDateElement) {
+                profileTabLastActiveDateElement.textContent = appState.todayStats.date;
+            }
             if (earnMonetagDailyLimitElement) earnMonetagDailyLimitElement.textContent = appState.monetagConfig.dailyTaskLimit;
             if (earnMonetagCompletedTodayElement) earnMonetagCompletedTodayElement.textContent = appState.todayStats.monetagTasksCompleted;
             const remainingTasks = appState.monetagConfig.dailyTaskLimit - appState.todayStats.monetagTasksCompleted;
@@ -773,7 +788,6 @@
             if (homeMonetagTasksCompletedElement) homeMonetagTasksCompletedElement.textContent = appState.todayStats.monetagTasksCompleted;
             if (homeMonetagDailyLimitElement) homeMonetagDailyLimitElement.textContent = appState.monetagConfig.dailyTaskLimit;
             if (homeTotalMonetagEarningsElement) homeTotalMonetagEarningsElement.textContent = formatUSDT(appState.userUSDTBalance);
-
             if (startTaskMonetagButton) {
                 if (remainingTasks <= 0) {
                     startTaskMonetagButton.textContent = "Daily Tasks Completed";
@@ -785,30 +799,29 @@
                     autoTaskCompleteButton.disabled = false;
                 }
             }
-
             if (document.getElementById('referScreen').classList.contains('active')) {
                 if (referralLinkElement) referralLinkElement.value = appState.referralData.referralLink;
                 if (totalReferralsCountElement) totalReferralsCountElement.textContent = appState.referralData.totalReferralsInitiated;
                 if (paidSharesTodayCountElement) paidSharesTodayCountElement.textContent = `${appState.todayStats.referralSharesToday}/${MAX_PAID_SHARES_PER_DAY}`;
                 if (referralUsdtEarnedElement) referralUsdtEarnedElement.textContent = formatUSDT(appState.referralData.usdtEarnedFromReferrals) + " USDT";
             }
-
+            // Update withdrawal history based on Firebase data
             updateWithdrawalHistoryFromFirebase();
         }
-
+        // New function to update withdrawal history from Firebase
         function updateWithdrawalHistoryFromFirebase() {
             const userId = appState.telegramUser?.id;
             if (!userId) return;
-            database.ref(`withdrawals/${userId}`).orderByChild('timestamp').limitToLast(10)
+            database.ref(`withdrawals/${userId}`).orderByChild('timestamp').limitToLast(10) // Get last 10
                 .on('value', (snapshot) => {
                     const withdrawalHistoryListElement = document.getElementById('withdrawalHistoryList');
                     if (!withdrawalHistoryListElement) return;
-                    withdrawalHistoryListElement.innerHTML = '';
+                    withdrawalHistoryListElement.innerHTML = ''; // Clear existing list
                     const data = snapshot.val();
                     if (data) {
-                        const withdrawals = Object.values(data).reverse();
+                        const withdrawals = Object.values(data).reverse(); // Reverse to show newest first
                         withdrawals.forEach(request => {
-                            const phone = generateMaskedPhoneNumber();
+                            const phone = generateMaskedPhoneNumber(); // Or store actual phone if available
                             const amount = parseFloat(request.amount);
                             let statusText = "";
                             let statusClass = "";
@@ -818,7 +831,7 @@
                             } else if (request.status === 'rejected') {
                                 statusText = "✗ Failed";
                                 statusClass = "status-failed";
-                            } else {
+                            } else { // pending or unknown
                                 statusText = "⏳ Pending";
                                 statusClass = "status-pending";
                             }
@@ -831,7 +844,8 @@
                             withdrawalHistoryListElement.appendChild(listItem);
                         });
                     } else {
-                        withdrawalHistoryListElement.innerHTML = '<li>No withdrawal history found.</li>';
+                         // No withdrawal history found
+                         withdrawalHistoryListElement.innerHTML = '<li>No withdrawal history found.</li>';
                     }
                 }, (error) => {
                     console.error("Error fetching withdrawal history:", error);
@@ -841,7 +855,6 @@
                     }
                 });
         }
-
         function loadTelegramUserData() {
             try {
                 const tg = window.Telegram.WebApp;
@@ -864,7 +877,6 @@
             updateDisplays();
             saveState();
         }
-
         function showMonetagAd() {
             if (adStatusMessageElement) adStatusMessageElement.textContent = "Loading ad...";
             startTaskMonetagButton.disabled = true;
@@ -883,16 +895,17 @@
                     updateDisplays();
                 });
             } else {
-                if (adStatusMessageElement) adStatusMessageElement.textContent = `Ad SDK not ready or function not found.`;
+                 if (adStatusMessageElement) adStatusMessageElement.textContent = `Ad SDK not ready or function not found.`;
                 updateDisplays();
             }
         }
-
         function startAutoTask() {
             if (autoTaskInterval) clearInterval(autoTaskInterval);
             autoTaskCompleteButton.style.display = 'none';
             stopAutoTaskButton.style.display = 'block';
+            // Show first ad immediately
             showMonetagAd();
+            // Then set interval for subsequent ads
             autoTaskInterval = setInterval(() => {
                 const remainingTasks = appState.monetagConfig.dailyTaskLimit - appState.todayStats.monetagTasksCompleted;
                 if (remainingTasks <= 0) {
@@ -901,9 +914,8 @@
                     return;
                 }
                 showMonetagAd();
-            }, 15000);
+            }, 15000); // 15 seconds interval
         }
-
         function stopAutoTask() {
             if (autoTaskInterval) {
                 clearInterval(autoTaskInterval);
@@ -914,7 +926,6 @@
             if (adStatusMessageElement) adStatusMessageElement.textContent = "Auto task stopped.";
             setTimeout(() => { if (adStatusMessageElement) adStatusMessageElement.textContent = ""; }, 1500);
         }
-
         if (startTaskMonetagButton) {
             startTaskMonetagButton.addEventListener('click', function() {
                 if (appState.todayStats.monetagTasksCompleted >= appState.monetagConfig.dailyTaskLimit) {
@@ -924,7 +935,6 @@
                 showMonetagAd();
             });
         }
-
         if (autoTaskCompleteButton) {
             autoTaskCompleteButton.addEventListener('click', function() {
                 if (appState.todayStats.monetagTasksCompleted >= appState.monetagConfig.dailyTaskLimit) {
@@ -934,11 +944,9 @@
                 startAutoTask();
             });
         }
-
         if (stopAutoTaskButton) {
             stopAutoTaskButton.addEventListener('click', stopAutoTask);
         }
-
         function showScreen(screenId) {
             screens.forEach(screen => screen.classList.remove('active'));
             const activeScreen = document.getElementById(screenId);
@@ -951,11 +959,9 @@
                 updateDisplays();
             }
         }
-
         navItems.forEach(item => {
             item.addEventListener('click', () => showScreen(item.getAttribute('data-screen')));
         });
-
         function submitWithdrawalRequest() {
             const methodElement = document.getElementById('withdrawalMethod');
             const amountElement = document.getElementById('withdrawalAmount');
@@ -963,11 +969,9 @@
             const method = methodElement.value;
             const amount = parseFloat(amountElement.value);
             const address = addressElement.value.trim();
-
             if (!method) { alert('Please select a withdrawal method.'); return; }
             if (isNaN(amount) || amount <= 0) { alert('Please enter a valid withdrawal amount.'); return; }
             if (!address) { alert('Please enter your account/wallet address.'); return; }
-
             let minWithdrawal = 0; let canProceed = false;
             switch (method) {
                 case 'nagad': case 'bkash': case 'upay': case 'rocket':
@@ -984,50 +988,52 @@
                     break;
                 case 'other_crypto':
                     minWithdrawal = 10;
-                    if (amount >= minWithdrawal && appState.userUSDTBalance >= amount) canProceed = true;
+                     if (amount >= minWithdrawal && appState.userUSDTBalance >= amount) canProceed = true;
                     else if (appState.userUSDTBalance < amount) alert(`Insufficient balance. Your current balance is ${formatUSDT(appState.userUSDTBalance)} USDT.`);
                     else alert(`Minimum withdrawal for ${method} is ${minWithdrawal} USDT.`);
                     break;
                 default: alert('Invalid withdrawal method selected.'); return;
             }
-
             if (canProceed) {
+                // Submit withdrawal request to Firebase
                 submitWithdrawalRequestToFirebase(method, amount, address);
             }
         }
-
+        // New function to submit withdrawal request to Firebase
         function submitWithdrawalRequestToFirebase(method, amount, address) {
             const userId = appState.telegramUser?.id;
             if (!userId) {
-                alert("Error: User ID not found. Please try again after reloading.");
-                return;
+                 alert("Error: User ID not found. Please try again after reloading.");
+                 return;
             }
-            const requestId = 'req_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5);
+            const requestId = 'req_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5); // Generate unique ID
             const requestData = {
                 userId: userId,
                 amount: amount,
                 method: method,
                 address: address,
                 timestamp: new Date().toISOString(),
-                status: 'pending'
+                status: 'pending' // Initial status
             };
             database.ref(`withdrawals/${userId}/${requestId}`).set(requestData)
                 .then(() => {
+                    // Deduct balance from user's account
                     appState.userUSDTBalance -= amount;
-                    saveState();
+                    saveState(); // Save updated balance locally and to Firebase
                     alert(`Withdrawal Request Submitted Successfully!
 Request ID: ${requestId}
 Amount: ${formatUSDT(amount)} USDT
 Method: ${method}
 Address: ${address}`);
-                    updateDisplays();
+                    updateDisplays(); // Update UI (e.g., balance)
                 })
                 .catch(error => {
                     console.error("Error submitting withdrawal request:", error);
                     alert("Failed to submit withdrawal request. Please try again.");
                 });
         }
-
+        const MAX_HISTORY_ITEMS_DISPLAY = 4;
+        const UPDATE_HISTORY_INTERVAL = 3200;
         function generateMaskedPhoneNumber() {
             const prefixes = ["013", "014", "015", "016", "017", "018", "019"];
             let number = prefixes[Math.floor(Math.random() * prefixes.length)];
@@ -1036,12 +1042,10 @@ Address: ${address}`);
             }
             return `${number.substring(0, 5)}***${number.substring(8)}`;
         }
-
         function generateRandomWithdrawAmount() {
-            const amounts = [5.12, 10.78, 22.30, 7.05, 15.50, 28.90, 8.15, 51.25, 12.84, 33.40, 5.01, 20.00];
+             const amounts = [5.12, 10.78, 22.30, 7.05, 15.50, 28.90, 8.15, 51.25, 12.84, 33.40, 5.01, 20.00];
             return amounts[Math.floor(Math.random() * amounts.length)];
         }
-
         function addWithdrawalHistoryItemToDOM() {
             if (!withdrawalHistoryListElement) return;
             const phone = generateMaskedPhoneNumber();
@@ -1057,23 +1061,21 @@ Address: ${address}`);
             } else {
                 withdrawalHistoryListElement.appendChild(listItem);
             }
-            while (withdrawalHistoryListElement.children.length > 4) {
+            while (withdrawalHistoryListElement.children.length > MAX_HISTORY_ITEMS_DISPLAY) {
                 withdrawalHistoryListElement.removeChild(withdrawalHistoryListElement.lastChild);
             }
         }
-
         let historyFeedInterval;
         function startWithdrawalHistoryFeedSimulation() {
-            if (withdrawalHistoryListElement) {
+             if (withdrawalHistoryListElement) {
                 withdrawalHistoryListElement.innerHTML = '';
-                for (let i = 0; i < 4; i++) {
+                for (let i = 0; i < MAX_HISTORY_ITEMS_DISPLAY; i++) {
                     setTimeout(addWithdrawalHistoryItemToDOM, i * 400);
                 }
                 if (historyFeedInterval) clearInterval(historyFeedInterval);
-                historyFeedInterval = setInterval(addWithdrawalHistoryItemToDOM, 3200);
+                historyFeedInterval = setInterval(addWithdrawalHistoryItemToDOM, UPDATE_HISTORY_INTERVAL);
             }
         }
-
         function processReferralInitiation(actionType = "share") {
             if (appState.processingShareReward) {
                 if(copyStatusMessageElement) copyStatusMessageElement.textContent = "Reward processing, please wait...";
@@ -1111,7 +1113,6 @@ Address: ${address}`);
                 saveState();
             }, SHARE_REWARD_DELAY_MS);
         }
-
         if (copyReferralLinkButton && referralLinkElement) {
             copyReferralLinkButton.addEventListener('click', () => {
                 referralLinkElement.select();
@@ -1121,8 +1122,8 @@ Address: ${address}`);
                     if (successful) {
                         processReferralInitiation("copy");
                     } else {
-                        if(copyStatusMessageElement) copyStatusMessageElement.textContent = "Copy failed.";
-                        setTimeout(() => { if(copyStatusMessageElement) copyStatusMessageElement.textContent = ""; }, 2500);
+                         if(copyStatusMessageElement) copyStatusMessageElement.textContent = "Copy failed.";
+                         setTimeout(() => { if(copyStatusMessageElement) copyStatusMessageElement.textContent = ""; }, 2500);
                     }
                 } catch (err) {
                     navigator.clipboard.writeText(appState.referralData.referralLink).then(() => {
@@ -1135,7 +1136,6 @@ Address: ${address}`);
                 }
             });
         }
-
         if (shareReferralLinkButton) {
             shareReferralLinkButton.addEventListener('click', () => {
                 processReferralInitiation("share");
@@ -1145,31 +1145,12 @@ Address: ${address}`);
                 window.open(telegramShareUrl, '_blank');
             });
         }
-
-        function listenForAdminMessage() {
-            const adminMessageRef = database.ref('adminMessage');
-            adminMessageRef.on('value', (snapshot) => {
-                const messageData = snapshot.val();
-                updateScrollingMessageDisplay(messageData?.text || '');
-            });
-        }
-
-        function updateScrollingMessageDisplay(messageText) {
-            if (homeScrollingMessageElement && homeScrollingMessageContainer) {
-                if (messageText && messageText.trim() !== '') {
-                    homeScrollingMessageElement.textContent = messageText;
-                    homeScrollingMessageContainer.classList.add('visible');
-                } else {
-                    homeScrollingMessageContainer.classList.remove('visible');
-                }
-            }
-        }
-
         window.onload = function() {
             loadState();
-            loadTelegramUserData();
-            showScreen('homeScreen');
-            startWithdrawalHistoryFeedSimulation();
+            // loadTelegramUserData(); // Loading is handled by loadState now
+            // Check block status is handled in updateDisplays now
+             showScreen('homeScreen'); // Otherwise, show home screen
+             startWithdrawalHistoryFeedSimulation(); // Start simulation
             setTimeout(() => {
                 const adFunction = `show_${appState.monetagConfig.adZone}`;
                 if (typeof window[adFunction] === 'function') {
@@ -1178,6 +1159,7 @@ Address: ${address}`);
                     console.warn(`Monetag Ad function '${adFunction}' is NOT available. SDK issues may persist.`);
                 }
             }, 2500);
+            // --- Listen for Admin Message on Load --- //
             listenForAdminMessage();
         };
     </script>
