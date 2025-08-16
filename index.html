@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>App (Persistent Data, Improved Referral, Real-time Block, Scrolling Msg)</title>
+    <title>App (Persistent Data, Improved Referral, Real-time Block)</title>
     <style>
         body {
             font-family: 'Helvetica Neue', Arial, sans-serif;
@@ -59,29 +59,6 @@
         }
         .profile-summary .user-name-profile { font-size: 20px; font-weight: bold; color: #ffffff; }
         .profile-summary .user-balance-profile { font-size: 15px; color: #bbbbbb; margin-top: 6px; }
-        /* --- Updated CSS for Scrolling Message --- */
-        .scrolling-message-container {
-            background-color: #2c2c2e;
-            color: #ffcc00; /* Yellow text */
-            padding: 6px 0; /* Reduced padding */
-            overflow: hidden;
-            white-space: nowrap;
-            border-top: 1px solid #444;
-            border-bottom: 1px solid #444;
-            margin-bottom: 10px;
-        }
-        .scrolling-message {
-            display: inline-block;
-            padding-left: 100%;
-            /* Slower animation: increased duration from 20s to 30s */
-            animation: scroll-left 30s linear infinite;
-            font-size: 14px; /* Slightly smaller font size */
-        }
-        @keyframes scroll-left {
-            0%   { transform: translateX(0); }
-            100% { transform: translateX(-100%); }
-        }
-        /* --- End Updated CSS --- */
         .info-card {
             background-color: #1c1c1e; color: #ffffff; border-radius: 10px;
             padding: 15px; margin-bottom: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.2);
@@ -178,6 +155,7 @@
         .withdrawal-list .amount { color: #34c759; font-weight: bold; flex-basis: 35%; text-align: right; }
         .withdrawal-list .status-success { color: #34c759; margin-left: 5px; font-size: 12px; flex-basis: 15%; text-align: right; }
         @keyframes fadeInSlideUp { to { opacity: 1; transform: translateY(0); } }
+
         /* New CSS for Blocked Popup Modal */
         .modal {
             display: none; /* Hidden by default */
@@ -249,6 +227,29 @@
             background-color: #0077b3;
         }
         .hidden { display: none !important; } /* Utility class for hiding elements */
+
+        /* New styles for Salman Message Box */
+        .salman-message-box {
+            background-color: #1c1c1e;
+            color: #ffffff;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            text-align: center;
+        }
+        .salman-message-box h3 {
+            margin-top: 0;
+            margin-bottom: 12px;
+            font-size: 17px;
+            color: #ffcc00; /* Yellow color for the title */
+            border-bottom: 1px solid #3a3a3c;
+            padding-bottom: 8px;
+        }
+        .salman-message-box marquee {
+            font-size: 14px;
+            color: #ffffff; /* White color for the message text */
+        }
     </style>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src='//solseewuthi.net/sdk.js' data-zone='9344336' data-sdk='show_9344336' async></script>
@@ -284,13 +285,15 @@
                 <img id="profileSummaryUserAvatar" src="" alt=" " class="avatar-large">
                 <div id="profileSummaryUserName" class="user-name-profile">Loading...</div>
                 <div id="profileSummaryUserBalance" class="user-balance-profile">Balance: 0.0000 USDT</div>
-                <!-- --- New Scrolling Message Container --- -->
-                <div id="homeScrollingMessageContainer" class="scrolling-message-container hidden">
-                    <div id="homeScrollingMessage" class="scrolling-message"></div>
-                </div>
-                <!-- --- End New Container --- -->
             </div>
             <div class="content-padding">
+                <!-- New Salman Message Box -->
+                <div class="salman-message-box">
+                    <h3>Important Notice</h3>
+                    <marquee behavior="scroll" direction="left" scrollamount="5">
+                        সকল ইউজারদের অবগতির জন্য জানানো যাচ্ছে যে আমাদের এপ্লিকেশনে কোন ধরনের বাগ বা সমস্যা হলে অবশ্যই কন্টাক্ট করবেন। আমাদের সাপোর্ট টিম সবসময় একটিভ।
+                    </marquee>
+                </div>
                 <div class="info-card">
                     <h3>Today's Tasks (Overall Summary)</h3>
                     <p><span>Monetag Tasks Completed Today:</span> <span id="homeMonetagTasksCompleted">0</span></p>
@@ -402,11 +405,6 @@
                     <p><span>Name:</span> <span id="profileTabUserName">Loading...</span></p>
                     <p><span>Phone:</span> <span id="profileTabUserPhone">Not shared</span></p>
                     <p><span>Total Balance (USDT):</span> <span id="profileTabUserBalance">0.0000</span></p>
-                     <!-- --- New Scrolling Message Container (Profile) --- -->
-                    <div id="profileScrollingMessageContainer" class="scrolling-message-container hidden">
-                        <div id="profileScrollingMessage" class="scrolling-message"></div>
-                    </div>
-                    <!-- --- End New Container --- -->
                     <p><span>Email:</span> <span>user@example.com</span></p>
                     <p><span>Last Active:</span> <span id="profileTabLastActiveDate">Loading...</span></p>
                     <button class="btn" style="background-color: #ff3b30; margin-top: 20px;" onclick="alert('Logout functionality not implemented.')">Logout</button>
@@ -448,7 +446,7 @@
         // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
-        const APP_VERSION = "2.0.4"; // Incremented for persistent data & improved referral/blocking
+        const APP_VERSION = "2.0.5"; // Incremented for persistent data & improved referral/blocking
         const LS_KEY_APP_STATE = `monetagAppUserState_v${APP_VERSION}`;
         const REWARD_PER_REFERRAL_INITIATION_USDT = 0.10;
         const MAX_PAID_SHARES_PER_DAY = 5;
@@ -487,12 +485,6 @@
         // New: Get the modal and close button
         const blockedModal = document.getElementById("blockedModal");
         const spanClose = document.getElementsByClassName("close")[0];
-        // --- New Elements for Scrolling Message --- //
-        const homeScrollingMessageContainer = document.getElementById('homeScrollingMessageContainer');
-        const homeScrollingMessageElement = document.getElementById('homeScrollingMessage');
-        const profileScrollingMessageContainer = document.getElementById('profileScrollingMessageContainer');
-        const profileScrollingMessageElement = document.getElementById('profileScrollingMessage');
-        // --- End New Elements --- //
         let appState = {
             userUSDTBalance: 0.0,
             monetagConfig: {
@@ -658,30 +650,6 @@
                  console.log("User blocking status updated:", isBlocked);
              });
         }
-        // --- New Function: Listen for Admin Message --- //
-        function listenForAdminMessage() {
-            const adminMessageRef = database.ref('adminMessage');
-            adminMessageRef.on('value', (snapshot) => {
-                const messageData = snapshot.val();
-                updateScrollingMessageDisplay(messageData?.text || '');
-            });
-        }
-        // --- New Function: Update Scrolling Message Display --- //
-        function updateScrollingMessageDisplay(messageText) {
-            if (messageText && messageText.trim() !== '') {
-                // Update text
-                if(homeScrollingMessageElement) homeScrollingMessageElement.textContent = messageText;
-                if(profileScrollingMessageElement) profileScrollingMessageElement.textContent = messageText;
-                // Show container
-                if(homeScrollingMessageContainer) homeScrollingMessageContainer.classList.remove('hidden');
-                if(profileScrollingMessageContainer) profileScrollingMessageContainer.classList.remove('hidden');
-            } else {
-                // Hide container if no message
-                if(homeScrollingMessageContainer) homeScrollingMessageContainer.classList.add('hidden');
-                if(profileScrollingMessageContainer) profileScrollingMessageContainer.classList.add('hidden');
-            }
-        }
-        // --- End New Functions --- //
         // --- Removed loadFromLocalStorage function as Firebase is primary ---
         function mergeState(data) {
             appState.userUSDTBalance = data.userUSDTBalance !== undefined ? parseFloat(data.userUSDTBalance) : 0.0;
@@ -1093,19 +1061,21 @@ Address: ${address}`);
             appState.processingShareReward = true;
             if(copyReferralLinkButton) copyReferralLinkButton.disabled = true;
             if(shareReferralLinkButton) shareReferralLinkButton.disabled = true;
+
+            // --- Modified logic: No automatic reward ---
+            // Instead of setting a timeout to add the reward, we just disable the buttons
+            // and rely on the grantReferralBonus function to handle rewards when a new user joins via the link.
+            // The reward is only given when a new user actually signs up.
+
+            // Simulate processing delay without rewarding
             setTimeout(() => {
-                let finalMessage = "";
-                if (appState.todayStats.referralSharesToday < MAX_PAID_SHARES_PER_DAY) {
-                    appState.todayStats.referralSharesToday++;
-                    const rewardAmount = REWARD_PER_REFERRAL_INITIATION_USDT;
-                    appState.referralData.usdtEarnedFromReferrals += rewardAmount;
-                    appState.userUSDTBalance += rewardAmount;
-                    finalMessage = `+$${rewardAmount.toFixed(2)} Earned! (${appState.todayStats.referralSharesToday}/${MAX_PAID_SHARES_PER_DAY} today)`;
-                } else {
-                    finalMessage = `Daily share reward limit reached. No reward this time.`;
-                }
+                // Check if a new user actually joined via this link (this is a simplification)
+                // In reality, this check happens on the server/referrer side when a new user joins.
+                // Here, we just simulate the UI update after the delay.
+                let finalMessage = "Link processed. Reward will be given if a new user joins via your link.";
                 if(copyStatusMessageElement) copyStatusMessageElement.textContent = finalMessage;
                 setTimeout(() => { if(copyStatusMessageElement) copyStatusMessageElement.textContent = ""; }, 3500);
+
                 appState.processingShareReward = false;
                 if(copyReferralLinkButton) copyReferralLinkButton.disabled = false;
                 if(shareReferralLinkButton) shareReferralLinkButton.disabled = false;
@@ -1159,8 +1129,6 @@ Address: ${address}`);
                     console.warn(`Monetag Ad function '${adFunction}' is NOT available. SDK issues may persist.`);
                 }
             }, 2500);
-            // --- Listen for Admin Message on Load --- //
-            listenForAdminMessage();
         };
     </script>
 </body>
