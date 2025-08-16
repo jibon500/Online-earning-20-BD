@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>App (Persistent Data, Improved Referral, Real-time Block, Scrolling Msg)</title>
+    <title>App (Home Screen Scrolling Msg)</title>
     <style>
         body {
             font-family: 'Helvetica Neue', Arial, sans-serif;
@@ -59,8 +59,8 @@
         }
         .profile-summary .user-name-profile { font-size: 20px; font-weight: bold; color: #ffffff; }
         .profile-summary .user-balance-profile { font-size: 15px; color: #bbbbbb; margin-top: 6px; }
-        /* --- New CSS for Scrolling Message --- */
-        .scrolling-message-container {
+        /* --- New CSS for Scrolling Message (Home Screen Only) --- */
+        #homeScrollingMessageContainer {
             background-color: #2c2c2e;
             color: #ffcc00; /* Yellow text */
             padding: 8px 0;
@@ -68,9 +68,11 @@
             white-space: nowrap;
             border-top: 1px solid #444;
             border-bottom: 1px solid #444;
-            margin-bottom: 10px;
+            /* Add space above the message box, below the profile summary */
+            margin-top: 20px;
+            margin-bottom: 10px; /* Add a little space below the message box as well */
         }
-        .scrolling-message {
+        #homeScrollingMessage {
             display: inline-block;
             padding-left: 100%;
             animation: scroll-left 20s linear infinite;
@@ -282,12 +284,12 @@
                 <img id="profileSummaryUserAvatar" src="" alt=" " class="avatar-large">
                 <div id="profileSummaryUserName" class="user-name-profile">Loading...</div>
                 <div id="profileSummaryUserBalance" class="user-balance-profile">Balance: 0.0000 USDT</div>
-                <!-- --- New Scrolling Message Container --- -->
-                <div id="homeScrollingMessageContainer" class="scrolling-message-container hidden">
-                    <div id="homeScrollingMessage" class="scrolling-message"></div>
-                </div>
-                <!-- --- End New Container --- -->
             </div>
+            <!-- --- Scrolling Message Container (Only on Home Screen, Below Profile Summary) --- -->
+            <div id="homeScrollingMessageContainer" class="hidden">
+                <div id="homeScrollingMessage"></div>
+            </div>
+            <!-- --- End Message Container --- -->
             <div class="content-padding">
                 <div class="info-card">
                     <h3>Today's Tasks (Overall Summary)</h3>
@@ -400,11 +402,6 @@
                     <p><span>Name:</span> <span id="profileTabUserName">Loading...</span></p>
                     <p><span>Phone:</span> <span id="profileTabUserPhone">Not shared</span></p>
                     <p><span>Total Balance (USDT):</span> <span id="profileTabUserBalance">0.0000</span></p>
-                     <!-- --- New Scrolling Message Container (Profile) --- -->
-                    <div id="profileScrollingMessageContainer" class="scrolling-message-container hidden">
-                        <div id="profileScrollingMessage" class="scrolling-message"></div>
-                    </div>
-                    <!-- --- End New Container --- -->
                     <p><span>Email:</span> <span>user@example.com</span></p>
                     <p><span>Last Active:</span> <span id="profileTabLastActiveDate">Loading...</span></p>
                     <button class="btn" style="background-color: #ff3b30; margin-top: 20px;" onclick="alert('Logout functionality not implemented.')">Logout</button>
@@ -446,7 +443,7 @@
         // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
-        const APP_VERSION = "2.0.4"; // Incremented for persistent data & improved referral/blocking
+        const APP_VERSION = "2.0.4"; // Incremented for Home Screen Message Only
         const LS_KEY_APP_STATE = `monetagAppUserState_v${APP_VERSION}`;
         const REWARD_PER_REFERRAL_INITIATION_USDT = 0.10;
         const MAX_PAID_SHARES_PER_DAY = 5;
@@ -485,13 +482,10 @@
         // New: Get the modal and close button
         const blockedModal = document.getElementById("blockedModal");
         const spanClose = document.getElementsByClassName("close")[0];
-        // --- New Elements for Scrolling Message --- //
+        // --- New Element for Home Screen Scrolling Message --- //
         const homeScrollingMessageContainer = document.getElementById('homeScrollingMessageContainer');
         const homeScrollingMessageElement = document.getElementById('homeScrollingMessage');
-        const profileScrollingMessageContainer = document.getElementById('profileScrollingMessageContainer');
-        const profileScrollingMessageElement = document.getElementById('profileScrollingMessage');
-        // --- End New Elements --- //
-
+        // --- End New Element --- //
         let appState = {
             userUSDTBalance: 0.0,
             monetagConfig: {
@@ -514,21 +508,17 @@
             processingShareReward: false,
             isBlocked: false // New property to track block status
         };
-
         let autoTaskInterval = null;
-        let userId = null; // Store Telegram User ID
-        let userRef = null; // Reference to the user's node in Firebase
-
         // When the user clicks on <span> (x), close the modal
         spanClose.onclick = function() {
             // Do not allow closing the modal if user is blocked
+            // The modal should only be closable by unblocking from admin
             if (appState.isBlocked) {
                 alert("Your account is blocked. Please contact support.");
                 return;
             }
             blockedModal.style.display = "none";
         }
-
         // When the user clicks anywhere outside of the modal, close it (only if not blocked)
         window.onclick = function(event) {
             if (event.target == blockedModal) {
@@ -540,170 +530,65 @@
                 blockedModal.style.display = "none";
             }
         }
-
-        // Save to Firebase (and optionally localStorage for backup)
+        // Save to Firebase and LocalStorage
         function saveState() {
-            if (!userId) return; // Don't save if no user ID
             try {
-                // Save to Firebase - this is the primary source now
-                if (userRef) {
-                    userRef.set({
+                localStorage.setItem(LS_KEY_APP_STATE, JSON.stringify(appState));
+                // Save to Firebase
+                if (appState.telegramUser && appState.telegramUser.id) {
+                    const userId = appState.telegramUser.id;
+                    database.ref('users/' + userId).set({
                         ...appState,
                         lastSeen: new Date().toISOString()
                     }).catch(err => {
                         console.error("Firebase save error:", err);
-                        // Optionally, save to localStorage as a backup attempt
-                        // localStorage.setItem(LS_KEY_APP_STATE, JSON.stringify(appState));
                     });
                 }
             } catch (e) {
                 console.error("Error saving state:", e);
             }
         }
-
         // Load from Firebase or localStorage
         function loadState() {
             try {
                 const tg = window.Telegram?.WebApp;
-                userId = tg?.initDataUnsafe?.user?.id?.toString(); // Ensure it's a string
-
+                const userId = tg?.initDataUnsafe?.user?.id;
                 if (userId) {
-                    userRef = database.ref('users/' + userId); // Get reference to user's node
-
-                    // --- New: Listen for real-time changes to the user's data, including isBlocked ---
-                    userRef.on('value', (snapshot) => {
+                    // Try to load from Firebase first
+                    database.ref('users/' + userId).once('value').then(snapshot => {
                         const data = snapshot.val();
                         if (data) {
-                            console.log("Loading user data from Firebase...");
                             mergeState(data);
                             updateDisplays();
-                            saveState(); // Update Firebase with lastSeen etc.
+                            saveState(); // Update local storage with latest data from Firebase
                         } else {
-                            console.log("No existing data found in Firebase for this user. Initializing...");
-                            // Initialize new user data in Firebase
-                            initializeNewUserInFirebase();
+                            // Load from localStorage if no Firebase data
+                            loadFromLocalStorage();
                         }
-                    }, (error) => {
-                        console.error("Firebase load error:", error);
-                        // Fallback to localStorage if Firebase fails completely?
-                        // loadFromLocalStorageFallback();
+                    }).catch(err => {
+                        console.error("Firebase load error:", err);
+                        loadFromLocalStorage(); // Fallback to localStorage
                     });
-
                 } else {
-                    console.warn("No Telegram User ID found. Cannot load user data.");
-                    // Handle case where Telegram ID is not available?
-                    // loadFromLocalStorageFallback();
+                    loadFromLocalStorage(); // Fallback if no Telegram user ID
                 }
             } catch (e) {
                 console.error("Error during loadState:", e);
-                // loadFromLocalStorageFallback();
+                loadFromLocalStorage();
             }
         }
-
-        // --- New Function: Initialize new user data in Firebase ---
-        function initializeNewUserInFirebase() {
-            if (!userId || !userRef) return;
-
-            // Check for referral parameter in the URL (e.g., ?startapp=ref_tg123456789)
-            const urlParams = new URLSearchParams(window.location.search);
-            const startParam = urlParams.get('startapp');
-            let referrerId = null;
-            if (startParam && startParam.startsWith('ref_')) {
-                referrerId = startParam.substring(4); // Extract the ID part after 'ref_'
-                console.log("Referral detected. Referrer ID:", referrerId);
-                // Grant bonus to referrer if valid
-                if (referrerId && referrerId !== `tg${userId}`) { // Prevent self-referral
-                     grantReferralBonus(referrerId, userId); // Pass referrer ID and new user ID
+        function loadFromLocalStorage() {
+            try {
+                const storedState = localStorage.getItem(LS_KEY_APP_STATE);
+                if (storedState) {
+                    const parsedState = JSON.parse(storedState);
+                    mergeState(parsedState);
                 }
+            } catch (e) {
+                console.error("Error loading local state:", e);
             }
-
-            // Load Telegram data first to get name etc.
-            loadTelegramUserData(); // This also calls initializeReferralSystem
-
-            // Set initial state in Firebase
-            const initialState = {
-                ...appState,
-                lastSeen: new Date().toISOString()
-            };
-            userRef.set(initialState).then(() => {
-                console.log("New user data initialized in Firebase.");
-                 updateDisplays();
-                 saveState(); // Ensure it's saved
-            }).catch(err => {
-                console.error("Error initializing new user in Firebase:", err);
-            });
+            updateDisplays();
         }
-
-        // --- New Function: Grant Referral Bonus to Referrer ---
-        function grantReferralBonus(referrerId, newUserTelegramId) {
-            if (!referrerId || !newUserTelegramId) return;
-            console.log(`Attempting to grant bonus to referrer: ${referrerId} for new user: ${newUserTelegramId}`);
-
-            const referrerRef = database.ref('users/' + referrerId.replace('tg', '')); // Handle tg prefix if needed
-            referrerRef.transaction((currentData) => {
-                if (currentData === null) {
-                    console.log("Referrer not found in database.");
-                    return; // Referrer doesn't exist
-                }
-                // Check if this specific referral has already been rewarded (optional, prevent double rewarding)
-                // This would require storing a list of referred user IDs under the referrer's data
-                // For simplicity, assuming each referral link use is unique for now.
-
-                // Grant the bonus
-                const bonusAmount = 0.05; // Example bonus amount (adjust as needed)
-                currentData.userUSDTBalance = (parseFloat(currentData.userUSDTBalance) || 0) + bonusAmount;
-                currentData.referralData.usdtEarnedFromReferrals = (parseFloat(currentData.referralData.usdtEarnedFromReferrals) || 0) + bonusAmount;
-                // Optional: Increment a specific referral count if needed
-                // currentData.referralData.successfulReferrals = (currentData.referralData.successfulReferrals || 0) + 1;
-
-                console.log(`Bonus of ${bonusAmount} USDT granted to referrer ${referrerId}`);
-                return currentData;
-            }).catch(err => {
-                console.error("Error granting referral bonus:", err);
-            });
-        }
-
-
-        // --- New Function: Handle real-time blocking ---
-        function setupBlockingListener() {
-             if (!userRef) return;
-             // Listen specifically for changes to the 'isBlocked' field
-             userRef.child('isBlocked').on('value', (snapshot) => {
-                 const isBlocked = snapshot.val() || false;
-                 appState.isBlocked = isBlocked;
-                 updateDisplays(); // This will show/hide the modal
-                 console.log("User blocking status updated:", isBlocked);
-             });
-        }
-
-        // --- New Function: Listen for Admin Message --- //
-        function listenForAdminMessage() {
-            const adminMessageRef = database.ref('adminMessage');
-            adminMessageRef.on('value', (snapshot) => {
-                const messageData = snapshot.val();
-                updateScrollingMessageDisplay(messageData?.text || '');
-            });
-        }
-
-        // --- New Function: Update Scrolling Message Display --- //
-        function updateScrollingMessageDisplay(messageText) {
-            if (messageText && messageText.trim() !== '') {
-                // Update text
-                if(homeScrollingMessageElement) homeScrollingMessageElement.textContent = messageText;
-                if(profileScrollingMessageElement) profileScrollingMessageElement.textContent = messageText;
-                // Show container
-                if(homeScrollingMessageContainer) homeScrollingMessageContainer.classList.remove('hidden');
-                if(profileScrollingMessageContainer) profileScrollingMessageContainer.classList.remove('hidden');
-            } else {
-                // Hide container if no message
-                if(homeScrollingMessageContainer) homeScrollingMessageContainer.classList.add('hidden');
-                if(profileScrollingMessageContainer) profileScrollingMessageContainer.classList.add('hidden');
-            }
-        }
-        // --- End New Functions --- //
-
-        // --- Removed loadFromLocalStorage function as Firebase is primary ---
-
         function mergeState(data) {
             appState.userUSDTBalance = data.userUSDTBalance !== undefined ? parseFloat(data.userUSDTBalance) : 0.0;
             if (data.todayStats && data.todayStats.date === new Date().toDateString()) {
@@ -737,11 +622,9 @@
             // Load block status
             appState.isBlocked = data.isBlocked || false;
         }
-
         function generatePseudoUniqueId(length = 8) {
             return Math.random().toString(36).substring(2, 2 + length);
         }
-
         function initializeReferralSystem() {
             if (!appState.referralData.userIdForReferral) {
                 if (appState.telegramUser && appState.telegramUser.id) {
@@ -753,7 +636,6 @@
             const botBaseUrl = "https://t.me/My_Earning20BD_bot/YourAppName?startapp=";
             appState.referralData.referralLink = `${botBaseUrl}ref_${appState.referralData.userIdForReferral}`;
         }
-
         function createDefaultAvatar(letter = 'U', size = 80) {
             const canvas = document.createElement('canvas');
             canvas.width = size; canvas.height = size;
@@ -766,9 +648,7 @@
             context.fillText(letter.toUpperCase(), size / 2, size / 2 + size * 0.04);
             return canvas.toDataURL();
         }
-
         function formatUSDT(amount) { return parseFloat(amount).toFixed(4); }
-
         function updateDisplays() {
             // Check block status and show appropriate modal
             if (appState.isBlocked) {
@@ -834,7 +714,6 @@
             // Update withdrawal history based on Firebase data
             updateWithdrawalHistoryFromFirebase();
         }
-
         // New function to update withdrawal history from Firebase
         function updateWithdrawalHistoryFromFirebase() {
             const userId = appState.telegramUser?.id;
@@ -882,7 +761,6 @@
                     }
                 });
         }
-
         function loadTelegramUserData() {
             try {
                 const tg = window.Telegram.WebApp;
@@ -905,7 +783,6 @@
             updateDisplays();
             saveState();
         }
-
         function showMonetagAd() {
             if (adStatusMessageElement) adStatusMessageElement.textContent = "Loading ad...";
             startTaskMonetagButton.disabled = true;
@@ -928,7 +805,6 @@
                 updateDisplays();
             }
         }
-
         function startAutoTask() {
             if (autoTaskInterval) clearInterval(autoTaskInterval);
             autoTaskCompleteButton.style.display = 'none';
@@ -946,7 +822,6 @@
                 showMonetagAd();
             }, 15000); // 15 seconds interval
         }
-
         function stopAutoTask() {
             if (autoTaskInterval) {
                 clearInterval(autoTaskInterval);
@@ -957,7 +832,6 @@
             if (adStatusMessageElement) adStatusMessageElement.textContent = "Auto task stopped.";
             setTimeout(() => { if (adStatusMessageElement) adStatusMessageElement.textContent = ""; }, 1500);
         }
-
         if (startTaskMonetagButton) {
             startTaskMonetagButton.addEventListener('click', function() {
                 if (appState.todayStats.monetagTasksCompleted >= appState.monetagConfig.dailyTaskLimit) {
@@ -979,7 +853,6 @@
         if (stopAutoTaskButton) {
             stopAutoTaskButton.addEventListener('click', stopAutoTask);
         }
-
         function showScreen(screenId) {
             screens.forEach(screen => screen.classList.remove('active'));
             const activeScreen = document.getElementById(screenId);
@@ -991,11 +864,17 @@
             if (['earnScreen', 'homeScreen', 'withdrawScreen', 'profileScreen', 'referScreen'].includes(screenId)) {
                 updateDisplays();
             }
+             // --- Show/Hide Message based on screen --- //
+            if (screenId === 'homeScreen' && homeScrollingMessageContainer) {
+                 // Message visibility is controlled by updateScrollingMessageDisplay
+            } else {
+                if(homeScrollingMessageContainer) homeScrollingMessageContainer.classList.add('hidden');
+            }
+             // --- End Show/Hide Logic --- //
         }
         navItems.forEach(item => {
             item.addEventListener('click', () => showScreen(item.getAttribute('data-screen')));
         });
-
         function submitWithdrawalRequest() {
             const methodElement = document.getElementById('withdrawalMethod');
             const amountElement = document.getElementById('withdrawalAmount');
@@ -1033,7 +912,6 @@
                 submitWithdrawalRequestToFirebase(method, amount, address);
             }
         }
-
         // New function to submit withdrawal request to Firebase
         function submitWithdrawalRequestToFirebase(method, amount, address) {
             const userId = appState.telegramUser?.id;
@@ -1067,7 +945,6 @@ Address: ${address}`);
                     alert("Failed to submit withdrawal request. Please try again.");
                 });
         }
-
         const MAX_HISTORY_ITEMS_DISPLAY = 4;
         const UPDATE_HISTORY_INTERVAL = 3200;
         function generateMaskedPhoneNumber() {
@@ -1181,9 +1058,29 @@ Address: ${address}`);
                 window.open(telegramShareUrl, '_blank');
             });
         }
+        // --- New Function: Listen for Admin Message --- //
+        function listenForAdminMessage() {
+            const adminMessageRef = database.ref('adminMessage');
+            adminMessageRef.on('value', (snapshot) => {
+                const messageData = snapshot.val();
+                updateScrollingMessageDisplay(messageData?.text || '');
+            });
+        }
+        // --- New Function: Update Scrolling Message Display (Home Screen Only) --- //
+        function updateScrollingMessageDisplay(messageText) {
+            if (homeScrollingMessageElement && homeScrollingMessageContainer) {
+                 if (messageText && messageText.trim() !== '') {
+                    homeScrollingMessageElement.textContent = messageText;
+                    homeScrollingMessageContainer.classList.remove('hidden');
+                } else {
+                    homeScrollingMessageContainer.classList.add('hidden');
+                }
+            }
+        }
+        // --- End New Functions --- //
         window.onload = function() {
             loadState();
-            // loadTelegramUserData(); // Loading is handled by loadState now
+            loadTelegramUserData();
             // Check block status is handled in updateDisplays now
              showScreen('homeScreen'); // Otherwise, show home screen
              startWithdrawalHistoryFeedSimulation(); // Start simulation
