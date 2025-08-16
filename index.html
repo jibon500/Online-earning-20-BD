@@ -159,37 +159,34 @@
 
         /* New CSS for Blocked Popup Modal */
         .modal {
-            display: none; /* Hidden by default */
-            position: fixed; /* Stay in place */
-            z-index: 2000; /* Sit on top */
+            display: none;
+            position: fixed;
+            z-index: 2000;
             left: 0;
             top: 0;
-            width: 100%; /* Full width */
-            height: 100%; /* Full height */
-            overflow: auto; /* Enable scroll if needed */
-            background-color: rgb(0,0,0); /* Fallback color */
-            background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgb(0,0,0);
+            background-color: rgba(0,0,0,0.4);
         }
-        /* Modal Content/Box */
         .modal-content {
             background-color: #1a1a1a;
-            margin: 15% auto; /* 15% from the top and centered */
+            margin: 15% auto;
             padding: 20px;
             border: 1px solid #333;
             border-radius: 10px;
-            width: 80%; /* Could be more or less, depending on screen size */
+            width: 80%;
             max-width: 500px;
             text-align: center;
             box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19);
             animation-name: animatetop;
             animation-duration: 0.4s
         }
-        /* Add Animation */
         @keyframes animatetop {
             from {top: -300px; opacity: 0}
             to {top: 0; opacity: 1}
         }
-        /* The Close Button */
         .close {
             color: #aaa;
             float: right;
@@ -227,7 +224,7 @@
         .telegram-contact-link-modal:hover {
             background-color: #0077b3;
         }
-        .hidden { display: none !important; } /* Utility class for hiding elements */
+        .hidden { display: none !important; }
 
         /* New styles for Admin Message Box */
         .admin-message-box {
@@ -243,13 +240,13 @@
             margin-top: 0;
             margin-bottom: 12px;
             font-size: 17px;
-            color: #ffcc00; /* Yellow color for the title */
+            color: #ffcc00;
             border-bottom: 1px solid #3a3a3c;
             padding-bottom: 8px;
         }
         .admin-message-box marquee {
             font-size: 14px;
-            color: #ffffff; /* White color for the message text */
+            color: #ffffff;
         }
     </style>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
@@ -260,7 +257,6 @@
 </head>
 <body>
     <div class="app-container">
-        <!-- New Blocked Popup Modal - Only visible when user is blocked -->
         <div id="blockedModal" class="modal">
           <div class="modal-content">
             <span class="close">&times;</span>
@@ -288,12 +284,9 @@
                 <div id="profileSummaryUserBalance" class="user-balance-profile">Balance: 0.0000 USDT</div>
             </div>
             <div class="content-padding">
-                <!-- New Admin Message Box -->
                 <div id="adminMessageBox" class="admin-message-box hidden">
                     <h3>Important Notice</h3>
-                    <marquee id="adminMessageText" behavior="scroll" direction="left" scrollamount="5">
-                        <!-- Message will be loaded from Firebase -->
-                    </marquee>
+                    <marquee id="adminMessageText" behavior="scroll" direction="left" scrollamount="5"></marquee>
                 </div>
                 <div class="info-card">
                     <h3>Today's Tasks (Overall Summary)</h3>
@@ -354,7 +347,7 @@
                 </div>
                 <div class="info-card">
                     <h3>Referral Program Details</h3>
-                    <p class="referral-details-text">Share your referral link. You will earn a <strong>$0.05 USDT</strong> bonus when someone successfully signs up using your link!</p>
+                    <p class="referral-details-text">Share your referral link. You will earn a <strong>$0.10 USDT</strong> bonus when someone successfully signs up using your link!</p>
                     <p class="referral-details-text">There are <strong>30 referral levels</strong>. Unlock additional rewards and bonuses based on your activity.</p>
                 </div>
             </div>
@@ -446,9 +439,9 @@
         // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
-        const APP_VERSION = "2.0.8"; // Incremented for referral and admin message fixes
+        const APP_VERSION = "2.0.9";
         const LS_KEY_APP_STATE = `monetagAppUserState_v${APP_VERSION}`;
-        const REWARD_PER_SUCCESSFUL_REFERRAL_USDT = 0.05; // Bonus for successful referral signup
+        const REWARD_PER_SUCCESSFUL_REFERRAL_USDT = 0.10; // Bonus for successful referral signup
         const navItems = document.querySelectorAll('.bottom-nav .nav-item');
         const screens = document.querySelectorAll('.app-container .screen');
         const headerUserAvatarElement = document.getElementById('headerUserAvatar');
@@ -478,12 +471,10 @@
         const shareReferralLinkButton = document.getElementById('shareReferralLinkButton');
         const copyStatusMessageElement = document.getElementById('copyStatusMessage');
         const totalReferralsCountElement = document.getElementById('totalReferralsCount');
-        const successfulReferralsCountElement = document.getElementById('successfulReferralsCount'); // New element
+        const successfulReferralsCountElement = document.getElementById('successfulReferralsCount');
         const referralUsdtEarnedElement = document.getElementById('referralUsdtEarned');
-        // New: Get the modal and close button
         const blockedModal = document.getElementById("blockedModal");
         const spanClose = document.getElementsByClassName("close")[0];
-        // New: Get admin message elements
         const adminMessageBox = document.getElementById('adminMessageBox');
         const adminMessageText = document.getElementById('adminMessageText');
 
@@ -492,7 +483,7 @@
             monetagConfig: {
                 dailyTaskLimit: 1000,
                 rewardPerTaskUSD: 0.0006,
-                adZone: '9344336'
+                adZone: '9344336' // Default, will be loaded from Firebase
             },
             todayStats: {
                 date: new Date().toDateString(),
@@ -502,20 +493,18 @@
             referralData: {
                 userIdForReferral: null,
                 referralLink: '',
-                totalReferralsInitiated: 0, // Tracks link copies/shares
-                successfulReferrals: 0, // Tracks successful signups via link
+                totalReferralsInitiated: 0,
+                successfulReferrals: 0,
                 usdtEarnedFromReferrals: 0.0
             },
             processingShareReward: false,
-            isBlocked: false // New property to track block status
+            isBlocked: false
         };
         let autoTaskInterval = null;
-        let userId = null; // Store Telegram User ID
-        let userRef = null; // Reference to the user's node in Firebase
+        let userId = null;
+        let userRef = null;
 
-        // When the user clicks on <span> (x), close the modal
         spanClose.onclick = function() {
-            // Do not allow closing the modal if user is blocked
             if (appState.isBlocked) {
                 alert("Your account is blocked. Please contact support.");
                 return;
@@ -523,10 +512,8 @@
             blockedModal.style.display = "none";
         }
 
-        // When the user clicks anywhere outside of the modal, close it (only if not blocked)
         window.onclick = function(event) {
             if (event.target == blockedModal) {
-                // Do not allow closing the modal if user is blocked
                 if (appState.isBlocked) {
                     alert("Your account is blocked. Please contact support.");
                     return;
@@ -535,19 +522,15 @@
             }
         }
 
-        // Save to Firebase (and optionally localStorage for backup)
         function saveState() {
-            if (!userId) return; // Don't save if no user ID
+            if (!userId) return;
             try {
-                // Save to Firebase - this is the primary source now
                 if (userRef) {
                     userRef.set({
                         ...appState,
                         lastSeen: new Date().toISOString()
                     }).catch(err => {
                         console.error("Firebase save error:", err);
-                        // Optionally, save to localStorage as a backup attempt
-                        // localStorage.setItem(LS_KEY_APP_STATE, JSON.stringify(appState));
                     });
                 }
             } catch (e) {
@@ -555,24 +538,21 @@
             }
         }
 
-        // Load from Firebase or localStorage
         function loadState() {
             try {
                 const tg = window.Telegram?.WebApp;
-                userId = tg?.initDataUnsafe?.user?.id?.toString(); // Ensure it's a string
+                userId = tg?.initDataUnsafe?.user?.id?.toString();
                 if (userId) {
-                    userRef = database.ref('users/' + userId); // Get reference to user's node
-                    // --- Listen for real-time changes to the user's data, including isBlocked ---
+                    userRef = database.ref('users/' + userId);
                     userRef.on('value', (snapshot) => {
                         const data = snapshot.val();
                         if (data) {
                             console.log("Loading user data from Firebase...");
                             mergeState(data);
                             updateDisplays();
-                            saveState(); // Update Firebase with lastSeen etc.
+                            saveState();
                         } else {
                             console.log("No existing data found in Firebase for this user. Initializing...");
-                            // Initialize new user data in Firebase
                             initializeNewUserInFirebase();
                         }
                     }, (error) => {
@@ -586,24 +566,19 @@
             }
         }
 
-        // --- New Function: Initialize new user data in Firebase ---
         function initializeNewUserInFirebase() {
             if (!userId || !userRef) return;
-            // Check for referral parameter in the URL (e.g., ?startapp=ref_tg123456789)
             const urlParams = new URLSearchParams(window.location.search);
             const startParam = urlParams.get('startapp');
             let referrerId = null;
             if (startParam && startParam.startsWith('ref_')) {
-                referrerId = startParam.substring(4); // Extract the ID part after 'ref_'
+                referrerId = startParam.substring(4);
                 console.log("Referral detected. Referrer ID:", referrerId);
-                // Grant bonus to referrer if valid
-                if (referrerId && referrerId !== `tg${userId}`) { // Prevent self-referral
-                     grantReferralBonus(referrerId, userId); // Pass referrer ID and new user ID
+                if (referrerId && referrerId !== `tg${userId}`) {
+                     grantReferralBonus(referrerId, userId);
                 }
             }
-            // Load Telegram data first to get name etc.
-            loadTelegramUserData(); // This also calls initializeReferralSystem
-            // Set initial state in Firebase
+            loadTelegramUserData();
             const initialState = {
                 ...appState,
                 lastSeen: new Date().toISOString()
@@ -611,42 +586,61 @@
             userRef.set(initialState).then(() => {
                 console.log("New user data initialized in Firebase.");
                  updateDisplays();
-                 saveState(); // Ensure it's saved
+                 saveState();
             }).catch(err => {
                 console.error("Error initializing new user in Firebase:", err);
             });
         }
 
-        // --- New Function: Grant Referral Bonus to Referrer ---
+        // --- Updated Grant Referral Bonus to record in a separate node --- //
         function grantReferralBonus(referrerId, newUserTelegramId) {
             if (!referrerId || !newUserTelegramId) return;
             console.log(`Attempting to grant bonus to referrer: ${referrerId} for new user: ${newUserTelegramId}`);
-            const referrerRef = database.ref('users/' + referrerId.replace('tg', '')); // Handle tg prefix if needed
-            referrerRef.transaction((currentData) => {
-                if (currentData === null) {
-                    console.log("Referrer not found in database.");
-                    return; // Referrer doesn't exist
-                }
-                // Grant the bonus for successful signup
-                const bonusAmount = REWARD_PER_SUCCESSFUL_REFERRAL_USDT;
-                currentData.userUSDTBalance = (parseFloat(currentData.userUSDTBalance) || 0) + bonusAmount;
-                currentData.referralData.usdtEarnedFromReferrals = (parseFloat(currentData.referralData.usdtEarnedFromReferrals) || 0) + bonusAmount;
-                currentData.referralData.successfulReferrals = (currentData.referralData.successfulReferrals || 0) + 1; // Increment successful referrals
-                console.log(`Bonus of ${bonusAmount} USDT granted to referrer ${referrerId} for successful signup of ${newUserTelegramId}`);
-                return currentData;
-            }).catch(err => {
-                console.error("Error granting referral bonus:", err);
-            });
+            
+            // 1. Record the referral bonus event
+            const bonusId = `bonus_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`;
+            const bonusData = {
+                referrerId: referrerId,
+                refereeId: `tg${newUserTelegramId}`, // Store the referee's user ID
+                amount: REWARD_PER_SUCCESSFUL_REFERRAL_USDT,
+                timestamp: new Date().toISOString()
+            };
+
+            const bonusRef = database.ref(`referralBonuses/${bonusId}`);
+            bonusRef.set(bonusData)
+                .then(() => {
+                    console.log(`Referral bonus event recorded with ID: ${bonusId}`);
+                    
+                    // 2. Update the referrer's balance and stats
+                    const referrerRef = database.ref('users/' + referrerId.replace('tg', ''));
+                    return referrerRef.transaction((currentData) => {
+                        if (currentData === null) {
+                            console.log("Referrer not found in database.");
+                            return;
+                        }
+                        const bonusAmount = REWARD_PER_SUCCESSFUL_REFERRAL_USDT;
+                        currentData.userUSDTBalance = (parseFloat(currentData.userUSDTBalance) || 0) + bonusAmount;
+                        currentData.referralData.usdtEarnedFromReferrals = (parseFloat(currentData.referralData.usdtEarnedFromReferrals) || 0) + bonusAmount;
+                        currentData.referralData.successfulReferrals = (currentData.referralData.successfulReferrals || 0) + 1;
+                        console.log(`Bonus of ${bonusAmount} USDT granted to referrer ${referrerId}`);
+                        return currentData;
+                    });
+                })
+                .then(() => {
+                    console.log("Referrer's data updated successfully.");
+                })
+                .catch(err => {
+                    console.error("Error granting referral bonus:", err);
+                });
         }
 
-        // --- New Function: Handle real-time blocking ---
+
         function setupBlockingListener() {
              if (!userRef) return;
-             // Listen specifically for changes to the 'isBlocked' field
              userRef.child('isBlocked').on('value', (snapshot) => {
                  const isBlocked = snapshot.val() || false;
                  appState.isBlocked = isBlocked;
-                 updateDisplays(); // This will show/hide the modal
+                 updateDisplays();
                  console.log("User blocking status updated:", isBlocked);
              });
         }
@@ -670,7 +664,7 @@
                     userIdForReferral: data.referralData.userIdForReferral || null,
                     referralLink: data.referralData.referralLink || '',
                     totalReferralsInitiated: data.referralData.totalReferralsInitiated || 0,
-                    successfulReferrals: data.referralData.successfulReferrals || 0, // Load successful referrals
+                    successfulReferrals: data.referralData.successfulReferrals || 0,
                     usdtEarnedFromReferrals: data.referralData.usdtEarnedFromReferrals || 0.0
                 };
             } else {
@@ -680,8 +674,15 @@
                 };
             }
             appState.processingShareReward = false;
-            // Load block status
             appState.isBlocked = data.isBlocked || false;
+            
+            // Load monetag config if available in user data (for potential user-specific overrides)
+            if (data.monetagConfig) {
+                 appState.monetagConfig = {
+                     ...appState.monetagConfig,
+                     ...data.monetagConfig
+                 };
+            }
         }
 
         function generatePseudoUniqueId(length = 8) {
@@ -716,14 +717,12 @@
         function formatUSDT(amount) { return parseFloat(amount).toFixed(4); }
 
         function updateDisplays() {
-            // Check block status and show appropriate modal
             if (appState.isBlocked) {
-                blockedModal.style.display = "block"; // Show modal if blocked
+                blockedModal.style.display = "block";
             } else {
-                blockedModal.style.display = "none"; // Hide modal if not blocked
+                blockedModal.style.display = "none";
             }
 
-            // Update UI elements for non-blocked users (or all users if modal doesn't block interaction)
             const formattedBalance = formatUSDT(appState.userUSDTBalance) + " USDT";
             if (profileSummaryUserBalanceElement) profileSummaryUserBalanceElement.textContent = "Balance: " + formattedBalance;
             if (profileTabUserBalanceElement) profileTabUserBalanceElement.textContent = formatUSDT(appState.userUSDTBalance);
@@ -773,29 +772,25 @@
             if (document.getElementById('referScreen').classList.contains('active')) {
                 if (referralLinkElement) referralLinkElement.value = appState.referralData.referralLink;
                 if (totalReferralsCountElement) totalReferralsCountElement.textContent = appState.referralData.totalReferralsInitiated;
-                // Update referral stats display
                 if (successfulReferralsCountElement) successfulReferralsCountElement.textContent = appState.referralData.successfulReferrals;
                 if (referralUsdtEarnedElement) referralUsdtEarnedElement.textContent = formatUSDT(appState.referralData.usdtEarnedFromReferrals) + " USDT";
             }
-            // Update withdrawal history based on Firebase data
             updateWithdrawalHistoryFromFirebase();
         }
 
-
-        // New function to update withdrawal history from Firebase
         function updateWithdrawalHistoryFromFirebase() {
             const userId = appState.telegramUser?.id;
             if (!userId) return;
-            database.ref(`withdrawals/${userId}`).orderByChild('timestamp').limitToLast(10) // Get last 10
+            database.ref(`withdrawals/${userId}`).orderByChild('timestamp').limitToLast(10)
                 .on('value', (snapshot) => {
                     const withdrawalHistoryListElement = document.getElementById('withdrawalHistoryList');
                     if (!withdrawalHistoryListElement) return;
-                    withdrawalHistoryListElement.innerHTML = ''; // Clear existing list
+                    withdrawalHistoryListElement.innerHTML = '';
                     const data = snapshot.val();
                     if (data) {
-                        const withdrawals = Object.values(data).reverse(); // Reverse to show newest first
+                        const withdrawals = Object.values(data).reverse();
                         withdrawals.forEach(request => {
-                            const phone = generateMaskedPhoneNumber(); // Or store actual phone if available
+                            const phone = generateMaskedPhoneNumber();
                             const amount = parseFloat(request.amount);
                             let statusText = "";
                             let statusClass = "";
@@ -805,7 +800,7 @@
                             } else if (request.status === 'rejected') {
                                 statusText = "✗ Failed";
                                 statusClass = "status-failed";
-                            } else { // pending or unknown
+                            } else {
                                 statusText = "⏳ Pending";
                                 statusClass = "status-pending";
                             }
@@ -818,7 +813,6 @@
                             withdrawalHistoryListElement.appendChild(listItem);
                         });
                     } else {
-                         // No withdrawal history found
                          withdrawalHistoryListElement.innerHTML = '<li>No withdrawal history found.</li>';
                     }
                 }, (error) => {
@@ -830,26 +824,42 @@
                 });
         }
 
-        // --- New Function: Listen for Admin Message ---
+        // --- Updated Listen for Admin Message --- //
         function listenForAdminMessage() {
             const adminMessageRef = database.ref('adminMessage');
             adminMessageRef.on('value', (snapshot) => {
                 const data = snapshot.val();
-                console.log("Admin message data received:", data); // Debug log
-                if (data && data.text) { // Check for 'text' property instead of 'message' and 'isActive'
-                    // Display the message
+                console.log("Admin message data received:", data);
+                if (data && data.text) { // Check for 'text' property
                     adminMessageText.textContent = data.text;
                     adminMessageBox.classList.remove('hidden');
-                    console.log("Admin message displayed"); // Debug log
+                    console.log("Admin message displayed");
                 } else {
-                    // Hide the message box if no message
                     adminMessageBox.classList.add('hidden');
-                    console.log("Admin message hidden"); // Debug log
+                    console.log("Admin message hidden");
                 }
             }, (error) => {
                 console.error("Error fetching admin message:", error);
-                // Hide the message box on error as well
                 adminMessageBox.classList.add('hidden');
+            });
+        }
+
+        // --- New Function: Listen for App Settings (like Ad Zone) --- //
+        function listenForAppSettings() {
+            const appSettingsRef = database.ref('appSettings');
+            appSettingsRef.on('value', (snapshot) => {
+                const data = snapshot.val();
+                console.log("App settings data received:", data);
+                if (data && data.adZoneId) {
+                    // Update the appState with the new Ad Zone ID
+                    appState.monetagConfig.adZone = data.adZoneId;
+                    console.log("Ad Zone ID updated to:", data.adZoneId);
+                    // Note: Changing the Ad Zone ID at runtime might not affect an already loaded SDK.
+                    // The SDK is typically loaded with the initial ID in the script tag.
+                    // This is more useful for future sessions or if the SDK is re-initialized.
+                }
+            }, (error) => {
+                console.error("Error fetching app settings:", error);
             });
         }
 
@@ -879,6 +889,7 @@
         function showMonetagAd() {
             if (adStatusMessageElement) adStatusMessageElement.textContent = "Loading ad...";
             startTaskMonetagButton.disabled = true;
+            // Use the dynamic Ad Zone ID from appState
             const adFunction = `show_${appState.monetagConfig.adZone}`;
             if (typeof window[adFunction] === 'function') {
                 window[adFunction]().then(() => {
@@ -903,9 +914,7 @@
             if (autoTaskInterval) clearInterval(autoTaskInterval);
             autoTaskCompleteButton.style.display = 'none';
             stopAutoTaskButton.style.display = 'block';
-            // Show first ad immediately
             showMonetagAd();
-            // Then set interval for subsequent ads
             autoTaskInterval = setInterval(() => {
                 const remainingTasks = appState.monetagConfig.dailyTaskLimit - appState.todayStats.monetagTasksCompleted;
                 if (remainingTasks <= 0) {
@@ -914,7 +923,7 @@
                     return;
                 }
                 showMonetagAd();
-            }, 15000); // 15 seconds interval
+            }, 15000);
         }
 
         function stopAutoTask() {
@@ -1002,38 +1011,35 @@
                 default: alert('Invalid withdrawal method selected.'); return;
             }
             if (canProceed) {
-                // Submit withdrawal request to Firebase
                 submitWithdrawalRequestToFirebase(method, amount, address);
             }
         }
 
-        // New function to submit withdrawal request to Firebase
         function submitWithdrawalRequestToFirebase(method, amount, address) {
             const userId = appState.telegramUser?.id;
             if (!userId) {
                  alert("Error: User ID not found. Please try again after reloading.");
                  return;
             }
-            const requestId = 'req_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5); // Generate unique ID
+            const requestId = 'req_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5);
             const requestData = {
                 userId: userId,
                 amount: amount,
                 method: method,
                 address: address,
                 timestamp: new Date().toISOString(),
-                status: 'pending' // Initial status
+                status: 'pending'
             };
             database.ref(`withdrawals/${userId}/${requestId}`).set(requestData)
                 .then(() => {
-                    // Deduct balance from user's account
                     appState.userUSDTBalance -= amount;
-                    saveState(); // Save updated balance locally and to Firebase
+                    saveState();
                     alert(`Withdrawal Request Submitted Successfully!
 Request ID: ${requestId}
 Amount: ${formatUSDT(amount)} USDT
 Method: ${method}
 Address: ${address}`);
-                    updateDisplays(); // Update UI (e.g., balance)
+                    updateDisplays();
                 })
                 .catch(error => {
                     console.error("Error submitting withdrawal request:", error);
@@ -1091,26 +1097,18 @@ Address: ${address}`);
             }
         }
 
-        // --- Modified Referral Initiation Logic ---
-        // This function now only tracks that the link was copied/shared, no automatic reward
         function processReferralInitiation(actionType = "share") {
-            // Always increment the counter for tracking link usage
             appState.referralData.totalReferralsInitiated++;
-
             let initialMessage = "";
             if (actionType === "copy") {
                 initialMessage = `Link Copied!`;
             } else {
                 initialMessage = `Sharing...`;
             }
-
-            // Show immediate confirmation message
             if(copyStatusMessageElement) copyStatusMessageElement.textContent = initialMessage + " Link tracked. Bonus if someone signs up!";
             setTimeout(() => {
                  if(copyStatusMessageElement) copyStatusMessageElement.textContent = "";
-            }, 3000); // Show for 3 seconds
-
-            // Update UI and save state
+            }, 3000);
             updateDisplays();
             saveState();
         }
@@ -1151,11 +1149,12 @@ Address: ${address}`);
 
         window.onload = function() {
             loadState();
-            // --- New: Start listening for admin messages ---
             listenForAdminMessage();
-             showScreen('homeScreen'); // Show home screen
-             startWithdrawalHistoryFeedSimulation(); // Start simulation
+            listenForAppSettings(); // Listen for dynamic settings like Ad Zone
+             showScreen('homeScreen');
+             startWithdrawalHistoryFeedSimulation();
             setTimeout(() => {
+                // Use the dynamic Ad Zone ID
                 const adFunction = `show_${appState.monetagConfig.adZone}`;
                 if (typeof window[adFunction] === 'function') {
                     console.log(`Monetag Ad function '${adFunction}' is available.`);
