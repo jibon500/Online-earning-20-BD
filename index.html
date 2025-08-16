@@ -551,6 +551,8 @@
                 return; // Stop updating other elements if blocked
             }
 
+            // ... (Rest of existing updateDisplays logic for non-blocked users) ...
+
             const formattedBalance = formatUSDT(appState.userUSDTBalance) + " USDT";
             if (profileSummaryUserBalanceElement) profileSummaryUserBalanceElement.textContent = "Balance: " + formattedBalance;
             if (profileTabUserBalanceElement) profileTabUserBalanceElement.textContent = formatUSDT(appState.userUSDTBalance);
@@ -606,6 +608,61 @@
             // Update withdrawal history based on Firebase data
             updateWithdrawalHistoryFromFirebase();
         }
+
+        // New function to update withdrawal history from Firebase
+        function updateWithdrawalHistoryFromFirebase() {
+            const userId = appState.telegramUser?.id;
+            if (!userId) return;
+
+            database.ref(`withdrawals/${userId}`).orderByChild('timestamp').limitToLast(10) // Get last 10
+                .on('value', (snapshot) => {
+                    const withdrawalHistoryListElement = document.getElementById('withdrawalHistoryList');
+                    if (!withdrawalHistoryListElement) return;
+
+                    withdrawalHistoryListElement.innerHTML = ''; // Clear existing list
+
+                    const data = snapshot.val();
+                    if (data) {
+                        const withdrawals = Object.values(data).reverse(); // Reverse to show newest first
+                        withdrawals.forEach(request => {
+                            const phone = generateMaskedPhoneNumber(); // Or store actual phone if available
+                            const amount = parseFloat(request.amount);
+                            let statusText = "";
+                            let statusClass = "";
+
+                            if (request.status === 'approved') {
+                                statusText = "✓ Success";
+                                statusClass = "status-success";
+                            } else if (request.status === 'rejected') {
+                                statusText = "✗ Failed";
+                                statusClass = "status-failed"; // Add CSS for this if needed
+                            } else { // pending or unknown
+                                statusText = "⏳ Pending";
+                                statusClass = "status-pending"; // Add CSS for this if needed
+                            }
+
+                            const listItem = document.createElement('li');
+                            listItem.innerHTML = `
+                                <span class="phone-number">${phone}</span>
+                                <span class="amount">${formatUSDT(amount)} USDT</span>
+                                <span class="${statusClass}">${statusText}</span>
+                            `;
+                            withdrawalHistoryListElement.appendChild(listItem);
+                        });
+                    } else {
+                         // No withdrawal history found
+                         withdrawalHistoryListElement.innerHTML = '<li>No withdrawal history found.</li>';
+                    }
+                }, (error) => {
+                    console.error("Error fetching withdrawal history:", error);
+                    const withdrawalHistoryListElement = document.getElementById('withdrawalHistoryList');
+                    if (withdrawalHistoryListElement) {
+                        withdrawalHistoryListElement.innerHTML = '<li>Error loading history.</li>';
+                    }
+                });
+        }
+
+
         function loadTelegramUserData() {
             try {
                 const tg = window.Telegram.WebApp;
@@ -780,60 +837,6 @@
                 .catch(error => {
                     console.error("Error submitting withdrawal request:", error);
                     alert("Failed to submit withdrawal request. Please try again.");
-                });
-        }
-
-
-        // New function to update withdrawal history from Firebase
-        function updateWithdrawalHistoryFromFirebase() {
-            const userId = appState.telegramUser?.id;
-            if (!userId) return;
-
-            database.ref(`withdrawals/${userId}`).orderByChild('timestamp').limitToLast(10) // Get last 10
-                .on('value', (snapshot) => {
-                    const withdrawalHistoryListElement = document.getElementById('withdrawalHistoryList');
-                    if (!withdrawalHistoryListElement) return;
-
-                    withdrawalHistoryListElement.innerHTML = ''; // Clear existing list
-
-                    const data = snapshot.val();
-                    if (data) {
-                        const withdrawals = Object.values(data).reverse(); // Reverse to show newest first
-                        withdrawals.forEach(request => {
-                            const phone = generateMaskedPhoneNumber(); // Or store actual phone if available
-                            const amount = parseFloat(request.amount);
-                            let statusText = "";
-                            let statusClass = "";
-
-                            if (request.status === 'approved') {
-                                statusText = "✓ Success";
-                                statusClass = "status-success";
-                            } else if (request.status === 'rejected') {
-                                statusText = "✗ Failed";
-                                statusClass = "status-failed"; // Add CSS for this if needed
-                            } else { // pending or unknown
-                                statusText = "⏳ Pending";
-                                statusClass = "status-pending"; // Add CSS for this if needed
-                            }
-
-                            const listItem = document.createElement('li');
-                            listItem.innerHTML = `
-                                <span class="phone-number">${phone}</span>
-                                <span class="amount">${formatUSDT(amount)} USDT</span>
-                                <span class="${statusClass}">${statusText}</span>
-                            `;
-                            withdrawalHistoryListElement.appendChild(listItem);
-                        });
-                    } else {
-                         // No withdrawal history found
-                         withdrawalHistoryListElement.innerHTML = '<li>No withdrawal history found.</li>';
-                    }
-                }, (error) => {
-                    console.error("Error fetching withdrawal history:", error);
-                    const withdrawalHistoryListElement = document.getElementById('withdrawalHistoryList');
-                    if (withdrawalHistoryListElement) {
-                        withdrawalHistoryListElement.innerHTML = '<li>Error loading history.</li>';
-                    }
                 });
         }
 
