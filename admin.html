@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Earning App</title>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: #0a0a0a;
+            color: #fff;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: #1e1e1e;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+        }
+        h1 {
+            text-align: center;
+            color: #00c853;
+            margin-bottom: 20px;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        button {
+            padding: 10px 20px;
+            background: #00c853;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background: #009624;
+        }
+        .search {
+            padding: 10px;
+            width: 300px;
+            border-radius: 8px;
+            border: 1px solid #444;
+            background: #222;
+            color: white;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #333;
+        }
+        th {
+            background: #00c853;
+            color: white;
+            position: sticky;
+            top: 0;
+        }
+        tr:hover {
+            background: #2a2a2a;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            color: #aaa;
+            font-size: 14px;
+        }
+        .stats-card {
+            background: rgba(0, 200, 83, 0.1);
+            border: 1px solid #00c853;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        .stats-card h3 {
+            margin-top: 0;
+            color: #00c853;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        .stat-item {
+            background: #2a2a2a;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .stat-item .value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #00c853;
+        }
+        .stat-item .label {
+            font-size: 14px;
+            color: #aaa;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔐 Admin Dashboard - Earning App</h1>
+        <div class="stats-card">
+            <h3>📊 System Overview</h3>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="value" id="total-users">0</div>
+                    <div class="label">Total Users</div>
+                </div>
+                <div class="stat-item">
+                    <div class="value" id="total-earnings">0.0000</div>
+                    <div class="label">Total Earnings (USDT)</div>
+                </div>
+                <div class="stat-item">
+                    <div class="value" id="total-tasks">0</div>
+                    <div class="label">Total Tasks Completed</div>
+                </div>
+                <div class="stat-item">
+                    <div class="value" id="total-referrals">0</div>
+                    <div class="label">Total Referrals</div>
+                </div>
+            </div>
+        </div>
+        <div class="header">
+            <input type="text" class="search" id="search-input" placeholder="Search by User ID, Name or Phone..." onkeyup="searchUsers()">
+            <button onclick="refreshData()">🔄 Refresh Data</button>
+        </div>
+        <table id="users-table">
+            <thead>
+                <tr>
+                    <th>User ID</th>
+                    <th>Name</th>
+                    <th>Phone</th>
+                    <th>Balance (USDT)</th>
+                    <th>Tasks Done</th>
+                    <th>Referrals</th>
+                    <th>Referral Earnings</th>
+                    <th>Last Seen</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+        <div class="footer">
+            © 2025 Earning App. All rights reserved. Secured by Firebase.
+        </div>
+    </div>
+
+    <script>
+        // Firebase Config (Same as your app)
+        const firebaseConfig = {
+            apiKey: "AIzaSyD3BGZ0MVLpbQbIpLUAnYvWNEIyk7Y6S0Q",
+            authDomain: "earning-app-80258.firebaseapp.com",
+            databaseURL: "https://earning-app-80258-default-rtdb.firebaseio.com",
+            projectId: "earning-app-80258",
+            storageBucket: "earning-app-80258.appspot.com",
+            messagingSenderId: "25930019210",
+            appId: "1:25930019210:web:6441562811d3e7e9631873"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        let allUsers = {};
+
+        // Load Users
+        function refreshData() {
+            const tbody = document.querySelector('#users-table tbody');
+            tbody.innerHTML = '<tr><td colspan="8" style="text-align:center">Loading...</td></tr>';
+            document.querySelectorAll('.stat-item .value').forEach(el => el.textContent = '0');
+
+            database.ref('users/').once('value').then(snapshot => {
+                const data = snapshot.val();
+                allUsers = data || {};
+                renderUsers(Object.values(allUsers));
+                updateStats();
+            }).catch(err => {
+                tbody.innerHTML = `<tr><td colspan="8" style="text-align:center">Error: ${err.message}</td></tr>`;
+            });
+        }
+
+        function renderUsers(users) {
+            const tbody = document.querySelector('#users-table tbody');
+            tbody.innerHTML = '';
+            if (users.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" style="text-align:center">No users found</td></tr>';
+                return;
+            }
+
+            users.forEach(user => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${user.telegramUser?.id || 'N/A'}</td>
+                    <td>${user.telegramUser?.name || 'Unknown'}</td>
+                    <td>${user.telegramUser?.phoneNumber || 'Not shared'}</td>
+                    <td>${parseFloat(user.userUSDTBalance || 0).toFixed(4)}</td>
+                    <td>${user.todayStats?.monetagTasksCompleted || 0}</td>
+                    <td>${user.referralData?.totalReferralsInitiated || 0}</td>
+                    <td>${parseFloat(user.referralData?.usdtEarnedFromReferrals || 0).toFixed(4)}</td>
+                    <td>${user.lastSeen ? new Date(user.lastSeen).toLocaleString() : 'Never'}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function updateStats() {
+            const users = Object.values(allUsers);
+            document.getElementById('total-users').textContent = users.length;
+
+            let totalEarnings = 0;
+            let totalTasks = 0;
+            let totalReferrals = 0;
+
+            users.forEach(user => {
+                totalEarnings += parseFloat(user.userUSDTBalance || 0);
+                totalTasks += parseInt(user.todayStats?.monetagTasksCompleted || 0);
+                totalReferrals += parseInt(user.referralData?.totalReferralsInitiated || 0);
+            });
+
+            document.getElementById('total-earnings').textContent = totalEarnings.toFixed(4);
+            document.getElementById('total-tasks').textContent = totalTasks;
+            document.getElementById('total-referrals').textContent = totalReferrals;
+        }
+
+        // Search Users
+        function searchUsers() {
+            const input = document.getElementById('search-input').value.toLowerCase();
+            const filtered = Object.values(allUsers).filter(user => {
+                const id = user.telegramUser?.id?.toString() || '';
+                const name = user.telegramUser?.name?.toLowerCase() || '';
+                const phone = user.telegramUser?.phoneNumber?.toLowerCase() || '';
+                return id.includes(input) || name.includes(input) || phone.includes(input);
+            });
+            renderUsers(filtered);
+        }
+
+        // Auto load
+        window.onload = refreshData;
+    </script>
+</body>
+</html>
