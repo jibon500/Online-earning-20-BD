@@ -101,17 +101,17 @@
             color: #8e8e93; cursor: pointer; padding: 5px 10px; font-size: 11px;
             flex-basis: 0; flex-grow: 1;
         }
-        .bottom-nav .nav-item .icon { 
-            font-size: 22px; 
-            margin-bottom: 2px; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            height: 24px; 
+        .bottom-nav .nav-item .icon {
+            font-size: 22px;
+            margin-bottom: 2px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 24px;
             width: 24px;
         }
         .bottom-nav .nav-item .icon svg {
-            display: block; 
+            display: block;
         }
         .bottom-nav .nav-item.active { color: #00aaff; }
         #adStatusMessage {
@@ -120,22 +120,22 @@
         }
         .telegram-contact-fab {
             position: fixed; bottom: 75px; right: 20px;
-            width: 50px; height: 50px; background-color: #0088cc; 
+            width: 50px; height: 50px; background-color: #0088cc;
             border-radius: 50%; display: flex; align-items: center;
             justify-content: center; box-shadow: 0 4px 8px rgba(0,0,0,0.3);
-            z-index: 999; 
+            z-index: 999;
             cursor: pointer; transition: background-color 0.3s ease;
         }
         .telegram-contact-fab:hover { background-color: #0077b3; }
         .telegram-contact-fab svg { width: 28px; height: 28px; fill: white; }
         .withdrawal-history-card {
             background-color: #1c1c1e; color: #ffffff; border-radius: 10px;
-            padding: 15px; 
+            padding: 15px;
             margin: 0 0 15px 0;
             box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-            max-height: 180px; 
+            max-height: 180px;
             min-height: 100px;
-            overflow-y: hidden; 
+            overflow-y: hidden;
             position: relative;
         }
         .withdrawal-history-card h3 {
@@ -144,10 +144,10 @@
         }
         .withdrawal-list { list-style: none; padding: 0; margin: 0; height: 100%; }
         .withdrawal-list li {
-            padding: 6px 0; 
+            padding: 6px 0;
             font-size: 13px; border-bottom: 1px solid #2a2a2e;
             display: flex; justify-content: space-between;
-            opacity: 0; transform: translateY(15px); 
+            opacity: 0; transform: translateY(15px);
             animation: fadeInSlideUp 0.6s forwards;
         }
         .withdrawal-list li:last-child { border-bottom: none; }
@@ -155,6 +155,31 @@
         .withdrawal-list .amount { color: #34c759; font-weight: bold; flex-basis: 35%; text-align: right; }
         .withdrawal-list .status-success { color: #34c759; margin-left: 5px; font-size: 12px; flex-basis: 15%; text-align: right; }
         @keyframes fadeInSlideUp { to { opacity: 1; transform: translateY(0); } }
+
+        /* New CSS for Blocked Screen */
+        #blockedScreen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            padding: 20px;
+            text-align: center;
+            background-color: #000;
+        }
+        #blockedScreen h2 {
+            color: #ff3b30;
+            margin-bottom: 20px;
+        }
+        #blockedScreen p {
+            margin-bottom: 20px;
+            color: #ccc;
+        }
+         .telegram-contact-fab.blocked-screen-fab {
+            bottom: 20px; /* Adjust position for blocked screen */
+            right: 20px;
+        }
+        .hidden { display: none !important; } /* Utility class for hiding elements */
     </style>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src='//solseewuthi.net/sdk.js' data-zone='9344336' data-sdk='show_9344336' async></script>
@@ -164,6 +189,17 @@
 </head>
 <body>
     <div class="app-container">
+        <!-- New Blocked Screen -->
+        <div id="blockedScreen" class="screen">
+            <h2>🚫 Account Blocked</h2>
+            <p>Your account has been blocked. Please contact support for assistance.</p>
+            <a href="https://t.me/Nikhil_Shaan" target="_blank" class="telegram-contact-fab blocked-screen-fab" title="Contact @Nikhil_Shaan on Telegram">
+                <svg viewBox="0 0 24 24">
+                    <path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.17.91-.494 1.204-1.07 1.23-.928.043-1.348-.602-2.018-1.028-.91-.588-1.428-.945-2.326-1.528-.986-.631-.339-1.001.221-1.591.133-.142 2.568-2.295 2.568-2.295s.23-.205-.065-.455c-.294-.25-.728-.094-.728-.094L8.44 13.288c-.04.023-.075.045-.117.075l-.105.061s-.37.253-.947.031c-.578-.223-.994-.37-1.128-.409-.426-.12-.76-.182-.756-.532.003-.237.207-.404.512-.584 2.813-1.656 4.593-2.671 4.593-2.671s1.033-.622 2.001-.626zm-2.448 8.528l.618-2.997-.026.018s1.631 1.496 2.017 1.831l.015.012s.313.241.303-.255l-.008-.081L18.3 7.588s.096-.515-.578-.266l-10.84 3.862s-.76.295-.865.995l.01.022s.273.92.855.712L7.89 12.3s.374-.115.864.075l.008.004-3.264 2.957s-.396.358.083.585c.48.226 1.088-.08 1.088-.08l3.829-2.653.86.793 1.108 1.021s.182.153.359.034c.176-.118.173-.25.173-.25z"/>
+                </svg>
+            </a>
+        </div>
+
         <div id="homeScreen" class="screen active">
             <div class="app-header">
                 <div class="user-info-header">
@@ -330,12 +366,10 @@
             messagingSenderId: "25930019210",
             appId: "1:25930019210:web:6441562811d3e7e9631873"
         };
-
         // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
-
-        const APP_VERSION = "2.0.2"; // Delayed Referral Share Reward (1 minute), Message Update
+        const APP_VERSION = "2.0.3"; // Incremented for Blocked User Feature
         const LS_KEY_APP_STATE = `monetagAppUserState_v${APP_VERSION}`;
         const REWARD_PER_REFERRAL_INITIATION_USDT = 0.10;
         const MAX_PAID_SHARES_PER_DAY = 5;
@@ -378,27 +412,26 @@
                 rewardPerTaskUSD: 0.0006,
                 adZone: '9344336'
             },
-            todayStats: { 
-                date: new Date().toDateString(), 
+            todayStats: {
+                date: new Date().toDateString(),
                 monetagTasksCompleted: 0,
-                referralSharesToday: 0 
+                referralSharesToday: 0
             },
             telegramUser: { id: null, name: null, photoUrl: null, phoneNumber: null },
             referralData: {
-                userIdForReferral: null, 
+                userIdForReferral: null,
                 referralLink: '',
                 totalReferralsInitiated: 0,
                 usdtEarnedFromReferrals: 0.0
             },
-            processingShareReward: false 
+            processingShareReward: false,
+            isBlocked: false // New property to track block status
         };
         let autoTaskInterval = null;
-
         // Save to Firebase
         function saveState() {
             try {
                 localStorage.setItem(LS_KEY_APP_STATE, JSON.stringify(appState));
-
                 // Save to Firebase
                 if (appState.telegramUser && appState.telegramUser.id) {
                     const userId = appState.telegramUser.id;
@@ -413,13 +446,11 @@
                 console.error("Error saving state:", e);
             }
         }
-
         // Load from Firebase or localStorage
         function loadState() {
             try {
                 const tg = window.Telegram?.WebApp;
                 const userId = tg?.initDataUnsafe?.user?.id;
-
                 if (userId) {
                     // Try to load from Firebase first
                     database.ref('users/' + userId).once('value').then(snapshot => {
@@ -444,7 +475,6 @@
                 loadFromLocalStorage();
             }
         }
-
         function loadFromLocalStorage() {
             try {
                 const storedState = localStorage.getItem(LS_KEY_APP_STATE);
@@ -457,7 +487,6 @@
             }
             updateDisplays();
         }
-
         function mergeState(data) {
             appState.userUSDTBalance = data.userUSDTBalance || 0.0;
             if (data.todayStats && data.todayStats.date === new Date().toDateString()) {
@@ -485,12 +514,12 @@
                 };
             }
             appState.processingShareReward = false;
+            // Load block status
+            appState.isBlocked = data.isBlocked || false;
         }
-
         function generatePseudoUniqueId(length = 8) {
             return Math.random().toString(36).substring(2, 2 + length);
         }
-
         function initializeReferralSystem() {
             if (!appState.referralData.userIdForReferral) {
                 if (appState.telegramUser && appState.telegramUser.id) {
@@ -499,10 +528,9 @@
                     appState.referralData.userIdForReferral = generatePseudoUniqueId(10);
                 }
             }
-            const botBaseUrl = "https://t.me/My_Earning20BD_bot/YourAppName?startapp="; 
+            const botBaseUrl = "https://t.me/My_Earning20BD_bot/YourAppName?startapp=";
             appState.referralData.referralLink = `${botBaseUrl}ref_${appState.referralData.userIdForReferral}`;
         }
-
         function createDefaultAvatar(letter = 'U', size = 80) {
             const canvas = document.createElement('canvas');
             canvas.width = size; canvas.height = size;
@@ -515,10 +543,14 @@
             context.fillText(letter.toUpperCase(), size / 2, size / 2 + size * 0.04);
             return canvas.toDataURL();
         }
-
         function formatUSDT(amount) { return parseFloat(amount).toFixed(4); }
-
         function updateDisplays() {
+             // Check block status and show appropriate screen
+            if (appState.isBlocked) {
+                showScreen('blockedScreen');
+                return; // Stop updating other elements if blocked
+            }
+
             const formattedBalance = formatUSDT(appState.userUSDTBalance) + " USDT";
             if (profileSummaryUserBalanceElement) profileSummaryUserBalanceElement.textContent = "Balance: " + formattedBalance;
             if (profileTabUserBalanceElement) profileTabUserBalanceElement.textContent = formatUSDT(appState.userUSDTBalance);
@@ -570,8 +602,10 @@
                 if (paidSharesTodayCountElement) paidSharesTodayCountElement.textContent = `${appState.todayStats.referralSharesToday}/${MAX_PAID_SHARES_PER_DAY}`;
                 if (referralUsdtEarnedElement) referralUsdtEarnedElement.textContent = formatUSDT(appState.referralData.usdtEarnedFromReferrals) + " USDT";
             }
-        }
 
+            // Update withdrawal history based on Firebase data
+            updateWithdrawalHistoryFromFirebase();
+        }
         function loadTelegramUserData() {
             try {
                 const tg = window.Telegram.WebApp;
@@ -579,7 +613,7 @@
                 const userData = tg.initDataUnsafe?.user;
                 if (userData) {
                     appState.telegramUser.id = userData.id;
-                    const firstName = userData.first_name || ''; 
+                    const firstName = userData.first_name || '';
                     const lastName = userData.last_name || '';
                     if (firstName || lastName) appState.telegramUser.name = `${firstName} ${lastName}`.trim();
                     else if (userData.username) appState.telegramUser.name = `@${userData.username}`;
@@ -587,14 +621,13 @@
                 }
                 initializeReferralSystem();
                 tg.expand();
-            } catch (e) { 
+            } catch (e) {
                 console.error("Telegram API error on init:", e);
                 initializeReferralSystem();
             }
             updateDisplays();
             saveState();
         }
-
         function showMonetagAd() {
             if (adStatusMessageElement) adStatusMessageElement.textContent = "Loading ad...";
             startTaskMonetagButton.disabled = true;
@@ -610,14 +643,13 @@
                 }).catch((error) => {
                     console.error("Monetag Rewarded Ad error or closed:", error);
                     if (adStatusMessageElement) adStatusMessageElement.textContent = "Ad could not be shown or was cancelled.";
-                    updateDisplays(); 
+                    updateDisplays();
                 });
             } else {
                  if (adStatusMessageElement) adStatusMessageElement.textContent = `Ad SDK not ready or function not found.`;
-                updateDisplays(); 
+                updateDisplays();
             }
         }
-
         function startAutoTask() {
             if (autoTaskInterval) clearInterval(autoTaskInterval);
             autoTaskCompleteButton.style.display = 'none';
@@ -635,7 +667,6 @@
                 showMonetagAd();
             }, 15000); // 15 seconds interval
         }
-
         function stopAutoTask() {
             if (autoTaskInterval) {
                 clearInterval(autoTaskInterval);
@@ -646,7 +677,6 @@
             if (adStatusMessageElement) adStatusMessageElement.textContent = "Auto task stopped.";
             setTimeout(() => { if (adStatusMessageElement) adStatusMessageElement.textContent = ""; }, 1500);
         }
-
         if (startTaskMonetagButton) {
             startTaskMonetagButton.addEventListener('click', function() {
                 if (appState.todayStats.monetagTasksCompleted >= appState.monetagConfig.dailyTaskLimit) {
@@ -656,7 +686,6 @@
                 showMonetagAd();
             });
         }
-
         if (autoTaskCompleteButton) {
             autoTaskCompleteButton.addEventListener('click', function() {
                 if (appState.todayStats.monetagTasksCompleted >= appState.monetagConfig.dailyTaskLimit) {
@@ -666,11 +695,9 @@
                 startAutoTask();
             });
         }
-
         if (stopAutoTaskButton) {
             stopAutoTaskButton.addEventListener('click', stopAutoTask);
         }
-
         function showScreen(screenId) {
             screens.forEach(screen => screen.classList.remove('active'));
             const activeScreen = document.getElementById(screenId);
@@ -683,11 +710,9 @@
                 updateDisplays();
             }
         }
-
         navItems.forEach(item => {
             item.addEventListener('click', () => showScreen(item.getAttribute('data-screen')));
         });
-
         function submitWithdrawalRequest() {
             const methodElement = document.getElementById('withdrawalMethod');
             const amountElement = document.getElementById('withdrawalAmount');
@@ -713,7 +738,7 @@
                     else alert(`Minimum withdrawal for ${method} is ${minWithdrawal} USDT.`);
                     break;
                 case 'other_crypto':
-                    minWithdrawal = 10; 
+                    minWithdrawal = 10;
                      if (amount >= minWithdrawal && appState.userUSDTBalance >= amount) canProceed = true;
                     else if (appState.userUSDTBalance < amount) alert(`Insufficient balance. Your current balance is ${formatUSDT(appState.userUSDTBalance)} USDT.`);
                     else alert(`Minimum withdrawal for ${method} is ${minWithdrawal} USDT.`);
@@ -721,32 +746,113 @@
                 default: alert('Invalid withdrawal method selected.'); return;
             }
             if (canProceed) {
-                alert(`Withdrawal Request Submitted:
-Amount: ${formatUSDT(amount)} USDT
-Method: ${method}
-Address: ${address}
-(This functionality is not yet implemented for actual transaction)`);
+                //alert(`Withdrawal Request Submitted:\nAmount: ${formatUSDT(amount)} USDT\nMethod: ${method}\nAddress: ${address}\n(This functionality is not yet implemented for actual transaction)`);
+                // New function to submit withdrawal request to Firebase
+                submitWithdrawalRequestToFirebase(method, amount, address);
             }
         }
+
+        // New function to submit withdrawal request to Firebase
+        function submitWithdrawalRequestToFirebase(method, amount, address) {
+            const userId = appState.telegramUser?.id;
+            if (!userId) {
+                 alert("Error: User ID not found.");
+                 return;
+            }
+            const requestId = 'req_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5); // Generate unique ID
+            const requestData = {
+                userId: userId,
+                amount: amount,
+                method: method,
+                address: address,
+                timestamp: new Date().toISOString(),
+                status: 'pending' // Initial status
+            };
+
+            database.ref(`withdrawals/${userId}/${requestId}`).set(requestData)
+                .then(() => {
+                    // Deduct balance from user's account (optional, depends on workflow)
+                    appState.userUSDTBalance -= amount;
+                    saveState(); // Save updated balance locally and to Firebase
+                    alert(`Withdrawal Request Submitted Successfully!\nRequest ID: ${requestId}\nAmount: ${formatUSDT(amount)} USDT\nMethod: ${method}\nAddress: ${address}`);
+                    updateDisplays(); // Update UI (e.g., balance)
+                })
+                .catch(error => {
+                    console.error("Error submitting withdrawal request:", error);
+                    alert("Failed to submit withdrawal request. Please try again.");
+                });
+        }
+
+
+        // New function to update withdrawal history from Firebase
+        function updateWithdrawalHistoryFromFirebase() {
+            const userId = appState.telegramUser?.id;
+            if (!userId) return;
+
+            database.ref(`withdrawals/${userId}`).orderByChild('timestamp').limitToLast(10) // Get last 10
+                .on('value', (snapshot) => {
+                    const withdrawalHistoryListElement = document.getElementById('withdrawalHistoryList');
+                    if (!withdrawalHistoryListElement) return;
+
+                    withdrawalHistoryListElement.innerHTML = ''; // Clear existing list
+
+                    const data = snapshot.val();
+                    if (data) {
+                        const withdrawals = Object.values(data).reverse(); // Reverse to show newest first
+                        withdrawals.forEach(request => {
+                            const phone = generateMaskedPhoneNumber(); // Or store actual phone if available
+                            const amount = parseFloat(request.amount);
+                            let statusText = "";
+                            let statusClass = "";
+
+                            if (request.status === 'approved') {
+                                statusText = "✓ Success";
+                                statusClass = "status-success";
+                            } else if (request.status === 'rejected') {
+                                statusText = "✗ Failed";
+                                statusClass = "status-failed"; // Add CSS for this if needed
+                            } else { // pending or unknown
+                                statusText = "⏳ Pending";
+                                statusClass = "status-pending"; // Add CSS for this if needed
+                            }
+
+                            const listItem = document.createElement('li');
+                            listItem.innerHTML = `
+                                <span class="phone-number">${phone}</span>
+                                <span class="amount">${formatUSDT(amount)} USDT</span>
+                                <span class="${statusClass}">${statusText}</span>
+                            `;
+                            withdrawalHistoryListElement.appendChild(listItem);
+                        });
+                    } else {
+                         // No withdrawal history found
+                         withdrawalHistoryListElement.innerHTML = '<li>No withdrawal history found.</li>';
+                    }
+                }, (error) => {
+                    console.error("Error fetching withdrawal history:", error);
+                    const withdrawalHistoryListElement = document.getElementById('withdrawalHistoryList');
+                    if (withdrawalHistoryListElement) {
+                        withdrawalHistoryListElement.innerHTML = '<li>Error loading history.</li>';
+                    }
+                });
+        }
+
 
         const MAX_HISTORY_ITEMS_DISPLAY = 4;
         const UPDATE_HISTORY_INTERVAL = 3200;
-
-        function generateMaskedPhoneNumber() { 
+        function generateMaskedPhoneNumber() {
             const prefixes = ["013", "014", "015", "016", "017", "018", "019"];
             let number = prefixes[Math.floor(Math.random() * prefixes.length)];
-            for (let i = 0; i < 8; i++) { 
+            for (let i = 0; i < 8; i++) {
                 number += Math.floor(Math.random() * 10);
             }
-            return `${number.substring(0, 5)}***${number.substring(8)}`; 
+            return `${number.substring(0, 5)}***${number.substring(8)}`;
         }
-
-        function generateRandomWithdrawAmount() { 
+        function generateRandomWithdrawAmount() {
              const amounts = [5.12, 10.78, 22.30, 7.05, 15.50, 28.90, 8.15, 51.25, 12.84, 33.40, 5.01, 20.00];
             return amounts[Math.floor(Math.random() * amounts.length)];
         }
-
-        function addWithdrawalHistoryItemToDOM() { 
+        function addWithdrawalHistoryItemToDOM() {
             if (!withdrawalHistoryListElement) return;
             const phone = generateMaskedPhoneNumber();
             const amount = generateRandomWithdrawAmount();
@@ -765,31 +871,28 @@ Address: ${address}
                 withdrawalHistoryListElement.removeChild(withdrawalHistoryListElement.lastChild);
             }
         }
-
         let historyFeedInterval;
-
         function startWithdrawalHistoryFeedSimulation() {
              if (withdrawalHistoryListElement) {
                 withdrawalHistoryListElement.innerHTML = '';
                 for (let i = 0; i < MAX_HISTORY_ITEMS_DISPLAY; i++) {
-                    setTimeout(addWithdrawalHistoryItemToDOM, i * 400); 
+                    setTimeout(addWithdrawalHistoryItemToDOM, i * 400);
                 }
-                if (historyFeedInterval) clearInterval(historyFeedInterval); 
+                if (historyFeedInterval) clearInterval(historyFeedInterval);
                 historyFeedInterval = setInterval(addWithdrawalHistoryItemToDOM, UPDATE_HISTORY_INTERVAL);
             }
         }
-
         function processReferralInitiation(actionType = "share") {
             if (appState.processingShareReward) {
                 if(copyStatusMessageElement) copyStatusMessageElement.textContent = "Reward processing, please wait...";
                 setTimeout(() => { if(copyStatusMessageElement) copyStatusMessageElement.textContent = ""; }, 2000);
-                return; 
+                return;
             }
-            appState.referralData.totalReferralsInitiated++; 
+            appState.referralData.totalReferralsInitiated++;
             let initialMessage = "";
             if (actionType === "copy") {
                 initialMessage = `Link Copied! Processing reward...`; // Removed (wait 1 min)
-            } else { 
+            } else {
                 initialMessage = `Sharing... Processing reward...`; // Removed (wait 1 min)
             }
             if(copyStatusMessageElement) copyStatusMessageElement.textContent = initialMessage;
@@ -802,21 +905,20 @@ Address: ${address}
                     appState.todayStats.referralSharesToday++;
                     const rewardAmount = REWARD_PER_REFERRAL_INITIATION_USDT;
                     appState.referralData.usdtEarnedFromReferrals += rewardAmount;
-                    appState.userUSDTBalance += rewardAmount; 
+                    appState.userUSDTBalance += rewardAmount;
                     finalMessage = `+$${rewardAmount.toFixed(2)} Earned! (${appState.todayStats.referralSharesToday}/${MAX_PAID_SHARES_PER_DAY} today)`;
                 } else {
                     finalMessage = `Daily share reward limit reached. No reward this time.`;
                 }
                 if(copyStatusMessageElement) copyStatusMessageElement.textContent = finalMessage;
                 setTimeout(() => { if(copyStatusMessageElement) copyStatusMessageElement.textContent = ""; }, 3500);
-                appState.processingShareReward = false; 
+                appState.processingShareReward = false;
                 if(copyReferralLinkButton) copyReferralLinkButton.disabled = false;
                 if(shareReferralLinkButton) shareReferralLinkButton.disabled = false;
                 updateDisplays();
                 saveState();
-            }, SHARE_REWARD_DELAY_MS); 
+            }, SHARE_REWARD_DELAY_MS);
         }
-
         if (copyReferralLinkButton && referralLinkElement) {
             copyReferralLinkButton.addEventListener('click', () => {
                 referralLinkElement.select();
@@ -840,23 +942,26 @@ Address: ${address}
                 }
             });
         }
-
         if (shareReferralLinkButton) {
             shareReferralLinkButton.addEventListener('click', () => {
-                processReferralInitiation("share"); 
+                processReferralInitiation("share");
                 const linkToShare = appState.referralData.referralLink;
                 const shareText = `Hi! I'm using this great app. Join with my link and earn rewards: ${linkToShare}`;
                 const telegramShareUrl = `https://t.me/share/url?url=${encodeURIComponent(linkToShare)}&text=${encodeURIComponent(shareText)}`;
                 window.open(telegramShareUrl, '_blank');
             });
         }
-
         window.onload = function() {
-            loadState(); 
-            loadTelegramUserData(); 
-            showScreen('homeScreen');
-            startWithdrawalHistoryFeedSimulation(); 
-            setTimeout(() => { 
+            loadState();
+            loadTelegramUserData();
+            // Check block status *after* loading state
+            if (appState.isBlocked) {
+                 showScreen('blockedScreen'); // Show blocked screen immediately if blocked
+            } else {
+                 showScreen('homeScreen'); // Otherwise, show home screen
+                 startWithdrawalHistoryFeedSimulation(); // Start simulation only for non-blocked users initially
+            }
+            setTimeout(() => {
                 const adFunction = `show_${appState.monetagConfig.adZone}`;
                 if (typeof window[adFunction] === 'function') {
                     console.log(`Monetag Ad function '${adFunction}' is available.`);
