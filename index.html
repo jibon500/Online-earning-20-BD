@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>App (Referral Fix, Withdrawal History)</title>
+    <title>App (Referral Fix)</title>
     <style>
         body {
             font-family: 'Helvetica Neue', Arial, sans-serif;
@@ -542,7 +542,7 @@
         // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
-        const APP_VERSION = "2.1.4"; // Incremented for referral fix and withdrawal history
+        const APP_VERSION = "2.1.5"; // Incremented for referral fix
         const LS_KEY_APP_STATE = `monetagAppUserState_v${APP_VERSION}`;
         const REWARD_PER_SUCCESSFUL_REFERRAL_USDT = 0.01; // Bonus for successful referral signup
         const navItems = document.querySelectorAll('.bottom-nav .nav-item');
@@ -648,11 +648,16 @@
 
         // --- New: Handle closing the withdrawal history modal ---
         closeWithdrawalHistoryModal.onclick = function() {
-            withdrawalHistoryModal.style.display = "none";
+             // Do not allow closing via 'x' button
+             // withdrawalHistoryModal.style.display = "none";
+             // isListeningForWithdrawalStatus = false; // Stop listening
+             alert("Please click 'OK' to close this message.");
         }
-        openWithdrawalHistoryBtn.onclick = function() {
-            loadWithdrawalHistoryForModal();
-            withdrawalHistoryModal.style.display = "block";
+        okWithdrawalStatusBtn.onclick = function() {
+            withdrawalHistoryModal.style.display = "none";
+            isListeningForWithdrawalStatus = false; // Stop listening when user clicks OK
+            // Re-enable the withdrawal button if the status is final (approved/rejected)
+            // We'll check the status inside the listener before enabling
         }
 
         // Save to Firebase
@@ -665,6 +670,8 @@
                         lastSeen: new Date().toISOString()
                     }).catch(err => {
                         console.error("Firebase save error:", err);
+                        // Optionally, save to localStorage as a backup attempt
+                        // localStorage.setItem(LS_KEY_APP_STATE, JSON.stringify(appState));
                     });
                 }
             } catch (e) {
@@ -679,6 +686,7 @@
                 userId = tg?.initDataUnsafe?.user?.id?.toString();
                 if (userId) {
                     userRef = database.ref('users/' + userId);
+                    // --- Listen for real-time changes to the user's data, including isBlocked ---
                     userRef.on('value', (snapshot) => {
                         const data = snapshot.val();
                         if (data) {
@@ -727,7 +735,7 @@
             });
         }
 
-        // --- Updated Grant Referral Bonus to record in a separate node and use correct bonus amount --- //
+        // --- Updated Grant Referral Bonus to record in a separate node --- //
         function grantReferralBonus(referrerId, newUserTelegramId) {
             if (!referrerId || !newUserTelegramId) return;
             console.log(`Attempting to grant bonus to referrer: ${referrerId} for new user: ${newUserTelegramId}`);
@@ -1153,6 +1161,11 @@
             });
             if (['earnScreen', 'homeScreen', 'withdrawScreen', 'profileScreen', 'referScreen'].includes(screenId)) {
                 updateDisplays();
+                
+                // --- New: Show withdrawal status modal when navigating to Withdraw screen ---
+                if (screenId === 'withdrawScreen' && appState.latestWithdrawalRequestId) {
+                     checkAndShowWithdrawalStatus();
+                }
             }
         }
 
@@ -1160,8 +1173,102 @@
             item.addEventListener('click', () => showScreen(item.getAttribute('data-screen')));
         });
 
+        // --- Check and Show Withdrawal Status Modal ---
+        function checkAndShowWithdrawalStatus() {
+            if (!appState.latestWithdrawalRequestId || !userId) {
+                console.log("No latest withdrawal request ID or user ID found.");
+                return;
+            }
+
+            // Show modal with "checking" message
+            withdrawalStatusIcon.textContent = "⏳";
+            withdrawalStatusIcon.className = "status-icon status-pending";
+            withdrawalStatusMessage.textContent = "Checking your latest withdrawal request status...";
+            withdrawalHistoryModal.style.display = "block";
+            isListeningForWithdrawalStatus = true; // Start listening
+
+            // Start listening for changes to the specific withdrawal request
+            const withdrawalRequestRef = database.ref(`withdrawals/${userId}/${appState.latestWithdrawalRequestId}`);
+            const onValueCallback = withdrawalRequestRef.on('value', (snapshot) => {
+                const requestData = snapshot.val();
+                console.log("Withdrawal request data received:", requestData);
+                
+                // Only update UI if the modal is still open and we are listening
+                if (isListeningForWithdrawalStatus && withdrawalHistoryModal.style.display !== "none") {
+                    if (requestData) {
+                        const status = requestData.status || 'pending';
+                        let message = "";
+                        let icon = "⏳";
+                        let iconClass = "status-icon status-pending";
+
+                        if (status === 'approved') {
+                            message = `✅ Your withdrawal of ${formatUSDT(requestData.amount)} USDT has been APPROVED!`;
+                            icon = "✅";
+                            iconClass = "status-icon status-approved";
+                            // Enable withdrawal button as status is final
+                            if(submitWithdrawalRequestBtn) submitWithdrawalRequestBtn.disabled = false;
+                        } else if (status === 'rejected') {
+                            message = `❌ Your withdrawal of ${formatUSDT(requestData.amount)} USDT has been REJECTED.`;
+                            icon = "❌";
+                            iconClass = "status-icon status-rejected";
+                            // Enable withdrawal button as status is final
+                            if(submitWithdrawalRequestBtn) submitWithdrawalRequestBtn.disabled = false;
+                        } else { // pending or unknown
+                            message = `⏳ Your withdrawal of ${formatUSDT(requestData.amount)} USDT is still PENDING approval.`;
+                            icon = "⏳";
+                            iconClass = "status-icon status-pending";
+                            // Keep withdrawal button disabled while pending
+                            if(submitWithdrawalRequestBtn) submitWithdrawalRequestBtn.disabled = true;
+                        }
+
+                        withdrawalStatusIcon.textContent = icon;
+                        withdrawalStatusIcon.className = iconClass;
+                        withdrawalStatusMessage.textContent = message;
+                    } else {
+                        // Request not found
+                        withdrawalStatusIcon.textContent = "❓";
+                        withdrawalStatusIcon.className = "status-icon status-pending";
+                        withdrawalStatusMessage.textContent = "Withdrawal request not found. It might have been processed or deleted.";
+                        // Enable withdrawal button if request is gone
+                        if(submitWithdrawalRequestBtn) submitWithdrawalRequestBtn.disabled = false;
+                        // Stop listening as request is gone
+                        withdrawalRequestRef.off('value', onValueCallback);
+                        isListeningForWithdrawalStatus = false;
+                    }
+                }
+                
+                // If status is final, stop listening
+                if (requestData && (requestData.status === 'approved' || requestData.status === 'rejected')) {
+                     withdrawalRequestRef.off('value', onValueCallback);
+                     // Do not set isListeningForWithdrawalStatus = false here,
+                     // because the user still needs to click OK to close the modal.
+                     // It will be set to false in the OK button click handler.
+                }
+                
+            }, (error) => {
+                console.error("Error fetching withdrawal request status:", error);
+                if (isListeningForWithdrawalStatus && withdrawalHistoryModal.style.display !== "none") {
+                    withdrawalStatusIcon.textContent = "⚠️";
+                    withdrawalStatusIcon.className = "status-icon status-rejected";
+                    withdrawalStatusMessage.textContent = "Error checking withdrawal status. Please try again later.";
+                    // Enable withdrawal button on error
+                    if(submitWithdrawalRequestBtn) submitWithdrawalRequestBtn.disabled = false;
+                }
+                // Stop listening on error
+                withdrawalRequestRef.off('value', onValueCallback);
+                isListeningForWithdrawalStatus = false;
+            });
+        }
+
         // --- Modified Submit Withdrawal Request Function ---
         function submitWithdrawalRequest() {
+            // Check if there's a pending withdrawal
+            if (appState.latestWithdrawalRequestId) {
+                // Instead of alerting, show the status modal
+                checkAndShowWithdrawalStatus();
+                return;
+            }
+
             const methodElement = document.getElementById('withdrawalMethod');
             const amountElement = document.getElementById('withdrawalAmount');
             const addressElement = document.getElementById('withdrawalAddress');
@@ -1229,6 +1336,9 @@ Address: ${address}`);
                     
                     // Disable the submit button
                     if(submitWithdrawalRequestBtn) submitWithdrawalRequestBtn.disabled = true;
+                    
+                    // Show the status modal immediately
+                    checkAndShowWithdrawalStatus();
                     
                     updateDisplays();
                 })
