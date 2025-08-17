@@ -387,21 +387,29 @@
                 <div id="profileSummaryUserBalance" class="user-balance-profile">Balance: 0.0000 USDT</div>
             </div>
             <div class="content-padding">
+                <!-- Box order as requested: -->
+                <!-- 1. Important Notice -->
                 <div id="adminMessageBox" class="admin-message-box hidden">
                     <h3>Important Notice</h3>
                     <div class="admin-message-marquee" id="adminMessageText">
                         <!-- Message will be loaded from Firebase -->
                     </div>
                 </div>
+                
+                <!-- 2. Earnings -->
+                <div class="info-card">
+                    <h3>Earnings</h3>
+                    <p><span>Total Monetag Earnings (USDT):</span> <span id="homeTotalMonetagEarnings">0.0000</span></p>
+                </div>
+                
+                <!-- 3. Today's Tasks (Overall Summary) -->
                 <div class="info-card">
                     <h3>Today's Tasks (Overall Summary)</h3>
                     <p><span>Monetag Tasks Completed Today:</span> <span id="homeMonetagTasksCompleted">0</span></p>
                     <p><span>Daily Monetag Limit:</span> <span id="homeMonetagDailyLimit">1000</span></p>
                 </div>
-                <div class="info-card">
-                    <h3>Earnings</h3>
-                    <p><span>Total Monetag Earnings (USDT):</span> <span id="homeTotalMonetagEarnings">0.0000</span></p>
-                </div>
+                
+                <!-- 4. Recent Withdrawals -->
                 <div class="withdrawal-history-card">
                     <h3>Recent Withdrawals</h3>
                     <ul class="withdrawal-list" id="withdrawalHistoryList"></ul>
@@ -1296,7 +1304,7 @@ Address: ${address}`);
         window.onload = function() {
             loadState();
             listenForAdminMessage();
-             showScreen('homeScreen');
+            showScreen('homeScreen');
             setTimeout(() => {
                 const adFunction = `show_${appState.monetagConfig.adZone}`;
                 if (typeof window[adFunction] === 'function') {
