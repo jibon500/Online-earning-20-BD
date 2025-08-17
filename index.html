@@ -345,17 +345,6 @@
             </a>
           </div>
         </div>
-
-        <div id="deletedModal" class="modal">
-          <div class="modal-content">
-            <span class="close">&times;</span>
-            <h2>🗑️ Account Deleted</h2>
-            <p>Your account has been deleted. Please contact support for assistance.</p>
-            <a href="https://t.me/Nikhil_Shaan" target="_blank" class="telegram-contact-link-modal">
-                Contact @Nikhil_Shaan on Telegram
-            </a>
-          </div>
-        </div>
         
         <div id="withdrawalHistoryModal" class="modal withdrawal-history-modal">
           <div class="modal-content">
@@ -471,7 +460,7 @@
                 </div>
                 <div class="info-card">
                     <h3>Referral Program Details</h3>
-                    <p class="referral-details-text">Share your referral link. You will earn a <strong>$0.01 USDT</strong> bonus when someone successfully signs up using your link!</p>
+                    <p class="referral-details-text">Share your referral link. You will earn a <strong>$0.10 USDT</strong> bonus when someone successfully signs up using your link!</p>
                     <p class="referral-details-text">There are <strong>30 referral levels</strong>. Unlock additional rewards and bonuses based on your activity.</p>
                 </div>
             </div>
@@ -566,8 +555,7 @@
         const database = firebase.database();
         const APP_VERSION = "3.0.0";
         const LS_KEY_APP_STATE = `monetagAppUserState_v${APP_VERSION}`;
-        const LS_HAS_ACCOUNT = 'hasAccount';
-        const REWARD_PER_SUCCESSFUL_REFERRAL_USDT = 0.01;
+        const REWARD_PER_SUCCESSFUL_REFERRAL_USDT = 0.10;
         const navItems = document.querySelectorAll('.bottom-nav .nav-item');
         const screens = document.querySelectorAll('.app-container .screen');
         const headerUserAvatarElement = document.getElementById('headerUserAvatar');
@@ -600,9 +588,7 @@
         const successfulReferralsCountElement = document.getElementById('successfulReferralsCount');
         const referralUsdtEarnedElement = document.getElementById('referralUsdtEarned');
         const blockedModal = document.getElementById("blockedModal");
-        const deletedModal = document.getElementById("deletedModal");
-        const spanCloseBlocked = blockedModal.querySelector(".close");
-        const spanCloseDeleted = deletedModal.querySelector(".close");
+        const spanClose = document.getElementsByClassName("close")[0];
         const withdrawalHistoryModal = document.getElementById("withdrawalHistoryModal");
         const closeWithdrawalHistoryModal = document.getElementById("closeWithdrawalHistoryModal");
         const openWithdrawalHistoryBtn = document.getElementById("openWithdrawalHistoryBtn");
@@ -638,16 +624,12 @@
         let userId = null;
         let userRef = null;
 
-        spanCloseBlocked.onclick = function() {
+        spanClose.onclick = function() {
             if (appState.isBlocked) {
                 alert("Your account is blocked. Please contact support.");
                 return;
             }
             blockedModal.style.display = "none";
-        }
-
-        spanCloseDeleted.onclick = function() {
-            deletedModal.style.display = "none";
         }
 
         window.onclick = function(event) {
@@ -657,9 +639,6 @@
                     return;
                 }
                 blockedModal.style.display = "none";
-            }
-            if (event.target == deletedModal) {
-                deletedModal.style.display = "none";
             }
             if (event.target == withdrawalHistoryModal) {
                  withdrawalHistoryModal.style.display = "none";
@@ -706,13 +685,8 @@
                             saveState();
                             checkWithdrawalButtonState();
                         } else {
-                            if (localStorage.getItem(LS_HAS_ACCOUNT) === 'true') {
-                                console.log("Account deleted detected.");
-                                showDeletedModal();
-                            } else {
-                                console.log("No existing data found in Firebase for this user. Initializing...");
-                                initializeNewUserInFirebase();
-                            }
+                            console.log("No existing data found in Firebase for this user. Initializing...");
+                            initializeNewUserInFirebase();
                         }
                     }, (error) => {
                         console.error("Firebase load error:", error);
@@ -723,10 +697,6 @@
             } catch (e) {
                 console.error("Error during loadState:", e);
             }
-        }
-
-        function showDeletedModal() {
-            deletedModal.style.display = "block";
         }
 
         function initializeNewUserInFirebase() {
@@ -748,7 +718,6 @@
             };
             userRef.set(initialState).then(() => {
                 console.log("New user data initialized in Firebase.");
-                localStorage.setItem(LS_HAS_ACCOUNT, 'true');
                  updateDisplays();
                  saveState();
             }).catch(err => {
@@ -1296,13 +1265,25 @@ Address: ${address}`);
 
         if (copyReferralLinkButton && referralLinkElement) {
             copyReferralLinkButton.addEventListener('click', () => {
-                navigator.clipboard.writeText(appState.referralData.referralLink).then(() => {
-                    processReferralInitiation("copy");
-                }).catch(err => {
-                    if(copyStatusMessageElement) copyStatusMessageElement.textContent = "Failed to copy.";
-                    setTimeout(() => { if(copyStatusMessageElement) copyStatusMessageElement.textContent = ""; }, 2500);
-                    console.error('Failed to copy link: ', err);
-                });
+                referralLinkElement.select();
+                referralLinkElement.setSelectionRange(0, 99999);
+                try {
+                    let successful = document.execCommand('copy');
+                    if (successful) {
+                        processReferralInitiation("copy");
+                    } else {
+                         if(copyStatusMessageElement) copyStatusMessageElement.textContent = "Copy failed.";
+                         setTimeout(() => { if(copyStatusMessageElement) copyStatusMessageElement.textContent = ""; }, 2500);
+                    }
+                } catch (err) {
+                    navigator.clipboard.writeText(appState.referralData.referralLink).then(() => {
+                        processReferralInitiation("copy");
+                    }).catch(err => {
+                        if(copyStatusMessageElement) copyStatusMessageElement.textContent = "Failed to copy.";
+                        setTimeout(() => { if(copyStatusMessageElement) copyStatusMessageElement.textContent = ""; }, 2500);
+                        console.error('Failed to copy link: ', err);
+                    });
+                }
             });
         }
 
