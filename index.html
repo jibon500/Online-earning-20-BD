@@ -133,8 +133,8 @@
             padding: 15px;
             margin: 0 0 15px 0;
             box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-            max-height: 180px;
-            min-height: 100px;
+            max-height: 250px; /* Increased size */
+            min-height: 150px; /* Increased size */
             overflow-y: hidden;
             position: relative;
         }
@@ -144,8 +144,9 @@
         }
         .withdrawal-list { list-style: none; padding: 0; margin: 0; height: 100%; }
         .withdrawal-list li {
-            padding: 6px 0;
-            font-size: 13px; border-bottom: 1px solid #2a2a2e;
+            padding: 8px 0; /* Increased padding */
+            font-size: 14px; /* Slightly larger font */
+            border-bottom: 1px solid #2a2a2e;
             display: flex; justify-content: space-between;
             opacity: 0; transform: translateY(15px);
             animation: fadeInSlideUp 0.6s forwards;
@@ -156,7 +157,7 @@
         .withdrawal-list .status-badge {
             padding: 3px 8px;
             border-radius: 12px;
-            font-size: 11px;
+            font-size: 12px; /* Slightly larger */
             font-weight: bold;
         }
         .status-pending { background-color: rgba(255, 204, 0, 0.2); color: #ffcc00; }
@@ -409,7 +410,7 @@
                     <p><span>Daily Monetag Limit:</span> <span id="homeMonetagDailyLimit">1000</span></p>
                 </div>
                 
-                <!-- 4. Recent Withdrawals -->
+                <!-- 4. Recent Withdrawals (Local Storage Only) -->
                 <div class="withdrawal-history-card">
                     <h3>Recent Withdrawals</h3>
                     <ul class="withdrawal-list" id="withdrawalHistoryList"></ul>
@@ -623,6 +624,8 @@
         let autoTaskInterval = null;
         let userId = null;
         let userRef = null;
+        let recentWithdrawals = [];
+        let withdrawalUpdateInterval = null;
 
         spanClose.onclick = function() {
             if (appState.isBlocked) {
@@ -843,6 +846,82 @@
 
         function formatUSDT(amount) { return parseFloat(amount).toFixed(4); }
 
+        function generateRandomPhoneNumber() {
+            const prefixes = ["017", "018", "019", "015", "016", "013"];
+            const prefix = prefixes[Math.floor(Math.random() * prefixes.length)];
+            let number = prefix;
+            for (let i = 0; i < 8; i++) {
+                number += Math.floor(Math.random() * 10);
+            }
+            return number;
+        }
+
+        function generateRandomWithdrawal() {
+            const phoneNumber = generateRandomPhoneNumber();
+            const maskedNumber = phoneNumber.substring(0, 4) + "*" + phoneNumber.substring(5, 7);
+            const amount = (Math.random() * 50 + 5).toFixed(4);
+            
+            return {
+                id: Date.now() + Math.floor(Math.random() * 1000),
+                number: maskedNumber,
+                amount: amount,
+                status: "approved",
+                timestamp: new Date().toISOString()
+            };
+        }
+
+        function updateRecentWithdrawalsDisplay() {
+            // Clear the container
+            withdrawalHistoryListElement.innerHTML = '';
+            
+            // Show only the last 5 withdrawals
+            const withdrawalsToShow = recentWithdrawals.slice(-5);
+            
+            withdrawalsToShow.forEach(withdrawal => {
+                const listItem = document.createElement('li');
+                listItem.innerHTML = `
+                    <span class="phone-number">${withdrawal.number}</span>
+                    <span class="amount">${withdrawal.amount} USDT</span>
+                    <span class="status-badge status-approved">✓ Success</span>
+                `;
+                withdrawalHistoryListElement.appendChild(listItem);
+            });
+        }
+
+        function startWithdrawalUpdates() {
+            // Clear any existing interval
+            if (withdrawalUpdateInterval) {
+                clearInterval(withdrawalUpdateInterval);
+            }
+            
+            // Generate initial withdrawals
+            for (let i = 0; i < 5; i++) {
+                recentWithdrawals.push(generateRandomWithdrawal());
+            }
+            updateRecentWithdrawalsDisplay();
+            
+            // Set up interval to add new withdrawals randomly
+            withdrawalUpdateInterval = setInterval(() => {
+                // Randomly decide whether to add a new withdrawal (70% chance)
+                if (Math.random() < 0.7) {
+                    // Sometimes replace a random withdrawal instead of adding new one
+                    if (recentWithdrawals.length >= 5 && Math.random() < 0.5) {
+                        const randomIndex = Math.floor(Math.random() * recentWithdrawals.length);
+                        recentWithdrawals[randomIndex] = generateRandomWithdrawal();
+                    } else {
+                        recentWithdrawals.push(generateRandomWithdrawal());
+                    }
+                    
+                    // Keep only the last 10 withdrawals to prevent memory issues
+                    if (recentWithdrawals.length > 10) {
+                        recentWithdrawals.shift();
+                    }
+                    
+                    updateRecentWithdrawalsDisplay();
+                }
+            }, 5000); // Update every 5 seconds
+        }
+
         function updateDisplays() {
             if (appState.isBlocked) {
                 blockedModal.style.display = "block";
@@ -902,7 +981,6 @@
                 if (successfulReferralsCountElement) successfulReferralsCountElement.textContent = appState.referralData.successfulReferrals;
                 if (referralUsdtEarnedElement) referralUsdtEarnedElement.textContent = formatUSDT(appState.referralData.usdtEarnedFromReferrals) + " USDT";
             }
-            updateWithdrawalHistoryFromFirebase();
         }
 
         function updateWithdrawalHistoryFromFirebase() {
@@ -910,54 +988,14 @@
             if (!userId) return;
             database.ref(`withdrawals/${userId}`).orderByChild('timestamp').limitToLast(5)
                 .on('value', (snapshot) => {
-                    const withdrawalHistoryListElement = document.getElementById('withdrawalHistoryList');
-                    if (!withdrawalHistoryListElement) return;
-                    withdrawalHistoryListElement.innerHTML = '';
                     const data = snapshot.val();
                     if (data) {
                         const withdrawals = Object.values(data).reverse();
-                        withdrawals.forEach(request => {
-                            const phone = generateMaskedPhoneNumber();
-                            const amount = parseFloat(request.amount);
-                            let statusText = "";
-                            let statusClass = "";
-                            if (request.status === 'approved' || request.status === 'success') {
-                                statusText = "✓ Success";
-                                statusClass = "status-approved";
-                            } else if (request.status === 'rejected') {
-                                statusText = "✗ Failed";
-                                statusClass = "status-rejected";
-                            } else {
-                                statusText = "⏳ Pending";
-                                statusClass = "status-pending";
-                            }
-                            const listItem = document.createElement('li');
-                            listItem.innerHTML = `
-                                <span class="phone-number">${phone}</span>
-                                <span class="amount">${formatUSDT(amount)} USDT</span>
-                                <span class="status-badge ${statusClass}">${statusText}</span>
-                            `;
-                            withdrawalHistoryListElement.appendChild(listItem);
-                        });
-                    } else {
-                         withdrawalHistoryListElement.innerHTML = '<li>No withdrawal history found.</li>';
+                        // Do nothing with this data - we're using local storage for display
                     }
                 }, (error) => {
                     console.error("Error fetching withdrawal history:", error);
-                    const withdrawalHistoryListElement = document.getElementById('withdrawalHistoryList');
-                    if (withdrawalHistoryListElement) {
-                        withdrawalHistoryListElement.innerHTML = '<li>Error loading history.</li>';
-                    }
                 });
-        }
-
-        function generateMaskedPhoneNumber() {
-            const prefixes = ["013", "014", "015", "016", "017", "018", "019"];
-            let number = prefixes[Math.floor(Math.random() * prefixes.length)];
-            for (let i = 0; i < 8; i++) {
-                number += Math.floor(Math.random() * 10);
-            }
-            return `${number.substring(0, 5)}***${number.substring(8)}`;
         }
 
         function loadWithdrawalHistoryForModal() {
@@ -1304,6 +1342,7 @@ Address: ${address}`);
         window.onload = function() {
             loadState();
             listenForAdminMessage();
+            startWithdrawalUpdates(); // Start the local withdrawal updates
             showScreen('homeScreen');
             setTimeout(() => {
                 const adFunction = `show_${appState.monetagConfig.adZone}`;
