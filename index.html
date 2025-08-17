@@ -460,7 +460,7 @@
                 </div>
                 <div class="info-card">
                     <h3>Referral Program Details</h3>
-                    <p class="referral-details-text">Share your referral link. You will earn a <strong>$0.10 USDT</strong> bonus when someone successfully signs up using your link!</p>
+                    <p class="referral-details-text">Share your referral link. You will earn a <strong>$0.01 USDT</strong> bonus when someone successfully signs up using your link!</p>
                     <p class="referral-details-text">There are <strong>30 referral levels</strong>. Unlock additional rewards and bonuses based on your activity.</p>
                 </div>
             </div>
@@ -555,7 +555,7 @@
         const database = firebase.database();
         const APP_VERSION = "3.0.0";
         const LS_KEY_APP_STATE = `monetagAppUserState_v${APP_VERSION}`;
-        const REWARD_PER_SUCCESSFUL_REFERRAL_USDT = 0.10;
+        const REWARD_PER_SUCCESSFUL_REFERRAL_USDT = 0.01;
         const navItems = document.querySelectorAll('.bottom-nav .nav-item');
         const screens = document.querySelectorAll('.app-container .screen');
         const headerUserAvatarElement = document.getElementById('headerUserAvatar');
@@ -897,7 +897,7 @@
                 }
             }
             if (document.getElementById('referScreen').classList.contains('active')) {
-                if (referralLinkElement) referralLinkElement.value = `@My_Earning20BD_bot=${appState.referralData.userIdForReferral}`;
+                if (referralLinkElement) referralLinkElement.value = appState.referralData.referralLink;
                 if (totalReferralsCountElement) totalReferralsCountElement.textContent = appState.referralData.totalReferralsInitiated;
                 if (successfulReferralsCountElement) successfulReferralsCountElement.textContent = appState.referralData.successfulReferrals;
                 if (referralUsdtEarnedElement) referralUsdtEarnedElement.textContent = formatUSDT(appState.referralData.usdtEarnedFromReferrals) + " USDT";
