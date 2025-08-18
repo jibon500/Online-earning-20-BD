@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>App (Persistent Block Fix, Improved Withdrawal Feed)</title>
+    <title>App (Persistent Block Fix)</title>
     <style>
         body {
             font-family: 'Helvetica Neue', Arial, sans-serif;
@@ -141,63 +141,26 @@
             box-shadow: 0 2px 5px rgba(0,0,0,0.2);
             max-height: 180px;
             min-height: 100px;
-            overflow-y: hidden; /* Hide scrollbar for the card */
+            overflow-y: hidden;
             position: relative;
         }
         .withdrawal-history-card h3 {
             margin-top: 0; margin-bottom: 10px; font-size: 16px;
             color: #00aaff; text-align: center;
         }
-        .withdrawal-list {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-            height: calc(100% - 20px); /* Adjust for header */
-            overflow: hidden; /* Ensure content doesn't overflow the list area */
-        }
+        .withdrawal-list { list-style: none; padding: 0; margin: 0; height: 100%; }
         .withdrawal-list li {
             padding: 6px 0;
-            font-size: 13px;
-            border-bottom: 1px solid #2a2a2e;
-            display: flex;
-            justify-content: space-between;
-            /* Animation for items appearing */
-            opacity: 0;
-            transform: translateY(10px);
-            animation: fadeInSlideUp 0.5s forwards;
+            font-size: 13px; border-bottom: 1px solid #2a2a2e;
+            display: flex; justify-content: space-between;
+            opacity: 0; transform: translateY(15px);
+            animation: fadeInSlideUp 0.6s forwards;
         }
-        .withdrawal-list li:last-child {
-            border-bottom: none;
-        }
-        .withdrawal-list .phone-number {
-            color: #cccccc;
-            flex-basis: 50%;
-        }
-        .withdrawal-list .amount {
-            color: #34c759;
-            font-weight: bold;
-            flex-basis: 35%;
-            text-align: right;
-        }
-        .withdrawal-list .status-success {
-            color: #34c759;
-            margin-left: 5px;
-            font-size: 12px;
-            flex-basis: 15%;
-            text-align: right;
-        }
-        /* Keyframes for the new animation */
-        @keyframes fadeInSlideUp {
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        @keyframes popIn {
-            0% { transform: scale(0.8); opacity: 0; }
-            70% { transform: scale(1.05); }
-            100% { transform: scale(1); opacity: 1; }
-        }
+        .withdrawal-list li:last-child { border-bottom: none; }
+        .withdrawal-list .phone-number { color: #cccccc; flex-basis: 50%; }
+        .withdrawal-list .amount { color: #34c759; font-weight: bold; flex-basis: 35%; text-align: right; }
+        .withdrawal-list .status-success { color: #34c759; margin-left: 5px; font-size: 12px; flex-basis: 15%; text-align: right; }
+        @keyframes fadeInSlideUp { to { opacity: 1; transform: translateY(0); } }
         /* New CSS for Blocked Popup Modal */
         .modal {
             display: none;
@@ -267,9 +230,7 @@
         .telegram-contact-link-modal:hover {
             background-color: #0077b3;
         }
-        .hidden {
-            display: none !important;
-        }
+        .hidden { display: none !important; }
         /* --- New Styles for Admin Message Box --- */
         .admin-message-box {
             background-color: #1c1c1e;
@@ -590,7 +551,7 @@
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
         const auth = firebase.auth();
-        const APP_VERSION = "2.1.8"; // Incremented for persistent block fix and improved feed
+        const APP_VERSION = "2.1.7"; // Incremented for persistent block fix
         const LS_KEY_APP_STATE = `monetagAppUserState_v${APP_VERSION}`;
         const REWARD_PER_SUCCESSFUL_REFERRAL_USDT = 0.01;
         const navItems = document.querySelectorAll('.bottom-nav .nav-item');
@@ -979,7 +940,7 @@
             });
         }
 
-        // --- Listen for App Settings (like Ad Zone ID and Reward) --- //
+        // --- Listen for App Settings (like Ad Zone ID) --- //
         function listenForAppSettings() {
             // Prevent listening if blocked (less critical, but consistent)
             // if (isUserGloballyBlocked) return;
@@ -987,30 +948,13 @@
             appSettingsRef.on('value', (snapshot) => {
                 const data = snapshot.val();
                 console.log("App settings data received:", data);
-                let settingsUpdated = false;
-                if (data) {
-                    if (data.adZoneId !== undefined && data.adZoneId !== null) {
-                        appState.monetagConfig.adZone = data.adZoneId;
-                        settingsUpdated = true;
-                        console.log("Ad Zone ID updated to:", data.adZoneId);
-                    }
-                    if (data.rewardPerTaskUSD !== undefined && data.rewardPerTaskUSD !== null) {
-                         appState.monetagConfig.rewardPerTaskUSD = data.rewardPerTaskUSD;
-                         settingsUpdated = true;
-                         console.log("Reward Per Task USD updated to:", data.rewardPerTaskUSD);
-                    }
-                    if (data.dailyTaskLimit !== undefined && data.dailyTaskLimit !== null) {
-                         appState.monetagConfig.dailyTaskLimit = data.dailyTaskLimit;
-                         settingsUpdated = true;
-                         console.log("Daily Task Limit updated to:", data.dailyTaskLimit);
-                         // Update display immediately if on earn/home screen
-                         if (earnMonetagDailyLimitElement) earnMonetagDailyLimitElement.textContent = data.dailyTaskLimit;
-                         if (homeMonetagDailyLimitElement) homeMonetagDailyLimitElement.textContent = data.dailyTaskLimit;
-                         updateDisplays(); // Recalculate remaining tasks etc.
-                    }
-                    // if (settingsUpdated) {
-                    //     updateDisplays(); // Removed as individual updates handle this
-                    // }
+                if (data && data.adZoneId) {
+                    appState.monetagConfig.adZone = data.adZoneId;
+                    console.log("Ad Zone ID updated to:", data.adZoneId);
+                }
+                if (data && data.rewardPerTaskUSD !== undefined) {
+                     appState.monetagConfig.rewardPerTaskUSD = data.rewardPerTaskUSD;
+                     console.log("Reward Per Task USD updated to:", data.rewardPerTaskUSD);
                 }
             }, (error) => {
                 console.error("Error fetching app settings:", error);
@@ -1279,11 +1223,8 @@ Address: ${address}`);
                 });
         }
 
-        // --- Improved Withdrawal History Simulation --- //
         const MAX_HISTORY_ITEMS_DISPLAY = 3;
-        const UPDATE_HISTORY_INTERVAL = 3500; // Slightly slower for better visibility
-        let historyFeedInterval;
-
+        const UPDATE_HISTORY_INTERVAL = 3200;
         function generateMaskedPhoneNumber() {
             const prefixes = ["013", "014", "015", "016", "017", "018", "019"];
             let number = prefixes[Math.floor(Math.random() * prefixes.length)];
@@ -1292,82 +1233,44 @@ Address: ${address}`);
             }
             return `${number.substring(0, 5)}****${number.substring(9)}`;
         }
-
         function generateRandomWithdrawAmount() {
-             const amounts = [5.12, 10.78, 22.30, 7.05, 15.50, 28.90, 8.15, 51.25, 12.84, 33.40, 5.01, 20.00, 1.25, 99.99, 0.50];
+             const amounts = [5.12, 10.78, 22.30, 7.05, 15.50, 28.90, 8.15, 51.25, 12.84, 33.40, 5.01, 20.00];
             return amounts[Math.floor(Math.random() * amounts.length)];
         }
-
         function addWithdrawalHistoryItemToDOM() {
-            // Prevent simulation if blocked or if the element doesn't exist
-            if (isUserGloballyBlocked || !withdrawalHistoryListElement) return;
-
+            // Prevent simulation if blocked
+            if (isUserGloballyBlocked) return;
+            if (!withdrawalHistoryListElement) return;
             const phone = generateMaskedPhoneNumber();
             const amount = generateRandomWithdrawAmount();
             const listItem = document.createElement('li');
-
-            // Apply the popIn animation class for a more dynamic effect
-            listItem.style.animation = 'popIn 0.4s ease-out forwards';
-
             listItem.innerHTML = `
                 <span class="phone-number">${phone}</span>
                 <span class="amount">${formatUSDT(amount)} USDT</span>
                 <span class="status-success">Success ✓</span>
             `;
-
-            // Randomly decide where to insert the new item for a live feed effect
-            const listItems = withdrawalHistoryListElement.children;
-            const listLength = listItems.length;
-
-            if (listLength === 0) {
-                // If list is empty, just append
-                withdrawalHistoryListElement.appendChild(listItem);
-            } else if (listLength < MAX_HISTORY_ITEMS_DISPLAY) {
-                // If list is not full, randomly insert at top (index 0) or middle (index 1)
-                const insertIndex = Math.random() > 0.5 ? 0 : 1;
-                if (insertIndex === 0 || listLength === 1) {
-                    withdrawalHistoryListElement.insertBefore(listItem, withdrawalHistoryListElement.firstChild);
-                } else {
-                    withdrawalHistoryListElement.insertBefore(listItem, listItems[1]); // Insert before the second item
-                }
+            if (withdrawalHistoryListElement.firstChild) {
+                withdrawalHistoryListElement.insertBefore(listItem, withdrawalHistoryListElement.firstChild);
             } else {
-                // If list is full (3 items), randomly replace top (index 0) or middle (index 1)
-                // We remove the last item to maintain the count of 3
-                const replaceIndex = Math.random() > 0.5 ? 0 : 1;
-                withdrawalHistoryListElement.removeChild(withdrawalHistoryListElement.lastChild); // Remove last
-
-                if (replaceIndex === 0) {
-                    // Replace first item
-                    withdrawalHistoryListElement.insertBefore(listItem, withdrawalHistoryListElement.firstChild);
-                } else {
-                    // Replace second item
-                    withdrawalHistoryListElement.insertBefore(listItem, listItems[1]); // Insert before the (old) second item
-                }
+                withdrawalHistoryListElement.appendChild(listItem);
             }
-
-            // Optional: Add a slight delay before removing the animation class if needed for performance
-            // setTimeout(() => { listItem.style.animation = ''; }, 400);
+            while (withdrawalHistoryListElement.children.length > MAX_HISTORY_ITEMS_DISPLAY) {
+                withdrawalHistoryListElement.removeChild(withdrawalHistoryListElement.lastChild);
+            }
         }
-
-
+        let historyFeedInterval;
         function startWithdrawalHistoryFeedSimulation() {
              // Prevent starting simulation if blocked
-             if (isUserGloballyBlocked || !withdrawalHistoryListElement) return;
-
-             // Clear any existing interval
-             if (historyFeedInterval) clearInterval(historyFeedInterval);
-
-             // Initialize with a few items
-             withdrawalHistoryListElement.innerHTML = '';
-             for (let i = 0; i < Math.min(MAX_HISTORY_ITEMS_DISPLAY, 2); i++) { // Start with max 2
-                 addWithdrawalHistoryItemToDOM();
-             }
-
-             // Start the interval for continuous updates
-             historyFeedInterval = setInterval(addWithdrawalHistoryItemToDOM, UPDATE_HISTORY_INTERVAL);
+             if (isUserGloballyBlocked) return;
+             if (withdrawalHistoryListElement) {
+                withdrawalHistoryListElement.innerHTML = '';
+                for (let i = 0; i < MAX_HISTORY_ITEMS_DISPLAY; i++) {
+                    setTimeout(addWithdrawalHistoryItemToDOM, i * 400);
+                }
+                if (historyFeedInterval) clearInterval(historyFeedInterval);
+                historyFeedInterval = setInterval(addWithdrawalHistoryItemToDOM, UPDATE_HISTORY_INTERVAL);
+            }
         }
-
-
         function processReferralInitiation(actionType = "share") {
             // Prevent referral processing if blocked
             if (isUserGloballyBlocked) {
@@ -1389,7 +1292,6 @@ Address: ${address}`);
             updateDisplays();
             saveState();
         }
-
         if (copyReferralLinkButton && referralLinkElement) {
             copyReferralLinkButton.addEventListener('click', () => {
                  // Prevent copying if blocked
@@ -1419,7 +1321,6 @@ Address: ${address}`);
                 }
             });
         }
-
         if (shareReferralLinkButton) {
             shareReferralLinkButton.addEventListener('click', () => {
                  // Prevent sharing if blocked
@@ -1435,12 +1336,10 @@ Address: ${address}`);
                 window.open(telegramShareUrl, '_blank');
             });
         }
-
         // --- Event Listeners --- //
         if (submitWithdrawalRequestBtn) {
             submitWithdrawalRequestBtn.addEventListener('click', submitWithdrawalRequest);
         }
-
         if (openWithdrawalHistoryBtn) {
             openWithdrawalHistoryBtn.addEventListener('click', () => {
                  // Prevent opening modal if blocked
@@ -1449,13 +1348,11 @@ Address: ${address}`);
                 withdrawalHistoryModal.style.display = 'block';
             });
         }
-
         if (closeWithdrawalHistoryModal) {
             closeWithdrawalHistoryModal.addEventListener('click', () => {
                 withdrawalHistoryModal.style.display = 'none';
             });
         }
-
         // Close modals if clicked outside
         window.addEventListener('click', (event) => {
             if (event.target === withdrawalHistoryModal) {
@@ -1466,7 +1363,6 @@ Address: ${address}`);
             //     blockedModal.style.display = 'none';
             // }
         });
-
         // Handle close button for blocked modal (if you decide to keep it)
         if (closeBlockedModal) {
             closeBlockedModal.addEventListener('click', () => {
@@ -1475,7 +1371,6 @@ Address: ${address}`);
                 alert("Your account is blocked. Please contact support."); // Example action
             });
         }
-
         // --- Firebase Auth State --- //
         auth.onAuthStateChanged((user) => {
             if (user) {
@@ -1490,14 +1385,13 @@ Address: ${address}`);
                     });
             }
         });
-
         // --- App Initialization --- //
         window.onload = function() {
             loadState(); // This now includes the real-time listener setup
             listenForAdminMessage();
             listenForAppSettings(); // Listen for dynamic settings including reward
-            showScreen('homeScreen');
-            startWithdrawalHistoryFeedSimulation(); // Start the improved simulation
+             showScreen('homeScreen');
+             startWithdrawalHistoryFeedSimulation();
             setTimeout(() => {
                 const adFunction = `show_${appState.monetagConfig.adZone}`;
                 if (typeof window[adFunction] === 'function') {
