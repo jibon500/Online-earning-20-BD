@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>App (Persistent Block Fix, UI Adjustments)</title>
+    <title>App (Persistent Block Fix)</title>
     <style>
         body {
             font-family: 'Helvetica Neue', Arial, sans-serif;
@@ -134,21 +134,21 @@
         }
         .telegram-contact-fab:hover { background-color: #0077b3; }
         .telegram-contact-fab svg { width: 28px; height: 28px; fill: white; }
-        /* --- Adjusted Withdrawal History Card Size --- */
         .withdrawal-history-card {
             background-color: #1c1c1e; color: #ffffff; border-radius: 10px;
-            padding: 15px; margin-bottom: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.2); /* Matched .info-card */
-            /* Removed fixed height/max-height to match other cards */
-            min-height: 100px; /* Kept for initial layout */
-            overflow-y: auto; /* Allow scrolling if content is large */
+            padding: 15px;
+            margin: 0 0 15px 0;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            max-height: 180px;
+            min-height: 100px;
+            overflow-y: hidden;
             position: relative;
         }
         .withdrawal-history-card h3 {
-            margin-top: 0; margin-bottom: 10px; font-size: 17px; /* Matched .info-card h3 */
-            color: #00aaff; border-bottom: 1px solid #3a3a3c; padding-bottom: 8px; /* Matched .info-card h3 */
-            text-align: center;
+            margin-top: 0; margin-bottom: 10px; font-size: 16px;
+            color: #00aaff; text-align: center;
         }
-        .withdrawal-list { list-style: none; padding: 0; margin: 0; }
+        .withdrawal-list { list-style: none; padding: 0; margin: 0; height: 100%; }
         .withdrawal-list li {
             padding: 6px 0;
             font-size: 13px; border-bottom: 1px solid #2a2a2e;
@@ -221,7 +221,7 @@
             color: white;
             padding: 10px 20px;
             border-radius: 5px;
-            text-decoration: none;
+            text-decoration: none; /* Make it look like a link */
             font-weight: bold;
             transition: background-color 0.3s ease;
         }
@@ -340,6 +340,7 @@
             <p>Your account has been blocked by the administrator.</p>
             <p>You cannot use the app until it is unblocked.</p>
             <p>Please contact support for assistance.</p>
+            <!-- Make the link look like a button and ensure it's a proper link -->
             <a href="https://t.me/Nikhil_Shaan" target="_blank" class="telegram-contact-link-modal">
                 Contact @Nikhil_Shaan on Telegram
             </a>
@@ -403,7 +404,6 @@
                     <h3>Earnings</h3>
                     <p><span>Total Monetag Earnings (USDT):</span> <span id="homeTotalMonetagEarnings">0.0000</span></p>
                 </div>
-                <!-- Adjusted Withdrawal History Card -->
                 <div class="withdrawal-history-card">
                     <h3>Recent Withdrawals</h3>
                     <ul class="withdrawal-list" id="withdrawalHistoryList"></ul>
@@ -550,7 +550,7 @@
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
         const auth = firebase.auth();
-        const APP_VERSION = "2.1.8"; // Incremented for persistent block fix and UI adjustments
+        const APP_VERSION = "2.1.7"; // Incremented for persistent block fix
         const LS_KEY_APP_STATE = `monetagAppUserState_v${APP_VERSION}`;
         const REWARD_PER_SUCCESSFUL_REFERRAL_USDT = 0.01;
         const navItems = document.querySelectorAll('.bottom-nav .nav-item');
@@ -957,10 +957,6 @@
                 if (data && data.adZoneId) {
                     appState.monetagConfig.adZone = data.adZoneId;
                     console.log("Ad Zone ID updated to:", data.adZoneId);
-                }
-                 if (data && data.rewardPerTaskUSD !== undefined) {
-                     appState.monetagConfig.rewardPerTaskUSD = data.rewardPerTaskUSD;
-                     console.log("Reward Per Task USD updated to:", data.rewardPerTaskUSD);
                 }
             }, (error) => {
                 console.error("Error fetching app settings:", error);
