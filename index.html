@@ -215,7 +215,6 @@
             margin-bottom: 20px;
             color: #ccc;
         }
-        /* Make the link look like a button and ensure it's clickable */
         .telegram-contact-link-modal {
             display: inline-block;
             background-color: #0088cc;
@@ -627,7 +626,6 @@
 
         // --- New Global Flag for Blocking State ---
         let isUserGloballyBlocked = false; // This flag controls the UI blocking
-        let blockCheckInterval = null; // Interval ID for periodic block check
 
         function formatUSDT(amount) {
             return parseFloat(amount).toFixed(4);
@@ -687,23 +685,17 @@
                     updateDisplays();
                 });
 
-                // 2. Set up periodic check for isBlocked status
-                // This replaces the real-time listener for simplicity and reliability
-                if (blockCheckInterval) clearInterval(blockCheckInterval);
-                blockCheckInterval = setInterval(() => {
-                    // console.log("Periodic block check...");
-                    userRef.child('isBlocked').once('value').then((snapshot) => {
-                        const isBlockedValue = snapshot.val();
-                        // console.log("Periodic isBlocked check result:", isBlockedValue);
-                        // Use strict boolean check
-                        const isBlocked = isBlockedValue === true;
-                        handleUserBlockedState(isBlocked);
-                    }).catch((error) => {
-                         console.error("Error during periodic block check:", error);
-                         // On error, assume unblocked to prevent permanent lockout
-                         // handleUserBlockedState(false);
-                    });
-                }, 1000); // Check every 1 second
+                // 2. Set up real-time listener for isBlocked status
+                // This listener will trigger whenever the 'isBlocked' field in Firebase changes
+                userRef.child('isBlocked').on('value', (snapshot) => {
+                    const isBlockedValue = snapshot.val();
+                    console.log("Real-time isBlocked check:", isBlockedValue);
+                    // Use strict boolean check
+                    const isBlocked = isBlockedValue === true;
+                    handleUserBlockedState(isBlocked);
+                }, (error) => {
+                    console.error("Error listening for real-time block status:", error);
+                });
 
             } else {
                 updateDisplays();
@@ -713,7 +705,7 @@
 
         // --- New Function: Handle Blocked State Consistently ---
         function handleUserBlockedState(isBlocked) {
-             // console.log("Handling blocked state. Is blocked?", isBlocked);
+             console.log("Handling blocked state. Is blocked?", isBlocked);
              if (isBlocked && !isUserGloballyBlocked) {
                  // User just got blocked
                  isUserGloballyBlocked = true;
@@ -744,8 +736,6 @@
 
 
         function initializeReferralSystem() {
-            // Prevent referral actions if blocked
-            if (isUserGloballyBlocked) return;
             const tg = window.Telegram.WebApp;
             const referrerId = tg.initDataUnsafe.start_param;
             if (referrerId && referrerId !== appState.telegramUser.id.toString()) {
@@ -823,7 +813,7 @@
                 if (referralUsdtEarnedElement) referralUsdtEarnedElement.textContent = formatUSDT(appState.referralData.usdtEarnedFromReferrals) + " USDT";
             }
             if (withdrawUserBalanceElement) withdrawUserBalanceElement.textContent = formatUSDT(appState.userUSDTBalance) + " USDT";
-            updateWithdrawalHistoryFromFirebase(); // Update real history
+            updateWithdrawalHistoryFromFirebase();
         }
 
         function updateWithdrawalHistoryFromFirebase() {
@@ -927,8 +917,6 @@
 
         // --- Listen for Admin Message --- //
         function listenForAdminMessage() {
-            // Prevent listening if blocked (less critical, but consistent)
-            // if (isUserGloballyBlocked) return;
             const adminMessageRef = database.ref('adminMessage');
             adminMessageRef.on('value', (snapshot) => {
                 const data = snapshot.val();
@@ -949,8 +937,6 @@
 
         // --- Listen for App Settings (like Ad Zone ID) --- //
         function listenForAppSettings() {
-            // Prevent listening if blocked (less critical, but consistent)
-            // if (isUserGloballyBlocked) return;
             const appSettingsRef = database.ref('appSettings');
             appSettingsRef.on('value', (snapshot) => {
                 const data = snapshot.val();
@@ -965,8 +951,6 @@
         }
 
         function loadTelegramUserData() {
-            // Prevent loading Telegram data if blocked
-            if (isUserGloballyBlocked) return;
             try {
                 const tg = window.Telegram.WebApp;
                 tg.ready();
@@ -991,22 +975,11 @@
         }
 
         function showMonetagAd() {
-            // Prevent showing ad if blocked
-            if (isUserGloballyBlocked) {
-                 if (adStatusMessageElement) adStatusMessageElement.textContent = "Account blocked. Cannot perform tasks.";
-                 return;
-            }
             if (adStatusMessageElement) adStatusMessageElement.textContent = "Loading ad...";
             startTaskMonetagButton.disabled = true;
             const adFunction = `show_${appState.monetagConfig.adZone}`;
             if (typeof window[adFunction] === 'function') {
                 window[adFunction]().then(() => {
-                    // Double-check block status after ad attempt
-                    if (isUserGloballyBlocked) {
-                         if (adStatusMessageElement) adStatusMessageElement.textContent = "Account blocked. Task not completed.";
-                         updateDisplays();
-                         return;
-                    }
                     if (adStatusMessageElement) adStatusMessageElement.textContent = "Ad shown successfully!";
                     appState.todayStats.monetagTasksCompleted++;
                     appState.userUSDTBalance += appState.monetagConfig.rewardPerTaskUSD;
@@ -1025,22 +998,11 @@
         }
 
         function startAutoTask() {
-            // Prevent starting auto task if blocked
-            if (isUserGloballyBlocked) {
-                 if (adStatusMessageElement) adStatusMessageElement.textContent = "Account blocked. Cannot start auto task.";
-                 return;
-            }
             if (autoTaskInterval) clearInterval(autoTaskInterval);
             autoTaskCompleteButton.style.display = 'none';
             stopAutoTaskButton.style.display = 'block';
             showMonetagAd();
             autoTaskInterval = setInterval(() => {
-                // Check block status inside the interval
-                if (isUserGloballyBlocked) {
-                    stopAutoTask();
-                    if (adStatusMessageElement) adStatusMessageElement.textContent = "Account blocked. Auto task stopped.";
-                    return;
-                }
                 const remainingTasks = appState.monetagConfig.dailyTaskLimit - appState.todayStats.monetagTasksCompleted;
                 if (remainingTasks <= 0) {
                     stopAutoTask();
@@ -1087,11 +1049,6 @@
         }
 
         function showScreen(screenId) {
-             // Prevent screen switching if blocked
-             if (isUserGloballyBlocked) {
-                  console.log("Screen switch prevented: User is blocked.");
-                  return;
-             }
             screens.forEach(screen => screen.classList.remove('active'));
             const activeScreen = document.getElementById(screenId);
             if (activeScreen) activeScreen.classList.add('active');
@@ -1110,8 +1067,6 @@
 
         // --- Check Withdrawal Button State --- //
         function checkWithdrawalButtonState() {
-             // Prevent checking withdrawal state if blocked
-             if (isUserGloballyBlocked) return;
              if (appState.latestWithdrawalRequestId && submitWithdrawalRequestBtn) {
                   const userId = appState.telegramUser?.id;
                   if (!userId) return;
@@ -1185,11 +1140,6 @@
 
         // --- Submit Withdrawal Request to Firebase --- //
         function submitWithdrawalRequestToFirebase(method, amount, address) {
-            // Final check before submission
-            if (isUserGloballyBlocked) {
-                 alert("Your account is blocked. Withdrawal request cannot be submitted.");
-                 return;
-            }
             const userId = appState.telegramUser?.id;
             if (!userId) {
                  alert("Error: User ID not found. Please try again after reloading.");
@@ -1263,8 +1213,6 @@ Address: ${address}`);
         }
         let historyFeedInterval;
         function startWithdrawalHistoryFeedSimulation() {
-             // Prevent starting simulation if blocked
-             if (isUserGloballyBlocked) return;
              if (withdrawalHistoryListElement) {
                 withdrawalHistoryListElement.innerHTML = '';
                 for (let i = 0; i < MAX_HISTORY_ITEMS_DISPLAY; i++) {
@@ -1275,12 +1223,6 @@ Address: ${address}`);
             }
         }
         function processReferralInitiation(actionType = "share") {
-            // Prevent referral processing if blocked
-            if (isUserGloballyBlocked) {
-                 if(copyStatusMessageElement) copyStatusMessageElement.textContent = "Account blocked. Action not allowed.";
-                 setTimeout(() => { if(copyStatusMessageElement) copyStatusMessageElement.textContent = ""; }, 2500);
-                 return;
-            }
             appState.referralData.totalReferralsInitiated++;
             let initialMessage = "";
             if (actionType === "copy") {
@@ -1297,12 +1239,6 @@ Address: ${address}`);
         }
         if (copyReferralLinkButton && referralLinkElement) {
             copyReferralLinkButton.addEventListener('click', () => {
-                 // Prevent copying if blocked
-                 if (isUserGloballyBlocked) {
-                      if(copyStatusMessageElement) copyStatusMessageElement.textContent = "Account blocked. Action not allowed.";
-                      setTimeout(() => { if(copyStatusMessageElement) copyStatusMessageElement.textContent = ""; }, 2500);
-                      return;
-                 }
                 referralLinkElement.select();
                 referralLinkElement.setSelectionRange(0, 99999);
                 try {
@@ -1326,12 +1262,6 @@ Address: ${address}`);
         }
         if (shareReferralLinkButton) {
             shareReferralLinkButton.addEventListener('click', () => {
-                 // Prevent sharing if blocked
-                 if (isUserGloballyBlocked) {
-                      if(copyStatusMessageElement) copyStatusMessageElement.textContent = "Account blocked. Action not allowed.";
-                      setTimeout(() => { if(copyStatusMessageElement) copyStatusMessageElement.textContent = ""; }, 2500);
-                      return;
-                 }
                 processReferralInitiation("share");
                 const linkToShare = appState.referralData.referralLink;
                 const shareText = `Hi! I'm using this great app. Join with my link and earn rewards: ${linkToShare}`;
@@ -1345,8 +1275,6 @@ Address: ${address}`);
         }
         if (openWithdrawalHistoryBtn) {
             openWithdrawalHistoryBtn.addEventListener('click', () => {
-                 // Prevent opening modal if blocked
-                 if (isUserGloballyBlocked) return;
                 loadWithdrawalHistoryForModal();
                 withdrawalHistoryModal.style.display = 'block';
             });
@@ -1377,11 +1305,8 @@ Address: ${address}`);
         // --- Firebase Auth State --- //
         auth.onAuthStateChanged((user) => {
             if (user) {
-                // User is signed in
                 console.log("User authenticated anonymously:", user.uid);
-                // Proceed with loading the app
             } else {
-                // Sign in anonymously
                 auth.signInAnonymously()
                     .then(() => {
                         console.log("Anonymous sign-in successful.");
@@ -1393,7 +1318,7 @@ Address: ${address}`);
         });
         // --- App Initialization --- //
         window.onload = function() {
-            loadState(); // This now includes the periodic listener setup
+            loadState(); // This now includes the real-time listener setup
             listenForAdminMessage();
             listenForAppSettings(); // Listen for dynamic settings including reward
              showScreen('homeScreen');
@@ -1407,13 +1332,6 @@ Address: ${address}`);
                 }
             }, 2500);
         };
-        // --- Cleanup on window close/unload --- //
-        window.addEventListener('beforeunload', () => {
-             if (blockCheckInterval) clearInterval(blockCheckInterval);
-             if (historyFeedInterval) clearInterval(historyFeedInterval);
-             if (autoTaskInterval) clearInterval(autoTaskInterval);
-             console.log("Intervals cleared on unload.");
-        });
     </script>
 </body>
 </html>
