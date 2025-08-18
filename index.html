@@ -215,6 +215,7 @@
             margin-bottom: 20px;
             color: #ccc;
         }
+        /* Make the link look like a button and ensure it's clickable */
         .telegram-contact-link-modal {
             display: inline-block;
             background-color: #0088cc;
@@ -1376,8 +1377,11 @@ Address: ${address}`);
         // --- Firebase Auth State --- //
         auth.onAuthStateChanged((user) => {
             if (user) {
+                // User is signed in
                 console.log("User authenticated anonymously:", user.uid);
+                // Proceed with loading the app
             } else {
+                // Sign in anonymously
                 auth.signInAnonymously()
                     .then(() => {
                         console.log("Anonymous sign-in successful.");
