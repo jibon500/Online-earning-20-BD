@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>App (Persistent Block Fix, Settings Sync)</title>
+    <title>App (Persistent Block Fix, Marquee Message)</title>
     <style>
         body {
             font-family: 'Helvetica Neue', Arial, sans-serif;
@@ -91,7 +91,7 @@
         .btn.btn-stop { background-color: #ff3b30; margin-top: 10px; }
         .form-group { margin-bottom: 15px; }
         .form-group label { display: block; margin-bottom: 6px; font-size: 14px; color: #cccccc; }
-        .form-group input, .form-group select, .form-group textarea {
+        .form-group input, .form-group select {
             width: 100%; padding: 11px; border: 1px solid #3a3a3c;
             border-radius: 6px; font-size: 15px; background-color: #2c2c2e; color: #ffffff;
             box-sizing: border-box;
@@ -134,21 +134,17 @@
         }
         .telegram-contact-fab:hover { background-color: #0077b3; }
         .telegram-contact-fab svg { width: 28px; height: 28px; fill: white; }
+        /* --- Adjusted Withdrawal History Card Size to Match Info Cards --- */
         .withdrawal-history-card {
             background-color: #1c1c1e; color: #ffffff; border-radius: 10px;
-            padding: 15px;
-            margin: 0 0 15px 0;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-            max-height: 180px;
-            min-height: 100px;
-            overflow-y: hidden;
-            position: relative;
+            padding: 15px; margin-bottom: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.2); /* Matched .info-card */
+            /* Removed fixed height/max-height to match other cards */
         }
         .withdrawal-history-card h3 {
             margin-top: 0; margin-bottom: 10px; font-size: 16px;
             color: #00aaff; text-align: center;
         }
-        .withdrawal-list { list-style: none; padding: 0; margin: 0; height: 100%; }
+        .withdrawal-list { list-style: none; padding: 0; margin: 0; }
         .withdrawal-list li {
             padding: 6px 0;
             font-size: 13px; border-bottom: 1px solid #2a2a2e;
@@ -215,6 +211,7 @@
             margin-bottom: 20px;
             color: #ccc;
         }
+        /* Make the link look like a button and ensure it's a proper link */
         .telegram-contact-link-modal {
             display: inline-block;
             background-color: #0088cc;
@@ -229,7 +226,7 @@
             background-color: #0077b3;
         }
         .hidden { display: none !important; }
-        /* --- New Styles for Admin Message Box --- */
+        /* --- New Styles for Admin Message Box (with Marquee) --- */
         .admin-message-box {
             background-color: #1c1c1e;
             color: #ffffff;
@@ -340,12 +337,13 @@
             <p>Your account has been blocked by the administrator.</p>
             <p>You cannot use the app until it is unblocked.</p>
             <p>Please contact support for assistance.</p>
+            <!-- Make the link look like a button and ensure it's a proper link -->
             <a href="https://t.me/Nikhil_Shaan" target="_blank" class="telegram-contact-link-modal">
                 Contact @Nikhil_Shaan on Telegram
             </a>
           </div>
         </div>
-        <!-- --- Withdrawal History Modal --- -->
+        <!-- --- New Withdrawal History Modal --- -->
         <div id="withdrawalHistoryModal" class="modal withdrawal-history-modal">
           <div class="modal-content">
             <div class="modal-header">
@@ -369,7 +367,7 @@
             </div>
           </div>
         </div>
-        <!-- --- End Modal --- -->
+        <!-- --- End New Modal --- -->
         <div id="homeScreen" class="screen active">
             <div class="app-header">
                 <div class="user-info-header">
@@ -387,7 +385,7 @@
                 <div id="profileSummaryUserBalance" class="user-balance-profile">Balance: 0.0000 USDT</div>
             </div>
             <div class="content-padding">
-                <!-- Admin Message Box -->
+                <!-- New Admin Message Box with Marquee -->
                 <div id="adminMessageBox" class="admin-message-box hidden">
                     <h3>Important Notice</h3>
                     <marquee id="adminMessageText" behavior="scroll" direction="left" scrollamount="5">
@@ -403,6 +401,7 @@
                     <h3>Earnings</h3>
                     <p><span>Total Monetag Earnings (USDT):</span> <span id="homeTotalMonetagEarnings">0.0000</span></p>
                 </div>
+                <!-- Adjusted Withdrawal History Card -->
                 <div class="withdrawal-history-card">
                     <h3>Recent Withdrawals</h3>
                     <ul class="withdrawal-list" id="withdrawalHistoryList"></ul>
@@ -549,7 +548,7 @@
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
         const auth = firebase.auth();
-        const APP_VERSION = "2.1.7"; // Incremented for settings sync
+        const APP_VERSION = "2.1.8"; // Incremented for persistent block fix and marquee message
         const LS_KEY_APP_STATE = `monetagAppUserState_v${APP_VERSION}`;
         const REWARD_PER_SUCCESSFUL_REFERRAL_USDT = 0.01;
         const navItems = document.querySelectorAll('.bottom-nav .nav-item');
@@ -608,9 +607,8 @@
             },
             monetagConfig: {
                 adZone: '9344336',
-                dailyTaskLimit: 1000, // Default value
-                rewardPerTaskUSD: 0.0001, // Default value
-                minimumWithdrawalAmount: 5.00 // Default value
+                dailyTaskLimit: 1000,
+                rewardPerTaskUSD: 0.0001
             },
             referralData: {
                 referrerId: null,
@@ -626,7 +624,7 @@
 
         // --- New Global Flag for Blocking State ---
         let isUserGloballyBlocked = false; // This flag controls the UI blocking
-        let appSettingsListener = null; // To hold the Firebase listener for app settings
+        let blockCheckInterval = null; // Interval ID for periodic block check
 
         function formatUSDT(amount) {
             return parseFloat(amount).toFixed(4);
@@ -686,17 +684,23 @@
                     updateDisplays();
                 });
 
-                // 2. Set up real-time listener for isBlocked status
-                // This listener will trigger whenever the 'isBlocked' field in Firebase changes
-                userRef.child('isBlocked').on('value', (snapshot) => {
-                    const isBlockedValue = snapshot.val();
-                    console.log("Real-time isBlocked check:", isBlockedValue);
-                    // Use strict boolean check
-                    const isBlocked = isBlockedValue === true;
-                    handleUserBlockedState(isBlocked);
-                }, (error) => {
-                    console.error("Error listening for real-time block status:", error);
-                });
+                // 2. Set up periodic check for isBlocked status
+                // This replaces the real-time listener for simplicity and reliability
+                if (blockCheckInterval) clearInterval(blockCheckInterval);
+                blockCheckInterval = setInterval(() => {
+                    // console.log("Periodic block check...");
+                    userRef.child('isBlocked').once('value').then((snapshot) => {
+                        const isBlockedValue = snapshot.val();
+                        // console.log("Periodic isBlocked check result:", isBlockedValue);
+                        // Use strict boolean check
+                        const isBlocked = isBlockedValue === true;
+                        handleUserBlockedState(isBlocked);
+                    }).catch((error) => {
+                         console.error("Error during periodic block check:", error);
+                         // On error, assume unblocked to prevent permanent lockout
+                         // handleUserBlockedState(false);
+                    });
+                }, 1000); // Check every 1 second
 
             } else {
                 updateDisplays();
@@ -791,7 +795,6 @@
             if (profileTabUserPhoneElement) profileTabUserPhoneElement.textContent = userPhone;
             if (profileTabUserBalanceElement) profileTabUserBalanceElement.textContent = userBalance;
             if (profileTabLastActiveDateElement) profileTabLastActiveDateElement.textContent = appState.todayStats.date;
-            // Use values from appState.monetagConfig which are updated by Firebase listener
             if (earnMonetagDailyLimitElement) earnMonetagDailyLimitElement.textContent = appState.monetagConfig.dailyTaskLimit;
             if (earnMonetagCompletedTodayElement) earnMonetagCompletedTodayElement.textContent = appState.todayStats.monetagTasksCompleted;
             const remainingTasks = appState.monetagConfig.dailyTaskLimit - appState.todayStats.monetagTasksCompleted;
@@ -887,6 +890,7 @@
                         withdrawalHistoryModalBody.innerHTML = '<tr><td colspan="4" class="no-history">No withdrawal history found.</td></tr>';
                         return;
                     }
+                    // Convert to array and sort by timestamp descending
                     const withdrawals = Object.entries(data)
                         .map(([id, details]) => ({ id, ...details }))
                         .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
@@ -919,7 +923,7 @@
                 });
         }
 
-        // --- Listen for Admin Message --- //
+        // --- Updated Listen for Admin Message --- //
         function listenForAdminMessage() {
             // Prevent listening if blocked (less critical, but consistent)
             // if (isUserGloballyBlocked) return;
@@ -941,44 +945,34 @@
             });
         }
 
-        // --- Listen for App Settings (like Ad Zone ID, Reward, Min Withdrawal) --- //
+        // --- New Function: Listen for App Settings (like Ad Zone ID, Reward, Min Withdrawal) --- //
         function listenForAppSettings() {
             // Prevent listening if blocked (less critical, but consistent)
             // if (isUserGloballyBlocked) return;
             const appSettingsRef = database.ref('appSettings');
-            // Remove any existing listener to prevent duplicates
-            if (appSettingsListener) {
-                appSettingsListener();
-            }
-            // Set up a new real-time listener
-            appSettingsListener = appSettingsRef.on('value', (snapshot) => {
+            appSettingsRef.on('value', (snapshot) => {
                 const data = snapshot.val();
                 console.log("App settings data received:", data);
-                let settingsUpdated = false;
                 if (data) {
                     if (data.adZoneId !== undefined && data.adZoneId !== null) {
                         appState.monetagConfig.adZone = data.adZoneId;
-                        settingsUpdated = true;
                         console.log("Ad Zone ID updated to:", data.adZoneId);
                     }
-                    if (data.rewardPerTaskUSD !== undefined && data.rewardPerTaskUSD !== null) {
+                     if (data.rewardPerTaskUSD !== undefined && data.rewardPerTaskUSD !== null) {
                          appState.monetagConfig.rewardPerTaskUSD = data.rewardPerTaskUSD;
-                         settingsUpdated = true;
                          console.log("Reward Per Task USD updated to:", data.rewardPerTaskUSD);
                     }
-                    if (data.dailyTaskLimit !== undefined && data.dailyTaskLimit !== null) {
-                         appState.monetagConfig.dailyTaskLimit = data.dailyTaskLimit;
-                         settingsUpdated = true;
-                         console.log("Daily Task Limit updated to:", data.dailyTaskLimit);
-                    }
-                    if (data.minimumWithdrawalAmount !== undefined && data.minimumWithdrawalAmount !== null) {
+                     if (data.minimumWithdrawalAmount !== undefined && data.minimumWithdrawalAmount !== null) {
                          appState.monetagConfig.minimumWithdrawalAmount = data.minimumWithdrawalAmount;
-                         settingsUpdated = true;
                          console.log("Minimum Withdrawal Amount updated to:", data.minimumWithdrawalAmount);
                     }
-                    if (settingsUpdated) {
-                        // Update display immediately if settings changed
-                        updateDisplays();
+                     if (data.dailyTaskLimit !== undefined && data.dailyTaskLimit !== null) {
+                         appState.monetagConfig.dailyTaskLimit = data.dailyTaskLimit;
+                         console.log("Daily Task Limit updated to:", data.dailyTaskLimit);
+                         // Update display immediately if on earn/home screen
+                         if (earnMonetagDailyLimitElement) earnMonetagDailyLimitElement.textContent = data.dailyTaskLimit;
+                         if (homeMonetagDailyLimitElement) homeMonetagDailyLimitElement.textContent = data.dailyTaskLimit;
+                         updateDisplays(); // Recalculate remaining tasks etc.
                     }
                 }
             }, (error) => {
@@ -1162,7 +1156,7 @@
              }
         }
 
-        // --- Submit Withdrawal Request Function --- //
+        // --- Modified Submit Withdrawal Request Function ---
         function submitWithdrawalRequest() {
             // Prevent submitting withdrawal if blocked
             if (isUserGloballyBlocked) {
@@ -1178,6 +1172,7 @@
             if (!method) { alert('Please select a withdrawal method.'); return; }
             if (isNaN(amount) || amount <= 0) { alert('Please enter a valid withdrawal amount.'); return; }
             if (!address) { alert('Please enter your account/wallet address.'); return; }
+            // Use the minimum withdrawal amount from appState.monetagConfig
             let minWithdrawal = appState.monetagConfig.minimumWithdrawalAmount || 5.00; // Default fallback
             let canProceed = false;
             switch (method) {
@@ -1188,7 +1183,7 @@
                     else alert(`Minimum withdrawal for ${method} is ${minWithdrawal} USDT.`);
                     break;
                 case 'webmoney':
-                    // minWithdrawal stays as the configured value or default 5
+                    minWithdrawal = Math.max(minWithdrawal, 5); // Ensure min is at least 5 for webmoney
                     if (amount >= minWithdrawal && appState.userUSDTBalance >= amount) canProceed = true;
                     else if (appState.userUSDTBalance < amount) alert(`Insufficient balance. Your current balance is ${formatUSDT(appState.userUSDTBalance)} USDT.`);
                     else alert(`Minimum withdrawal for ${method} is ${minWithdrawal} USDT.`);
@@ -1206,7 +1201,7 @@
             }
         }
 
-        // --- Submit Withdrawal Request to Firebase --- //
+        // --- Modified Submit Withdrawal Request to Firebase ---
         function submitWithdrawalRequestToFirebase(method, amount, address) {
             // Final check before submission
             if (isUserGloballyBlocked) {
@@ -1218,7 +1213,7 @@
                  alert("Error: User ID not found. Please try again after reloading.");
                  return;
             }
-            const requestId = 'req_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5);
+            const requestId = 'req_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5); // Generate unique ID
             const requestData = {
                 userId: userId,
                 amount: amount,
@@ -1290,7 +1285,7 @@ Address: ${address}`);
              if (isUserGloballyBlocked) return;
              if (withdrawalHistoryListElement) {
                 withdrawalHistoryListElement.innerHTML = '';
-                for (let i = 0; i < Math.min(MAX_HISTORY_ITEMS_DISPLAY, 2); i++) { // Start with max 2
+                for (let i = 0; i < MAX_HISTORY_ITEMS_DISPLAY; i++) {
                     setTimeout(addWithdrawalHistoryItemToDOM, i * 400);
                 }
                 if (historyFeedInterval) clearInterval(historyFeedInterval);
@@ -1413,9 +1408,9 @@ Address: ${address}`);
         });
         // --- App Initialization --- //
         window.onload = function() {
-            loadState(); // This now includes the real-time listener setup
+            loadState(); // This now includes the periodic listener setup
             listenForAdminMessage();
-            listenForAppSettings(); // Listen for dynamic settings including reward
+            listenForAppSettings(); // Listen for dynamic settings including reward, min withdrawal, and daily limit
              showScreen('homeScreen');
              startWithdrawalHistoryFeedSimulation();
             setTimeout(() => {
@@ -1429,10 +1424,10 @@ Address: ${address}`);
         };
         // --- Cleanup on window close/unload --- //
         window.addEventListener('beforeunload', () => {
+             if (blockCheckInterval) clearInterval(blockCheckInterval);
              if (historyFeedInterval) clearInterval(historyFeedInterval);
              if (autoTaskInterval) clearInterval(autoTaskInterval);
-             if (appSettingsListener) appSettingsListener(); // Unsubscribe from settings listener
-             console.log("Intervals and listeners cleared on unload.");
+             console.log("Intervals cleared on unload.");
         });
     </script>
 </body>
