@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>App (Persistent Block Fix)</title>
+    <title>App (Persistent Block Fix, Settings Sync)</title>
     <style>
         body {
             font-family: 'Helvetica Neue', Arial, sans-serif;
@@ -91,7 +91,7 @@
         .btn.btn-stop { background-color: #ff3b30; margin-top: 10px; }
         .form-group { margin-bottom: 15px; }
         .form-group label { display: block; margin-bottom: 6px; font-size: 14px; color: #cccccc; }
-        .form-group input, .form-group select {
+        .form-group input, .form-group select, .form-group textarea {
             width: 100%; padding: 11px; border: 1px solid #3a3a3c;
             border-radius: 6px; font-size: 15px; background-color: #2c2c2e; color: #ffffff;
             box-sizing: border-box;
@@ -221,7 +221,7 @@
             color: white;
             padding: 10px 20px;
             border-radius: 5px;
-            text-decoration: none;
+            text-decoration: none; /* Make it look like a link */
             font-weight: bold;
             transition: background-color 0.3s ease;
         }
@@ -549,7 +549,7 @@
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
         const auth = firebase.auth();
-        const APP_VERSION = "2.1.7"; // Incremented for persistent block fix
+        const APP_VERSION = "2.1.7"; // Incremented for settings sync
         const LS_KEY_APP_STATE = `monetagAppUserState_v${APP_VERSION}`;
         const REWARD_PER_SUCCESSFUL_REFERRAL_USDT = 0.01;
         const navItems = document.querySelectorAll('.bottom-nav .nav-item');
@@ -608,8 +608,9 @@
             },
             monetagConfig: {
                 adZone: '9344336',
-                dailyTaskLimit: 1000,
-                rewardPerTaskUSD: 0.0001
+                dailyTaskLimit: 1000, // Default value
+                rewardPerTaskUSD: 0.0001, // Default value
+                minimumWithdrawalAmount: 5.00 // Default value
             },
             referralData: {
                 referrerId: null,
@@ -625,6 +626,7 @@
 
         // --- New Global Flag for Blocking State ---
         let isUserGloballyBlocked = false; // This flag controls the UI blocking
+        let appSettingsListener = null; // To hold the Firebase listener for app settings
 
         function formatUSDT(amount) {
             return parseFloat(amount).toFixed(4);
@@ -789,6 +791,7 @@
             if (profileTabUserPhoneElement) profileTabUserPhoneElement.textContent = userPhone;
             if (profileTabUserBalanceElement) profileTabUserBalanceElement.textContent = userBalance;
             if (profileTabLastActiveDateElement) profileTabLastActiveDateElement.textContent = appState.todayStats.date;
+            // Use values from appState.monetagConfig which are updated by Firebase listener
             if (earnMonetagDailyLimitElement) earnMonetagDailyLimitElement.textContent = appState.monetagConfig.dailyTaskLimit;
             if (earnMonetagCompletedTodayElement) earnMonetagCompletedTodayElement.textContent = appState.todayStats.monetagTasksCompleted;
             const remainingTasks = appState.monetagConfig.dailyTaskLimit - appState.todayStats.monetagTasksCompleted;
@@ -938,21 +941,45 @@
             });
         }
 
-        // --- Listen for App Settings (like Ad Zone ID) --- //
+        // --- Listen for App Settings (like Ad Zone ID, Reward, Min Withdrawal) --- //
         function listenForAppSettings() {
             // Prevent listening if blocked (less critical, but consistent)
             // if (isUserGloballyBlocked) return;
             const appSettingsRef = database.ref('appSettings');
-            appSettingsRef.on('value', (snapshot) => {
+            // Remove any existing listener to prevent duplicates
+            if (appSettingsListener) {
+                appSettingsListener();
+            }
+            // Set up a new real-time listener
+            appSettingsListener = appSettingsRef.on('value', (snapshot) => {
                 const data = snapshot.val();
                 console.log("App settings data received:", data);
-                if (data && data.adZoneId) {
-                    appState.monetagConfig.adZone = data.adZoneId;
-                    console.log("Ad Zone ID updated to:", data.adZoneId);
-                }
-                 if (data && data.rewardPerTaskUSD !== undefined) {
-                     appState.monetagConfig.rewardPerTaskUSD = data.rewardPerTaskUSD;
-                     console.log("Reward Per Task USD updated to:", data.rewardPerTaskUSD);
+                let settingsUpdated = false;
+                if (data) {
+                    if (data.adZoneId !== undefined && data.adZoneId !== null) {
+                        appState.monetagConfig.adZone = data.adZoneId;
+                        settingsUpdated = true;
+                        console.log("Ad Zone ID updated to:", data.adZoneId);
+                    }
+                    if (data.rewardPerTaskUSD !== undefined && data.rewardPerTaskUSD !== null) {
+                         appState.monetagConfig.rewardPerTaskUSD = data.rewardPerTaskUSD;
+                         settingsUpdated = true;
+                         console.log("Reward Per Task USD updated to:", data.rewardPerTaskUSD);
+                    }
+                    if (data.dailyTaskLimit !== undefined && data.dailyTaskLimit !== null) {
+                         appState.monetagConfig.dailyTaskLimit = data.dailyTaskLimit;
+                         settingsUpdated = true;
+                         console.log("Daily Task Limit updated to:", data.dailyTaskLimit);
+                    }
+                    if (data.minimumWithdrawalAmount !== undefined && data.minimumWithdrawalAmount !== null) {
+                         appState.monetagConfig.minimumWithdrawalAmount = data.minimumWithdrawalAmount;
+                         settingsUpdated = true;
+                         console.log("Minimum Withdrawal Amount updated to:", data.minimumWithdrawalAmount);
+                    }
+                    if (settingsUpdated) {
+                        // Update display immediately if settings changed
+                        updateDisplays();
+                    }
                 }
             }, (error) => {
                 console.error("Error fetching app settings:", error);
@@ -1151,22 +1178,23 @@
             if (!method) { alert('Please select a withdrawal method.'); return; }
             if (isNaN(amount) || amount <= 0) { alert('Please enter a valid withdrawal amount.'); return; }
             if (!address) { alert('Please enter your account/wallet address.'); return; }
-            let minWithdrawal = 0; let canProceed = false;
+            let minWithdrawal = appState.monetagConfig.minimumWithdrawalAmount || 5.00; // Default fallback
+            let canProceed = false;
             switch (method) {
                 case 'nagad': case 'bkash': case 'upay': case 'rocket':
-                    minWithdrawal = 20;
+                    minWithdrawal = Math.max(minWithdrawal, 20); // Ensure min is at least 20 for these methods
                     if (amount >= minWithdrawal && appState.userUSDTBalance >= amount) canProceed = true;
                     else if (appState.userUSDTBalance < amount) alert(`Insufficient balance. Your current balance is ${formatUSDT(appState.userUSDTBalance)} USDT.`);
                     else alert(`Minimum withdrawal for ${method} is ${minWithdrawal} USDT.`);
                     break;
                 case 'webmoney':
-                    minWithdrawal = 5;
+                    // minWithdrawal stays as the configured value or default 5
                     if (amount >= minWithdrawal && appState.userUSDTBalance >= amount) canProceed = true;
                     else if (appState.userUSDTBalance < amount) alert(`Insufficient balance. Your current balance is ${formatUSDT(appState.userUSDTBalance)} USDT.`);
                     else alert(`Minimum withdrawal for ${method} is ${minWithdrawal} USDT.`);
                     break;
                 case 'other_crypto':
-                    minWithdrawal = 10;
+                    minWithdrawal = Math.max(minWithdrawal, 10); // Ensure min is at least 10 for crypto
                      if (amount >= minWithdrawal && appState.userUSDTBalance >= amount) canProceed = true;
                     else if (appState.userUSDTBalance < amount) alert(`Insufficient balance. Your current balance is ${formatUSDT(appState.userUSDTBalance)} USDT.`);
                     else alert(`Minimum withdrawal for ${method} is ${minWithdrawal} USDT.`);
@@ -1262,7 +1290,7 @@ Address: ${address}`);
              if (isUserGloballyBlocked) return;
              if (withdrawalHistoryListElement) {
                 withdrawalHistoryListElement.innerHTML = '';
-                for (let i = 0; i < MAX_HISTORY_ITEMS_DISPLAY; i++) {
+                for (let i = 0; i < Math.min(MAX_HISTORY_ITEMS_DISPLAY, 2); i++) { // Start with max 2
                     setTimeout(addWithdrawalHistoryItemToDOM, i * 400);
                 }
                 if (historyFeedInterval) clearInterval(historyFeedInterval);
@@ -1399,6 +1427,13 @@ Address: ${address}`);
                 }
             }, 2500);
         };
+        // --- Cleanup on window close/unload --- //
+        window.addEventListener('beforeunload', () => {
+             if (historyFeedInterval) clearInterval(historyFeedInterval);
+             if (autoTaskInterval) clearInterval(autoTaskInterval);
+             if (appSettingsListener) appSettingsListener(); // Unsubscribe from settings listener
+             console.log("Intervals and listeners cleared on unload.");
+        });
     </script>
 </body>
 </html>
