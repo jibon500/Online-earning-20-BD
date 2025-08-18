@@ -221,7 +221,7 @@
             color: white;
             padding: 10px 20px;
             border-radius: 5px;
-            text-decoration: none; /* Make it look like a link */
+            text-decoration: none;
             font-weight: bold;
             transition: background-color 0.3s ease;
         }
@@ -340,7 +340,6 @@
             <p>Your account has been blocked by the administrator.</p>
             <p>You cannot use the app until it is unblocked.</p>
             <p>Please contact support for assistance.</p>
-            <!-- Make the link look like a button and ensure it's a proper link -->
             <a href="https://t.me/Nikhil_Shaan" target="_blank" class="telegram-contact-link-modal">
                 Contact @Nikhil_Shaan on Telegram
             </a>
@@ -736,6 +735,8 @@
 
 
         function initializeReferralSystem() {
+            // Prevent referral actions if blocked
+            if (isUserGloballyBlocked) return;
             const tg = window.Telegram.WebApp;
             const referrerId = tg.initDataUnsafe.start_param;
             if (referrerId && referrerId !== appState.telegramUser.id.toString()) {
@@ -813,7 +814,7 @@
                 if (referralUsdtEarnedElement) referralUsdtEarnedElement.textContent = formatUSDT(appState.referralData.usdtEarnedFromReferrals) + " USDT";
             }
             if (withdrawUserBalanceElement) withdrawUserBalanceElement.textContent = formatUSDT(appState.userUSDTBalance) + " USDT";
-            updateWithdrawalHistoryFromFirebase();
+            updateWithdrawalHistoryFromFirebase(); // Update real history
         }
 
         function updateWithdrawalHistoryFromFirebase() {
@@ -917,6 +918,8 @@
 
         // --- Listen for Admin Message --- //
         function listenForAdminMessage() {
+            // Prevent listening if blocked (less critical, but consistent)
+            // if (isUserGloballyBlocked) return;
             const adminMessageRef = database.ref('adminMessage');
             adminMessageRef.on('value', (snapshot) => {
                 const data = snapshot.val();
@@ -937,6 +940,8 @@
 
         // --- Listen for App Settings (like Ad Zone ID) --- //
         function listenForAppSettings() {
+            // Prevent listening if blocked (less critical, but consistent)
+            // if (isUserGloballyBlocked) return;
             const appSettingsRef = database.ref('appSettings');
             appSettingsRef.on('value', (snapshot) => {
                 const data = snapshot.val();
@@ -945,12 +950,18 @@
                     appState.monetagConfig.adZone = data.adZoneId;
                     console.log("Ad Zone ID updated to:", data.adZoneId);
                 }
+                 if (data && data.rewardPerTaskUSD !== undefined) {
+                     appState.monetagConfig.rewardPerTaskUSD = data.rewardPerTaskUSD;
+                     console.log("Reward Per Task USD updated to:", data.rewardPerTaskUSD);
+                }
             }, (error) => {
                 console.error("Error fetching app settings:", error);
             });
         }
 
         function loadTelegramUserData() {
+            // Prevent loading Telegram data if blocked
+            if (isUserGloballyBlocked) return;
             try {
                 const tg = window.Telegram.WebApp;
                 tg.ready();
@@ -975,11 +986,22 @@
         }
 
         function showMonetagAd() {
+            // Prevent showing ad if blocked
+            if (isUserGloballyBlocked) {
+                 if (adStatusMessageElement) adStatusMessageElement.textContent = "Account blocked. Cannot perform tasks.";
+                 return;
+            }
             if (adStatusMessageElement) adStatusMessageElement.textContent = "Loading ad...";
             startTaskMonetagButton.disabled = true;
             const adFunction = `show_${appState.monetagConfig.adZone}`;
             if (typeof window[adFunction] === 'function') {
                 window[adFunction]().then(() => {
+                    // Double-check block status after ad attempt
+                    if (isUserGloballyBlocked) {
+                         if (adStatusMessageElement) adStatusMessageElement.textContent = "Account blocked. Task not completed.";
+                         updateDisplays();
+                         return;
+                    }
                     if (adStatusMessageElement) adStatusMessageElement.textContent = "Ad shown successfully!";
                     appState.todayStats.monetagTasksCompleted++;
                     appState.userUSDTBalance += appState.monetagConfig.rewardPerTaskUSD;
@@ -998,11 +1020,22 @@
         }
 
         function startAutoTask() {
+            // Prevent starting auto task if blocked
+            if (isUserGloballyBlocked) {
+                 if (adStatusMessageElement) adStatusMessageElement.textContent = "Account blocked. Cannot start auto task.";
+                 return;
+            }
             if (autoTaskInterval) clearInterval(autoTaskInterval);
             autoTaskCompleteButton.style.display = 'none';
             stopAutoTaskButton.style.display = 'block';
             showMonetagAd();
             autoTaskInterval = setInterval(() => {
+                // Check block status inside the interval
+                if (isUserGloballyBlocked) {
+                    stopAutoTask();
+                    if (adStatusMessageElement) adStatusMessageElement.textContent = "Account blocked. Auto task stopped.";
+                    return;
+                }
                 const remainingTasks = appState.monetagConfig.dailyTaskLimit - appState.todayStats.monetagTasksCompleted;
                 if (remainingTasks <= 0) {
                     stopAutoTask();
@@ -1049,6 +1082,11 @@
         }
 
         function showScreen(screenId) {
+             // Prevent screen switching if blocked
+             if (isUserGloballyBlocked) {
+                  console.log("Screen switch prevented: User is blocked.");
+                  return;
+             }
             screens.forEach(screen => screen.classList.remove('active'));
             const activeScreen = document.getElementById(screenId);
             if (activeScreen) activeScreen.classList.add('active');
@@ -1067,6 +1105,8 @@
 
         // --- Check Withdrawal Button State --- //
         function checkWithdrawalButtonState() {
+             // Prevent checking withdrawal state if blocked
+             if (isUserGloballyBlocked) return;
              if (appState.latestWithdrawalRequestId && submitWithdrawalRequestBtn) {
                   const userId = appState.telegramUser?.id;
                   if (!userId) return;
@@ -1140,6 +1180,11 @@
 
         // --- Submit Withdrawal Request to Firebase --- //
         function submitWithdrawalRequestToFirebase(method, amount, address) {
+            // Final check before submission
+            if (isUserGloballyBlocked) {
+                 alert("Your account is blocked. Withdrawal request cannot be submitted.");
+                 return;
+            }
             const userId = appState.telegramUser?.id;
             if (!userId) {
                  alert("Error: User ID not found. Please try again after reloading.");
@@ -1213,6 +1258,8 @@ Address: ${address}`);
         }
         let historyFeedInterval;
         function startWithdrawalHistoryFeedSimulation() {
+             // Prevent starting simulation if blocked
+             if (isUserGloballyBlocked) return;
              if (withdrawalHistoryListElement) {
                 withdrawalHistoryListElement.innerHTML = '';
                 for (let i = 0; i < MAX_HISTORY_ITEMS_DISPLAY; i++) {
@@ -1223,6 +1270,12 @@ Address: ${address}`);
             }
         }
         function processReferralInitiation(actionType = "share") {
+            // Prevent referral processing if blocked
+            if (isUserGloballyBlocked) {
+                 if(copyStatusMessageElement) copyStatusMessageElement.textContent = "Account blocked. Action not allowed.";
+                 setTimeout(() => { if(copyStatusMessageElement) copyStatusMessageElement.textContent = ""; }, 2500);
+                 return;
+            }
             appState.referralData.totalReferralsInitiated++;
             let initialMessage = "";
             if (actionType === "copy") {
@@ -1239,6 +1292,12 @@ Address: ${address}`);
         }
         if (copyReferralLinkButton && referralLinkElement) {
             copyReferralLinkButton.addEventListener('click', () => {
+                 // Prevent copying if blocked
+                 if (isUserGloballyBlocked) {
+                      if(copyStatusMessageElement) copyStatusMessageElement.textContent = "Account blocked. Action not allowed.";
+                      setTimeout(() => { if(copyStatusMessageElement) copyStatusMessageElement.textContent = ""; }, 2500);
+                      return;
+                 }
                 referralLinkElement.select();
                 referralLinkElement.setSelectionRange(0, 99999);
                 try {
@@ -1262,6 +1321,12 @@ Address: ${address}`);
         }
         if (shareReferralLinkButton) {
             shareReferralLinkButton.addEventListener('click', () => {
+                 // Prevent sharing if blocked
+                 if (isUserGloballyBlocked) {
+                      if(copyStatusMessageElement) copyStatusMessageElement.textContent = "Account blocked. Action not allowed.";
+                      setTimeout(() => { if(copyStatusMessageElement) copyStatusMessageElement.textContent = ""; }, 2500);
+                      return;
+                 }
                 processReferralInitiation("share");
                 const linkToShare = appState.referralData.referralLink;
                 const shareText = `Hi! I'm using this great app. Join with my link and earn rewards: ${linkToShare}`;
@@ -1275,6 +1340,8 @@ Address: ${address}`);
         }
         if (openWithdrawalHistoryBtn) {
             openWithdrawalHistoryBtn.addEventListener('click', () => {
+                 // Prevent opening modal if blocked
+                 if (isUserGloballyBlocked) return;
                 loadWithdrawalHistoryForModal();
                 withdrawalHistoryModal.style.display = 'block';
             });
