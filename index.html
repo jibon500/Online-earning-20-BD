@@ -144,7 +144,7 @@
             margin-top: 0; margin-bottom: 10px; font-size: 16px;
             color: #00aaff; text-align: center;
         }
-        .withdrawal-list { list-style: none; padding: 0; margin: 0; }
+        .withdrawal-list { list-style: none; padding: 0; margin: 0; height: 100%; }
         .withdrawal-list li {
             padding: 6px 0;
             font-size: 13px; border-bottom: 1px solid #2a2a2e;
@@ -343,7 +343,7 @@
             </a>
           </div>
         </div>
-        <!-- --- New Withdrawal History Modal --- -->
+        <!-- --- Withdrawal History Modal --- -->
         <div id="withdrawalHistoryModal" class="modal withdrawal-history-modal">
           <div class="modal-content">
             <div class="modal-header">
@@ -367,7 +367,7 @@
             </div>
           </div>
         </div>
-        <!-- --- End New Modal --- -->
+        <!-- --- End Modal --- -->
         <div id="homeScreen" class="screen active">
             <div class="app-header">
                 <div class="user-info-header">
@@ -385,7 +385,7 @@
                 <div id="profileSummaryUserBalance" class="user-balance-profile">Balance: 0.0000 USDT</div>
             </div>
             <div class="content-padding">
-                <!-- New Admin Message Box with Marquee -->
+                <!-- Admin Message Box -->
                 <div id="adminMessageBox" class="admin-message-box hidden">
                     <h3>Important Notice</h3>
                     <marquee id="adminMessageText" behavior="scroll" direction="left" scrollamount="5">
@@ -795,6 +795,7 @@
             if (profileTabUserPhoneElement) profileTabUserPhoneElement.textContent = userPhone;
             if (profileTabUserBalanceElement) profileTabUserBalanceElement.textContent = userBalance;
             if (profileTabLastActiveDateElement) profileTabLastActiveDateElement.textContent = appState.todayStats.date;
+            // Use values from appState.monetagConfig which are updated by Firebase listener
             if (earnMonetagDailyLimitElement) earnMonetagDailyLimitElement.textContent = appState.monetagConfig.dailyTaskLimit;
             if (earnMonetagCompletedTodayElement) earnMonetagCompletedTodayElement.textContent = appState.todayStats.monetagTasksCompleted;
             const remainingTasks = appState.monetagConfig.dailyTaskLimit - appState.todayStats.monetagTasksCompleted;
@@ -890,7 +891,6 @@
                         withdrawalHistoryModalBody.innerHTML = '<tr><td colspan="4" class="no-history">No withdrawal history found.</td></tr>';
                         return;
                     }
-                    // Convert to array and sort by timestamp descending
                     const withdrawals = Object.entries(data)
                         .map(([id, details]) => ({ id, ...details }))
                         .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
@@ -923,7 +923,7 @@
                 });
         }
 
-        // --- Updated Listen for Admin Message --- //
+        // --- Listen for Admin Message --- //
         function listenForAdminMessage() {
             // Prevent listening if blocked (less critical, but consistent)
             // if (isUserGloballyBlocked) return;
@@ -945,7 +945,7 @@
             });
         }
 
-        // --- New Function: Listen for App Settings (like Ad Zone ID, Reward, Min Withdrawal) --- //
+        // --- Listen for App Settings (like Ad Zone ID, Reward, Min Withdrawal) --- //
         function listenForAppSettings() {
             // Prevent listening if blocked (less critical, but consistent)
             // if (isUserGloballyBlocked) return;
@@ -1156,7 +1156,7 @@
              }
         }
 
-        // --- Modified Submit Withdrawal Request Function ---
+        // --- Submit Withdrawal Request Function --- //
         function submitWithdrawalRequest() {
             // Prevent submitting withdrawal if blocked
             if (isUserGloballyBlocked) {
@@ -1201,7 +1201,7 @@
             }
         }
 
-        // --- Modified Submit Withdrawal Request to Firebase ---
+        // --- Submit Withdrawal Request to Firebase --- //
         function submitWithdrawalRequestToFirebase(method, amount, address) {
             // Final check before submission
             if (isUserGloballyBlocked) {
@@ -1410,7 +1410,7 @@ Address: ${address}`);
         window.onload = function() {
             loadState(); // This now includes the periodic listener setup
             listenForAdminMessage();
-            listenForAppSettings(); // Listen for dynamic settings including reward, min withdrawal, and daily limit
+            listenForAppSettings(); // Listen for dynamic settings including reward
              showScreen('homeScreen');
              startWithdrawalHistoryFeedSimulation();
             setTimeout(() => {
