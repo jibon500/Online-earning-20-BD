@@ -332,6 +332,10 @@
             color: #777;
             font-style: italic;
         }
+        /* New style to hide elements when blocked */
+        .app-container.blocked .btn {
+            pointer-events: none;
+        }
     </style>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src='//solseewuthi.net/sdk.js' data-zone='9344336' data-sdk='show_9344336' async></script>
@@ -350,7 +354,7 @@
             <p>Your account has been blocked by the administrator.</p>
             <p>You cannot use the app until it is unblocked.</p>
             <p>Please contact support for assistance.</p>
-            <a href="https://t.me/Nikhil_Shaan" target="_blank" class="telegram-contact-link-modal">
+            <a href="tg://resolve?domain=Nikhil_Shaan" class="telegram-contact-link-modal">
                 Contact @Nikhil_Shaan on Telegram
             </a>
           </div>
@@ -720,26 +724,41 @@
         }
 
         function handleUserBlockedState(isBlocked) {
-             if (isBlocked && !isUserGloballyBlocked) {
-                 isUserGloballyBlocked = true;
-                 blockedModal.style.display = "block";
-                 appContainerElement.classList.add('blocked');
-                 console.log("User blocked. UI disabled.");
-             } else if (!isBlocked && isUserGloballyBlocked) {
-                 isUserGloballyBlocked = false;
-                 blockedModal.style.display = "none";
-                 appContainerElement.classList.remove('blocked');
-                 updateDisplays();
-                 console.log("User unblocked. UI enabled.");
-             } else if (isBlocked && isUserGloballyBlocked) {
-                 blockedModal.style.display = "block";
-                 appContainerElement.classList.add('blocked');
-                 console.log("User already blocked. UI kept disabled.");
-             } else {
-                 blockedModal.style.display = "none";
-                 appContainerElement.classList.remove('blocked');
-                 console.log("User already unblocked. UI kept enabled.");
-             }
+            const bottomNav = document.querySelector('.bottom-nav');
+            const telegramFab = document.querySelector('.telegram-contact-fab');
+            
+            if (isBlocked && !isUserGloballyBlocked) {
+                isUserGloballyBlocked = true;
+                blockedModal.style.display = "block";
+                appContainerElement.classList.add('blocked');
+                // Hide navigation and FAB
+                if (bottomNav) bottomNav.style.display = 'none';
+                if (telegramFab) telegramFab.style.display = 'none';
+                console.log("User blocked. UI disabled.");
+            } else if (!isBlocked && isUserGloballyBlocked) {
+                isUserGloballyBlocked = false;
+                blockedModal.style.display = "none";
+                appContainerElement.classList.remove('blocked');
+                // Show navigation and FAB
+                if (bottomNav) bottomNav.style.display = 'flex';
+                if (telegramFab) telegramFab.style.display = 'flex';
+                updateDisplays();
+                console.log("User unblocked. UI enabled.");
+            } else if (isBlocked && isUserGloballyBlocked) {
+                blockedModal.style.display = "block";
+                appContainerElement.classList.add('blocked');
+                // Ensure navigation and FAB are hidden
+                if (bottomNav) bottomNav.style.display = 'none';
+                if (telegramFab) telegramFab.style.display = 'none';
+                console.log("User already blocked. UI kept disabled.");
+            } else {
+                blockedModal.style.display = "none";
+                appContainerElement.classList.remove('blocked');
+                // Ensure navigation and FAB are visible
+                if (bottomNav) bottomNav.style.display = 'flex';
+                if (telegramFab) telegramFab.style.display = 'flex';
+                console.log("User already unblocked. UI kept enabled.");
+            }
         }
 
         function initializeReferralSystem() {
