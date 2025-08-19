@@ -1,10 +1,9 @@
-<!-- user-app.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>App (Persistent Block Fix, Marquee Message)</title>
+    <title>App (Marquee Message Fix)</title>
     <style>
         body {
             font-family: 'Helvetica Neue', Arial, sans-serif;
@@ -23,10 +22,9 @@
             background-color: #000000;
             position: relative;
         }
-        /* Style to disable the app when blocked */
         .app-container.blocked {
-            pointer-events: none; /* Disable all clicks/touches */
-            opacity: 0.6; /* Visually dim the content */
+            pointer-events: none;
+            opacity: 0.6;
         }
         .app-header {
             background-color: #1a1a1a;
@@ -134,11 +132,9 @@
         }
         .telegram-contact-fab:hover { background-color: #0077b3; }
         .telegram-contact-fab svg { width: 28px; height: 28px; fill: white; }
-        /* --- Adjusted Withdrawal History Card Size to Match Info Cards --- */
         .withdrawal-history-card {
             background-color: #1c1c1e; color: #ffffff; border-radius: 10px;
-            padding: 15px; margin-bottom: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.2); /* Matched .info-card */
-            /* Removed fixed height/max-height to match other cards */
+            padding: 15px; margin-bottom: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.2);
         }
         .withdrawal-history-card h3 {
             margin-top: 0; margin-bottom: 10px; font-size: 16px;
@@ -157,18 +153,17 @@
         .withdrawal-list .amount { color: #34c759; font-weight: bold; flex-basis: 35%; text-align: right; }
         .withdrawal-list .status-success { color: #34c759; margin-left: 5px; font-size: 12px; flex-basis: 15%; text-align: right; }
         @keyframes fadeInSlideUp { to { opacity: 1; transform: translateY(0); } }
-        /* New CSS for Blocked Popup Modal */
         .modal {
             display: none;
             position: fixed;
-            z-index: 2000; /* Higher than app content */
+            z-index: 2000;
             left: 0;
             top: 0;
             width: 100%;
             height: 100%;
             overflow: auto;
             background-color: rgb(0,0,0);
-            background-color: rgba(0,0,0,0.6); /* Darker overlay */
+            background-color: rgba(0,0,0,0.6);
         }
         .modal-content {
             background-color: #1a1a1a;
@@ -211,14 +206,13 @@
             margin-bottom: 20px;
             color: #ccc;
         }
-        /* Make the link look like a button and ensure it's a proper link */
         .telegram-contact-link-modal {
             display: inline-block;
             background-color: #0088cc;
             color: white;
             padding: 10px 20px;
             border-radius: 5px;
-            text-decoration: none; /* Make it look like a link */
+            text-decoration: none;
             font-weight: bold;
             transition: background-color 0.3s ease;
         }
@@ -226,7 +220,8 @@
             background-color: #0077b3;
         }
         .hidden { display: none !important; }
-        /* --- New Styles for Admin Message Box (with Marquee) --- */
+        
+        /* Updated Admin Message Box with Smooth Marquee */
         .admin-message-box {
             background-color: #1c1c1e;
             color: #ffffff;
@@ -235,6 +230,8 @@
             margin-bottom: 15px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.2);
             text-align: center;
+            overflow: hidden;
+            position: relative;
         }
         .admin-message-box h3 {
             margin-top: 0;
@@ -244,12 +241,29 @@
             border-bottom: 1px solid #3a3a3c;
             padding-bottom: 8px;
         }
-        .admin-message-box marquee {
-            font-size: 14px;
-            color: #ffffff;
+        .admin-message-content {
+            white-space: nowrap;
+            position: relative;
+            overflow: hidden;
+            height: 24px;
         }
-        /* --- End New Styles --- */
-        /* --- New Styles for Withdrawal History Modal --- */
+        .admin-message-scroll {
+            position: absolute;
+            white-space: nowrap;
+            display: inline-block;
+            animation: scrollText 30s linear infinite;
+            padding-left: 100%;
+        }
+        @keyframes scrollText {
+            0% {
+                transform: translateX(0);
+            }
+            100% {
+                transform: translateX(-100%);
+            }
+        }
+        /* End Updated Admin Message Box */
+        
         .withdrawal-history-modal .modal-content {
              max-width: 90%;
              padding: 0;
@@ -318,7 +332,6 @@
             color: #777;
             font-style: italic;
         }
-        /* --- End New Styles --- */
     </style>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src='//solseewuthi.net/sdk.js' data-zone='9344336' data-sdk='show_9344336' async></script>
@@ -329,7 +342,7 @@
 </head>
 <body>
     <div class="app-container" id="appContainer">
-        <!-- Blocked Popup Modal - Only visible when user is blocked -->
+        <!-- Blocked Popup Modal -->
         <div id="blockedModal" class="modal">
           <div class="modal-content">
             <span class="close">&times;</span>
@@ -337,13 +350,12 @@
             <p>Your account has been blocked by the administrator.</p>
             <p>You cannot use the app until it is unblocked.</p>
             <p>Please contact support for assistance.</p>
-            <!-- Make the link look like a button and ensure it's a proper link -->
             <a href="https://t.me/Nikhil_Shaan" target="_blank" class="telegram-contact-link-modal">
                 Contact @Nikhil_Shaan on Telegram
             </a>
           </div>
         </div>
-        <!-- --- Withdrawal History Modal --- -->
+        <!-- Withdrawal History Modal -->
         <div id="withdrawalHistoryModal" class="modal withdrawal-history-modal">
           <div class="modal-content">
             <div class="modal-header">
@@ -367,7 +379,6 @@
             </div>
           </div>
         </div>
-        <!-- --- End Modal --- -->
         <div id="homeScreen" class="screen active">
             <div class="app-header">
                 <div class="user-info-header">
@@ -385,12 +396,14 @@
                 <div id="profileSummaryUserBalance" class="user-balance-profile">Balance: 0.0000 USDT</div>
             </div>
             <div class="content-padding">
-                <!-- Admin Message Box -->
+                <!-- Updated Admin Message Box -->
                 <div id="adminMessageBox" class="admin-message-box hidden">
                     <h3>Important Notice</h3>
-                    <marquee id="adminMessageText" behavior="scroll" direction="left" scrollamount="5">
-                        <!-- Message will be loaded from Firebase -->
-                    </marquee>
+                    <div class="admin-message-content">
+                        <div id="adminMessageText" class="admin-message-scroll">
+                            <!-- Message will be loaded from Firebase -->
+                        </div>
+                    </div>
                 </div>
                 <div class="info-card">
                     <h3>Today's Tasks (Overall Summary)</h3>
@@ -401,7 +414,6 @@
                     <h3>Earnings</h3>
                     <p><span>Total Monetag Earnings (USDT):</span> <span id="homeTotalMonetagEarnings">0.0000</span></p>
                 </div>
-                <!-- Adjusted Withdrawal History Card -->
                 <div class="withdrawal-history-card">
                     <h3>Recent Withdrawals</h3>
                     <ul class="withdrawal-list" id="withdrawalHistoryList"></ul>
@@ -548,12 +560,12 @@
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
         const auth = firebase.auth();
-        const APP_VERSION = "2.1.8"; // Incremented for persistent block fix and marquee message
+        const APP_VERSION = "2.2.0"; // Updated for marquee message fix
         const LS_KEY_APP_STATE = `monetagAppUserState_v${APP_VERSION}`;
         const REWARD_PER_SUCCESSFUL_REFERRAL_USDT = 0.01;
         const navItems = document.querySelectorAll('.bottom-nav .nav-item');
         const screens = document.querySelectorAll('.app-container .screen');
-        const appContainerElement = document.getElementById('appContainer'); // Get app container for blocking
+        const appContainerElement = document.getElementById('appContainer');
         const headerUserAvatarElement = document.getElementById('headerUserAvatar');
         const headerUserNameElement = document.getElementById('headerUserName');
         const headerUserPhoneElement = document.getElementById('headerUserPhone');
@@ -618,20 +630,18 @@
                 usdtEarnedFromReferrals: 0
             },
             lastSeen: new Date().toISOString(),
-            isBlocked: false, // Local state flag
+            isBlocked: false,
             latestWithdrawalRequestId: null
         };
 
-        // --- New Global Flag for Blocking State ---
-        let isUserGloballyBlocked = false; // This flag controls the UI blocking
-        let blockCheckInterval = null; // Interval ID for periodic block check
+        let isUserGloballyBlocked = false;
+        let blockCheckInterval = null;
 
         function formatUSDT(amount) {
             return parseFloat(amount).toFixed(4);
         }
 
         function saveState() {
-            // Prevent saving state if the user is globally blocked
             if (isUserGloballyBlocked) {
                 console.log("User is blocked. State save prevented.");
                 return;
@@ -657,12 +667,10 @@
             const userId = appState.telegramUser?.id;
             if (userId) {
                 const userRef = database.ref(`users/${userId}`);
-                // 1. Load initial data once
                 userRef.once('value').then(snapshot => {
                     const data = snapshot.val();
                     if (data) {
                         appState = { ...appState, ...data };
-                        // Check initial block status
                         if (data.isBlocked === true) {
                             handleUserBlockedState(true);
                         } else {
@@ -684,64 +692,48 @@
                     updateDisplays();
                 });
 
-                // 2. Set up periodic check for isBlocked status
-                // This replaces the real-time listener for simplicity and reliability
                 if (blockCheckInterval) clearInterval(blockCheckInterval);
                 blockCheckInterval = setInterval(() => {
-                    // console.log("Periodic block check...");
                     userRef.child('isBlocked').once('value').then((snapshot) => {
                         const isBlockedValue = snapshot.val();
-                        // console.log("Periodic isBlocked check result:", isBlockedValue);
-                        // Use strict boolean check
                         const isBlocked = isBlockedValue === true;
                         handleUserBlockedState(isBlocked);
                     }).catch((error) => {
                          console.error("Error during periodic block check:", error);
-                         // On error, assume unblocked to prevent permanent lockout
-                         // handleUserBlockedState(false);
                     });
-                }, 1000); // Check every 1 second
-
+                }, 1000);
             } else {
                 updateDisplays();
             }
             checkWithdrawalButtonState();
         }
 
-        // --- New Function: Handle Blocked State Consistently ---
         function handleUserBlockedState(isBlocked) {
-             console.log("Handling blocked state. Is blocked?", isBlocked);
              if (isBlocked && !isUserGloballyBlocked) {
-                 // User just got blocked
                  isUserGloballyBlocked = true;
-                 appState.isBlocked = true; // Update local appState flag
+                 appState.isBlocked = true;
                  blockedModal.style.display = "block";
-                 appContainerElement.classList.add('blocked'); // Visually/Functionally block the app
+                 appContainerElement.classList.add('blocked');
                  console.log("User blocked. UI disabled.");
              } else if (!isBlocked && isUserGloballyBlocked) {
-                 // User just got unblocked
                  isUserGloballyBlocked = false;
-                 appState.isBlocked = false; // Update local appState flag
+                 appState.isBlocked = false;
                  blockedModal.style.display = "none";
-                 appContainerElement.classList.remove('blocked'); // Re-enable the app
-                 updateDisplays(); // Refresh UI after unblocking
+                 appContainerElement.classList.remove('blocked');
+                 updateDisplays();
                  console.log("User unblocked. UI enabled.");
              } else if (isBlocked && isUserGloballyBlocked) {
-                 // Already blocked, ensure state is consistent (e.g., on page reload)
                  blockedModal.style.display = "block";
                  appContainerElement.classList.add('blocked');
                  console.log("User already blocked. UI kept disabled.");
              } else {
-                 // Already unblocked, ensure state is consistent
                  blockedModal.style.display = "none";
                  appContainerElement.classList.remove('blocked');
                  console.log("User already unblocked. UI kept enabled.");
              }
         }
 
-
         function initializeReferralSystem() {
-            // Prevent referral actions if blocked
             if (isUserGloballyBlocked) return;
             const tg = window.Telegram.WebApp;
             const referrerId = tg.initDataUnsafe.start_param;
@@ -778,9 +770,6 @@
         }
 
         function updateDisplays() {
-            // Prevent display updates if blocked (optional for performance, but good practice)
-            // if (isUserGloballyBlocked) return;
-
             const userName = appState.telegramUser.name || 'User';
             const userPhone = appState.telegramUser.phoneNumber || 'Not shared';
             const userBalance = formatUSDT(appState.userUSDTBalance);
@@ -795,7 +784,6 @@
             if (profileTabUserPhoneElement) profileTabUserPhoneElement.textContent = userPhone;
             if (profileTabUserBalanceElement) profileTabUserBalanceElement.textContent = userBalance;
             if (profileTabLastActiveDateElement) profileTabLastActiveDateElement.textContent = appState.todayStats.date;
-            // Use values from appState.monetagConfig which are updated by Firebase listener
             if (earnMonetagDailyLimitElement) earnMonetagDailyLimitElement.textContent = appState.monetagConfig.dailyTaskLimit;
             if (earnMonetagCompletedTodayElement) earnMonetagCompletedTodayElement.textContent = appState.todayStats.monetagTasksCompleted;
             const remainingTasks = appState.monetagConfig.dailyTaskLimit - appState.todayStats.monetagTasksCompleted;
@@ -821,17 +809,15 @@
                 if (referralUsdtEarnedElement) referralUsdtEarnedElement.textContent = formatUSDT(appState.referralData.usdtEarnedFromReferrals) + " USDT";
             }
             if (withdrawUserBalanceElement) withdrawUserBalanceElement.textContent = formatUSDT(appState.userUSDTBalance) + " USDT";
-            updateWithdrawalHistoryFromFirebase(); // Update real history
+            updateWithdrawalHistoryFromFirebase();
         }
 
         function updateWithdrawalHistoryFromFirebase() {
-            // Prevent history update if blocked
             if (isUserGloballyBlocked) return;
             const userId = appState.telegramUser?.id;
             if (!userId) return;
             database.ref(`withdrawals/${userId}`).orderByChild('timestamp').limitToLast(10)
                 .on('value', (snapshot) => {
-                    // This is for the real history, not the simulation
                     const withdrawalHistoryListElement = document.getElementById('withdrawalHistoryList');
                     if (!withdrawalHistoryListElement) return;
                     withdrawalHistoryListElement.innerHTML = '';
@@ -873,9 +859,7 @@
                 });
         }
 
-        // --- Load Withdrawal History for Modal --- //
         function loadWithdrawalHistoryForModal() {
-            // Prevent modal loading if blocked
             if (isUserGloballyBlocked) return;
             const userId = appState.telegramUser?.id;
             if (!userId) {
@@ -923,16 +907,14 @@
                 });
         }
 
-        // --- Listen for Admin Message --- //
         function listenForAdminMessage() {
-            // Prevent listening if blocked (less critical, but consistent)
-            // if (isUserGloballyBlocked) return;
             const adminMessageRef = database.ref('adminMessage');
             adminMessageRef.on('value', (snapshot) => {
                 const data = snapshot.val();
                 console.log("Admin message data received:", data);
                 if (data && data.text) {
-                    adminMessageText.textContent = data.text;
+                    // Set the message text with a trailing space for better appearance
+                    adminMessageText.textContent = data.text + " ";
                     adminMessageBox.classList.remove('hidden');
                     console.log("Admin message displayed");
                 } else {
@@ -945,10 +927,7 @@
             });
         }
 
-        // --- Listen for App Settings (like Ad Zone ID, Reward, Min Withdrawal) --- //
         function listenForAppSettings() {
-            // Prevent listening if blocked (less critical, but consistent)
-            // if (isUserGloballyBlocked) return;
             const appSettingsRef = database.ref('appSettings');
             appSettingsRef.on('value', (snapshot) => {
                 const data = snapshot.val();
@@ -969,10 +948,9 @@
                      if (data.dailyTaskLimit !== undefined && data.dailyTaskLimit !== null) {
                          appState.monetagConfig.dailyTaskLimit = data.dailyTaskLimit;
                          console.log("Daily Task Limit updated to:", data.dailyTaskLimit);
-                         // Update display immediately if on earn/home screen
                          if (earnMonetagDailyLimitElement) earnMonetagDailyLimitElement.textContent = data.dailyTaskLimit;
                          if (homeMonetagDailyLimitElement) homeMonetagDailyLimitElement.textContent = data.dailyTaskLimit;
-                         updateDisplays(); // Recalculate remaining tasks etc.
+                         updateDisplays();
                     }
                 }
             }, (error) => {
@@ -981,7 +959,6 @@
         }
 
         function loadTelegramUserData() {
-            // Prevent loading Telegram data if blocked
             if (isUserGloballyBlocked) return;
             try {
                 const tg = window.Telegram.WebApp;
@@ -1007,7 +984,6 @@
         }
 
         function showMonetagAd() {
-            // Prevent showing ad if blocked
             if (isUserGloballyBlocked) {
                  if (adStatusMessageElement) adStatusMessageElement.textContent = "Account blocked. Cannot perform tasks.";
                  return;
@@ -1017,7 +993,6 @@
             const adFunction = `show_${appState.monetagConfig.adZone}`;
             if (typeof window[adFunction] === 'function') {
                 window[adFunction]().then(() => {
-                    // Double-check block status after ad attempt
                     if (isUserGloballyBlocked) {
                          if (adStatusMessageElement) adStatusMessageElement.textContent = "Account blocked. Task not completed.";
                          updateDisplays();
@@ -1041,7 +1016,6 @@
         }
 
         function startAutoTask() {
-            // Prevent starting auto task if blocked
             if (isUserGloballyBlocked) {
                  if (adStatusMessageElement) adStatusMessageElement.textContent = "Account blocked. Cannot start auto task.";
                  return;
@@ -1051,7 +1025,6 @@
             stopAutoTaskButton.style.display = 'block';
             showMonetagAd();
             autoTaskInterval = setInterval(() => {
-                // Check block status inside the interval
                 if (isUserGloballyBlocked) {
                     stopAutoTask();
                     if (adStatusMessageElement) adStatusMessageElement.textContent = "Account blocked. Auto task stopped.";
@@ -1103,7 +1076,6 @@
         }
 
         function showScreen(screenId) {
-             // Prevent screen switching if blocked
              if (isUserGloballyBlocked) {
                   console.log("Screen switch prevented: User is blocked.");
                   return;
@@ -1124,9 +1096,7 @@
             item.addEventListener('click', () => showScreen(item.getAttribute('data-screen')));
         });
 
-        // --- Check Withdrawal Button State --- //
         function checkWithdrawalButtonState() {
-             // Prevent checking withdrawal state if blocked
              if (isUserGloballyBlocked) return;
              if (appState.latestWithdrawalRequestId && submitWithdrawalRequestBtn) {
                   const userId = appState.telegramUser?.id;
@@ -1156,9 +1126,7 @@
              }
         }
 
-        // --- Submit Withdrawal Request Function --- //
         function submitWithdrawalRequest() {
-            // Prevent submitting withdrawal if blocked
             if (isUserGloballyBlocked) {
                  alert("Your account is blocked. Withdrawal request cannot be submitted.");
                  return;
@@ -1172,24 +1140,23 @@
             if (!method) { alert('Please select a withdrawal method.'); return; }
             if (isNaN(amount) || amount <= 0) { alert('Please enter a valid withdrawal amount.'); return; }
             if (!address) { alert('Please enter your account/wallet address.'); return; }
-            // Use the minimum withdrawal amount from appState.monetagConfig
-            let minWithdrawal = appState.monetagConfig.minimumWithdrawalAmount || 5.00; // Default fallback
+            let minWithdrawal = appState.monetagConfig.minimumWithdrawalAmount || 5.00;
             let canProceed = false;
             switch (method) {
                 case 'nagad': case 'bkash': case 'upay': case 'rocket':
-                    minWithdrawal = Math.max(minWithdrawal, 20); // Ensure min is at least 20 for these methods
+                    minWithdrawal = Math.max(minWithdrawal, 20);
                     if (amount >= minWithdrawal && appState.userUSDTBalance >= amount) canProceed = true;
                     else if (appState.userUSDTBalance < amount) alert(`Insufficient balance. Your current balance is ${formatUSDT(appState.userUSDTBalance)} USDT.`);
                     else alert(`Minimum withdrawal for ${method} is ${minWithdrawal} USDT.`);
                     break;
                 case 'webmoney':
-                    minWithdrawal = Math.max(minWithdrawal, 5); // Ensure min is at least 5 for webmoney
+                    minWithdrawal = Math.max(minWithdrawal, 5);
                     if (amount >= minWithdrawal && appState.userUSDTBalance >= amount) canProceed = true;
                     else if (appState.userUSDTBalance < amount) alert(`Insufficient balance. Your current balance is ${formatUSDT(appState.userUSDTBalance)} USDT.`);
                     else alert(`Minimum withdrawal for ${method} is ${minWithdrawal} USDT.`);
                     break;
                 case 'other_crypto':
-                    minWithdrawal = Math.max(minWithdrawal, 10); // Ensure min is at least 10 for crypto
+                    minWithdrawal = Math.max(minWithdrawal, 10);
                      if (amount >= minWithdrawal && appState.userUSDTBalance >= amount) canProceed = true;
                     else if (appState.userUSDTBalance < amount) alert(`Insufficient balance. Your current balance is ${formatUSDT(appState.userUSDTBalance)} USDT.`);
                     else alert(`Minimum withdrawal for ${method} is ${minWithdrawal} USDT.`);
@@ -1201,9 +1168,7 @@
             }
         }
 
-        // --- Submit Withdrawal Request to Firebase --- //
         function submitWithdrawalRequestToFirebase(method, amount, address) {
-            // Final check before submission
             if (isUserGloballyBlocked) {
                  alert("Your account is blocked. Withdrawal request cannot be submitted.");
                  return;
@@ -1213,7 +1178,7 @@
                  alert("Error: User ID not found. Please try again after reloading.");
                  return;
             }
-            const requestId = 'req_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5); // Generate unique ID
+            const requestId = 'req_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5);
             const requestData = {
                 userId: userId,
                 amount: amount,
@@ -1259,7 +1224,6 @@ Address: ${address}`);
             return amounts[Math.floor(Math.random() * amounts.length)];
         }
         function addWithdrawalHistoryItemToDOM() {
-            // Prevent simulation if blocked
             if (isUserGloballyBlocked) return;
             if (!withdrawalHistoryListElement) return;
             const phone = generateMaskedPhoneNumber();
@@ -1281,7 +1245,6 @@ Address: ${address}`);
         }
         let historyFeedInterval;
         function startWithdrawalHistoryFeedSimulation() {
-             // Prevent starting simulation if blocked
              if (isUserGloballyBlocked) return;
              if (withdrawalHistoryListElement) {
                 withdrawalHistoryListElement.innerHTML = '';
@@ -1293,7 +1256,6 @@ Address: ${address}`);
             }
         }
         function processReferralInitiation(actionType = "share") {
-            // Prevent referral processing if blocked
             if (isUserGloballyBlocked) {
                  if(copyStatusMessageElement) copyStatusMessageElement.textContent = "Account blocked. Action not allowed.";
                  setTimeout(() => { if(copyStatusMessageElement) copyStatusMessageElement.textContent = ""; }, 2500);
@@ -1315,7 +1277,6 @@ Address: ${address}`);
         }
         if (copyReferralLinkButton && referralLinkElement) {
             copyReferralLinkButton.addEventListener('click', () => {
-                 // Prevent copying if blocked
                  if (isUserGloballyBlocked) {
                       if(copyStatusMessageElement) copyStatusMessageElement.textContent = "Account blocked. Action not allowed.";
                       setTimeout(() => { if(copyStatusMessageElement) copyStatusMessageElement.textContent = ""; }, 2500);
@@ -1344,7 +1305,6 @@ Address: ${address}`);
         }
         if (shareReferralLinkButton) {
             shareReferralLinkButton.addEventListener('click', () => {
-                 // Prevent sharing if blocked
                  if (isUserGloballyBlocked) {
                       if(copyStatusMessageElement) copyStatusMessageElement.textContent = "Account blocked. Action not allowed.";
                       setTimeout(() => { if(copyStatusMessageElement) copyStatusMessageElement.textContent = ""; }, 2500);
@@ -1357,13 +1317,11 @@ Address: ${address}`);
                 window.open(telegramShareUrl, '_blank');
             });
         }
-        // --- Event Listeners --- //
         if (submitWithdrawalRequestBtn) {
             submitWithdrawalRequestBtn.addEventListener('click', submitWithdrawalRequest);
         }
         if (openWithdrawalHistoryBtn) {
             openWithdrawalHistoryBtn.addEventListener('click', () => {
-                 // Prevent opening modal if blocked
                  if (isUserGloballyBlocked) return;
                 loadWithdrawalHistoryForModal();
                 withdrawalHistoryModal.style.display = 'block';
@@ -1374,25 +1332,16 @@ Address: ${address}`);
                 withdrawalHistoryModal.style.display = 'none';
             });
         }
-        // Close modals if clicked outside
         window.addEventListener('click', (event) => {
             if (event.target === withdrawalHistoryModal) {
                 withdrawalHistoryModal.style.display = 'none';
             }
-            // Prevent closing the blocked modal by clicking outside
-            // if (event.target === blockedModal) {
-            //     blockedModal.style.display = 'none';
-            // }
         });
-        // Handle close button for blocked modal (if you decide to keep it)
         if (closeBlockedModal) {
             closeBlockedModal.addEventListener('click', () => {
-                // Optionally, just hide it, or inform the user it can't be closed
-                // blockedModal.style.display = 'none';
-                alert("Your account is blocked. Please contact support."); // Example action
+                alert("Your account is blocked. Please contact support.");
             });
         }
-        // --- Firebase Auth State --- //
         auth.onAuthStateChanged((user) => {
             if (user) {
                 console.log("User authenticated anonymously:", user.uid);
@@ -1406,11 +1355,10 @@ Address: ${address}`);
                     });
             }
         });
-        // --- App Initialization --- //
         window.onload = function() {
-            loadState(); // This now includes the periodic listener setup
+            loadState();
             listenForAdminMessage();
-            listenForAppSettings(); // Listen for dynamic settings including reward
+            listenForAppSettings();
              showScreen('homeScreen');
              startWithdrawalHistoryFeedSimulation();
             setTimeout(() => {
@@ -1422,7 +1370,6 @@ Address: ${address}`);
                 }
             }, 2500);
         };
-        // --- Cleanup on window close/unload --- //
         window.addEventListener('beforeunload', () => {
              if (blockCheckInterval) clearInterval(blockCheckInterval);
              if (historyFeedInterval) clearInterval(historyFeedInterval);
