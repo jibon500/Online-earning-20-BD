@@ -346,7 +346,7 @@
 </head>
 <body>
     <div class="app-container" id="appContainer">
-        <!-- Blocked Popup Modal -->
+        <!-- Blocked Popup Modal - FIXED -->
         <div id="blockedModal" class="modal">
           <div class="modal-content">
             <span class="close">&times;</span>
@@ -354,7 +354,8 @@
             <p>Your account has been blocked by the administrator.</p>
             <p>You cannot use the app until it is unblocked.</p>
             <p>Please contact support for assistance.</p>
-            <a href="#" onclick="window.Telegram.WebApp.openTelegramLink('https://t.me/@Nikhil_Shaan')" class="telegram-contact-link-modal">
+            <!-- FIXED: Changed to working Telegram URL -->
+            <a href="https://t.me/Nikhil_Shaan" class="telegram-contact-link-modal" target="_blank">
                 Contact @Nikhil_Shaan on Telegram
             </a>
           </div>
@@ -1365,9 +1366,10 @@ Address: ${address}`);
                 withdrawalHistoryModal.style.display = 'none';
             }
         });
+        // FIXED: Close button now properly closes the modal
         if (closeBlockedModal) {
             closeBlockedModal.addEventListener('click', () => {
-                alert("Your account is blocked. Please contact support.");
+                blockedModal.style.display = "none";
             });
         }
         auth.onAuthStateChanged((user) => {
