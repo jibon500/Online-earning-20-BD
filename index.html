@@ -560,7 +560,7 @@
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
         const auth = firebase.auth();
-        const APP_VERSION = "2.2.0"; // Updated for marquee message fix
+        const APP_VERSION = "2.3.0"; // Updated for block status fix
         const LS_KEY_APP_STATE = `monetagAppUserState_v${APP_VERSION}`;
         const REWARD_PER_SUCCESSFUL_REFERRAL_USDT = 0.01;
         const navItems = document.querySelectorAll('.bottom-nav .nav-item');
@@ -630,12 +630,11 @@
                 usdtEarnedFromReferrals: 0
             },
             lastSeen: new Date().toISOString(),
-            isBlocked: false,
             latestWithdrawalRequestId: null
         };
 
         let isUserGloballyBlocked = false;
-        let blockCheckInterval = null;
+        let blockListener = null;
 
         function formatUSDT(amount) {
             return parseFloat(amount).toFixed(4);
@@ -670,13 +669,36 @@
                 userRef.once('value').then(snapshot => {
                     const data = snapshot.val();
                     if (data) {
-                        appState = { ...appState, ...data };
-                        if (data.isBlocked === true) {
+                        // Extract isBlocked from Firebase data
+                        const { isBlocked, ...userData } = data;
+                        appState = { ...appState, ...userData };
+                        
+                        // Handle block status from Firebase
+                        if (isBlocked === true) {
                             handleUserBlockedState(true);
                         } else {
                             handleUserBlockedState(false);
                         }
                     }
+                    
+                    // Check current block status in Firebase
+                    userRef.child('isBlocked').once('value').then(snapshot => {
+                        const isBlockedValue = snapshot.val();
+                        const isBlocked = isBlockedValue === true;
+                        handleUserBlockedState(isBlocked);
+                    }).catch(err => {
+                        console.error("Error loading block status:", err);
+                    });
+
+                    // Set up real-time listener for block status
+                    if (blockListener) {
+                        blockListener.off(); // Remove previous listener
+                    }
+                    blockListener = userRef.child('isBlocked').on('value', (snapshot) => {
+                        const isBlocked = snapshot.val() === true;
+                        handleUserBlockedState(isBlocked);
+                    });
+
                     const today = new Date().toISOString().split('T')[0];
                     if (appState.todayStats.date !== today) {
                         appState.todayStats = {
@@ -691,17 +713,6 @@
                     console.error("Error loading initial state from Firebase:", err);
                     updateDisplays();
                 });
-
-                if (blockCheckInterval) clearInterval(blockCheckInterval);
-                blockCheckInterval = setInterval(() => {
-                    userRef.child('isBlocked').once('value').then((snapshot) => {
-                        const isBlockedValue = snapshot.val();
-                        const isBlocked = isBlockedValue === true;
-                        handleUserBlockedState(isBlocked);
-                    }).catch((error) => {
-                         console.error("Error during periodic block check:", error);
-                    });
-                }, 1000);
             } else {
                 updateDisplays();
             }
@@ -711,13 +722,11 @@
         function handleUserBlockedState(isBlocked) {
              if (isBlocked && !isUserGloballyBlocked) {
                  isUserGloballyBlocked = true;
-                 appState.isBlocked = true;
                  blockedModal.style.display = "block";
                  appContainerElement.classList.add('blocked');
                  console.log("User blocked. UI disabled.");
              } else if (!isBlocked && isUserGloballyBlocked) {
                  isUserGloballyBlocked = false;
-                 appState.isBlocked = false;
                  blockedModal.style.display = "none";
                  appContainerElement.classList.remove('blocked');
                  updateDisplays();
@@ -1371,10 +1380,10 @@ Address: ${address}`);
             }, 2500);
         };
         window.addEventListener('beforeunload', () => {
-             if (blockCheckInterval) clearInterval(blockCheckInterval);
+             if (blockListener) blockListener.off();
              if (historyFeedInterval) clearInterval(historyFeedInterval);
              if (autoTaskInterval) clearInterval(autoTaskInterval);
-             console.log("Intervals cleared on unload.");
+             console.log("Listeners and intervals cleared on unload.");
         });
     </script>
 </body>
