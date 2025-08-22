@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -91,6 +92,8 @@
             padding: 20px;
             animation: fadeIn 0.3s ease;
             width: 100%;
+            max-height: calc(100vh - 120px); /* Adjusted for header and nav */
+            overflow-y: auto; /* Enable scrolling only for VIP page */
         }
         .page.active {
             display: block;
@@ -103,77 +106,77 @@
         .balance-card {
             background: var(--glass-bg);
             border-radius: 15px;
-            padding: 15px;
+            padding: 12px; /* Reduced padding */
             text-align: center;
-            margin-bottom: 20px;
+            margin-bottom: 15px; /* Reduced margin */
             backdrop-filter: blur(10px);
             border: 1px solid var(--glass-border);
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
         }
         .balance-amount {
-            font-size: 2rem;
+            font-size: 1.5rem; /* Reduced font size */
             font-weight: 800;
-            margin: 8px 0;
+            margin: 6px 0; /* Reduced margin */
             background: linear-gradient(45deg, #ffd700, #ff8c00);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
         .balance-label {
-            font-size: 0.85rem;
+            font-size: 0.8rem; /* Reduced font size */
             opacity: 0.8;
         }
         .stats-container {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 12px;
-            margin-bottom: 20px;
+            gap: 10px; /* Reduced gap */
+            margin-bottom: 15px; /* Reduced margin */
         }
         .stat-card {
             background: var(--glass-bg);
-            border-radius: 12px;
-            padding: 12px 8px;
+            border-radius: 10px; /* Reduced border radius */
+            padding: 10px 6px; /* Reduced padding */
             text-align: center;
             backdrop-filter: blur(10px);
             border: 1px solid var(--glass-border);
         }
         .stat-value {
-            font-size: 1.2rem;
+            font-size: 1rem; /* Reduced font size */
             font-weight: 700;
-            margin: 3px 0;
+            margin: 2px 0; /* Reduced margin */
         }
         .stat-label {
-            font-size: 0.7rem;
+            font-size: 0.65rem; /* Reduced font size */
             opacity: 0.8;
         }
         .action-buttons {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 15px;
-            margin-bottom: 25px;
+            gap: 12px; /* Reduced gap */
+            margin-bottom: 20px; /* Reduced margin */
         }
         .action-btn {
             border: none;
-            border-radius: 15px;
-            padding: 15px 10px;
+            border-radius: 12px; /* Reduced border radius */
+            padding: 12px 8px; /* Reduced padding */
             color: white;
             font-weight: 600;
-            font-size: 0.85rem;
+            font-size: 0.75rem; /* Reduced font size */
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            gap: 8px;
+            gap: 6px; /* Reduced gap */
             cursor: pointer;
             transition: all 0.3s ease;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-            min-height: 90px;
+            min-height: 75px; /* Reduced height */
         }
         .action-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+            transform: translateY(-2px); /* Reduced hover effect */
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);
         }
         .action-btn i {
-            font-size: 1.5rem;
+            font-size: 1.2rem; /* Reduced icon size */
         }
         .btn-primary { background: linear-gradient(45deg, var(--primary), var(--secondary)); }
         .btn-success { background: linear-gradient(45deg, var(--success), #3a86ff); }
@@ -189,14 +192,14 @@
             background: rgba(255, 255, 255, 0.1);
             border: 1px solid var(--glass-border);
             border-radius: 50%;
-            width: 50px;
-            height: 50px;
+            width: 45px; /* Reduced size */
+            height: 45px; /* Reduced size */
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
             transition: all 0.3s ease;
-            font-size: 1.3rem;
+            font-size: 1.1rem; /* Reduced icon size */
             z-index: 999;
             backdrop-filter: blur(10px);
         }
@@ -207,34 +210,34 @@
         /* Tasks Page */
         .task-card {
             background: var(--glass-bg);
-            border-radius: 15px;
-            padding: 20px;
-            margin-bottom: 15px;
+            border-radius: 12px; /* Reduced border radius */
+            padding: 15px; /* Reduced padding */
+            margin-bottom: 12px; /* Reduced margin */
             backdrop-filter: blur(10px);
             border: 1px solid var(--glass-border);
             display: flex;
             align-items: center;
-            gap: 15px;
+            gap: 12px; /* Reduced gap */
         }
         .task-icon {
-            width: 50px;
-            height: 50px;
-            border-radius: 12px;
+            width: 45px; /* Reduced size */
+            height: 45px; /* Reduced size */
+            border-radius: 10px; /* Reduced border radius */
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.5rem;
+            font-size: 1.2rem; /* Reduced icon size */
         }
         .task-info {
             flex: 1;
         }
         .task-title {
             font-weight: 600;
-            margin-bottom: 5px;
-            font-size: 0.95rem;
+            margin-bottom: 4px; /* Reduced margin */
+            font-size: 0.85rem; /* Reduced font size */
         }
         .task-reward {
-            font-size: 0.9rem;
+            font-size: 0.8rem; /* Reduced font size */
             color: var(--gold);
             font-weight: 600;
         }
@@ -242,13 +245,13 @@
             background: rgba(255, 255, 255, 0.2);
             border: none;
             color: white;
-            padding: 8px 15px;
-            border-radius: 20px;
+            padding: 6px 12px; /* Reduced padding */
+            border-radius: 18px; /* Reduced border radius */
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
-            min-width: 80px;
-            font-size: 0.85rem;
+            min-width: 70px; /* Reduced width */
+            font-size: 0.75rem; /* Reduced font size */
         }
         .task-btn:hover {
             background: rgba(255, 255, 255, 0.3);
@@ -257,69 +260,73 @@
             background: #6c757d;
             cursor: not-allowed;
         }
-        /* VIP Page */
+        /* VIP Page - Scrollable */
+        #vip-page {
+            max-height: calc(100vh - 120px); /* Adjusted for header and nav */
+            overflow-y: auto; /* Enable scrolling for VIP page */
+        }
         .vip-card {
             background: linear-gradient(45deg, #1a1a2e, #16213e);
-            border-radius: 15px;
-            padding: 20px;
+            border-radius: 12px; /* Reduced border radius */
+            padding: 15px; /* Reduced padding */
             text-align: center;
-            margin-bottom: 25px;
+            margin-bottom: 20px; /* Reduced margin */
             position: relative;
             overflow: hidden;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3); /* Reduced shadow */
         }
         .vip-badge {
             position: absolute;
-            top: 12px;
-            right: 12px;
+            top: 10px; /* Reduced top */
+            right: 10px; /* Reduced right */
             background: var(--gold);
             color: #000;
-            padding: 3px 10px;
-            border-radius: 12px;
+            padding: 2px 8px; /* Reduced padding */
+            border-radius: 10px; /* Reduced border radius */
             font-weight: 700;
-            font-size: 0.6rem;
+            font-size: 0.55rem; /* Reduced font size */
         }
         .vip-title {
-            font-size: 1.3rem;
-            margin-bottom: 6px;
+            font-size: 1.1rem; /* Reduced font size */
+            margin-bottom: 5px; /* Reduced margin */
             color: var(--gold);
         }
         .vip-benefits {
             text-align: left;
-            margin: 15px 0;
+            margin: 12px 0; /* Reduced margin */
         }
         .benefit-item {
             display: flex;
             align-items: center;
-            gap: 6px;
-            margin-bottom: 10px;
-            font-size: 0.85rem;
+            gap: 5px; /* Reduced gap */
+            margin-bottom: 8px; /* Reduced margin */
+            font-size: 0.75rem; /* Reduced font size */
         }
         .benefit-icon {
             color: var(--gold);
-            font-size: 0.8rem;
+            font-size: 0.7rem; /* Reduced icon size */
         }
         .vip-price {
-            font-size: 1.5rem;
+            font-size: 1.2rem; /* Reduced font size */
             font-weight: 800;
-            margin: 12px 0;
+            margin: 10px 0; /* Reduced margin */
             color: var(--gold);
         }
         .vip-btn {
             background: linear-gradient(45deg, var(--gold), #ffb700);
             color: #000;
             border: none;
-            padding: 10px 20px;
-            border-radius: 20px;
+            padding: 8px 16px; /* Reduced padding */
+            border-radius: 18px; /* Reduced border radius */
             font-weight: 700;
-            font-size: 0.9rem;
+            font-size: 0.8rem; /* Reduced font size */
             cursor: pointer;
             width: 100%;
             transition: all 0.3s ease;
         }
         .vip-btn:hover {
-            transform: scale(1.02);
-            box-shadow: 0 0 12px rgba(255, 215, 0, 0.5);
+            transform: scale(1.01); /* Reduced hover effect */
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.5); /* Reduced shadow */
         }
         .vip-btn:disabled {
             background: #6c757d;
@@ -330,30 +337,30 @@
         /* Deposit Instructions - Smaller */
         .deposit-instructions {
             background: var(--glass-bg);
-            border-radius: 12px;
-            padding: 15px;
-            margin-bottom: 15px;
+            border-radius: 10px; /* Reduced border radius */
+            padding: 12px; /* Reduced padding */
+            margin-bottom: 12px; /* Reduced margin */
             backdrop-filter: blur(10px);
             border: 1px solid var(--glass-border);
         }
         .instruction-title {
             text-align: center;
-            margin-bottom: 12px;
+            margin-bottom: 10px; /* Reduced margin */
             color: var(--success);
-            font-size: 1.1rem;
+            font-size: 1rem; /* Reduced font size */
         }
         .payment-details {
             background: rgba(0, 0, 0, 0.2);
-            border-radius: 10px;
-            padding: 12px;
-            margin: 12px 0;
+            border-radius: 8px; /* Reduced border radius */
+            padding: 10px; /* Reduced padding */
+            margin: 10px 0; /* Reduced margin */
             text-align: center;
         }
         .payment-number {
-            font-size: 1.1rem;
+            font-size: 1rem; /* Reduced font size */
             font-weight: 700;
             color: var(--gold);
-            margin: 8px 0;
+            margin: 6px 0; /* Reduced margin */
             letter-spacing: 1px;
             word-break: break-all;
         }
@@ -361,58 +368,58 @@
             background: linear-gradient(45deg, var(--primary), var(--info));
             color: white;
             border: none;
-            padding: 6px 12px;
-            border-radius: 15px;
+            padding: 5px 10px; /* Reduced padding */
+            border-radius: 12px; /* Reduced border radius */
             font-weight: 600;
             cursor: pointer;
-            font-size: 0.8rem;
-            margin-top: 8px;
+            font-size: 0.75rem; /* Reduced font size */
+            margin-top: 6px; /* Reduced margin */
             transition: all 0.3s ease;
         }
         .copy-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 3px 8px rgba(67, 97, 238, 0.4);
+            transform: translateY(-1px); /* Reduced hover effect */
+            box-shadow: 0 2px 6px rgba(67, 97, 238, 0.4); /* Reduced shadow */
         }
         .important-note {
             background: rgba(255, 193, 7, 0.1);
             border-left: 3px solid #ffc107;
-            padding: 10px;
-            border-radius: 0 6px 6px 0;
-            margin: 12px 0;
-            font-size: 0.8rem;
+            padding: 8px; /* Reduced padding */
+            border-radius: 0 5px 5px 0; /* Reduced border radius */
+            margin: 10px 0; /* Reduced margin */
+            font-size: 0.7rem; /* Reduced font size */
         }
         /* Deposit/Withdraw Forms - Smaller */
         .form-card {
             background: var(--glass-bg);
-            border-radius: 12px;
-            padding: 20px;
+            border-radius: 10px; /* Reduced border radius */
+            padding: 15px; /* Reduced padding */
             backdrop-filter: blur(10px);
             border: 1px solid var(--glass-border);
-            margin-bottom: 15px;
+            margin-bottom: 12px; /* Reduced margin */
         }
         .form-title {
             text-align: center;
-            margin-bottom: 15px;
-            font-size: 1.2rem;
+            margin-bottom: 12px; /* Reduced margin */
+            font-size: 1.1rem; /* Reduced font size */
             color: var(--success);
         }
         .form-group {
-            margin-bottom: 15px;
+            margin-bottom: 12px; /* Reduced margin */
         }
         .form-label {
             display: block;
-            margin-bottom: 6px;
+            margin-bottom: 5px; /* Reduced margin */
             font-weight: 500;
-            font-size: 0.85rem;
+            font-size: 0.8rem; /* Reduced font size */
         }
         .form-input {
             width: 100%;
-            padding: 12px;
-            border-radius: 8px;
+            padding: 10px; /* Reduced padding */
+            border-radius: 6px; /* Reduced border radius */
             border: 1px solid var(--glass-border);
             background: rgba(0, 0, 0, 0.2);
             color: white;
-            font-size: 0.9rem;
+            font-size: 0.85rem; /* Reduced font size */
         }
         .form-input:focus {
             outline: none;
@@ -420,28 +427,28 @@
         }
         .form-select {
             width: 100%;
-            padding: 12px;
-            border-radius: 8px;
+            padding: 10px; /* Reduced padding */
+            border-radius: 6px; /* Reduced border radius */
             border: 1px solid var(--glass-border);
             background: rgba(0, 0, 0, 0.2);
             color: white;
-            font-size: 0.9rem;
+            font-size: 0.85rem; /* Reduced font size */
         }
         .submit-btn {
             width: 100%;
-            padding: 12px;
+            padding: 10px; /* Reduced padding */
             border: none;
-            border-radius: 8px;
+            border-radius: 6px; /* Reduced border radius */
             background: linear-gradient(45deg, var(--primary), var(--info));
             color: white;
             font-weight: 600;
-            font-size: 0.95rem;
+            font-size: 0.9rem; /* Reduced font size */
             cursor: pointer;
             transition: all 0.3s ease;
         }
         .submit-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(67, 97, 238, 0.4);
+            transform: translateY(-1px); /* Reduced hover effect */
+            box-shadow: 0 3px 10px rgba(67, 97, 238, 0.4); /* Reduced shadow */
         }
         .submit-btn:disabled {
             background: #6c757d;
@@ -452,9 +459,9 @@
         /* Withdraw History */
         .history-item {
             background: var(--glass-bg);
-            border-radius: 12px;
-            padding: 15px;
-            margin-bottom: 15px;
+            border-radius: 10px; /* Reduced border radius */
+            padding: 12px; /* Reduced padding */
+            margin-bottom: 12px; /* Reduced margin */
             backdrop-filter: blur(10px);
             border: 1px solid var(--glass-border);
             display: flex;
@@ -466,21 +473,21 @@
         }
         .history-amount {
             font-weight: 700;
-            font-size: 1.1rem;
+            font-size: 1rem; /* Reduced font size */
         }
         .history-method {
-            font-size: 0.9rem;
+            font-size: 0.8rem; /* Reduced font size */
             opacity: 0.8;
-            margin: 5px 0;
+            margin: 4px 0; /* Reduced margin */
         }
         .history-date {
-            font-size: 0.8rem;
+            font-size: 0.7rem; /* Reduced font size */
             opacity: 0.7;
         }
         .history-status {
-            padding: 5px 10px;
-            border-radius: 20px;
-            font-size: 0.8rem;
+            padding: 4px 8px; /* Reduced padding */
+            border-radius: 18px; /* Reduced border radius */
+            font-size: 0.7rem; /* Reduced font size */
             font-weight: 600;
         }
         .status-pending {
@@ -498,61 +505,61 @@
         /* Profile Page */
         .profile-header {
             text-align: center;
-            margin-bottom: 25px;
+            margin-bottom: 20px;
         }
         .profile-avatar {
-            width: 90px;
-            height: 90px;
+            width: 75px; /* Reduced size */
+            height: 75px; /* Reduced size */
             border-radius: 50%;
             background: linear-gradient(45deg, var(--primary), var(--info));
-            margin: 0 auto 15px;
+            margin: 0 auto 12px; /* Reduced margin */
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 2.2rem;
+            font-size: 1.8rem; /* Reduced font size */
             font-weight: bold;
         }
         .profile-name {
-            font-size: 1.4rem;
+            font-size: 1.2rem; /* Reduced font size */
             font-weight: 700;
-            margin-bottom: 5px;
+            margin-bottom: 4px; /* Reduced margin */
         }
         .profile-id {
-            font-size: 0.85rem;
+            font-size: 0.8rem; /* Reduced font size */
             opacity: 0.7;
         }
         .profile-stats {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 12px;
-            margin-bottom: 25px;
+            gap: 10px; /* Reduced gap */
+            margin-bottom: 20px; /* Reduced margin */
         }
         .profile-stat {
             background: var(--glass-bg);
-            border-radius: 12px;
-            padding: 12px 8px;
+            border-radius: 10px; /* Reduced border radius */
+            padding: 10px 6px; /* Reduced padding */
             text-align: center;
         }
         .profile-stat-value {
-            font-size: 1.2rem;
+            font-size: 1rem; /* Reduced font size */
             font-weight: 700;
-            margin-bottom: 3px;
+            margin-bottom: 2px; /* Reduced margin */
         }
         .profile-stat-label {
-            font-size: 0.7rem;
+            font-size: 0.65rem; /* Reduced font size */
             opacity: 0.8;
         }
         .profile-actions {
             display: grid;
-            gap: 12px;
+            gap: 10px; /* Reduced gap */
         }
         .profile-action {
             background: var(--glass-bg);
-            border-radius: 12px;
-            padding: 15px;
+            border-radius: 10px; /* Reduced border radius */
+            padding: 12px; /* Reduced padding */
             display: flex;
             align-items: center;
-            gap: 15px;
+            gap: 12px; /* Reduced gap */
             cursor: pointer;
             transition: all 0.3s ease;
             border: 1px solid var(--glass-border);
@@ -561,9 +568,9 @@
             background: rgba(255, 255, 255, 0.2);
         }
         .profile-action i {
-            font-size: 1.2rem;
-            width: 35px;
-            height: 35px;
+            font-size: 1rem; /* Reduced icon size */
+            width: 30px; /* Reduced size */
+            height: 30px; /* Reduced size */
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -584,7 +591,7 @@
             backdrop-filter: blur(10px);
             display: flex;
             justify-content: space-around;
-            padding: 12px 0;
+            padding: 10px 0; /* Reduced padding */
             border-top: 1px solid var(--glass-border);
             z-index: 1000;
             width: 100%;
@@ -595,13 +602,13 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 5px;
+            gap: 4px; /* Reduced gap */
             color: rgba(255, 255, 255, 0.6);
-            font-size: 0.75rem;
+            font-size: 0.65rem; /* Reduced font size */
             cursor: pointer;
             transition: all 0.3s ease;
-            padding: 5px 10px;
-            border-radius: 10px;
+            padding: 4px 8px; /* Reduced padding */
+            border-radius: 8px; /* Reduced border radius */
             width: 20%;
             text-align: center;
         }
@@ -610,7 +617,7 @@
             background: rgba(255, 255, 255, 0.1);
         }
         .nav-item i {
-            font-size: 1.2rem;
+            font-size: 1rem; /* Reduced icon size */
         }
         .nav-item:hover {
             color: white;
@@ -623,9 +630,9 @@
             transform: translateX(-50%);
             background: rgba(0, 0, 0, 0.8);
             color: white;
-            padding: 15px 25px;
-            border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            padding: 12px 20px; /* Reduced padding */
+            border-radius: 8px; /* Reduced border radius */
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3); /* Reduced shadow */
             z-index: 2000;
             display: none;
             backdrop-filter: blur(10px);
@@ -646,29 +653,29 @@
             justify-content: center;
             align-items: center;
             text-align: center;
-            padding: 20px;
+            padding: 15px; /* Reduced padding */
         }
         .block-content {
             background: white;
             color: #333;
-            padding: 40px;
-            border-radius: 15px;
+            padding: 30px; /* Reduced padding */
+            border-radius: 12px; /* Reduced border radius */
             max-width: 500px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3); /* Reduced shadow */
         }
         .block-content h2 {
             color: #ff6b6b;
-            margin-bottom: 20px;
+            margin-bottom: 15px; /* Reduced margin */
         }
         .telegram-link {
             display: inline-block;
-            padding: 12px 25px;
+            padding: 10px 20px; /* Reduced padding */
             background: #0088cc;
             color: white;
             text-decoration: none;
-            border-radius: 25px;
+            border-radius: 20px; /* Reduced border radius */
             font-weight: bold;
-            margin: 20px 0;
+            margin: 15px 0; /* Reduced margin */
             transition: background 0.3s;
         }
         .telegram-link:hover {
@@ -676,10 +683,87 @@
         }
         /* Responsive Adjustments */
         @media (max-width: 480px) {
-            /* ... (same as before) ... */
+            .action-btn {
+                font-size: 0.7rem;
+                padding: 10px 6px;
+                min-height: 70px;
+            }
+            .task-card {
+                padding: 12px;
+                gap: 10px;
+            }
+            .task-icon {
+                width: 40px;
+                height: 40px;
+                font-size: 1rem;
+            }
+            .task-title {
+                font-size: 0.8rem;
+            }
+            .task-reward {
+                font-size: 0.75rem;
+            }
+            .task-btn {
+                padding: 5px 10px;
+                font-size: 0.7rem;
+                min-width: 65px;
+            }
+            .vip-card {
+                padding: 12px;
+            }
+            .vip-title {
+                font-size: 1rem;
+            }
+            .vip-price {
+                font-size: 1.1rem;
+            }
+            .vip-btn {
+                padding: 7px 14px;
+                font-size: 0.75rem;
+            }
+            .benefit-item {
+                font-size: 0.7rem;
+            }
+            .form-input, .form-select {
+                padding: 8px;
+                font-size: 0.8rem;
+            }
+            .submit-btn {
+                padding: 8px;
+                font-size: 0.85rem;
+            }
         }
         @media (max-width: 360px) {
-            /* ... (same as before) ... */
+            .app-title {
+                font-size: 1.2rem;
+            }
+            .user-avatar {
+                width: 35px;
+                height: 35px;
+                font-size: 16px;
+            }
+            .balance-amount {
+                font-size: 1.3rem;
+            }
+            .stat-value {
+                font-size: 0.9rem;
+            }
+            .action-btn {
+                font-size: 0.65rem;
+                padding: 8px 5px;
+                min-height: 65px;
+            }
+            .profile-avatar {
+                width: 70px;
+                height: 70px;
+                font-size: 1.6rem;
+            }
+            .profile-name {
+                font-size: 1.1rem;
+            }
+            .profile-stat-value {
+                font-size: 0.9rem;
+            }
         }
         /* Scrollbar styling */
         ::-webkit-scrollbar {
@@ -789,7 +873,7 @@
         </div>
         <!-- Tasks Page -->
         <div id="tasks-page" class="page">
-            <h2 style="text-align: center; margin-bottom: 20px;">DAILY TASKS</h2>
+            <h2 style="text-align: center; margin-bottom: 15px;">DAILY TASKS</h2>
             <div class="task-card">
                 <div class="task-icon" style="background: rgba(67, 97, 238, 0.2); color: var(--primary);">
                     <i class="fas fa-video"></i>
@@ -833,20 +917,20 @@
         </div>
         <!-- VIP Page -->
         <div id="vip-page" class="page">
-            <h2 style="text-align: center; margin-bottom: 20px;">VIP PACKAGES</h2>
+            <h2 style="text-align: center; margin-bottom: 15px;">VIP PACKAGES</h2>
             <!-- VIP Package 1 -->
             <div class="vip-card">
                 <div class="vip-badge">BRONZE</div>
                 <h2 class="vip-title">VIP BRONZE</h2>
-                <p style="font-size: 0.85rem; opacity: 0.9;">Unlock basic VIP benefits</p>
+                <p style="font-size: 0.8rem; opacity: 0.9;">Unlock basic VIP benefits</p>
                 <div class="vip-benefits">
                     <div class="benefit-item">
                         <i class="fas fa-check-circle benefit-icon"></i>
-                        <span style="font-size: 0.8rem;">1.2x Earning Rate</span>
+                        <span style="font-size: 0.75rem;">1.2x Earning Rate</span>
                     </div>
                     <div class="benefit-item">
                         <i class="fas fa-check-circle benefit-icon"></i>
-                        <span style="font-size: 0.8rem;">Special VIP Ad (+৳ 10 per view)</span>
+                        <span style="font-size: 0.75rem;">Special VIP Ad (+৳ 10 per view)</span>
                     </div>
                 </div>
                 <div class="vip-price">99.00000 BDT</div>
@@ -856,19 +940,19 @@
             <div class="vip-card">
                 <div class="vip-badge">SILVER</div>
                 <h2 class="vip-title">VIP SILVER</h2>
-                <p style="font-size: 0.85rem; opacity: 0.9;">Unlock silver benefits</p>
+                <p style="font-size: 0.8rem; opacity: 0.9;">Unlock silver benefits</p>
                 <div class="vip-benefits">
                     <div class="benefit-item">
                         <i class="fas fa-check-circle benefit-icon"></i>
-                        <span style="font-size: 0.8rem;">1.5x Earning Rate</span>
+                        <span style="font-size: 0.75rem;">1.5x Earning Rate</span>
                     </div>
                     <div class="benefit-item">
                         <i class="fas fa-check-circle benefit-icon"></i>
-                        <span style="font-size: 0.8rem;">Special VIP Ad (+৳ 10 per view)</span>
+                        <span style="font-size: 0.75rem;">Special VIP Ad (+৳ 10 per view)</span>
                     </div>
                     <div class="benefit-item">
                         <i class="fas fa-check-circle benefit-icon"></i>
-                        <span style="font-size: 0.8rem;">Priority Support</span>
+                        <span style="font-size: 0.75rem;">Priority Support</span>
                     </div>
                 </div>
                 <div class="vip-price">199.00000 BDT</div>
@@ -878,23 +962,23 @@
             <div class="vip-card">
                 <div class="vip-badge">GOLD</div>
                 <h2 class="vip-title">VIP GOLD</h2>
-                <p style="font-size: 0.85rem; opacity: 0.9;">Unlock gold benefits</p>
+                <p style="font-size: 0.8rem; opacity: 0.9;">Unlock gold benefits</p>
                 <div class="vip-benefits">
                     <div class="benefit-item">
                         <i class="fas fa-check-circle benefit-icon"></i>
-                        <span style="font-size: 0.8rem;">2x Earning Rate</span>
+                        <span style="font-size: 0.75rem;">2x Earning Rate</span>
                     </div>
                     <div class="benefit-item">
                         <i class="fas fa-check-circle benefit-icon"></i>
-                        <span style="font-size: 0.8rem;">Special VIP Ad (+৳ 10 per view)</span>
+                        <span style="font-size: 0.75rem;">Special VIP Ad (+৳ 10 per view)</span>
                     </div>
                     <div class="benefit-item">
                         <i class="fas fa-check-circle benefit-icon"></i>
-                        <span style="font-size: 0.8rem;">Priority Withdrawals</span>
+                        <span style="font-size: 0.75rem;">Priority Withdrawals</span>
                     </div>
                     <div class="benefit-item">
                         <i class="fas fa-check-circle benefit-icon"></i>
-                        <span style="font-size: 0.8rem;">Monthly Bonus ৳ 50</span>
+                        <span style="font-size: 0.75rem;">Monthly Bonus ৳ 50</span>
                     </div>
                 </div>
                 <div class="vip-price">299.00000 BDT</div>
@@ -904,27 +988,27 @@
             <div class="vip-card">
                 <div class="vip-badge">PLATINUM</div>
                 <h2 class="vip-title">VIP PLATINUM</h2>
-                <p style="font-size: 0.85rem; opacity: 0.9;">Unlock platinum benefits</p>
+                <p style="font-size: 0.8rem; opacity: 0.9;">Unlock platinum benefits</p>
                 <div class="vip-benefits">
                     <div class="benefit-item">
                         <i class="fas fa-check-circle benefit-icon"></i>
-                        <span style="font-size: 0.8rem;">2.5x Earning Rate</span>
+                        <span style="font-size: 0.75rem;">2.5x Earning Rate</span>
                     </div>
                     <div class="benefit-item">
                         <i class="fas fa-check-circle benefit-icon"></i>
-                        <span style="font-size: 0.8rem;">Special VIP Ad (+৳ 10 per view)</span>
+                        <span style="font-size: 0.75rem;">Special VIP Ad (+৳ 10 per view)</span>
                     </div>
                     <div class="benefit-item">
                         <i class="fas fa-check-circle benefit-icon"></i>
-                        <span style="font-size: 0.8rem;">Priority Withdrawals</span>
+                        <span style="font-size: 0.75rem;">Priority Withdrawals</span>
                     </div>
                     <div class="benefit-item">
                         <i class="fas fa-check-circle benefit-icon"></i>
-                        <span style="font-size: 0.8rem;">Monthly Bonus ৳ 100</span>
+                        <span style="font-size: 0.75rem;">Monthly Bonus ৳ 100</span>
                     </div>
                     <div class="benefit-item">
                         <i class="fas fa-check-circle benefit-icon"></i>
-                        <span style="font-size: 0.8rem;">24/7 Customer Support</span>
+                        <span style="font-size: 0.75rem;">24/7 Customer Support</span>
                     </div>
                 </div>
                 <div class="vip-price">499.00000 BDT</div>
@@ -934,31 +1018,31 @@
             <div class="vip-card">
                 <div class="vip-badge">DIAMOND</div>
                 <h2 class="vip-title">VIP DIAMOND</h2>
-                <p style="font-size: 0.85rem; opacity: 0.9;">Unlock diamond benefits</p>
+                <p style="font-size: 0.8rem; opacity: 0.9;">Unlock diamond benefits</p>
                 <div class="vip-benefits">
                     <div class="benefit-item">
                         <i class="fas fa-check-circle benefit-icon"></i>
-                        <span style="font-size: 0.8rem;">3x Earning Rate</span>
+                        <span style="font-size: 0.75rem;">3x Earning Rate</span>
                     </div>
                     <div class="benefit-item">
                         <i class="fas fa-check-circle benefit-icon"></i>
-                        <span style="font-size: 0.8rem;">Special VIP Ad (+৳ 10 per view)</span>
+                        <span style="font-size: 0.75rem;">Special VIP Ad (+৳ 10 per view)</span>
                     </div>
                     <div class="benefit-item">
                         <i class="fas fa-check-circle benefit-icon"></i>
-                        <span style="font-size: 0.8rem;">Priority Withdrawals</span>
+                        <span style="font-size: 0.75rem;">Priority Withdrawals</span>
                     </div>
                     <div class="benefit-item">
                         <i class="fas fa-check-circle benefit-icon"></i>
-                        <span style="font-size: 0.8rem;">Monthly Bonus ৳ 200</span>
+                        <span style="font-size: 0.75rem;">Monthly Bonus ৳ 200</span>
                     </div>
                     <div class="benefit-item">
                         <i class="fas fa-check-circle benefit-icon"></i>
-                        <span style="font-size: 0.8rem;">24/7 Customer Support</span>
+                        <span style="font-size: 0.75rem;">24/7 Customer Support</span>
                     </div>
                     <div class="benefit-item">
                         <i class="fas fa-check-circle benefit-icon"></i>
-                        <span style="font-size: 0.8rem;">Exclusive Tasks</span>
+                        <span style="font-size: 0.75rem;">Exclusive Tasks</span>
                     </div>
                 </div>
                 <div class="vip-price">799.00000 BDT</div>
@@ -968,35 +1052,35 @@
             <div class="vip-card">
                 <div class="vip-badge">TITANIUM</div>
                 <h2 class="vip-title">VIP TITANIUM</h2>
-                <p style="font-size: 0.85rem; opacity: 0.9;">Unlock titanium benefits</p>
+                <p style="font-size: 0.8rem; opacity: 0.9;">Unlock titanium benefits</p>
                 <div class="vip-benefits">
                     <div class="benefit-item">
                         <i class="fas fa-check-circle benefit-icon"></i>
-                        <span style="font-size: 0.8rem;">3.5x Earning Rate</span>
+                        <span style="font-size: 0.75rem;">3.5x Earning Rate</span>
                     </div>
                     <div class="benefit-item">
                         <i class="fas fa-check-circle benefit-icon"></i>
-                        <span style="font-size: 0.8rem;">Special VIP Ad (+৳ 10 per view)</span>
+                        <span style="font-size: 0.75rem;">Special VIP Ad (+৳ 10 per view)</span>
                     </div>
                     <div class="benefit-item">
                         <i class="fas fa-check-circle benefit-icon"></i>
-                        <span style="font-size: 0.8rem;">Priority Withdrawals</span>
+                        <span style="font-size: 0.75rem;">Priority Withdrawals</span>
                     </div>
                     <div class="benefit-item">
                         <i class="fas fa-check-circle benefit-icon"></i>
-                        <span style="font-size: 0.8rem;">Monthly Bonus ৳ 300</span>
+                        <span style="font-size: 0.75rem;">Monthly Bonus ৳ 300</span>
                     </div>
                     <div class="benefit-item">
                         <i class="fas fa-check-circle benefit-icon"></i>
-                        <span style="font-size: 0.8rem;">24/7 Customer Support</span>
+                        <span style="font-size: 0.75rem;">24/7 Customer Support</span>
                     </div>
                     <div class="benefit-item">
                         <i class="fas fa-check-circle benefit-icon"></i>
-                        <span style="font-size: 0.8rem;">Exclusive Tasks</span>
+                        <span style="font-size: 0.75rem;">Exclusive Tasks</span>
                     </div>
                     <div class="benefit-item">
                         <i class="fas fa-check-circle benefit-icon"></i>
-                        <span style="font-size: 0.8rem;">Special Events Access</span>
+                        <span style="font-size: 0.75rem;">Special Events Access</span>
                     </div>
                 </div>
                 <div class="vip-price">999.00000 BDT</div>
@@ -1006,39 +1090,39 @@
             <div class="vip-card">
                 <div class="vip-badge">EMERALD</div>
                 <h2 class="vip-title">VIP EMERALD</h2>
-                <p style="font-size: 0.85rem; opacity: 0.9;">Unlock emerald benefits</p>
+                <p style="font-size: 0.8rem; opacity: 0.9;">Unlock emerald benefits</p>
                 <div class="vip-benefits">
                     <div class="benefit-item">
                         <i class="fas fa-check-circle benefit-icon"></i>
-                        <span style="font-size: 0.8rem;">4x Earning Rate</span>
+                        <span style="font-size: 0.75rem;">4x Earning Rate</span>
                     </div>
                     <div class="benefit-item">
                         <i class="fas fa-check-circle benefit-icon"></i>
-                        <span style="font-size: 0.8rem;">Special VIP Ad (+৳ 10 per view)</span>
+                        <span style="font-size: 0.75rem;">Special VIP Ad (+৳ 10 per view)</span>
                     </div>
                     <div class="benefit-item">
                         <i class="fas fa-check-circle benefit-icon"></i>
-                        <span style="font-size: 0.8rem;">Priority Withdrawals</span>
+                        <span style="font-size: 0.75rem;">Priority Withdrawals</span>
                     </div>
                     <div class="benefit-item">
                         <i class="fas fa-check-circle benefit-icon"></i>
-                        <span style="font-size: 0.8rem;">Monthly Bonus ৳ 500</span>
+                        <span style="font-size: 0.75rem;">Monthly Bonus ৳ 500</span>
                     </div>
                     <div class="benefit-item">
                         <i class="fas fa-check-circle benefit-icon"></i>
-                        <span style="font-size: 0.8rem;">24/7 Customer Support</span>
+                        <span style="font-size: 0.75rem;">24/7 Customer Support</span>
                     </div>
                     <div class="benefit-item">
                         <i class="fas fa-check-circle benefit-icon"></i>
-                        <span style="font-size: 0.8rem;">Exclusive Tasks</span>
+                        <span style="font-size: 0.75rem;">Exclusive Tasks</span>
                     </div>
                     <div class="benefit-item">
                         <i class="fas fa-check-circle benefit-icon"></i>
-                        <span style="font-size: 0.8rem;">Special Events Access</span>
+                        <span style="font-size: 0.75rem;">Special Events Access</span>
                     </div>
                     <div class="benefit-item">
                         <i class="fas fa-check-circle benefit-icon"></i>
-                        <span style="font-size: 0.8rem;">Personal Account Manager</span>
+                        <span style="font-size: 0.75rem;">Personal Account Manager</span>
                     </div>
                 </div>
                 <div class="vip-price">1499.00000 BDT</div>
@@ -1048,43 +1132,43 @@
             <div class="vip-card">
                 <div class="vip-badge">RUBY</div>
                 <h2 class="vip-title">VIP RUBY</h2>
-                <p style="font-size: 0.85rem; opacity: 0.9;">Unlock ruby benefits</p>
+                <p style="font-size: 0.8rem; opacity: 0.9;">Unlock ruby benefits</p>
                 <div class="vip-benefits">
                     <div class="benefit-item">
                         <i class="fas fa-check-circle benefit-icon"></i>
-                        <span style="font-size: 0.8rem;">4.5x Earning Rate</span>
+                        <span style="font-size: 0.75rem;">4.5x Earning Rate</span>
                     </div>
                     <div class="benefit-item">
                         <i class="fas fa-check-circle benefit-icon"></i>
-                        <span style="font-size: 0.8rem;">Special VIP Ad (+৳ 10 per view)</span>
+                        <span style="font-size: 0.75rem;">Special VIP Ad (+৳ 10 per view)</span>
                     </div>
                     <div class="benefit-item">
                         <i class="fas fa-check-circle benefit-icon"></i>
-                        <span style="font-size: 0.8rem;">Priority Withdrawals</span>
+                        <span style="font-size: 0.75rem;">Priority Withdrawals</span>
                     </div>
                     <div class="benefit-item">
                         <i class="fas fa-check-circle benefit-icon"></i>
-                        <span style="font-size: 0.8rem;">Monthly Bonus ৳ 750</span>
+                        <span style="font-size: 0.75rem;">Monthly Bonus ৳ 750</span>
                     </div>
                     <div class="benefit-item">
                         <i class="fas fa-check-circle benefit-icon"></i>
-                        <span style="font-size: 0.8rem;">24/7 Customer Support</span>
+                        <span style="font-size: 0.75rem;">24/7 Customer Support</span>
                     </div>
                     <div class="benefit-item">
                         <i class="fas fa-check-circle benefit-icon"></i>
-                        <span style="font-size: 0.8rem;">Exclusive Tasks</span>
+                        <span style="font-size: 0.75rem;">Exclusive Tasks</span>
                     </div>
                     <div class="benefit-item">
                         <i class="fas fa-check-circle benefit-icon"></i>
-                        <span style="font-size: 0.8rem;">Special Events Access</span>
+                        <span style="font-size: 0.75rem;">Special Events Access</span>
                     </div>
                     <div class="benefit-item">
                         <i class="fas fa-check-circle benefit-icon"></i>
-                        <span style="font-size: 0.8rem;">Personal Account Manager</span>
+                        <span style="font-size: 0.75rem;">Personal Account Manager</span>
                     </div>
                     <div class="benefit-item">
                         <i class="fas fa-check-circle benefit-icon"></i>
-                        <span style="font-size: 0.8rem;">Early Access to New Features</span>
+                        <span style="font-size: 0.75rem;">Early Access to New Features</span>
                     </div>
                 </div>
                 <div class="vip-price">1999.00000 BDT</div>
@@ -1094,47 +1178,47 @@
             <div class="vip-card">
                 <div class="vip-badge">SAPPHIRE</div>
                 <h2 class="vip-title">VIP SAPPHIRE</h2>
-                <p style="font-size: 0.85rem; opacity: 0.9;">Unlock sapphire benefits</p>
+                <p style="font-size: 0.8rem; opacity: 0.9;">Unlock sapphire benefits</p>
                 <div class="vip-benefits">
                     <div class="benefit-item">
                         <i class="fas fa-check-circle benefit-icon"></i>
-                        <span style="font-size: 0.8rem;">5x Earning Rate</span>
+                        <span style="font-size: 0.75rem;">5x Earning Rate</span>
                     </div>
                     <div class="benefit-item">
                         <i class="fas fa-check-circle benefit-icon"></i>
-                        <span style="font-size: 0.8rem;">Special VIP Ad (+৳ 10 per view)</span>
+                        <span style="font-size: 0.75rem;">Special VIP Ad (+৳ 10 per view)</span>
                     </div>
                     <div class="benefit-item">
                         <i class="fas fa-check-circle benefit-icon"></i>
-                        <span style="font-size: 0.8rem;">Priority Withdrawals</span>
+                        <span style="font-size: 0.75rem;">Priority Withdrawals</span>
                     </div>
                     <div class="benefit-item">
                         <i class="fas fa-check-circle benefit-icon"></i>
-                        <span style="font-size: 0.8rem;">Monthly Bonus ৳ 1000</span>
+                        <span style="font-size: 0.75rem;">Monthly Bonus ৳ 1000</span>
                     </div>
                     <div class="benefit-item">
                         <i class="fas fa-check-circle benefit-icon"></i>
-                        <span style="font-size: 0.8rem;">24/7 Customer Support</span>
+                        <span style="font-size: 0.75rem;">24/7 Customer Support</span>
                     </div>
                     <div class="benefit-item">
                         <i class="fas fa-check-circle benefit-icon"></i>
-                        <span style="font-size: 0.8rem;">Exclusive Tasks</span>
+                        <span style="font-size: 0.75rem;">Exclusive Tasks</span>
                     </div>
                     <div class="benefit-item">
                         <i class="fas fa-check-circle benefit-icon"></i>
-                        <span style="font-size: 0.8rem;">Special Events Access</span>
+                        <span style="font-size: 0.75rem;">Special Events Access</span>
                     </div>
                     <div class="benefit-item">
                         <i class="fas fa-check-circle benefit-icon"></i>
-                        <span style="font-size: 0.8rem;">Personal Account Manager</span>
+                        <span style="font-size: 0.75rem;">Personal Account Manager</span>
                     </div>
                     <div class="benefit-item">
                         <i class="fas fa-check-circle benefit-icon"></i>
-                        <span style="font-size: 0.8rem;">Early Access to New Features</span>
+                        <span style="font-size: 0.75rem;">Early Access to New Features</span>
                     </div>
                     <div class="benefit-item">
                         <i class="fas fa-check-circle benefit-icon"></i>
-                        <span style="font-size: 0.8rem;">VIP Only Community</span>
+                        <span style="font-size: 0.75rem;">VIP Only Community</span>
                     </div>
                 </div>
                 <div class="vip-price">2999.00000 BDT</div>
@@ -1144,51 +1228,51 @@
             <div class="vip-card">
                 <div class="vip-badge">ROYAL</div>
                 <h2 class="vip-title">VIP ROYAL</h2>
-                <p style="font-size: 0.85rem; opacity: 0.9;">Unlock royal benefits</p>
+                <p style="font-size: 0.8rem; opacity: 0.9;">Unlock royal benefits</p>
                 <div class="vip-benefits">
                     <div class="benefit-item">
                         <i class="fas fa-check-circle benefit-icon"></i>
-                        <span style="font-size: 0.8rem;">10x Earning Rate</span>
+                        <span style="font-size: 0.75rem;">10x Earning Rate</span>
                     </div>
                     <div class="benefit-item">
                         <i class="fas fa-check-circle benefit-icon"></i>
-                        <span style="font-size: 0.8rem;">Special VIP Ad (+৳ 10 per view)</span>
+                        <span style="font-size: 0.75rem;">Special VIP Ad (+৳ 10 per view)</span>
                     </div>
                     <div class="benefit-item">
                         <i class="fas fa-check-circle benefit-icon"></i>
-                        <span style="font-size: 0.8rem;">Priority Withdrawals</span>
+                        <span style="font-size: 0.75rem;">Priority Withdrawals</span>
                     </div>
                     <div class="benefit-item">
                         <i class="fas fa-check-circle benefit-icon"></i>
-                        <span style="font-size: 0.8rem;">Monthly Bonus ৳ 2000</span>
+                        <span style="font-size: 0.75rem;">Monthly Bonus ৳ 2000</span>
                     </div>
                     <div class="benefit-item">
                         <i class="fas fa-check-circle benefit-icon"></i>
-                        <span style="font-size: 0.8rem;">24/7 Customer Support</span>
+                        <span style="font-size: 0.75rem;">24/7 Customer Support</span>
                     </div>
                     <div class="benefit-item">
                         <i class="fas fa-check-circle benefit-icon"></i>
-                        <span style="font-size: 0.8rem;">Exclusive Tasks</span>
+                        <span style="font-size: 0.75rem;">Exclusive Tasks</span>
                     </div>
                     <div class="benefit-item">
                         <i class="fas fa-check-circle benefit-icon"></i>
-                        <span style="font-size: 0.8rem;">Special Events Access</span>
+                        <span style="font-size: 0.75rem;">Special Events Access</span>
                     </div>
                     <div class="benefit-item">
                         <i class="fas fa-check-circle benefit-icon"></i>
-                        <span style="font-size: 0.8rem;">Personal Account Manager</span>
+                        <span style="font-size: 0.75rem;">Personal Account Manager</span>
                     </div>
                     <div class="benefit-item">
                         <i class="fas fa-check-circle benefit-icon"></i>
-                        <span style="font-size: 0.8rem;">Early Access to New Features</span>
+                        <span style="font-size: 0.75rem;">Early Access to New Features</span>
                     </div>
                     <div class="benefit-item">
                         <i class="fas fa-check-circle benefit-icon"></i>
-                        <span style="font-size: 0.8rem;">VIP Only Community</span>
+                        <span style="font-size: 0.75rem;">VIP Only Community</span>
                     </div>
                     <div class="benefit-item">
                         <i class="fas fa-check-circle benefit-icon"></i>
-                        <span style="font-size: 0.8rem;">Custom Rewards</span>
+                        <span style="font-size: 0.75rem;">Custom Rewards</span>
                     </div>
                 </div>
                 <div class="vip-price">4999.00000 BDT</div>
@@ -1200,14 +1284,14 @@
             <div class="deposit-instructions">
                 <h2 class="instruction-title">DEPOSIT INSTRUCTIONS</h2>
                 <div class="payment-details">
-                    <p style="font-size: 0.9rem; margin-bottom: 8px;">Send money to this number:</p>
+                    <p style="font-size: 0.85rem; margin-bottom: 6px;">Send money to this number:</p>
                     <div class="payment-number" id="payment-number">Loading...</div>
                     <button class="copy-btn" onclick="copyNumber()">COPY NUMBER</button>
                 </div>
                 <div class="important-note">
                     <p><i class="fas fa-exclamation-circle"></i> After sending money, fill out the form below with your transaction details</p>
                 </div>
-                <p style="text-align: center; margin-top: 12px; font-size: 0.85rem;">
+                <p style="text-align: center; margin-top: 10px; font-size: 0.8rem;">
                     <strong>Send money to:</strong> <span id="payment-number2">Loading...</span><br>
                     <strong>After payment, submit the form below</strong>
                 </p>
@@ -1263,14 +1347,14 @@
         </div>
         <!-- Withdraw History Page -->
         <div id="withdraw-history-page" class="page">
-            <h2 style="text-align: center; margin-bottom: 20px;">WITHDRAW HISTORY</h2>
+            <h2 style="text-align: center; margin-bottom: 15px;">WITHDRAW HISTORY</h2>
             <div id="withdraw-history-list">
                 <!-- History items will be loaded here -->
             </div>
         </div>
         <!-- Deposit History Page -->
         <div id="deposit-history-page" class="page">
-            <h2 style="text-align: center; margin-bottom: 20px;">DEPOSIT HISTORY</h2>
+            <h2 style="text-align: center; margin-bottom: 15px;">DEPOSIT HISTORY</h2>
             <div id="deposit-history-list">
                 <!-- History items will be loaded here -->
             </div>
@@ -2043,3 +2127,4 @@
     </script>
 </body>
 </html>
+```
