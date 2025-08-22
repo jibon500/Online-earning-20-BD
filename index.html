@@ -8,7 +8,7 @@
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script> <!-- Added Firestore for better data handling -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
     <!-- Monetag Ad Script - Loaded dynamically from Firebase -->
     <script id="monetag-script"></script>
     <style>
@@ -1384,6 +1384,13 @@
         // --- Utility Functions ---
         // Page Navigation
         function showPage(pageId) {
+            // Check if user is blocked
+            if (userData.isBlocked && pageId !== 'block-page') {
+                document.getElementById('blockPage').style.display = 'flex';
+                return;
+            } else if (!userData.isBlocked && pageId === 'block-page') {
+                document.getElementById('blockPage').style.display = 'none';
+            }
             document.querySelectorAll('.page').forEach(page => {
                 page.classList.remove('active');
             });
@@ -1474,7 +1481,13 @@
                 updatePaymentNumber(); // Update payment number based on settings
                 // 7. Set up real-time listeners
                 setupRealTimeListeners();
-                // 8. Hide loading screen
+                // 8. Check if user is blocked
+                if (userData.isBlocked) {
+                    document.getElementById('blockPage').style.display = 'flex';
+                } else {
+                    document.getElementById('blockPage').style.display = 'none';
+                }
+                // 9. Hide loading screen
                 document.getElementById('loadingScreen').style.display = 'none';
                 console.log("App initialized successfully for user:", userId);
             } catch (error) {
@@ -1510,7 +1523,7 @@
                     await createUserEntry();
                 }
             } catch (error) {
-                console.error("Error loading user data:", error);
+                console.error("Error loading user ", error);
                 showNotification("Failed to load user data.", false);
             }
         }
@@ -1545,6 +1558,20 @@
                     userData = { ...userData, ...data };
                     updateBalanceDisplay();
                     console.log("User data updated from Firebase:", userData);
+                    // Check if user is blocked
+                    if (userData.isBlocked) {
+                        document.getElementById('blockPage').style.display = 'flex';
+                        // Disable all buttons except those in block page
+                        document.querySelectorAll('button:not(.telegram-link)').forEach(btn => {
+                            btn.disabled = true;
+                        });
+                    } else {
+                        document.getElementById('blockPage').style.display = 'none';
+                        // Enable all buttons
+                        document.querySelectorAll('button').forEach(btn => {
+                            btn.disabled = false;
+                        });
+                    }
                 }
             }, (error) => {
                 console.error("Error listening to user data:", error);
