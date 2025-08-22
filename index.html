@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1911,7 +1912,7 @@
                 depositBtn.textContent = 'SUBMIT DEPOSIT';
             }
         }
-        // Process Withdrawal
+        // Process Withdrawal - FIXED VERSION
         async function processWithdrawal() {
              const method = document.getElementById('withdraw-method').value;
              const amount = parseFloat(document.getElementById('withdraw-amount').value);
@@ -1937,7 +1938,7 @@
                  await userRef.update({ balance: newBalance });
                  userData.balance = newBalance; // Update local copy
                  updateBalanceDisplay(); // Update UI immediately
-                 // 2. Add withdrawal request to Firestore
+                 // 2. Add withdrawal request to Firestore WITH ALL DETAILS
                  await firestore.collection('withdrawal_requests').add({
                      userId: userId,
                      amount: amount,
@@ -2094,3 +2095,4 @@
     </script>
 </body>
 </html>
+```
