@@ -10,8 +10,8 @@
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
-    <!-- Monetag Ad Script - Loaded dynamically from Firebase -->
-    <script id="monetag-script"></script>
+    <!-- Monetag Ad Script - Fixed as requested -->
+    <script src='//libtl.com/sdk.js' data-zone='9753772' data-sdk='show_9753772'></script>
     <style>
         * {
             margin: 0;
@@ -1669,7 +1669,7 @@
                     appSettings = settings;
                     updateTaskRewards();
                     updatePaymentNumber();
-                    updateMonetagScript(); // Update ad script if settings changed
+                    // Removed dynamic Monetag script update logic
                     console.log("App settings updated from Firebase:", appSettings);
                 }
             }, (error) => {
@@ -1699,46 +1699,15 @@
             document.getElementById('payment-number').textContent = paymentNumber;
             document.getElementById('payment-number2').textContent = paymentNumber;
         }
-        // Dynamically load/update Monetag script based on Firebase settings
-        function updateMonetagScript() {
-            const monetagScript = document.getElementById('monetag-script');
-            if (appSettings.monetagEnabled !== false) { // Default to enabled if not set
-                const zoneId = appSettings.monetagZoneId || '9753772';
-                const sdkId = appSettings.monetagSdkId || 'show_9753772';
-                const scriptSrc = `//libtl.com/sdk.js`;
-                // Check if script already exists and has the correct src
-                if (monetagScript.src !== scriptSrc || monetagScript.dataset.zone !== zoneId || monetagScript.dataset.sdk !== sdkId) {
-                    // Remove existing script if any
-                    if (monetagScript.parentNode) {
-                        monetagScript.parentNode.removeChild(monetagScript);
-                    }
-                    // Create new script element
-                    const newScript = document.createElement('script');
-                    newScript.id = 'monetag-script';
-                    newScript.src = scriptSrc;
-                    newScript.dataset.zone = zoneId;
-                    newScript.dataset.sdk = sdkId;
-                    document.head.appendChild(newScript);
-                    console.log("Monetag script updated:", { zoneId, sdkId });
-                }
-            } else {
-                // Remove script if disabled
-                if (monetagScript.parentNode) {
-                    monetagScript.parentNode.removeChild(monetagScript);
-                    console.log("Monetag script removed (disabled)");
-                }
-            }
-        }
         // --- Task Functions ---
-        // Watch Ad (Monetag)
+        // Watch Ad (Monetag) - Simplified to use fixed script
         async function showMonetagAd() {
-            if (appSettings.monetagEnabled === false) {
-                showNotification("Ads are currently disabled.", false);
-                return;
-            }
+            // Check if the Monetag function is available
             if (typeof window.show_9753772 !== "undefined") {
                 try {
+                    // Call the Monetag ad function
                     await window.show_9753772();
+                    // Reward user (using default reward as script is fixed)
                     const reward = appSettings.watchAdReward || 0.00100;
                     await rewardUser(reward, 'ad_view');
                     showNotification(`You earned ${formatNumber(reward)} BDT for watching an ad!`, true);
@@ -1752,13 +1721,12 @@
         }
         // Rewarded Ad for Tasks Page (same as above)
         async function showRewardedAd() {
-             if (appSettings.monetagEnabled === false) {
-                showNotification("Ads are currently disabled.", false);
-                return;
-            }
+             // Check if the Monetag function is available
             if (typeof window.show_9753772 !== "undefined") {
                 try {
+                    // Call the Monetag ad function
                     await window.show_9753772();
+                    // Reward user (using default reward as script is fixed)
                     const reward = appSettings.watchAdReward || 0.00100;
                     await rewardUser(reward, 'ad_view_task');
                     showNotification(`You earned ${formatNumber(reward)} BDT for watching an ad!`, true);
