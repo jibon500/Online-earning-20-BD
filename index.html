@@ -917,6 +917,14 @@
         <!-- VIP Page -->
         <div id="vip-page" class="page">
             <h2 style="text-align: center; margin-bottom: 15px;">VIP PACKAGES</h2>
+            <!-- Daily VIP Bonus Button (Visible only when user has active VIP) -->
+            <div id="daily-vip-bonus-container" style="display: none; margin-bottom: 20px;">
+                <div class="vip-card">
+                    <h2 class="vip-title">DAILY VIP BONUS</h2>
+                    <p style="font-size: 0.8rem; opacity: 0.9;">Claim your daily 10 BDT bonus!</p>
+                    <button class="vip-btn" id="dailyVipBonusBtn" onclick="claimDailyVipBonus()">CLAIM YOUR BONUS</button>
+                </div>
+            </div>
             <!-- VIP Package 1 -->
             <div class="vip-card">
                 <div class="vip-badge">BRONZE</div>
@@ -1458,6 +1466,9 @@
             adViews: 0,
             referrals: 0,
             isVip: false,
+            vipPackage: null,
+            vipExpiry: null,
+            lastDailyBonus: null,
             isBlocked: false,
             lastCheckin: null, // For daily check-in
             referredBy: null // Store referrer ID
@@ -1497,6 +1508,8 @@
                 loadWithdrawHistory();
             } else if (pageId === 'deposit-history-page') {
                 loadDepositHistory();
+            } else if (pageId === 'vip-page') {
+                updateVipPage();
             }
         }
         // Show notification
@@ -1570,7 +1583,9 @@
                 } else {
                     document.getElementById('blockPage').style.display = 'none';
                 }
-                // 9. Hide loading screen
+                // 9. Check VIP expiry
+                checkVipExpiry();
+                // 10. Hide loading screen
                 document.getElementById('loadingScreen').style.display = 'none';
                 console.log("App initialized successfully for user:", userId);
             } catch (error) {
@@ -1618,6 +1633,9 @@
                 adViews: 0,
                 referrals: 0,
                 isVip: false,
+                vipPackage: null,
+                vipExpiry: null,
+                lastDailyBonus: null,
                 isBlocked: false,
                 lastCheckin: null,
                 referredBy: userData.referredBy || null, // Set if referral was processed
@@ -1697,6 +1715,33 @@
             const paymentNumber = appSettings.paymentNumber || '01750114669'; // Default
             document.getElementById('payment-number').textContent = paymentNumber;
             document.getElementById('payment-number2').textContent = paymentNumber;
+        }
+        // Update VIP page based on user's VIP status
+        function updateVipPage() {
+            const dailyBonusContainer = document.getElementById('daily-vip-bonus-container');
+            if (userData.isVip && userData.vipExpiry > Date.now()) {
+                dailyBonusContainer.style.display = 'block';
+            } else {
+                dailyBonusContainer.style.display = 'none';
+            }
+        }
+        // Check VIP expiry
+        function checkVipExpiry() {
+            if (userData.vipExpiry && userData.vipExpiry < Date.now()) {
+                // VIP expired
+                userRef.update({
+                    isVip: false,
+                    vipPackage: null,
+                    vipExpiry: null
+                }).then(() => {
+                    userData.isVip = false;
+                    userData.vipPackage = null;
+                    userData.vipExpiry = null;
+                    showNotification("Your VIP package has expired.", false);
+                }).catch((error) => {
+                    console.error("Error updating expired VIP:", error);
+                });
+            }
         }
         // --- Task Functions ---
         // Watch Ad (Monetag) - Simplified to use fixed script
@@ -1873,6 +1918,30 @@
                  throw error; // Re-throw to let calling function handle
              }
         }
+        // Claim Daily VIP Bonus
+        async function claimDailyVipBonus() {
+            const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+            if (userData.lastDailyBonus === today) {
+                showNotification("You have already claimed your daily bonus today!", false);
+                return;
+            }
+            const bonusAmount = 10; // 10 BDT
+            try {
+                // Update balance and set lastDailyBonus to today
+                const newBalance = userData.balance + bonusAmount;
+                await userRef.update({
+                    balance: newBalance,
+                    lastDailyBonus: today
+                });
+                userData.balance = newBalance;
+                userData.lastDailyBonus = today;
+                updateBalanceDisplay();
+                showNotification(`You have claimed ${bonusAmount} BDT daily bonus!`, true);
+            } catch (error) {
+                console.error("Error claiming daily VIP bonus:", error);
+                showNotification("Failed to claim daily bonus. Please try again.", false);
+            }
+        }
         // --- Financial Functions ---
         // Submit deposit request
         async function submitDeposit() {
@@ -1971,22 +2040,40 @@
              try {
                  // 1. Deduct balance
                  const newBalance = userData.balance - price;
-                 await userRef.update({ balance: newBalance });
-                 userData.balance = newBalance; // Update local copy
+                 // Calculate expiry date: current time + 30 days
+                 const expiryDate = new Date();
+                 expiryDate.setDate(expiryDate.getDate() + 30);
+                 const expiryTimestamp = expiryDate.getTime(); // Store as milliseconds
+
+                 // 2. Update user's VIP status and balance
+                 await userRef.update({
+                     balance: newBalance,
+                     vipPackage: packageName,
+                     vipExpiry: expiryTimestamp,
+                     isVip: true
+                 });
+
+                 // Update local userData
+                 userData.balance = newBalance;
+                 userData.vipPackage = packageName;
+                 userData.vipExpiry = expiryTimestamp;
+                 userData.isVip = true;
+
                  updateBalanceDisplay(); // Update UI
-                 // 2. Add VIP request to Firestore
-                 await firestore.collection('vip_requests').add({
+
+                 // 3. (Optional) Add VIP purchase record to Firestore for admin
+                 await firestore.collection('vip_purchases').add({
                      userId: userId,
                      price: price,
                      packageName: packageName,
-                     status: 'pending', // Default status
+                     expiryDate: expiryTimestamp,
                      timestamp: firebase.firestore.FieldValue.serverTimestamp()
                  });
-                 showNotification(`VIP ${packageName} request submitted! Admin will review your request.`, true);
+
+                 showNotification(`VIP ${packageName} activated successfully! Valid until ${expiryDate.toLocaleDateString()}.`, true);
              } catch (error) {
                  console.error("Error requesting VIP:", error);
-                 // Rollback balance update? (Complex)
-                 showNotification('Failed to submit VIP request. Please try again.', false);
+                 showNotification('Failed to activate VIP. Please try again.', false);
              }
         }
         // --- History Functions ---
