@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -695,7 +696,6 @@
         ::-webkit-scrollbar-thumb:hover {
             background: rgba(255, 255, 255, 0.3);
         }
-
         /* Loading Spinner */
         .spinner {
             border: 4px solid rgba(255, 255, 255, 0.3);
@@ -728,13 +728,11 @@
                 <p class="note">Your account will be unblocked by the admin panel to use the app again.</p>
             </div>
         </div>
-
         <!-- Loading Screen -->
         <div id="loadingScreen" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 9999;">
             <div class="spinner"></div>
             <div class="loading-text">Loading App...</div>
         </div>
-
         <!-- Header -->
         <div class="app-header">
             <div class="app-title">EARN PRO</div>
@@ -1355,22 +1353,21 @@
     <script>
         // Firebase Config - Replace with your actual config
         const firebaseConfig = {
-            apiKey: "YOUR_API_KEY",
-            authDomain: "YOUR_PROJECT.firebaseapp.com",
-            databaseURL: "https://YOUR_PROJECT-default-rtdb.firebaseio.com",
-            projectId: "YOUR_PROJECT",
-            storageBucket: "YOUR_PROJECT.appspot.com",
-            messagingSenderId: "YOUR_SENDER_ID",
-            appId: "YOUR_APP_ID"
+            apiKey: "AIzaSyD3BGZ0MVLpbQbIpLUAnYvWNEIyk7Y6S0Q",
+            authDomain: "earning-app-80258.firebaseapp.com",
+            databaseURL: "https://earning-app-80258-default-rtdb.firebaseio.com",
+            projectId: "earning-app-80258",
+            storageBucket: "earning-app-80258.appspot.com",
+            messagingSenderId: "25930019210",
+            appId: "1:25930019210:web:6441562811d3e7e9631873",
+            measurementId: "G-P9HX6XXT1Q"
         };
-
         // Initialize Firebase
         if (!firebase.apps.length) {
             firebase.initializeApp(firebaseConfig);
         }
         const database = firebase.database();
         const firestore = firebase.firestore(); // For better data handling
-
         // Global variables
         let userId = null;
         let userData = {
@@ -1385,16 +1382,13 @@
         };
         let appSettings = {}; // To store settings from Firebase
         let userRef = null; // Reference to the user's data in Firebase
-
         // --- Utility Functions ---
-
         // Page Navigation
         function showPage(pageId) {
             document.querySelectorAll('.page').forEach(page => {
                 page.classList.remove('active');
             });
             document.getElementById(pageId).classList.add('active');
-
             if(pageId !== 'withdraw-history-page' && pageId !== 'deposit-history-page') {
                 document.querySelectorAll('.nav-item').forEach(item => {
                     item.classList.remove('active');
@@ -1409,7 +1403,6 @@
                     }
                 });
             }
-
             // Load history if needed
             if (pageId === 'withdraw-history-page') {
                 loadWithdrawHistory();
@@ -1417,7 +1410,6 @@
                 loadDepositHistory();
             }
         }
-
         // Show notification
         function showNotification(message, isSuccess = true) {
             const notification = document.getElementById('notification');
@@ -1428,14 +1420,11 @@
                 notification.style.display = 'none';
             }, 3000);
         }
-
         // Format number to 5 decimal places
         function formatNumber(num) {
             return parseFloat(num).toFixed(5);
         }
-
         // --- Core App Logic ---
-
         // Initialize App
         async function initApp() {
             try {
@@ -1464,20 +1453,15 @@
                      document.getElementById('profileName').textContent = 'Test User';
                      document.getElementById('profileId').textContent = `ID: ${userId}`;
                 }
-
                 if (!userId) {
                     throw new Error("User ID is not available");
                 }
-
                 // 2. Set up Firebase references
                 userRef = database.ref('users/' + userId);
-
                 // 3. Load App Settings from Firebase
                 await loadAppSettings();
-
                 // 4. Load User Data from Firebase
                 await loadUserData();
-
                 // 5. Check for Referral on App Start (if not already referred)
                 const urlParams = new URLSearchParams(window.location.search);
                 const referrerId = urlParams.get('ref');
@@ -1485,18 +1469,14 @@
                      console.log("New referral detected:", referrerId);
                      await processReferral(referrerId);
                 }
-
                 // 6. Update UI with loaded data
                 updateBalanceDisplay();
                 updateTaskRewards(); // Update task rewards based on settings
                 updatePaymentNumber(); // Update payment number based on settings
-
                 // 7. Set up real-time listeners
                 setupRealTimeListeners();
-
                 // 8. Hide loading screen
                 document.getElementById('loadingScreen').style.display = 'none';
-
                 console.log("App initialized successfully for user:", userId);
             } catch (error) {
                 console.error("Error initializing app:", error);
@@ -1504,7 +1484,6 @@
                 document.getElementById('loadingScreen').style.display = 'none'; // Hide loading even on error
             }
         }
-
         // Load App Settings from Firebase
         async function loadAppSettings() {
             try {
@@ -1517,7 +1496,6 @@
                 showNotification("Failed to load settings.", false);
             }
         }
-
         // Load User Data from Firebase
         async function loadUserData() {
             try {
@@ -1537,7 +1515,6 @@
                 showNotification("Failed to load user data.", false);
             }
         }
-
         // Create a new user entry in Firebase
         async function createUserEntry() {
              const newUser = {
@@ -1560,7 +1537,6 @@
                 showNotification("Failed to create user profile.", false);
             }
         }
-
         // Set up real-time listeners for user data and app settings
         function setupRealTimeListeners() {
             // Listen for user data changes
@@ -1575,7 +1551,6 @@
                 console.error("Error listening to user data:", error);
                 showNotification("Connection error. Data might be outdated.", false);
             });
-
             // Listen for app settings changes
             const settingsRef = database.ref('admin/settings');
             settingsRef.on('value', (snapshot) => {
@@ -1591,7 +1566,6 @@
                 console.error("Error listening to app settings:", error);
             });
         }
-
         // Update UI with current user data
         function updateBalanceDisplay() {
             document.getElementById('home-balance').textContent = formatNumber(userData.balance) + ' BDT';
@@ -1602,7 +1576,6 @@
             document.getElementById('profile-ad-views').textContent = userData.adViews || 0;
             document.getElementById('profile-referrals').textContent = userData.referrals || 0;
         }
-
         // Update task rewards based on Firebase settings
         function updateTaskRewards() {
             document.getElementById('watchAdReward').textContent = `+${formatNumber(appSettings.watchAdReward || 0.00100)} BDT`;
@@ -1610,14 +1583,12 @@
             document.getElementById('inviteFriendsReward').textContent = `+${formatNumber(appSettings.inviteFriendsReward || 0.00050)} BDT/each`;
             document.getElementById('dailyCheckinReward').textContent = `+${formatNumber(appSettings.dailyCheckinReward || 0.00150)} BDT`;
         }
-
         // Update payment number based on Firebase settings
         function updatePaymentNumber() {
             const paymentNumber = appSettings.paymentNumber || '01750114669'; // Default
             document.getElementById('payment-number').textContent = paymentNumber;
             document.getElementById('payment-number2').textContent = paymentNumber;
         }
-
         // Dynamically load/update Monetag script based on Firebase settings
         function updateMonetagScript() {
             const monetagScript = document.getElementById('monetag-script');
@@ -1625,7 +1596,6 @@
                 const zoneId = appSettings.monetagZoneId || '9753772';
                 const sdkId = appSettings.monetagSdkId || 'show_9753772';
                 const scriptSrc = `//libtl.com/sdk.js`;
-
                 // Check if script already exists and has the correct src
                 if (monetagScript.src !== scriptSrc || monetagScript.dataset.zone !== zoneId || monetagScript.dataset.sdk !== sdkId) {
                     // Remove existing script if any
@@ -1649,16 +1619,13 @@
                 }
             }
         }
-
         // --- Task Functions ---
-
         // Watch Ad (Monetag)
         async function showMonetagAd() {
             if (appSettings.monetagEnabled === false) {
                 showNotification("Ads are currently disabled.", false);
                 return;
             }
-
             if (typeof window.show_9753772 !== "undefined") {
                 try {
                     await window.show_9753772();
@@ -1673,14 +1640,12 @@
                 showNotification('Ad script is still loading. Please try again shortly.', false);
             }
         }
-
         // Rewarded Ad for Tasks Page (same as above)
         async function showRewardedAd() {
              if (appSettings.monetagEnabled === false) {
                 showNotification("Ads are currently disabled.", false);
                 return;
             }
-
             if (typeof window.show_9753772 !== "undefined") {
                 try {
                     await window.show_9753772();
@@ -1695,12 +1660,10 @@
                 showNotification('Ad script is still loading. Please try again shortly.', false);
             }
         }
-
         // Share App
         function shareApp() {
             const shareLink = `${window.location.origin}${window.location.pathname}?ref=${userId}`;
             const shareText = appSettings.shareText || "Join me on this awesome earning app!"; // Get from settings
-
             if (navigator.share) {
                 navigator.share({
                     title: 'EARN PRO',
@@ -1719,12 +1682,10 @@
                 copyToClipboard(shareLink);
             }
         }
-
         // Invite Friends (same as Share App for now)
         function inviteFriends() {
             shareApp(); // Reuse share logic
         }
-
         // Copy text to clipboard
         function copyToClipboard(text) {
             navigator.clipboard.writeText(text).then(() => {
@@ -1745,17 +1706,14 @@
                 document.body.removeChild(textArea);
             });
         }
-
         // Claim Daily Check-in
         async function claimDailyCheckin() {
              const now = new Date();
              const today = now.toISOString().split('T')[0]; // YYYY-MM-DD
-
              if (userData.lastCheckin === today) {
                  showNotification("You have already claimed your daily reward today!", false);
                  return;
              }
-
              const reward = appSettings.dailyCheckinReward || 0.00150;
              try {
                  await rewardUser(reward, 'daily_checkin');
@@ -1768,7 +1726,6 @@
                  showNotification("Failed to claim daily reward. Please try again.", false);
              }
         }
-
         // Process Referral
         async function processReferral(referrerId) {
             try {
@@ -1776,22 +1733,18 @@
                 const referrerRef = database.ref('users/' + referrerId);
                 const referrerSnapshot = await referrerRef.once('value');
                 const referrerData = referrerSnapshot.val();
-
                 if (referrerData) {
                     const referrerBalance = referrerData.balance || 0;
                     const referrerReferrals = referrerData.referrals || 0;
                     const referralBonus = appSettings.referralBonus || 5; // Default 5 BDT
-
                     await referrerRef.update({
                         balance: referrerBalance + referralBonus,
                         referrals: referrerReferrals + 1
                     });
                     console.log(`Referrer ${referrerId} rewarded with ${referralBonus} BDT`);
-
                     // 2. Update current user's referredBy field
                     await userRef.update({ referredBy: referrerId });
                     userData.referredBy = referrerId; // Update local copy
-
                     // 3. Record referral in Firestore (optional, for better tracking)
                     // await firestore.collection('referrals').add({
                     //     referrerId: referrerId,
@@ -1799,7 +1752,6 @@
                     //     timestamp: firebase.firestore.FieldValue.serverTimestamp(),
                     //     bonus: referralBonus
                     // });
-
                     showNotification(`Welcome! You were referred. ${referralBonus} BDT bonus added!`, true);
                 } else {
                     console.warn("Referrer ID not found in database:", referrerId);
@@ -1809,17 +1761,13 @@
                 // Don't show notification for referral error to user, it's background process
             }
         }
-
-
         // --- Reward and Update Functions ---
-
         // Reward user and update Firebase
         async function rewardUser(amount, type = 'unknown') {
              if (amount <= 0) return;
              const newBalance = userData.balance + amount;
              const newTotalEarned = userData.totalEarned + amount;
              const newAdViews = (type.includes('ad_view') ? (userData.adViews || 0) + 1 : userData.adViews);
-
              try {
                  await userRef.update({
                      balance: newBalance,
@@ -1827,15 +1775,12 @@
                      adViews: newAdViews,
                      // Update other fields if needed in the future
                  });
-
                  // Update local userData
                  userData.balance = newBalance;
                  userData.totalEarned = newTotalEarned;
                  userData.adViews = newAdViews;
-
                  // Update UI
                  updateBalanceDisplay();
-
                  // Log transaction (optional, can be done in admin panel or Firestore)
                  // await firestore.collection('transactions').add({
                  //     userId: userId,
@@ -1844,7 +1789,6 @@
                  //     source: type,
                  //     timestamp: firebase.firestore.FieldValue.serverTimestamp()
                  // });
-
                  console.log(`User ${userId} rewarded with ${amount} BDT for ${type}`);
              } catch (error) {
                  console.error("Error rewarding user:", error);
@@ -1852,25 +1796,20 @@
                  throw error; // Re-throw to let calling function handle
              }
         }
-
         // --- Financial Functions ---
-
         // Submit deposit request
         async function submitDeposit() {
             const userPhone = document.getElementById('user-phone').value.trim();
             const transactionId = document.getElementById('transaction-id').value.trim();
             const amount = parseFloat(document.getElementById('deposit-amount').value);
             const paymentMethod = document.getElementById('payment-method').value;
-
             if (!userPhone || !transactionId || !amount || amount <= 0) {
                 showNotification('Please fill in all fields correctly!', false);
                 return;
             }
-
             const depositBtn = document.getElementById('submitDepositBtn');
             depositBtn.disabled = true;
             depositBtn.textContent = 'Submitting...';
-
             try {
                 // Add deposit request to Firestore
                 await firestore.collection('deposit_requests').add({
@@ -1882,9 +1821,7 @@
                     status: 'pending', // Default status
                     timestamp: firebase.firestore.FieldValue.serverTimestamp()
                 });
-
                 showNotification(`Deposit request submitted! Amount: ${formatNumber(amount)} BDT. Awaiting admin approval.`, true);
-
                 // Reset form
                 document.getElementById('user-phone').value = '';
                 document.getElementById('transaction-id').value = '';
@@ -1897,13 +1834,11 @@
                 depositBtn.textContent = 'SUBMIT DEPOSIT';
             }
         }
-
         // Process Withdrawal
         async function processWithdrawal() {
              const method = document.getElementById('withdraw-method').value;
              const amount = parseFloat(document.getElementById('withdraw-amount').value);
              const account = document.getElementById('account-number').value.trim();
-
              if (!amount || amount <= 0) {
                  showNotification('Please enter a valid amount!', false);
                  return;
@@ -1916,18 +1851,15 @@
                  showNotification('Please enter your account number!', false);
                  return;
              }
-
              const withdrawBtn = document.getElementById('processWithdrawalBtn');
              withdrawBtn.disabled = true;
              withdrawBtn.textContent = 'Processing...';
-
              try {
                  // 1. Deduct amount from user's balance in Firebase RTDB
                  const newBalance = userData.balance - amount;
                  await userRef.update({ balance: newBalance });
                  userData.balance = newBalance; // Update local copy
                  updateBalanceDisplay(); // Update UI immediately
-
                  // 2. Add withdrawal request to Firestore
                  await firestore.collection('withdrawal_requests').add({
                      userId: userId,
@@ -1937,9 +1869,7 @@
                      status: 'pending', // Default status
                      timestamp: firebase.firestore.FieldValue.serverTimestamp()
                  });
-
                  showNotification(`Withdrawal request for ${formatNumber(amount)} BDT via ${method} submitted successfully! Awaiting admin approval.`, true);
-
                  // Reset form
                  document.getElementById('withdraw-amount').value = '';
                  document.getElementById('account-number').value = '';
@@ -1952,7 +1882,6 @@
                  withdrawBtn.textContent = 'WITHDRAW NOW';
              }
         }
-
          // Request VIP membership
         async function requestVip(price, packageName) {
              if (userData.balance < price) {
@@ -1962,14 +1891,12 @@
                  }, 2000);
                  return;
              }
-
              try {
                  // 1. Deduct balance
                  const newBalance = userData.balance - price;
                  await userRef.update({ balance: newBalance });
                  userData.balance = newBalance; // Update local copy
                  updateBalanceDisplay(); // Update UI
-
                  // 2. Add VIP request to Firestore
                  await firestore.collection('vip_requests').add({
                      userId: userId,
@@ -1978,7 +1905,6 @@
                      status: 'pending', // Default status
                      timestamp: firebase.firestore.FieldValue.serverTimestamp()
                  });
-
                  showNotification(`VIP ${packageName} request submitted! Admin will review your request.`, true);
              } catch (error) {
                  console.error("Error requesting VIP:", error);
@@ -1986,34 +1912,26 @@
                  showNotification('Failed to submit VIP request. Please try again.', false);
              }
         }
-
-
         // --- History Functions ---
-
         // Load Withdraw History
         async function loadWithdrawHistory() {
              const historyList = document.getElementById('withdraw-history-list');
              historyList.innerHTML = '<div class="spinner"></div><div class="loading-text">Loading history...</div>';
-
              try {
                  const snapshot = await firestore.collection('withdrawal_requests')
                      .where('userId', '==', userId)
                      .orderBy('timestamp', 'desc')
                      .get();
-
                  historyList.innerHTML = ''; // Clear loading spinner
-
                  if (snapshot.empty) {
                      historyList.innerHTML = '<p style="text-align:center;">No withdrawal history found.</p>';
                      return;
                  }
-
                  snapshot.forEach(doc => {
                      const data = doc.data();
                      const dateStr = data.timestamp ? new Date(data.timestamp.toDate()).toLocaleString() : 'N/A';
                      const statusClass = `status-${data.status || 'pending'}`;
                      const statusText = data.status ? data.status.charAt(0).toUpperCase() + data.status.slice(1) : 'Pending';
-
                      const historyItem = document.createElement('div');
                      historyItem.className = 'history-item';
                      historyItem.innerHTML = `
@@ -2031,31 +1949,25 @@
                  historyList.innerHTML = '<p style="text-align:center; color: red;">Failed to load history.</p>';
              }
         }
-
         // Load Deposit History
         async function loadDepositHistory() {
              const historyList = document.getElementById('deposit-history-list');
              historyList.innerHTML = '<div class="spinner"></div><div class="loading-text">Loading history...</div>';
-
              try {
                  const snapshot = await firestore.collection('deposit_requests')
                      .where('userId', '==', userId)
                      .orderBy('timestamp', 'desc')
                      .get();
-
                  historyList.innerHTML = ''; // Clear loading spinner
-
                  if (snapshot.empty) {
                      historyList.innerHTML = '<p style="text-align:center;">No deposit history found.</p>';
                      return;
                  }
-
                  snapshot.forEach(doc => {
                      const data = doc.data();
                      const dateStr = data.timestamp ? new Date(data.timestamp.toDate()).toLocaleString() : 'N/A';
                      const statusClass = `status-${data.status || 'pending'}`;
                      const statusText = data.status ? data.status.charAt(0).toUpperCase() + data.status.slice(1) : 'Pending';
-
                      const historyItem = document.createElement('div');
                      historyItem.className = 'history-item';
                      historyItem.innerHTML = `
@@ -2073,27 +1985,21 @@
                  historyList.innerHTML = '<p style="text-align:center; color: red;">Failed to load history.</p>';
              }
         }
-
-
         // --- Support & Copy ---
-
         // Copy payment number to clipboard
         function copyNumber() {
             const number = document.getElementById('payment-number').textContent;
             copyToClipboard(number);
         }
-
         // Open Support
         function openSupport() {
             const supportLink = appSettings.supportLink || "https://t.me/earnpro_support"; // Get from settings
             window.open(supportLink, '_blank');
         }
-
         // --- Initialize on Load ---
         document.addEventListener('DOMContentLoaded', function() {
             initApp();
         });
-
         // Prevent zoom on double tap
         document.addEventListener('touchstart', function(e) {
             if (e.touches.length > 1) {
@@ -2111,3 +2017,4 @@
     </script>
 </body>
 </html>
+```
