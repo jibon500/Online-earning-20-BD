@@ -794,16 +794,15 @@
                     <input type="text" id="referral-input" value="https://t.me/earningappbot?start=" readonly>
                     <button class="copy-btn" id="copy-btn"><i class="fas fa-copy"></i></button>
                 </div>
-                <p>Your team: <strong><span id="team-count">0</span> users</strong></p>
-            </div>
-            <div class="team-stats">
-                <div class="stat-box">
-                    <div class="stat-label">Total Earnings</div>
-                    <div class="stat-value">৳ <span id="total-earnings">0.00</span></div>
-                </div>
-                <div class="stat-box">
-                    <div class="stat-label">Team Size</div>
-                    <div class="stat-value"><span id="profile-team-size">0</span></div>
+                <div class="team-stats">
+                    <div class="stat-box">
+                        <div class="stat-label">Refer Earnings</div>
+                        <div class="stat-value">৳ <span id="refer-earnings">0.00</span></div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-label">Total Refers</div>
+                        <div class="stat-value"><span id="total-refers">0</span></div>
+                    </div>
                 </div>
             </div>
             <div class="app-version">
@@ -913,6 +912,7 @@
         const MAX_TEAM_MEMBERS = 14; // Maximum team members per account
         let isSharedSession = false; // Flag to indicate if this is a shared session
         let originalUserRef = null; // Reference to the original user's data in case of shared session
+        const REFER_EARNINGS_THRESHOLD = 200; // Auto transfer when refer earnings reach 200 BDT
         // Initialize the app
         document.addEventListener('DOMContentLoaded', function() {
             setupEventListeners();
@@ -932,8 +932,55 @@
                     console.log("Shared session detected. Original User ID:", originalUserId);
                     // Handle the shared account access
                     handleSharedAccountAccess(originalUserId);
+                } else if (startParam.includes('_')) {
+                    // Handle referral: format is username_userid
+                    const parts = startParam.split('_');
+                    if (parts.length >= 2) {
+                        const referrerId = parts[parts.length - 1]; // Last part is userId
+                        const referrerName = parts.slice(0, -1).join('_'); // Rest is username
+                        console.log("Referral detected:", referrerName, referrerId);
+                        handleReferral(referrerId);
+                    }
                 }
             }
+        }
+        function handleReferral(referrerId) {
+            if (!referrerId) {
+                console.log("Invalid referrer ID for referral.");
+                return;
+            }
+            // Prevent self-referral
+            const currentUserId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id?.toString();
+            if (!currentUserId || currentUserId === referrerId) {
+                console.log("Cannot refer yourself.");
+                return;
+            }
+            // Check if already referred
+            const hasReferred = localStorage.getItem(`referred_${currentUserId}`);
+            if (hasReferred) {
+                console.log("User has already been referred.");
+                return;
+            }
+            // Find the referrer's account
+            const referrerRef = database.ref('users/' + referrerId);
+            referrerRef.once('value').then(snapshot => {
+                const referrerData = snapshot.val();
+                if (referrerData) {
+                    // Mark that this user has been referred
+                    localStorage.setItem(`referred_${currentUserId}`, referrerId);
+                    // Update referrer's stats
+                    const newTotalRefers = (referrerData.totalRefers || 0) + 1;
+                    return referrerRef.update({
+                        totalRefers: newTotalRefers
+                    }).then(() => {
+                        console.log(`User ${currentUserId} successfully referred to ${referrerId}. Total refers: ${newTotalRefers}`);
+                    });
+                } else {
+                    console.log("Referrer account not found:", referrerId);
+                }
+            }).catch(error => {
+                console.error("Error processing referral:", error);
+            });
         }
         function handleSharedAccountAccess(originalUserId) {
             if (!originalUserId) {
@@ -1044,6 +1091,8 @@
                             coins: 0,
                             teamMembers: 0,
                             totalEarnings: 0,
+                            totalRefers: 0,
+                            referEarnings: 0,
                             referralCode: userId,
                             createdAt: new Date().toISOString(),
                             lastConversionDate: new Date().toISOString().split('T')[0],
@@ -1080,6 +1129,8 @@
                             coins: 0,
                             teamMembers: 0,
                             totalEarnings: 0,
+                            totalRefers: 0,
+                            referEarnings: 0,
                             referralCode: userId,
                             createdAt: new Date().toISOString(),
                             lastConversionDate: new Date().toISOString().split('T')[0],
@@ -1151,12 +1202,14 @@
             document.getElementById('profile-user-name').textContent = currentUser.displayName || 'User';
             document.getElementById('profile-user-phone').textContent = data.phoneNumber || 'N/A';
             document.getElementById('profile-user-id').textContent = 'ID: ' + (currentUser.uid || 'N/A');
-            document.getElementById('total-earnings').textContent = (data.totalEarnings || 0).toFixed(2);
-            document.getElementById('profile-team-size').textContent = data.teamMembers || 0;
             document.getElementById('team-count').textContent = data.teamMembers || 0;
 
-            document.getElementById('referral-input').value = 'https://t.me/' + BOT_USERNAME + '?start=' + (data.referralCode || '');
+            // Update referral link
+            const userName = currentUser.displayName ? currentUser.displayName.replace(/\s+/g, '_').toLowerCase() : 'user';
+            const referralLink = `https://t.me/${BOT_USERNAME}?start=${userName}_${currentUser.uid}`;
+            document.getElementById('referral-input').value = referralLink;
 
+            // Update team page
             updateTeamPage(data);
         }
         function updateTeamPage(data) {
@@ -1201,6 +1254,10 @@
             // Update the new combined box on home page
             document.getElementById('team-earnings-home').textContent = (data.totalEarningsFromTeam || 0).toFixed(2);
             document.getElementById('total-earnings-home').textContent = (data.totalEarnings || 0).toFixed(2);
+
+            // Update referral stats in profile
+            document.getElementById('refer-earnings').textContent = (data.referEarnings || 0).toFixed(2);
+            document.getElementById('total-refers').textContent = data.totalRefers || 0;
         }
         function setupEventListeners() {
             document.querySelectorAll('.nav-item').forEach(item => {
@@ -1368,8 +1425,47 @@
                 const currentCoins = parseInt(document.getElementById('coin-amount').textContent) || 0;
                 document.getElementById('coin-amount').textContent = currentCoins + COINS_PER_AD;
                 showRewardNotification();
+                // Check for referral commission
+                processReferralCommission(COINS_PER_AD);
             }).catch(error => {
                 console.error("Error rewarding user:", error);
+            });
+        }
+        function processReferralCommission(earnedCoins) {
+            const bdtEarned = earnedCoins / COINS_TO_BDT_RATE; // Convert coins to BDT
+            const commission = bdtEarned * 0.10; // 10% commission
+            if (commission <= 0) return;
+            // Check if user was referred
+            const currentUserId = currentUser.uid;
+            const referrerId = localStorage.getItem(`referred_${currentUserId}`);
+            if (!referrerId) {
+                console.log("User was not referred, no commission.");
+                return;
+            }
+            // Update referrer's referEarnings
+            const referrerRef = database.ref('users/' + referrerId);
+            referrerRef.once('value').then(snapshot => {
+                const referrerData = snapshot.val();
+                if (referrerData) {
+                    const newReferEarnings = (referrerData.referEarnings || 0) + commission;
+                    // Check if threshold reached for auto transfer
+                    let balanceUpdate = {};
+                    let finalReferEarnings = newReferEarnings;
+                    if (newReferEarnings >= REFER_EARNINGS_THRESHOLD) {
+                        const transferAmount = Math.floor(newReferEarnings / REFER_EARNINGS_THRESHOLD) * REFER_EARNINGS_THRESHOLD;
+                        balanceUpdate = {
+                            balance: firebase.database.ServerValue.increment(transferAmount)
+                        };
+                        finalReferEarnings = newReferEarnings - transferAmount;
+                        console.log(`Auto transferring ৳${transferAmount} from referEarnings to balance for user ${referrerId}`);
+                    }
+                    return referrerRef.update({
+                        referEarnings: finalReferEarnings,
+                        ...balanceUpdate
+                    });
+                }
+            }).catch(error => {
+                console.error("Error updating referrer earnings:", error);
             });
         }
         function showRewardNotification() {
