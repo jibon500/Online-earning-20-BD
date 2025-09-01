@@ -1,4 +1,3 @@
-```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -703,7 +702,7 @@
         <div class="page" id="profile-page">
             <h2>Profile Information</h2>
             <div class="header">
-                <img src="https://via.placeholder.com/70" alt="Profile" class="profile-img">
+                <img src="https://via.placeholder.com/70" alt="Profile" class="profile-img" id="profile-user-img">
                 <div class="user-info">
                     <div class="user-name" id="profile-user-name">Loading...</div>
                     <div class="user-phone" id="profile-user-phone">Loading...</div>
@@ -821,6 +820,8 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <!-- Telegram WebApp SDK -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <!-- Monetag SDK - Updated with your new zone ID -->
     <script src='//libtl.com/sdk.js' data-zone='9753772' data-sdk='show_9753772'></script>
     <script>
@@ -972,34 +973,110 @@
             simulateLogin();
         }
         function simulateLogin() {
-            // Generate a random user ID for demo
-            const userId = 'user_' + Math.random().toString(36).substr(2, 9);
-            const user = {
-                uid: userId,
-                displayName: 'Demo User',
-                phoneNumber: '+8801XXXXXXXXX'
-            };
-            currentUser = user;
-            userRef = database.ref('users/' + userId);
-            // Initialize user data if not exists
-            userRef.once('value').then(snapshot => {
-                if (!snapshot.exists()) {
-                    const initialData = {
-                        balance: 0,
-                        coins: 0,
-                        teamMembers: 0,
-                        totalEarnings: 0,
-                        referralCode: userId,
-                        createdAt: new Date().toISOString(),
-                        lastConversionDate: new Date().toISOString().split('T')[0], // Track last conversion date
-                        sharedWith: [] // Array to track who this account is shared with
-                    };
-                    return userRef.set(initialData);
-                }
-            }).then(() => {
-                loadUserData();
-                listenForWithdrawalUpdates();
-            });
+            // Check if we're in Telegram WebApp
+            const tg = window.Telegram?.WebApp;
+            if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
+                // Use Telegram user data
+                const tgUser = tg.initDataUnsafe.user;
+                const userId = tgUser.id.toString();
+                const displayName = tgUser.first_name + (tgUser.last_name ? ' ' + tgUser.last_name : '');
+                const username = tgUser.username || 'telegram_user';
+                const photoUrl = tgUser.photo_url || 'https://via.placeholder.com/70';
+                
+                // Set current user with Telegram data
+                currentUser = {
+                    uid: userId,
+                    displayName: displayName,
+                    phoneNumber: 'N/A', // Telegram doesn't provide phone number
+                    photoURL: photoUrl
+                };
+                
+                userRef = database.ref('users/' + userId);
+                
+                // Initialize user data if not exists
+                userRef.once('value').then(snapshot => {
+                    if (!snapshot.exists()) {
+                        const initialData = {
+                            balance: 0,
+                            coins: 0,
+                            teamMembers: 0,
+                            totalEarnings: 0,
+                            referralCode: userId,
+                            createdAt: new Date().toISOString(),
+                            lastConversionDate: new Date().toISOString().split('T')[0], // Track last conversion date
+                            sharedWith: [], // Array to track who this account is shared with
+                            telegramData: {
+                                id: tgUser.id,
+                                first_name: tgUser.first_name,
+                                last_name: tgUser.last_name,
+                                username: tgUser.username,
+                                photo_url: tgUser.photo_url
+                            }
+                        };
+                        return userRef.set(initialData);
+                    }
+                }).then(() => {
+                    loadUserData();
+                    listenForWithdrawalUpdates();
+                    // Update UI with Telegram user data
+                    updateUIWithTelegramUserData(tgUser);
+                });
+            } else {
+                // Generate a random user ID for demo (fallback)
+                const userId = 'user_' + Math.random().toString(36).substr(2, 9);
+                const user = {
+                    uid: userId,
+                    displayName: 'Demo User',
+                    phoneNumber: '+8801XXXXXXXXX',
+                    photoURL: 'https://via.placeholder.com/70'
+                };
+                currentUser = user;
+                userRef = database.ref('users/' + userId);
+                // Initialize user data if not exists
+                userRef.once('value').then(snapshot => {
+                    if (!snapshot.exists()) {
+                        const initialData = {
+                            balance: 0,
+                            coins: 0,
+                            teamMembers: 0,
+                            totalEarnings: 0,
+                            referralCode: userId,
+                            createdAt: new Date().toISOString(),
+                            lastConversionDate: new Date().toISOString().split('T')[0], // Track last conversion date
+                            sharedWith: [] // Array to track who this account is shared with
+                        };
+                        return userRef.set(initialData);
+                    }
+                }).then(() => {
+                    loadUserData();
+                    listenForWithdrawalUpdates();
+                });
+            }
+        }
+        // Function to update UI with Telegram user data
+        function updateUIWithTelegramUserData(tgUser) {
+            if (!tgUser) return;
+            
+            // Update profile image
+            if (tgUser.photo_url) {
+                document.getElementById('user-profile-img').src = tgUser.photo_url;
+                document.getElementById('profile-user-img').src = tgUser.photo_url;
+            }
+            
+            // Update user name
+            const displayName = tgUser.first_name + (tgUser.last_name ? ' ' + tgUser.last_name : '');
+            document.getElementById('user-name').textContent = displayName;
+            document.getElementById('profile-user-name').textContent = displayName;
+            
+            // Update user ID
+            document.getElementById('user-id').textContent = 'ID: ' + tgUser.id;
+            document.getElementById('profile-user-id').textContent = 'ID: ' + tgUser.id;
+            
+            // Update username if available
+            if (tgUser.username) {
+                document.getElementById('user-phone').textContent = '@' + tgUser.username;
+                document.getElementById('profile-user-phone').textContent = '@' + tgUser.username;
+            }
         }
         function loadUserData(ref = null) {
             let dataRef = ref || userRef; // Use provided reference or default userRef
@@ -1039,6 +1116,13 @@
             document.getElementById('user-id').textContent = 'ID: ' + (currentUser.uid || 'N/A');
             document.getElementById('balance-amount').textContent = (data.balance || 0).toFixed(2);
             document.getElementById('coin-amount').textContent = data.coins || 0;
+            
+            // Update profile image if available
+            if (currentUser.photoURL) {
+                document.getElementById('user-profile-img').src = currentUser.photoURL;
+                document.getElementById('profile-user-img').src = currentUser.photoURL;
+            }
+            
             // Update profile page
             document.getElementById('profile-user-name').textContent = currentUser.displayName || 'User';
             document.getElementById('profile-user-phone').textContent = data.phoneNumber || 'N/A';
@@ -1046,10 +1130,13 @@
             document.getElementById('total-earnings').textContent = (data.totalEarnings || 0).toFixed(2);
             document.getElementById('profile-team-size').textContent = data.teamMembers || 0;
             document.getElementById('team-count').textContent = data.teamMembers || 0;
+            
             // Update team page
             document.getElementById('team-page-size').textContent = data.teamMembers || 0;
+            
             // Update referral link
             document.getElementById('referral-input').value = 'https://t.me/' + BOT_USERNAME + '?start=' + (data.referralCode || '');
+            
             // Update team page specific elements
             updateTeamPage(data);
         }
@@ -1057,10 +1144,12 @@
             // Create unique invite link for this user
             const inviteLink = 'https://t.me/' + BOT_USERNAME + '?start=shared_' + (currentUser.uid || '');
             document.getElementById('invite-link').textContent = inviteLink;
+            
             // Update team stats
             const teamMembersCount = data.sharedWith ? data.sharedWith.length : 0;
             document.getElementById('team-members-count').textContent = teamMembersCount;
             document.getElementById('team-earnings').textContent = (data.totalEarningsFromTeam || 0).toFixed(2);
+            
             // Update team members list
             const teamMembersList = document.getElementById('team-members-list');
             teamMembersList.innerHTML = '';
@@ -1081,6 +1170,7 @@
             } else {
                 teamMembersList.innerHTML = '<p style="text-align: center; color: #888;">No team members yet</p>';
             }
+            
             // Control withdrawal button visibility based on session type
             const withdrawBtn = document.getElementById('open-withdraw-modal-profile');
             if (isSharedSession) {
@@ -1118,6 +1208,7 @@
                     }
                 });
             });
+            
             // Watch Ads button
             document.getElementById('ad-button').addEventListener('click', function() {
                 // Hide all pages
@@ -1134,14 +1225,17 @@
                 // Show the small back button
                 document.getElementById('back-to-home-top').style.display = 'block';
             });
+            
             // Back to home buttons (both small and regular)
             document.getElementById('back-to-home-top').addEventListener('click', function() {
                 goBackToHome();
             });
+            
             // Watch Ad button (calls Monetag function directly)
             document.getElementById('watch-ad-btn').addEventListener('click', function() {
                 watchAdDirectly();
             });
+            
             // Team button
             document.getElementById('team-button').addEventListener('click', function() {
                 // Hide all pages
@@ -1156,6 +1250,7 @@
                 });
                 document.querySelector('[data-page="team-page"]').classList.add('active');
             });
+            
             // Open withdrawal modal (only from profile page now)
             document.getElementById('open-withdraw-modal-profile').addEventListener('click', function() {
                 // Only allow withdrawal if it's not a shared session
@@ -1165,19 +1260,24 @@
                 }
                 openWithdrawalModal();
             });
+            
             // Close modal
             document.getElementById('close-modal').addEventListener('click', closeWithdrawalModal);
+            
             // Method selection
             document.querySelectorAll('.withdrawal-option').forEach(option => {
                 option.addEventListener('click', function() {
                     selectMethod(this);
                 });
             });
+            
             // Form validation
             document.getElementById('phone-number').addEventListener('input', validateForm);
             document.getElementById('amount').addEventListener('input', validateForm);
+            
             // Submit withdrawal
             document.getElementById('submit-withdrawal').addEventListener('click', submitWithdrawal);
+            
             // Copy referral link
             document.getElementById('copy-btn').addEventListener('click', function() {
                 const referralInput = document.getElementById('referral-input');
@@ -1185,6 +1285,7 @@
                 document.execCommand('copy');
                 alert('Referral link copied to clipboard!');
             });
+            
             // Copy invite link
             document.getElementById('copy-invite-btn').addEventListener('click', function() {
                 const inviteLinkElement = document.getElementById('invite-link');
@@ -1197,6 +1298,7 @@
                 alert('Invite link copied to clipboard!');
             });
         }
+        
         // Function to go back to home page
         function goBackToHome() {
             // Hide ads page
@@ -1211,6 +1313,7 @@
             // Hide the small back button
             document.getElementById('back-to-home-top').style.display = 'none';
         }
+        
         // Function to watch ad directly using Monetag's method
         function watchAdDirectly() {
             const watchAdBtn = document.getElementById('watch-ad-btn');
@@ -1222,10 +1325,12 @@
             isAdRunning = true;
             watchAdBtn.disabled = true;
             watchAdBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Loading Ad...';
+            
             // IMPORTANT: Use your new zone ID function name
             const monetagFunctionName = 'show_9753772'; // Match data-sdk attribute
             const monetagFunction = window[monetagFunctionName]; // Access function dynamically
             console.log("Attempting to show ad with function:", monetagFunctionName);
+            
             // Check if monetag function is available
             if (typeof monetagFunction === 'function') {
                 try {
@@ -1233,6 +1338,7 @@
                     // Call the Monetag function directly to open ad
                     monetagFunction();
                     console.log("Monetag function called successfully.");
+                    
                     // Since we can't reliably detect when the ad is finished,
                     // we reward the user after a short delay and re-enable the button.
                     // This allows the user to click again quickly.
@@ -1255,6 +1361,7 @@
                 }, 3000);
             }
         }
+        
         // Reset the ad button state
         function resetAdButton() {
             const watchAdBtn = document.getElementById('watch-ad-btn');
@@ -1263,14 +1370,17 @@
             watchAdBtn.innerHTML = '<i class="fas fa-play-circle"></i> Watch Ad & Earn 50 Coins';
             console.log("Ad button reset.");
         }
+        
         function rewardUserForAd() {
             if (!currentUser) return;
+            
             // Determine which user reference to use (original or current)
             const targetUserRef = isSharedSession ? originalUserRef : userRef;
             if (!targetUserRef) {
                 console.error("No valid user reference for rewarding.");
                 return;
             }
+            
             // Update user data in Firebase
             targetUserRef.once('value').then(snapshot => {
                 const data = snapshot.val();
@@ -1279,11 +1389,13 @@
                     // আপনার নির্দেশ অনুযায়ী: এড দেখলে শুধুমাত্র কয়েন বাড়বে, ব্যালেন্স বাড়বে না
                     // const newBalance = (data.balance || 0) + (COINS_PER_AD * 0.01); // Convert coins to balance (example: 50 coins = 0.50 BDT)
                     const newBalance = data.balance || 0; // ব্যালেন্স পরিবর্তন হবে না
+                    
                     // If it's a shared session, calculate 10% commission for the original user
                     let updates = {
                         coins: newCoins,
                         balance: newBalance // ব্যালেন্স পরিবর্তন হবে না
                     };
+                    
                     if (isSharedSession) {
                         // In shared session, 10% goes to original user
                         // যেহেতু ব্যালেন্স এখন পরিবর্তিত হচ্ছে না, কমিশনও দেওয়া হবে না
@@ -1297,6 +1409,7 @@
                     } else {
                         console.log(`Awarding ${COINS_PER_AD} coins to user's own account. Balance remains unchanged until midnight conversion.`);
                     }
+                    
                     return targetUserRef.update(updates);
                 }
             }).then(() => {
@@ -1307,12 +1420,14 @@
                 document.getElementById('coin-amount').textContent = currentCoins + COINS_PER_AD;
                 // document.getElementById('balance-amount').textContent = 
                 //     ((currentBalance + (COINS_PER_AD * 0.01))).toFixed(2);
+                
                 // Show reward notification
                 showRewardNotification();
             }).catch(error => {
                 console.error("Error rewarding user:", error);
             });
         }
+        
         function showRewardNotification() {
             const notification = document.getElementById('reward-notification');
             notification.style.display = 'block';
@@ -1320,6 +1435,7 @@
                 notification.style.display = 'none';
             }, 3000);
         }
+        
         function openWithdrawalModal() {
             // Additional check for shared session
             if (isSharedSession) {
@@ -1329,9 +1445,11 @@
             document.getElementById('withdraw-modal').style.display = 'flex';
             resetForm();
         }
+        
         function closeWithdrawalModal() {
             document.getElementById('withdraw-modal').style.display = 'none';
         }
+        
         function selectMethod(element) {
             // Remove selected class from all options
             document.querySelectorAll('.withdrawal-option').forEach(option => {
@@ -1343,10 +1461,12 @@
             selectedMethod = element.getAttribute('data-method');
             validateForm();
         }
+        
         function validateForm() {
             const phoneNumber = document.getElementById('phone-number').value;
             const amount = parseFloat(document.getElementById('amount').value);
             const submitButton = document.getElementById('submit-withdrawal');
+            
             if (selectedMethod && phoneNumber.length >= 10 && amount >= 100) {
                 // Check balance from Firebase (use appropriate reference)
                 const targetUserRef = isSharedSession ? originalUserRef : userRef;
@@ -1366,6 +1486,7 @@
                 submitButton.disabled = true;
             }
         }
+        
         function resetForm() {
             selectedMethod = null;
             document.getElementById('phone-number').value = '';
@@ -1376,22 +1497,27 @@
                 option.classList.remove('selected');
             });
         }
+        
         function submitWithdrawal() {
             // Prevent withdrawal in shared sessions
             if (isSharedSession) {
                 alert('You cannot withdraw from a shared session.');
                 return;
             }
+            
             if (!currentUser || !userRef) {
                 alert('User not authenticated!');
                 return;
             }
+            
             const phoneNumber = document.getElementById('phone-number').value;
             const amount = parseFloat(document.getElementById('amount').value);
+            
             if (!selectedMethod || phoneNumber.length < 10 || isNaN(amount) || amount < 100) {
                 alert('Please fill all fields correctly!');
                 return;
             }
+            
             // Check balance
             userRef.once('value').then(snapshot => {
                 const data = snapshot.val();
@@ -1399,6 +1525,7 @@
                     alert('Insufficient balance!');
                     return;
                 }
+                
                 // Create withdrawal request object
                 const withdrawalRequest = {
                     method: selectedMethod,
@@ -1409,6 +1536,7 @@
                     userId: currentUser.uid,
                     userName: currentUser.displayName || 'User'
                 };
+                
                 // Save to Firebase
                 const newRequestRef = database.ref('withdrawal_requests').push();
                 return newRequestRef.set(withdrawalRequest)
@@ -1433,34 +1561,42 @@
                 alert('Error submitting withdrawal request. Please try again.');
             });
         }
+        
         function loadWithdrawalHistory() {
             const historyContainer = document.getElementById('withdrawal-history');
             historyContainer.innerHTML = '<p style="text-align: center; padding: 20px; color: #888;">Loading...</p>';
+            
             if (!currentUser) {
                 historyContainer.innerHTML = '<p style="text-align: center; padding: 20px; color: #888;">Please login to view history</p>';
                 return;
             }
+            
             const withdrawalsRef = database.ref('withdrawal_requests');
             withdrawalsRef.orderByChild('userId').equalTo(currentUser.uid).once('value')
                 .then(snapshot => {
                     const data = snapshot.val();
                     historyContainer.innerHTML = '';
+                    
                     if (!data) {
                         historyContainer.innerHTML = '<p style="text-align: center; padding: 20px; color: #888;">No withdrawal history</p>';
                         return;
                     }
+                    
                     // Convert to array and sort by date
                     const withdrawals = Object.keys(data).map(key => ({
                         id: key,
                         ...data[key]
                     })).sort((a, b) => new Date(b.date) - new Date(a.date));
+                    
                     if (withdrawals.length === 0) {
                         historyContainer.innerHTML = '<p style="text-align: center; padding: 20px; color: #888;">No withdrawal history</p>';
                         return;
                     }
+                    
                     withdrawals.forEach(withdrawal => {
                         const historyItem = document.createElement('div');
                         historyItem.className = 'history-item';
+                        
                         // Determine status badge
                         let statusBadge = '';
                         if (withdrawal.status === 'pending') {
@@ -1472,6 +1608,7 @@
                         } else if (withdrawal.status === 'rejected') {
                             statusBadge = '<span class="status-badge status-rejected">Rejected</span>';
                         }
+                        
                         // Determine method icon
                         let methodIcon = '';
                         if (withdrawal.method === 'bkash') {
@@ -1481,6 +1618,7 @@
                         } else if (withdrawal.method === 'rocket') {
                             methodIcon = '<i class="fas fa-rocket" style="color: #5d2d8d;"></i>';
                         }
+                        
                         historyItem.innerHTML = `
                             <div style="display: flex; align-items: center;">
                                 <div style="font-size: 24px; margin-right: 10px;">
@@ -1501,9 +1639,11 @@
                     historyContainer.innerHTML = '<p style="text-align: center; padding: 20px; color: #888;">Error loading history</p>';
                 });
         }
+        
         // Listen for status updates from admin in Firebase
         function listenForWithdrawalUpdates() {
             if (!currentUser) return;
+            
             const withdrawalsRef = database.ref('withdrawal_requests');
             withdrawalsRef.orderByChild('userId').equalTo(currentUser.uid).on('value', (snapshot) => {
                 // Update UI if history page is active
@@ -1512,10 +1652,12 @@
                 }
             });
         }
+        
         // Load history when history page becomes active
         document.querySelector('[data-page="history-page"]').addEventListener('click', function() {
             setTimeout(loadWithdrawalHistory, 100);
         });
+        
         // Function to convert coins to BDT at midnight (Bangladesh Time)
         // আপনার নির্দেশ অনুযায়ী কয়েন রূপান্তর লজিক সংশোধন করা হয়েছে
         function convertCoinsToBDT() {
@@ -1592,4 +1734,3 @@
     </script>
 </body>
 </html>
-```
