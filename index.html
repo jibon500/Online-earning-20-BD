@@ -14,14 +14,12 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             -webkit-tap-highlight-color: transparent;
         }
-        
         body {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: #333;
             min-height: 100vh;
             padding-bottom: 70px;
         }
-        
         .container {
             max-width: 480px;
             margin: 0 auto;
@@ -31,7 +29,6 @@
             box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
             position: relative;
         }
-        
         .header {
             display: flex;
             align-items: center;
@@ -39,7 +36,6 @@
             border-bottom: 1px solid #eee;
             margin-bottom: 20px;
         }
-        
         .profile-img {
             width: 70px;
             height: 70px;
@@ -47,29 +43,24 @@
             object-fit: cover;
             border: 3px solid #667eea;
         }
-        
         .user-info {
             margin-left: 15px;
             flex-grow: 1;
         }
-        
         .user-name {
             font-size: 18px;
             font-weight: 600;
             margin-bottom: 5px;
         }
-        
         .user-phone {
             color: #666;
             font-size: 14px;
             margin-bottom: 5px;
         }
-        
         .user-id {
             color: #888;
             font-size: 12px;
         }
-        
         .balance-container {
             display: flex;
             justify-content: space-between;
@@ -80,29 +71,24 @@
             color: white;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
         }
-        
         .balance-item {
             text-align: center;
             flex: 1;
         }
-        
         .balance-label {
             font-size: 14px;
             margin-bottom: 5px;
         }
-        
         .balance-amount {
             font-size: 20px;
             font-weight: 700;
         }
-        
         .buttons-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
             gap: 15px;
             margin: 25px 0;
         }
-        
         .app-button {
             background: white;
             border-radius: 12px;
@@ -113,23 +99,19 @@
             transition: transform 0.2s, box-shadow 0.2s;
             border: 1px solid #eee;
         }
-        
         .app-button:hover {
             transform: translateY(-3px);
             box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
         }
-        
         .app-button i {
             font-size: 24px;
             margin-bottom: 10px;
             color: #667eea;
         }
-        
         .app-button .button-text {
             font-size: 14px;
             font-weight: 600;
         }
-        
         .navigation {
             position: fixed;
             bottom: 0;
@@ -144,54 +126,44 @@
             margin: 0 auto;
             z-index: 100;
         }
-        
         .nav-item {
             text-align: center;
             color: #666;
             font-size: 12px;
             cursor: pointer;
         }
-        
         .nav-item i {
             font-size: 20px;
             display: block;
             margin-bottom: 5px;
         }
-        
         .nav-item.active {
             color: #667eea;
         }
-        
         .page {
             display: none;
         }
-        
         .page.active {
             display: block;
         }
-        
         .history-item {
             display: flex;
             justify-content: space-between;
             padding: 15px;
             border-bottom: 1px solid #eee;
         }
-        
         .history-date {
             color: #888;
             font-size: 12px;
         }
-        
         .history-amount {
             font-weight: 600;
         }
-        
         .withdrawal-options {
             display: flex;
             justify-content: space-between;
             margin: 20px 0;
         }
-        
         .withdrawal-option {
             text-align: center;
             flex: 1;
@@ -204,36 +176,30 @@
             border: 2px solid transparent;
             transition: all 0.3s;
         }
-        
         .withdrawal-option.selected {
             border-color: #667eea;
             background-color: #f0f4ff;
         }
-        
         .withdrawal-option i {
             font-size: 24px;
             color: #667eea;
             margin-bottom: 10px;
         }
-        
         h2 {
             margin: 20px 0 15px 0;
             color: #444;
             font-size: 20px;
         }
-        
         .referral-box {
             background: #f8f9fa;
             padding: 15px;
             border-radius: 12px;
             margin: 20px 0;
         }
-        
         .referral-link {
             display: flex;
             margin: 15px 0;
         }
-        
         .referral-link input {
             flex-grow: 1;
             padding: 12px;
@@ -241,7 +207,6 @@
             border-radius: 8px 0 0 8px;
             font-size: 14px;
         }
-        
         .copy-btn {
             background: #667eea;
             color: white;
@@ -250,14 +215,12 @@
             border-radius: 0 8px 8px 0;
             cursor: pointer;
         }
-        
         .team-stats {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
             gap: 15px;
             margin: 20px 0;
         }
-        
         .stat-box {
             background: white;
             padding: 15px;
@@ -265,25 +228,21 @@
             text-align: center;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
         }
-        
         .stat-value {
             font-size: 24px;
             font-weight: 700;
             color: #667eea;
             margin: 10px 0;
         }
-        
         .stat-label {
             color: #666;
             font-size: 14px;
         }
-        
         .loading {
             display: none;
             text-align: center;
             margin: 20px 0;
         }
-        
         .loading-spinner {
             border: 4px solid #f3f3f3;
             border-top: 4px solid #667eea;
@@ -293,12 +252,10 @@
             animation: spin 1s linear infinite;
             margin: 0 auto;
         }
-        
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
-        
         /* Modal Styles */
         .modal-overlay {
             position: fixed;
@@ -313,7 +270,6 @@
             z-index: 1000;
             display: none;
         }
-        
         .modal {
             background: white;
             border-radius: 12px;
@@ -322,7 +278,6 @@
             padding: 20px;
             box-shadow: 0 5px 25px rgba(0, 0, 0, 0.2);
         }
-        
         .modal-header {
             display: flex;
             justify-content: space-between;
@@ -331,13 +286,11 @@
             padding-bottom: 10px;
             border-bottom: 1px solid #eee;
         }
-        
         .modal-title {
             font-size: 18px;
             font-weight: 600;
             color: #333;
         }
-        
         .close-modal {
             background: none;
             border: none;
@@ -345,18 +298,15 @@
             cursor: pointer;
             color: #888;
         }
-        
         .form-group {
             margin-bottom: 15px;
         }
-        
         .form-label {
             display: block;
             margin-bottom: 5px;
             font-weight: 500;
             color: #555;
         }
-        
         .form-input {
             width: 100%;
             padding: 12px 15px;
@@ -364,7 +314,6 @@
             border-radius: 8px;
             font-size: 16px;
         }
-        
         .submit-btn {
             background: #667eea;
             color: white;
@@ -377,12 +326,10 @@
             width: 100%;
             margin-top: 10px;
         }
-        
         .submit-btn:disabled {
             background: #ccc;
             cursor: not-allowed;
         }
-        
         .withdraw-btn {
             background: #667eea;
             color: white;
@@ -396,7 +343,6 @@
             display: block;
             width: 100%;
         }
-        
         .status-badge {
             display: inline-block;
             padding: 4px 10px;
@@ -404,38 +350,31 @@
             font-size: 12px;
             font-weight: 600;
         }
-        
         .status-pending {
             background: #fff4e5;
             color: #ffa800;
         }
-        
         .status-processing {
             background: #e1f5fe;
             color: #039be5;
         }
-        
         .status-success {
             background: #e8f5e9;
             color: #4caf50;
         }
-        
         .status-rejected {
             background: #ffebee;
             color: #f44336;
         }
-        
         .min-amount {
             font-size: 12px;
             color: #888;
             margin-top: 5px;
         }
-        
         .ad-container {
             margin: 20px 0;
             text-align: center;
         }
-        
         .reward-notification {
             position: fixed;
             top: 20px;
@@ -449,22 +388,18 @@
             display: none;
             animation: slideIn 0.3s ease-out;
         }
-        
         @keyframes slideIn {
             from { transform: translateX(100%); opacity: 0; }
             to { transform: translateX(0); opacity: 1; }
         }
-        
         .coins-earned {
             font-size: 18px;
             font-weight: bold;
         }
-        
         .ad-button-container {
             text-align: center;
             margin: 20px 0;
         }
-        
         .watch-ad-btn {
             background: linear-gradient(135deg, #ff6b6b, #ee5a24);
             color: white;
@@ -477,19 +412,16 @@
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
             transition: all 0.3s ease;
         }
-        
         .watch-ad-btn:hover {
             transform: translateY(-2px);
             box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
         }
-        
         .watch-ad-btn:disabled {
             background: #ccc;
             cursor: not-allowed;
             transform: none;
             box-shadow: none;
         }
-        
         /* Back to Home Button - Small and Top Right */
         .back-to-home-small {
             position: fixed;
@@ -508,16 +440,13 @@
             display: none;
             transition: all 0.3s ease;
         }
-        
         .back-to-home-small:hover {
             background: #5a6fd8;
             transform: translateY(-1px);
         }
-        
         .back-to-home-small i {
             margin-right: 5px;
         }
-        
         /* Block Page Styles */
         .block-page {
             display: none;
@@ -533,7 +462,6 @@
             text-align: center;
             padding: 15px;
         }
-        
         .block-content {
             background: white;
             color: #333;
@@ -542,12 +470,10 @@
             max-width: 500px;
             box-shadow: 0 8px 25px rgba(0,0,0,0.3);
         }
-        
         .block-content h2 {
             color: #ff6b6b;
             margin-bottom: 15px;
         }
-        
         .telegram-link {
             display: inline-block;
             background: linear-gradient(45deg, #4361ee, #3f37c9);
@@ -559,16 +485,13 @@
             margin-top: 20px;
             transition: all 0.3s ease;
         }
-        
         .telegram-link:hover {
             transform: translateY(-2px);
             box-shadow: 0 4px 15px rgba(67, 97, 238, 0.4);
         }
-        
         .telegram-link i {
             margin-right: 8px;
         }
-        
         /* Coin to BDT Conversion Info */
         .conversion-info {
             background: #e3f2fd;
@@ -578,11 +501,9 @@
             margin: 15px 0;
             font-size: 13px;
         }
-        
         .conversion-info strong {
             color: #1976d2;
         }
-        
         /* Team Page Styles - Updated */
         .team-invite-section {
             background: #f8f9fa;
@@ -591,7 +512,6 @@
             margin: 20px 0;
             text-align: center;
         }
-        
         .invite-link-container {
             background: white;
             padding: 15px;
@@ -599,14 +519,12 @@
             margin: 15px 0;
             box-shadow: 0 2px 5px rgba(0,0,0,0.05);
         }
-        
         .invite-link {
             word-break: break-all;
             font-size: 14px;
             color: #667eea;
             margin-bottom: 15px;
         }
-        
         .copy-invite-btn {
             background: #667eea;
             color: white;
@@ -619,18 +537,15 @@
             width: 100%;
             margin-top: 10px;
         }
-        
         .team-members-list {
             margin-top: 20px;
         }
-        
         .team-member {
             display: flex;
             align-items: center;
             padding: 10px;
             border-bottom: 1px solid #eee;
         }
-        
         .member-avatar {
             width: 40px;
             height: 40px;
@@ -644,26 +559,21 @@
             margin-right: 10px;
             font-size: 16px;
         }
-        
         .member-info {
             flex-grow: 1;
         }
-        
         .member-name {
             font-weight: 600;
             font-size: 14px;
         }
-        
         .member-date {
             font-size: 12px;
             color: #888;
         }
-        
         .member-earnings {
             font-weight: 600;
             color: #4caf50;
         }
-        
         .team-limit-info {
             background: #fff3e0;
             border-left: 4px solid #ff9800;
@@ -672,7 +582,6 @@
             margin: 15px 0;
             font-size: 13px;
         }
-        
         .team-limit-info strong {
             color: #f57c00;
         }
@@ -690,7 +599,6 @@
                     <div class="user-id" id="user-id">ID: Loading...</div>
                 </div>
             </div>
-            
             <div class="balance-container">
                 <div class="balance-item">
                     <div class="balance-label">Balance</div>
@@ -701,12 +609,10 @@
                     <div class="balance-amount"><span id="coin-amount">0</span> <i class="fas fa-coins" style="color: gold;"></i></div>
                 </div>
             </div>
-            
             <div class="conversion-info">
                 <i class="fas fa-info-circle"></i> <strong>Conversion Rate:</strong> 1000 coins = ৳1.00<br>
                 <small>Coins convert to BDT automatically at 12:00 AM (Bangladesh Time)</small>
             </div>
-            
             <div class="buttons-grid">
                 <div class="app-button" id="ad-button">
                     <i class="fas fa-ad"></i>
@@ -734,34 +640,27 @@
                 </div>
             </div>
         </div>
-        
         <!-- Watch Ads Page -->
         <div class="page" id="ads-page">
             <h2>Watch Ads to Earn</h2>
             <p>Watch advertisements to earn money. Each ad view gives you <strong>50 coins</strong>!</p>
-            
             <div class="ad-button-container">
                 <button class="watch-ad-btn" id="watch-ad-btn">
                     <i class="fas fa-play-circle"></i> Watch Ad & Earn 50 Coins
                 </button>
             </div>
-            
             <button class="back-to-home-small" id="back-to-home-top">
                 <i class="fas fa-arrow-left"></i> Home
             </button>
         </div>
-        
         <!-- Team Page -->
         <div class="page" id="team-page">
             <h2>Team</h2>
-            
             <!-- Removed the "How Team Sharing Works" explanation section -->
-            
             <div class="team-invite-section">
                 <h3>Invite Friends & Earn</h3>
                 <p>Share your referral link with friends. You'll earn 10% of their earnings!</p>
                 <!-- Removed the "Important: Each account can be shared with up to 14 other users." line -->
-                
                 <div class="invite-link-container">
                     <div class="invite-link" id="invite-link">
                         Loading your invite link...
@@ -770,11 +669,9 @@
                         <i class="fas fa-copy"></i> Copy Link
                     </button>
                 </div>
-                
                 <div class="team-limit-info">
                     <i class="fas fa-exclamation-circle"></i> <strong>Team Limit:</strong> You can share your account with up to <strong>14</strong> other users. Total capacity: <strong>15</strong> users (including you).
                 </div>
-                
                 <div class="team-stats">
                     <div class="stat-box">
                         <div class="stat-label">Team Members</div>
@@ -786,18 +683,15 @@
                     </div>
                 </div>
             </div>
-            
             <div class="team-members-list" id="team-members-list">
                 <p style="text-align: center; color: #888;">No team members yet</p>
             </div>
         </div>
-        
         <!-- Rewards Page -->
         <div class="page" id="rewards-page">
             <h2>Rewards</h2>
             <p>Rewards content will be here.</p>
         </div>
-        
         <!-- History Page -->
         <div class="page" id="history-page">
             <h2>Withdrawal History</h2>
@@ -805,11 +699,9 @@
                 <p style="text-align: center; padding: 20px; color: #888;">No withdrawal history</p>
             </div>
         </div>
-        
         <!-- Profile Page -->
         <div class="page" id="profile-page">
             <h2>Profile Information</h2>
-            
             <div class="header">
                 <img src="https://via.placeholder.com/70" alt="Profile" class="profile-img">
                 <div class="user-info">
@@ -818,7 +710,6 @@
                     <div class="user-id" id="profile-user-id">ID: Loading...</div>
                 </div>
             </div>
-            
             <h2>Withdrawal Methods</h2>
             <div class="withdrawal-options">
                 <div class="withdrawal-option" data-method="bkash">
@@ -834,11 +725,9 @@
                     <div>Rocket</div>
                 </div>
             </div>
-            
             <button class="withdraw-btn" id="open-withdraw-modal-profile">
                 <i class="fas fa-money-bill-wave"></i> Withdraw Money
             </button>
-            
             <h2>Referral Program</h2>
             <div class="referral-box">
                 <p>Invite friends and earn 10% of their earnings!</p>
@@ -848,7 +737,6 @@
                 </div>
                 <p>Your team: <strong><span id="team-count">0</span> users</strong></p>
             </div>
-            
             <div class="team-stats">
                 <div class="stat-box">
                     <div class="stat-label">Total Earnings</div>
@@ -859,12 +747,10 @@
                     <div class="stat-value"><span id="profile-team-size">0</span></div>
                 </div>
             </div>
-            
             <div class="app-version">
                 <p style="text-align: center; color: #888; margin: 20px 0;">App Version: 1.0.0</p>
             </div>
         </div>
-        
         <!-- Withdrawal Modal -->
         <div class="modal-overlay" id="withdraw-modal">
             <div class="modal">
@@ -872,7 +758,6 @@
                     <h3 class="modal-title">Withdraw Money</h3>
                     <button class="close-modal" id="close-modal">&times;</button>
                 </div>
-                
                 <div class="form-group">
                     <label class="form-label">Select Method</label>
                     <div class="withdrawal-options">
@@ -890,31 +775,26 @@
                         </div>
                     </div>
                 </div>
-                
                 <div class="form-group">
                     <label class="form-label" for="phone-number">Phone Number</label>
                     <input type="tel" class="form-input" id="phone-number" placeholder="Enter your phone number">
                 </div>
-                
                 <div class="form-group">
                     <label class="form-label" for="amount">Amount (৳)</label>
                     <input type="number" class="form-input" id="amount" placeholder="Enter amount">
                     <div class="min-amount">Minimum withdrawal: ৳100</div>
                 </div>
-                
                 <button class="submit-btn" id="submit-withdrawal" disabled>
                     Submit Withdrawal Request
                 </button>
             </div>
         </div>
-        
         <!-- Reward Notification -->
         <div class="reward-notification" id="reward-notification">
             <div>Congratulations!</div>
             <div class="coins-earned">You earned 50 coins!</div>
         </div>
     </div>
-    
     <div class="navigation">
         <div class="nav-item active" data-page="home-page">
             <i class="fas fa-home"></i>
@@ -937,15 +817,12 @@
             <span>Profile</span>
         </div>
     </div>
-
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-    
     <!-- Monetag SDK - Updated with your new zone ID -->
     <script src='//libtl.com/sdk.js' data-zone='9753772' data-sdk='show_9753772'></script>
-    
     <script>
         // Firebase configuration
         const firebaseConfig = {
@@ -958,14 +835,11 @@
             appId: "1:25930019210:web:6441562811d3e7e9631873",
             measurementId: "G-P9HX6XXT1Q"
         };
-
         // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
         const auth = firebase.auth();
-        
         console.log("Firebase initialized successfully");
-        
         // Global variables
         let selectedMethod = null;
         let currentUser = null;
@@ -978,52 +852,43 @@
         const MAX_TEAM_MEMBERS = 14; // Maximum team members per account
         let isSharedSession = false; // Flag to indicate if this is a shared session
         let originalUserRef = null; // Reference to the original user's data in case of shared session
-        
         // Initialize the app
         document.addEventListener('DOMContentLoaded', function() {
             setupEventListeners();
             checkAuthState();
             startDailyConversionTimer();
-            
             // Check for referral on app start (for Telegram Mini Apps)
             checkForReferralOnStart();
         });
-        
         function checkForReferralOnStart() {
             // For Telegram Mini Apps, check the start parameter
             const initData = window.Telegram?.WebApp?.initDataUnsafe;
             if (initData && initData.start_param) {
                 const startParam = initData.start_param;
                 console.log("Start parameter detected:", startParam);
-                
                 if (startParam.startsWith('shared_')) {
                     const originalUserId = startParam.substring(7); // Remove 'shared_' prefix
                     console.log("Shared session detected. Original User ID:", originalUserId);
-                    
                     // Handle the shared account access
                     handleSharedAccountAccess(originalUserId);
                 }
             }
         }
-        
         function handleSharedAccountAccess(originalUserId) {
             if (!originalUserId) {
                 console.log("Invalid original user ID for shared session.");
                 return;
             }
-            
             // Prevent self-referral
             const currentUserId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id?.toString();
             if (!currentUserId) {
                 console.log("Could not get current Telegram user ID.");
                 return;
             }
-            
             if (originalUserId === currentUserId) {
                 console.log("Cannot share account with yourself.");
                 return;
             }
-            
             // Find the original user account
             const origUserRef = database.ref('users/' + originalUserId);
             origUserRef.once('value').then(snapshot => {
@@ -1031,12 +896,10 @@
                 if (originalData) {
                     // Check if this account can accept more shared users
                     const currentSharedCount = originalData.sharedWith ? originalData.sharedWith.length : 0;
-                    
                     if (currentSharedCount < MAX_TEAM_MEMBERS) {
                         // Check if current user is already added to avoid duplicates
                         const isAlreadyAdded = originalData.sharedWith && 
                             originalData.sharedWith.some(member => member.userId == currentUserId);
-                        
                         if (!isAlreadyAdded) {
                             // Add current user to the shared list
                             const sharedWith = originalData.sharedWith || [];
@@ -1045,21 +908,17 @@
                                 joinedAt: new Date().toISOString()
                                 // Add other relevant info if needed
                             });
-                            
                             // Update original user's data
                             return origUserRef.update({
                                 sharedWith: sharedWith,
                                 teamMembers: sharedWith.length
                             }).then(() => {
                                 console.log(`Successfully added ${currentUserId} to ${originalUserId}'s team.`);
-                                
                                 // Set flags for shared session
                                 isSharedSession = true;
                                 originalUserRef = origUserRef; // Store reference to original user's data
-                                
                                 // Load the original user's data for the current user (synced session)
                                 loadUserData(origUserRef);
-                                
                                 // Update UI to reflect shared session
                                 updateUIForSharedSession(originalUserId);
                             });
@@ -1087,13 +946,11 @@
                 // Proceed with normal user flow or show error
             });
         }
-        
         function updateUIForSharedSession(originalUserId) {
             // Update UI elements to indicate this is a shared session
             console.log("User is now part of a shared session for user:", originalUserId);
             // You can add visual indicators here if needed
         }
-        
         function checkAuthState() {
             auth.onAuthStateChanged(user => {
                 if (user) {
@@ -1107,7 +964,6 @@
                 }
             });
         }
-        
         function showLoginUI() {
             // For demo purposes, we'll simulate a login
             // In a real app, you would redirect to a login page or show FirebaseUI
@@ -1115,7 +971,6 @@
             // Simulate login for demo
             simulateLogin();
         }
-        
         function simulateLogin() {
             // Generate a random user ID for demo
             const userId = 'user_' + Math.random().toString(36).substr(2, 9);
@@ -1126,7 +981,6 @@
             };
             currentUser = user;
             userRef = database.ref('users/' + userId);
-            
             // Initialize user data if not exists
             userRef.once('value').then(snapshot => {
                 if (!snapshot.exists()) {
@@ -1147,12 +1001,9 @@
                 listenForWithdrawalUpdates();
             });
         }
-        
         function loadUserData(ref = null) {
             let dataRef = ref || userRef; // Use provided reference or default userRef
-            
             if (!dataRef) return;
-            
             // Remove any existing listeners to prevent conflicts
             if (userRef) {
                 userRef.off('value');
@@ -1160,12 +1011,10 @@
             if (originalUserRef) {
                 originalUserRef.off('value');
             }
-            
             dataRef.on('value', (snapshot) => {
                 const data = snapshot.val();
                 if (data) {
                     updateUIWithUserData(data);
-                    
                     // Check if user is blocked
                     if (data.isBlocked) {
                         document.getElementById('blockPage').style.display = 'flex';
@@ -1183,7 +1032,6 @@
                 }
             });
         }
-        
         function updateUIWithUserData(data) {
             // Update home page
             document.getElementById('user-name').textContent = currentUser.displayName || 'User';
@@ -1191,7 +1039,6 @@
             document.getElementById('user-id').textContent = 'ID: ' + (currentUser.uid || 'N/A');
             document.getElementById('balance-amount').textContent = (data.balance || 0).toFixed(2);
             document.getElementById('coin-amount').textContent = data.coins || 0;
-            
             // Update profile page
             document.getElementById('profile-user-name').textContent = currentUser.displayName || 'User';
             document.getElementById('profile-user-phone').textContent = data.phoneNumber || 'N/A';
@@ -1199,31 +1046,24 @@
             document.getElementById('total-earnings').textContent = (data.totalEarnings || 0).toFixed(2);
             document.getElementById('profile-team-size').textContent = data.teamMembers || 0;
             document.getElementById('team-count').textContent = data.teamMembers || 0;
-            
             // Update team page
             document.getElementById('team-page-size').textContent = data.teamMembers || 0;
-            
             // Update referral link
             document.getElementById('referral-input').value = 'https://t.me/' + BOT_USERNAME + '?start=' + (data.referralCode || '');
-            
             // Update team page specific elements
             updateTeamPage(data);
         }
-        
         function updateTeamPage(data) {
             // Create unique invite link for this user
             const inviteLink = 'https://t.me/' + BOT_USERNAME + '?start=shared_' + (currentUser.uid || '');
             document.getElementById('invite-link').textContent = inviteLink;
-            
             // Update team stats
             const teamMembersCount = data.sharedWith ? data.sharedWith.length : 0;
             document.getElementById('team-members-count').textContent = teamMembersCount;
             document.getElementById('team-earnings').textContent = (data.totalEarningsFromTeam || 0).toFixed(2);
-            
             // Update team members list
             const teamMembersList = document.getElementById('team-members-list');
             teamMembersList.innerHTML = '';
-            
             if (data.sharedWith && data.sharedWith.length > 0) {
                 data.sharedWith.forEach((member, index) => {
                     const memberElement = document.createElement('div');
@@ -1241,7 +1081,6 @@
             } else {
                 teamMembersList.innerHTML = '<p style="text-align: center; color: #888;">No team members yet</p>';
             }
-            
             // Control withdrawal button visibility based on session type
             const withdrawBtn = document.getElementById('open-withdraw-modal-profile');
             if (isSharedSession) {
@@ -1256,7 +1095,6 @@
                 }
             }
         }
-        
         function setupEventListeners() {
             // Navigation
             document.querySelectorAll('.nav-item').forEach(item => {
@@ -1267,71 +1105,57 @@
                         document.querySelectorAll('.nav-item').forEach(nav => {
                             nav.classList.remove('active');
                         });
-                        
                         // Add active class to clicked nav item
                         this.classList.add('active');
-                        
                         // Hide all pages
                         document.querySelectorAll('.page').forEach(page => {
                             page.classList.remove('active');
                         });
-                        
                         // Show the selected page
                         document.getElementById(pageId).classList.add('active');
-                        
                         // Hide the small back button when switching pages
                         document.getElementById('back-to-home-top').style.display = 'none';
                     }
                 });
             });
-            
             // Watch Ads button
             document.getElementById('ad-button').addEventListener('click', function() {
                 // Hide all pages
                 document.querySelectorAll('.page').forEach(page => {
                     page.classList.remove('active');
                 });
-                
                 // Show ads page
                 document.getElementById('ads-page').classList.add('active');
-                
                 // Update navigation
                 document.querySelectorAll('.nav-item').forEach(nav => {
                     nav.classList.remove('active');
                 });
                 document.querySelector('[data-page="ads-page"]').classList.add('active');
-                
                 // Show the small back button
                 document.getElementById('back-to-home-top').style.display = 'block';
             });
-            
             // Back to home buttons (both small and regular)
             document.getElementById('back-to-home-top').addEventListener('click', function() {
                 goBackToHome();
             });
-            
             // Watch Ad button (calls Monetag function directly)
             document.getElementById('watch-ad-btn').addEventListener('click', function() {
                 watchAdDirectly();
             });
-            
             // Team button
             document.getElementById('team-button').addEventListener('click', function() {
                 // Hide all pages
                 document.querySelectorAll('.page').forEach(page => {
                     page.classList.remove('active');
                 });
-                
                 // Show team page
                 document.getElementById('team-page').classList.add('active');
-                
                 // Update navigation
                 document.querySelectorAll('.nav-item').forEach(nav => {
                     nav.classList.remove('active');
                 });
                 document.querySelector('[data-page="team-page"]').classList.add('active');
             });
-            
             // Open withdrawal modal (only from profile page now)
             document.getElementById('open-withdraw-modal-profile').addEventListener('click', function() {
                 // Only allow withdrawal if it's not a shared session
@@ -1341,24 +1165,19 @@
                 }
                 openWithdrawalModal();
             });
-            
             // Close modal
             document.getElementById('close-modal').addEventListener('click', closeWithdrawalModal);
-            
             // Method selection
             document.querySelectorAll('.withdrawal-option').forEach(option => {
                 option.addEventListener('click', function() {
                     selectMethod(this);
                 });
             });
-            
             // Form validation
             document.getElementById('phone-number').addEventListener('input', validateForm);
             document.getElementById('amount').addEventListener('input', validateForm);
-            
             // Submit withdrawal
             document.getElementById('submit-withdrawal').addEventListener('click', submitWithdrawal);
-            
             // Copy referral link
             document.getElementById('copy-btn').addEventListener('click', function() {
                 const referralInput = document.getElementById('referral-input');
@@ -1366,7 +1185,6 @@
                 document.execCommand('copy');
                 alert('Referral link copied to clipboard!');
             });
-            
             // Copy invite link
             document.getElementById('copy-invite-btn').addEventListener('click', function() {
                 const inviteLinkElement = document.getElementById('invite-link');
@@ -1379,55 +1197,42 @@
                 alert('Invite link copied to clipboard!');
             });
         }
-        
         // Function to go back to home page
         function goBackToHome() {
             // Hide ads page
             document.getElementById('ads-page').classList.remove('active');
-            
             // Show home page
             document.getElementById('home-page').classList.add('active');
-            
             // Update navigation
             document.querySelectorAll('.nav-item').forEach(nav => {
                 nav.classList.remove('active');
             });
             document.querySelector('[data-page="home-page"]').classList.add('active');
-            
             // Hide the small back button
             document.getElementById('back-to-home-top').style.display = 'none';
         }
-        
         // Function to watch ad directly using Monetag's method
         function watchAdDirectly() {
             const watchAdBtn = document.getElementById('watch-ad-btn');
-            
             // Prevent multiple clicks while ad is running
             if (isAdRunning) {
                 console.log("An ad is already running.");
                 return;
             }
-            
             isAdRunning = true;
             watchAdBtn.disabled = true;
             watchAdBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Loading Ad...';
-
             // IMPORTANT: Use your new zone ID function name
             const monetagFunctionName = 'show_9753772'; // Match data-sdk attribute
             const monetagFunction = window[monetagFunctionName]; // Access function dynamically
-
             console.log("Attempting to show ad with function:", monetagFunctionName);
-
             // Check if monetag function is available
             if (typeof monetagFunction === 'function') {
                 try {
                     console.log(`Showing ad directly with Monetag SDK function: ${monetagFunctionName}`);
-                    
                     // Call the Monetag function directly to open ad
                     monetagFunction();
-                    
                     console.log("Monetag function called successfully.");
-                    
                     // Since we can't reliably detect when the ad is finished,
                     // we reward the user after a short delay and re-enable the button.
                     // This allows the user to click again quickly.
@@ -1436,7 +1241,6 @@
                         rewardUserForAd();
                         resetAdButton(); // Re-enable button immediately
                     }, 2000); // 2 second delay before rewarding and re-enabling
-
                 } catch (error) {
                     console.error("Error showing ad:", error);
                     document.getElementById('ad-network-container').innerHTML = '<div class="ad-error"><p>Error loading advertisements. Please try again later.</p></div>';
@@ -1451,7 +1255,6 @@
                 }, 3000);
             }
         }
-        
         // Reset the ad button state
         function resetAdButton() {
             const watchAdBtn = document.getElementById('watch-ad-btn');
@@ -1460,114 +1263,93 @@
             watchAdBtn.innerHTML = '<i class="fas fa-play-circle"></i> Watch Ad & Earn 50 Coins';
             console.log("Ad button reset.");
         }
-        
         function rewardUserForAd() {
             if (!currentUser) return;
-            
             // Determine which user reference to use (original or current)
             const targetUserRef = isSharedSession ? originalUserRef : userRef;
-            
             if (!targetUserRef) {
                 console.error("No valid user reference for rewarding.");
                 return;
             }
-            
             // Update user data in Firebase
             targetUserRef.once('value').then(snapshot => {
                 const data = snapshot.val();
                 if (data) {
                     const newCoins = (data.coins || 0) + COINS_PER_AD;
-                    const newBalance = (data.balance || 0) + (COINS_PER_AD * 0.01); // Convert coins to balance (example: 50 coins = 0.50 BDT)
-                    
+                    // আপনার নির্দেশ অনুযায়ী: এড দেখলে শুধুমাত্র কয়েন বাড়বে, ব্যালেন্স বাড়বে না
+                    // const newBalance = (data.balance || 0) + (COINS_PER_AD * 0.01); // Convert coins to balance (example: 50 coins = 0.50 BDT)
+                    const newBalance = data.balance || 0; // ব্যালেন্স পরিবর্তন হবে না
                     // If it's a shared session, calculate 10% commission for the original user
                     let updates = {
                         coins: newCoins,
-                        balance: newBalance
+                        balance: newBalance // ব্যালেন্স পরিবর্তন হবে না
                     };
-                    
                     if (isSharedSession) {
                         // In shared session, 10% goes to original user
-                        const commission = (COINS_PER_AD * 0.01) * 0.10; // 10% of balance increase
-                        const originalNewBalance = (data.balance || 0) + commission;
-                        
+                        // যেহেতু ব্যালেন্স এখন পরিবর্তিত হচ্ছে না, কমিশনও দেওয়া হবে না
+                        // const commission = (COINS_PER_AD * 0.01) * 0.10; // 10% of balance increase
+                        // const originalNewBalance = (data.balance || 0) + commission;
                         // Add commission to original user's earnings from team
-                        const originalTotalEarningsFromTeam = (data.totalEarningsFromTeam || 0) + commission;
-                        
-                        updates.balance = originalNewBalance;
-                        updates.totalEarningsFromTeam = originalTotalEarningsFromTeam;
-                        
-                        console.log(`Awarding ${COINS_PER_AD} coins to shared account. Original user gets 10% commission: ${commission.toFixed(2)} BDT`);
+                        // const originalTotalEarningsFromTeam = (data.totalEarningsFromTeam || 0) + commission;
+                        // updates.balance = originalNewBalance;
+                        // updates.totalEarningsFromTeam = originalTotalEarningsFromTeam;
+                        console.log(`Awarding ${COINS_PER_AD} coins to shared account. No commission as balance is not updated yet.`);
                     } else {
-                        console.log(`Awarding ${COINS_PER_AD} coins to user's own account.`);
+                        console.log(`Awarding ${COINS_PER_AD} coins to user's own account. Balance remains unchanged until midnight conversion.`);
                     }
-                    
                     return targetUserRef.update(updates);
                 }
             }).then(() => {
                 // Update UI
                 // We need to get the current displayed values and add to them
                 const currentCoins = parseInt(document.getElementById('coin-amount').textContent) || 0;
-                const currentBalance = parseFloat(document.getElementById('balance-amount').textContent) || 0;
-                
+                // const currentBalance = parseFloat(document.getElementById('balance-amount').textContent) || 0;
                 document.getElementById('coin-amount').textContent = currentCoins + COINS_PER_AD;
-                document.getElementById('balance-amount').textContent = 
-                    ((currentBalance + (COINS_PER_AD * 0.01))).toFixed(2);
-                
+                // document.getElementById('balance-amount').textContent = 
+                //     ((currentBalance + (COINS_PER_AD * 0.01))).toFixed(2);
                 // Show reward notification
                 showRewardNotification();
             }).catch(error => {
                 console.error("Error rewarding user:", error);
             });
         }
-        
         function showRewardNotification() {
             const notification = document.getElementById('reward-notification');
             notification.style.display = 'block';
-            
             setTimeout(() => {
                 notification.style.display = 'none';
             }, 3000);
         }
-        
         function openWithdrawalModal() {
             // Additional check for shared session
             if (isSharedSession) {
                 alert('You cannot withdraw from a shared session.');
                 return;
             }
-            
             document.getElementById('withdraw-modal').style.display = 'flex';
             resetForm();
         }
-        
         function closeWithdrawalModal() {
             document.getElementById('withdraw-modal').style.display = 'none';
         }
-        
         function selectMethod(element) {
             // Remove selected class from all options
             document.querySelectorAll('.withdrawal-option').forEach(option => {
                 option.classList.remove('selected');
             });
-            
             // Add selected class to clicked option
             element.classList.add('selected');
-            
             // Store selected method
             selectedMethod = element.getAttribute('data-method');
-            
             validateForm();
         }
-        
         function validateForm() {
             const phoneNumber = document.getElementById('phone-number').value;
             const amount = parseFloat(document.getElementById('amount').value);
             const submitButton = document.getElementById('submit-withdrawal');
-            
             if (selectedMethod && phoneNumber.length >= 10 && amount >= 100) {
                 // Check balance from Firebase (use appropriate reference)
                 const targetUserRef = isSharedSession ? originalUserRef : userRef;
-                
                 if (targetUserRef) {
                     targetUserRef.once('value').then(snapshot => {
                         const data = snapshot.val();
@@ -1584,39 +1366,32 @@
                 submitButton.disabled = true;
             }
         }
-        
         function resetForm() {
             selectedMethod = null;
             document.getElementById('phone-number').value = '';
             document.getElementById('amount').value = '';
             document.getElementById('submit-withdrawal').disabled = true;
-            
             // Deselect all methods
             document.querySelectorAll('.withdrawal-option').forEach(option => {
                 option.classList.remove('selected');
             });
         }
-        
         function submitWithdrawal() {
             // Prevent withdrawal in shared sessions
             if (isSharedSession) {
                 alert('You cannot withdraw from a shared session.');
                 return;
             }
-            
             if (!currentUser || !userRef) {
                 alert('User not authenticated!');
                 return;
             }
-            
             const phoneNumber = document.getElementById('phone-number').value;
             const amount = parseFloat(document.getElementById('amount').value);
-            
             if (!selectedMethod || phoneNumber.length < 10 || isNaN(amount) || amount < 100) {
                 alert('Please fill all fields correctly!');
                 return;
             }
-            
             // Check balance
             userRef.once('value').then(snapshot => {
                 const data = snapshot.val();
@@ -1624,7 +1399,6 @@
                     alert('Insufficient balance!');
                     return;
                 }
-                
                 // Create withdrawal request object
                 const withdrawalRequest = {
                     method: selectedMethod,
@@ -1635,7 +1409,6 @@
                     userId: currentUser.uid,
                     userName: currentUser.displayName || 'User'
                 };
-                
                 // Save to Firebase
                 const newRequestRef = database.ref('withdrawal_requests').push();
                 return newRequestRef.set(withdrawalRequest)
@@ -1651,7 +1424,6 @@
                 // Close modal and show success message
                 closeWithdrawalModal();
                 alert('Withdrawal request submitted successfully! It will be processed within 24 hours.');
-                
                 // Update UI balance immediately
                 document.getElementById('balance-amount').textContent = 
                     (parseFloat(document.getElementById('balance-amount').textContent) - amount).toFixed(2);
@@ -1661,42 +1433,34 @@
                 alert('Error submitting withdrawal request. Please try again.');
             });
         }
-        
         function loadWithdrawalHistory() {
             const historyContainer = document.getElementById('withdrawal-history');
             historyContainer.innerHTML = '<p style="text-align: center; padding: 20px; color: #888;">Loading...</p>';
-            
             if (!currentUser) {
                 historyContainer.innerHTML = '<p style="text-align: center; padding: 20px; color: #888;">Please login to view history</p>';
                 return;
             }
-            
             const withdrawalsRef = database.ref('withdrawal_requests');
             withdrawalsRef.orderByChild('userId').equalTo(currentUser.uid).once('value')
                 .then(snapshot => {
                     const data = snapshot.val();
                     historyContainer.innerHTML = '';
-                    
                     if (!data) {
                         historyContainer.innerHTML = '<p style="text-align: center; padding: 20px; color: #888;">No withdrawal history</p>';
                         return;
                     }
-                    
                     // Convert to array and sort by date
                     const withdrawals = Object.keys(data).map(key => ({
                         id: key,
                         ...data[key]
                     })).sort((a, b) => new Date(b.date) - new Date(a.date));
-                    
                     if (withdrawals.length === 0) {
                         historyContainer.innerHTML = '<p style="text-align: center; padding: 20px; color: #888;">No withdrawal history</p>';
                         return;
                     }
-                    
                     withdrawals.forEach(withdrawal => {
                         const historyItem = document.createElement('div');
                         historyItem.className = 'history-item';
-                        
                         // Determine status badge
                         let statusBadge = '';
                         if (withdrawal.status === 'pending') {
@@ -1708,7 +1472,6 @@
                         } else if (withdrawal.status === 'rejected') {
                             statusBadge = '<span class="status-badge status-rejected">Rejected</span>';
                         }
-                        
                         // Determine method icon
                         let methodIcon = '';
                         if (withdrawal.method === 'bkash') {
@@ -1718,7 +1481,6 @@
                         } else if (withdrawal.method === 'rocket') {
                             methodIcon = '<i class="fas fa-rocket" style="color: #5d2d8d;"></i>';
                         }
-                        
                         historyItem.innerHTML = `
                             <div style="display: flex; align-items: center;">
                                 <div style="font-size: 24px; margin-right: 10px;">
@@ -1739,11 +1501,9 @@
                     historyContainer.innerHTML = '<p style="text-align: center; padding: 20px; color: #888;">Error loading history</p>';
                 });
         }
-        
         // Listen for status updates from admin in Firebase
         function listenForWithdrawalUpdates() {
             if (!currentUser) return;
-            
             const withdrawalsRef = database.ref('withdrawal_requests');
             withdrawalsRef.orderByChild('userId').equalTo(currentUser.uid).on('value', (snapshot) => {
                 // Update UI if history page is active
@@ -1752,19 +1512,17 @@
                 }
             });
         }
-        
         // Load history when history page becomes active
         document.querySelector('[data-page="history-page"]').addEventListener('click', function() {
             setTimeout(loadWithdrawalHistory, 100);
         });
-        
         // Function to convert coins to BDT at midnight (Bangladesh Time)
+        // আপনার নির্দেশ অনুযায়ী কয়েন রূপান্তর লজিক সংশোধন করা হয়েছে
         function convertCoinsToBDT() {
             if (!currentUser || !userRef) return;
             
             // Use appropriate reference for conversion
             const targetUserRef = isSharedSession ? originalUserRef : userRef;
-            
             if (!targetUserRef) {
                 console.error("No valid user reference for conversion.");
                 return;
@@ -1776,33 +1534,38 @@
                     const coins = data.coins || 0;
                     const currentBalance = data.balance || 0;
                     
-                    // Calculate BDT amount from coins (1000 coins = 1 BDT)
-                    const bdtToAdd = Math.floor(coins / COINS_TO_BDT_RATE);
+                    // আপনার নির্দেশ অনুযায়ী: প্রতি 1000 কয়েন = 1 টাকা, ভগ্নাংশের জন্যও প্রযোজ্য
+                    // এখানে আমরা সরাসরি ভাগ করে টাকা বের করছি
+                    const bdtToAdd = coins / COINS_TO_BDT_RATE; // 1000
                     
-                    if (bdtToAdd > 0) {
+                    // আপনার নির্দেশ অনুযায়ী: যে কোন পরিমাণ কয়েন (এমনকি 50 কয়েনও) রূপান্তর হবে
+                    if (bdtToAdd > 0) { // শুধুমাত্র কয়েন 0 এর বেশি হলে রূপান্তর হবে
                         const newBalance = currentBalance + bdtToAdd;
-                        const remainingCoins = coins % COINS_TO_BDT_RATE;
+                        const remainingCoins = 0; // সব কয়েন রূপান্তর হয়ে গেছে
                         
                         // Update user data
                         return targetUserRef.update({
-                            balance: newBalance,
+                            balance: parseFloat(newBalance.toFixed(2)), // Ensure precision
                             coins: remainingCoins,
                             lastConversionDate: new Date().toISOString().split('T')[0]
                         }).then(() => {
                             // Update UI
-                            document.getElementById('balance-amount').textContent = newBalance.toFixed(2);
+                            document.getElementById('balance-amount').textContent = parseFloat(newBalance.toFixed(2));
                             document.getElementById('coin-amount').textContent = remainingCoins;
                             
-                            console.log(`Converted ${bdtToAdd * COINS_TO_BDT_RATE} coins to ৳${bdtToAdd}. Remaining coins: ${remainingCoins}`);
+                            console.log(`Converted ${coins} coins to ৳${bdtToAdd.toFixed(2)}. New balance: ৳${newBalance.toFixed(2)}. Coins reset to 0.`);
                         });
+                    } else {
+                        console.log(`Not enough coins (${coins}) to convert. Minimum required is 1 coin (৳0.001).`);
                     }
                 }
             }).catch(error => {
                 console.error("Error converting coins to BDT:", error);
             });
         }
-        
+
         // Start timer to check for daily conversion at midnight Bangladesh time
+        // আপনার নির্দেশ অনুযায়ী সময় নির্ধারণ করা হয়েছে: রাত 12:00 (বাংলাদেশ সময়)
         function startDailyConversionTimer() {
             // Get current time in Bangladesh timezone
             const bangladeshTime = new Date().toLocaleString("en-US", {timeZone: "Asia/Dhaka"});
@@ -1811,18 +1574,19 @@
             // Calculate time until next midnight in Bangladesh
             const tomorrow = new Date(bangladeshDate);
             tomorrow.setDate(tomorrow.getDate() + 1);
-            tomorrow.setHours(0, 0, 0, 0); // Set to midnight
+            tomorrow.setHours(0, 0, 0, 0); // Set to 12:00 AM (Bangladesh Time)
             
             const timeUntilMidnight = tomorrow.getTime() - bangladeshDate.getTime();
             
-            console.log(`Next coin conversion in ${Math.floor(timeUntilMidnight / (1000 * 60 * 60))} hours`);
+            console.log(`Next coin conversion scheduled for 12:00 AM Bangladesh Time, which is in ${Math.floor(timeUntilMidnight / (1000 * 60))} minutes`);
             
             // Set timeout for first conversion
             setTimeout(() => {
+                console.log("Starting automatic coin conversion at 12:00 AM (Bangladesh Time).");
                 convertCoinsToBDT();
-                
                 // Set interval for daily conversions (every 24 hours)
                 setInterval(convertCoinsToBDT, 24 * 60 * 60 * 1000);
+                console.log("Daily coin conversion timer set to run every 24 hours at 12:00 AM.");
             }, timeUntilMidnight);
         }
     </script>
