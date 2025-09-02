@@ -6,6 +6,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"/>
   <title>TKBD5_bot</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
   <style>
     :root {
       /* -- Updated all colors to white theme -- */
@@ -17,6 +20,7 @@
       --text-muted-color: #666666; /* Dark grey for muted text */
       --accent-color: #ff8c00; /* Keep orange for accents */
       --card-bg: #f5f5f5; /* Light grey card background */
+      --error-color: #ff4444; /* Error color */
     }
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
     body {
@@ -109,6 +113,24 @@
     .modal-content h3 { margin-top: 0; font-size: 20px; }
     .modal-content p { color: var(--text-muted-color); margin-bottom: 25px; }
     .modal-actions { display: flex; gap: 10px; }
+    
+    /* Loading and Error States */
+    .loading, .error-message {
+      text-align: center;
+      padding: 20px;
+      font-size: 16px;
+    }
+    .error-message {
+      color: var(--error-color);
+      font-weight: bold;
+    }
+    .hidden { display: none; }
+    
+    /* Disabled state for UI elements */
+    .disabled {
+      pointer-events: none;
+      opacity: 0.5;
+    }
   </style>
   <!-- Updated Monetag SDK Script with new zone ID -->
   <script src='//libtl.com/sdk.js' data-zone='9807992' data-sdk='show_9807992'></script>
@@ -167,6 +189,15 @@
         <h2 class="section-title">Recent Activity</h2>
         <div id="history-list"><!-- History items will be generated here by JS --></div>
       </div>
+      
+      <!-- BLOCKED VIEW -->
+      <div id="blocked-view" class="view">
+        <div class="error-message">
+          <h2><i class="fa-solid fa-ban"></i> Account Blocked</h2>
+          <p>Your account has been blocked by the administrator.</p>
+          <p>Please contact support for more information.</p>
+        </div>
+      </div>
     </main>
 
     <nav class="footer-nav">
@@ -191,19 +222,40 @@
   </div>
 
 <script>
+    // --- Firebase Configuration ---
+    const firebaseConfig = {
+      apiKey: "AIzaSyD3BGZ0MVLpbQbIpLUAnYvWNEIyk7Y6S0Q",
+      authDomain: "earning-app-80258.firebaseapp.com",
+      databaseURL: "https://earning-app-80258-default-rtdb.firebaseio.com",
+      projectId: "earning-app-80258",
+      storageBucket: "earning-app-80258.appspot.com",
+      messagingSenderId: "25930019210",
+      appId: "1:25930019210:web:6441562811d3e7e9631873",
+      measurementId: "G-P9HX6XXT1Q"
+    };
+
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+
     // --- State Variables ---
     let points = 0;
     let balance = 0.00;
     let historyLog = [];
     let tgUser = null;
+    let isBlocked = false;
+    let appConfig = {
+      pointsPerAd: 10,
+      coinsForConversion: 1000,
+      valuePerConversion: 0.30
+    };
+    
+    // For real-time listener reference
+    let userBlockedListener = null;
     
     // --- Updated Balance Logic ---
-    // 1000 coins = 30 cents = $0.30 USD
-    // 1 coin = $0.0003 USD
-    const pointsPerAd = 10; // Earn 10 coins per ad view
-    const coinsForConversion = 1000; // Number of coins needed for conversion
-    const valuePerConversion = 0.30; // Value in USD for 1000 coins
-    const ratePerCoin = valuePerConversion / coinsForConversion; // $0.0003 per coin
+    // Dynamic from Firebase: 1000 coins = 30 cents = $0.30 USD
+    // 1 coin = $0.0003 USD (calculated dynamically)
 
     // --- Core App Logic ---
     document.addEventListener('DOMContentLoaded', () => {
@@ -215,18 +267,158 @@
             Telegram.WebApp.ready();
             Telegram.WebApp.expand();
             tgUser = Telegram.WebApp.initDataUnsafe.user;
+            
+            if (!tgUser) {
+                // Don't show blocked view immediately, wait for Firebase check
+                console.log("Telegram user data not available immediately, waiting for Firebase check");
+                showView('home-view'); // Show home view initially
+                loadAppConfig().then(() => {
+                    loadUserData().then(() => {
+                        loadTelegramUser();
+                        renderLeaderboard();
+                    }).catch(error => {
+                        console.error("Error loading user data:", error);
+                        // Handle error appropriately, maybe show a message
+                    });
+                });
+                return;
+            }
+            
+            // Load app configuration and user data
+            loadAppConfig().then(() => {
+                loadUserData().then(() => {
+                    loadTelegramUser();
+                    showView('home-view');
+                    renderLeaderboard();
+                }).catch(error => {
+                    console.error("Error loading user data:", error);
+                    // Handle error appropriately
+                });
+            }).catch(error => {
+                console.error("Error loading app config:", error);
+                // Handle error appropriately
+            });
+        } else {
+            // Don't show blocked view for non-Telegram access, just log
+            console.log("This app must be opened in Telegram.");
+            showView('home-view'); // Show home view initially
         }
-        
-        loadData();
-        loadTelegramUser();
-        showView('home-view');
-        renderLeaderboard();
-        
-        // Removed automatic in-app ads initialization
     }
     
+    // --- Firebase Functions ---
+    async function loadAppConfig() {
+        try {
+            const snapshot = await database.ref('appConfig').once('value');
+            const config = snapshot.val();
+            if (config) {
+                appConfig = {
+                    pointsPerAd: config.pointsPerAd || 10,
+                    coinsForConversion: config.coinsForConversion || 1000,
+                    valuePerConversion: config.valuePerConversion || 0.30
+                };
+            }
+        } catch (error) {
+            console.error("Failed to load app config:", error);
+            throw error;
+        }
+    }
+
+    async function loadUserData() {
+        if (!tgUser || !tgUser.id) return Promise.resolve(); // Resolve immediately if no user ID
+        
+        try {
+            const userRef = database.ref('users/' + tgUser.id);
+            const snapshot = await userRef.once('value');
+            const userData = snapshot.val();
+            
+            if (userData) {
+                points = userData.points || 0;
+                balance = userData.balance || 0.00;
+                historyLog = userData.historyLog || [];
+                isBlocked = userData.isBlocked || false;
+                
+                updateDisplay();
+                
+                // Only show blocked view if user is actually blocked
+                if (isBlocked) {
+                    showBlockedView();
+                }
+                
+                // Set up real-time listener for blocking status
+                setupBlockingListener(userRef);
+            } else {
+                // Initialize new user
+                await userRef.set({
+                    id: tgUser.id,
+                    username: tgUser.username || 'Unknown',
+                    firstName: tgUser.first_name || 'User',
+                    points: 0,
+                    balance: 0.00,
+                    isBlocked: false,
+                    createdAt: new Date().toISOString()
+                });
+                
+                // Set up real-time listener for blocking status
+                setupBlockingListener(userRef);
+            }
+        } catch (error) {
+            console.error("Failed to load user data:", error);
+            throw error;
+        }
+    }
+
+    function setupBlockingListener(userRef) {
+        if (userBlockedListener) {
+            // Remove previous listener if exists
+            userRef.child('isBlocked').off('value', userBlockedListener);
+        }
+        
+        // Set up new listener
+        userBlockedListener = userRef.child('isBlocked').on('value', (snapshot) => {
+            const blockedStatus = snapshot.val() || false;
+            handleBlockingStatus(blockedStatus);
+        });
+    }
+
+    function handleBlockingStatus(blockedStatus) {
+        if (blockedStatus !== isBlocked) {
+            isBlocked = blockedStatus;
+            if (isBlocked) {
+                showBlockedView();
+                disableUI();
+            } else {
+                // Re-enable UI if unblocked
+                enableUI();
+                // Optionally switch back to home view if currently on blocked view
+                if (document.getElementById('blocked-view').classList.contains('active')) {
+                    showView('home-view');
+                }
+            }
+        }
+    }
+
+    async function saveUserData() {
+        if (!tgUser || !tgUser.id) return;
+        
+        try {
+            await database.ref('users/' + tgUser.id).update({
+                points: points,
+                balance: balance,
+                historyLog: historyLog
+            });
+        } catch (error) {
+            console.error("Failed to save user data:", error);
+        }
+    }
+
     // --- View Management ---
     function showView(viewId) {
+        // Prevent navigation if user is blocked (except to blocked view)
+        if (isBlocked && viewId !== 'blocked-view') {
+            showBlockedView();
+            return;
+        }
+        
         document.querySelectorAll('.view').forEach(view => view.classList.remove('active'));
         document.getElementById(viewId).classList.add('active');
         
@@ -237,24 +429,42 @@
         if (viewId === 'history-view') renderHistory();
     }
     
-    // --- Data Persistence ---
-    function loadData() {
-        const savedData = localStorage.getItem('easyEarningBotV2');
-        if (savedData) {
-            const data = JSON.parse(savedData);
-            points = data.points || 0;
-            balance = data.balance || 0.00;
-            historyLog = data.historyLog || [];
-        }
-        updateDisplay();
+    function showBlockedView() {
+        isBlocked = true;
+        showView('blocked-view');
+        disableUI();
     }
-
-    function saveData() {
-        localStorage.setItem('easyEarningBotV2', JSON.stringify({ points, balance, historyLog }));
+    
+    function disableUI() {
+        // Add 'disabled' class to interactive elements
+        document.querySelectorAll('.task-card, .nav-button, .action-button').forEach(el => {
+            el.classList.add('disabled');
+        });
+        
+        // Disable specific buttons that might not have the class
+        const withdrawBtn = document.querySelector('.task-card[onclick="openWithdrawModal()"]');
+        if (withdrawBtn) withdrawBtn.classList.add('disabled');
+        
+        const taskBtn = document.querySelector('.task-card[onclick="showAd()"]');
+        if (taskBtn) taskBtn.classList.add('disabled');
+    }
+    
+    function enableUI() {
+        // Remove 'disabled' class from interactive elements
+        document.querySelectorAll('.task-card, .nav-button, .action-button').forEach(el => {
+            el.classList.remove('disabled');
+        });
+        
+        // Enable specific buttons
+        const withdrawBtn = document.querySelector('.task-card[onclick="openWithdrawModal()"]');
+        if (withdrawBtn) withdrawBtn.classList.remove('disabled');
+        
+        const taskBtn = document.querySelector('.task-card[onclick="showAd()"]');
+        if (taskBtn) taskBtn.classList.remove('disabled');
     }
 
     function updateDisplay() {
-        document.getElementById('points-value').textContent = points.toLocaleString(); // Format with commas
+        document.getElementById('points-value').textContent = points.toLocaleString();
         document.getElementById('balance-value').textContent = `$${balance.toFixed(2)}`;
     }
     
@@ -276,7 +486,7 @@
         const timestamp = new Date().toISOString();
         historyLog.unshift({ type, detail, timestamp });
         if (historyLog.length > 50) historyLog.pop();
-        saveData();
+        saveUserData();
     }
 
     function renderHistory() {
@@ -323,44 +533,57 @@
 
     // --- Earning Functions ---
     function grantReward() {
-        // Add coins for watching ad
-        points += pointsPerAd;
+        if (isBlocked) {
+            showBlockedView();
+            return;
+        }
         
-        // Calculate balance: 1000 coins = $0.30
-        // So balance = (total coins / 1000) * 0.30
-        balance = (points / coinsForConversion) * valuePerConversion;
+        // Add coins for watching ad (from Firebase config)
+        points += appConfig.pointsPerAd;
+        
+        // Calculate balance dynamically from Firebase config
+        balance = (points / appConfig.coinsForConversion) * appConfig.valuePerConversion;
         
         updateDisplay();
-        addToHistory('earn', `+${pointsPerAd} Coin(s) from Ad`);
-        saveData();
+        addToHistory('earn', `+${appConfig.pointsPerAd} Coin(s) from Ad`);
+        saveUserData();
         Telegram.WebApp.HapticFeedback.notificationOccurred('success');
         
-        // Show alert with earned coins and new balance
-        alert(`Congratulations! You've earned +${pointsPerAd} coins. Your new balance is $${balance.toFixed(2)}.`);
+        alert(`Congratulations! You've earned +${appConfig.pointsPerAd} coins. Your new balance is $${balance.toFixed(2)}.`);
     }
 
     // Function to show the ad using the new Monetag zone
     function showAd() {
-      // Check if the Monetag SDK function is available
-      if (typeof show_9807992 === 'function') {
-        // Call the Monetag function to show the ad
-        show_9807992().then(() => {
-          // Ad shown successfully (or user interacted)
-          grantReward(); // Grant reward after ad interaction
-        }).catch((error) => {
-          // Handle errors, e.g., ad failed to load
-          console.error("Ad could not be shown:", error);
-          alert("Sorry, the ad could not be loaded. Please try again.");
-        });
-      } else {
-        // SDK not loaded or function not available
-        console.warn("Monetag SDK is not ready yet.");
-        alert("Ad provider is not ready. Please try again in a moment.");
-      }
+        if (isBlocked) {
+            showBlockedView();
+            return;
+        }
+        
+        // Check if the Monetag SDK function is available
+        if (typeof show_9807992 === 'function') {
+            // Call the Monetag function to show the ad
+            show_9807992().then(() => {
+                // Ad shown successfully (or user interacted)
+                grantReward(); // Grant reward after ad interaction
+            }).catch((error) => {
+                // Handle errors, e.g., ad failed to load
+                console.error("Ad could not be shown:", error);
+                alert("Sorry, the ad could not be loaded. Please try again.");
+            });
+        } else {
+            // SDK not loaded or function not available
+            console.warn("Monetag SDK is not ready yet.");
+            alert("Ad provider is not ready. Please try again in a moment.");
+        }
     }
 
     // --- Withdrawal Logic ---
     function openWithdrawModal() {
+        if (isBlocked) {
+            showBlockedView();
+            return;
+        }
+        
         if (balance < 5) {
             Telegram.WebApp.HapticFeedback.notificationOccurred('error');
             return alert("Minimum withdrawal amount is $5.00. Keep earning!");
@@ -373,6 +596,11 @@
     }
 
     function requestWithdraw() {
+        if (isBlocked) {
+            showBlockedView();
+            return;
+        }
+        
         closeWithdrawModal();
         const botToken = 'AAGXSk0suIC-ELK51_l53n6XxxvOtsBTvkY';
         const adminUserId = '7609218468';
@@ -389,6 +617,7 @@
                 Telegram.WebApp.HapticFeedback.notificationOccurred('success');
                 alert("Your withdrawal request has been sent successfully!");
                 addToHistory('withdraw', `Request for $${balance.toFixed(2)}`);
+                saveUserData();
             } else {
                 Telegram.WebApp.HapticFeedback.notificationOccurred('error');
                 alert("Failed to send request. Please try again later.");
@@ -401,6 +630,11 @@
 
     // --- Share & Referral ---
     function shareApp() {
+        if (isBlocked) {
+            showBlockedView();
+            return;
+        }
+        
         if (!tgUser) return alert("Could not get user data from Telegram.");
         const botUsername = "NSMTECHBD_Bot";
         const referralLink = `https://t.me/${botUsername}?start=${tgUser.id}`;
@@ -408,6 +642,14 @@
         const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(referralLink)}&text=${encodeURIComponent(text)}`;
         Telegram.WebApp.openTelegramLink(shareUrl);
     }
+    
+    // Cleanup listener on unload
+    window.addEventListener('beforeunload', () => {
+        if (userBlockedListener && tgUser && tgUser.id) {
+            const userRef = database.ref('users/' + tgUser.id);
+            userRef.child('isBlocked').off('value', userBlockedListener);
+        }
+    });
 </script>
 </body>
 </html>
