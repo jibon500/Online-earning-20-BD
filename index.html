@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -138,8 +139,12 @@
                     <p class="text-sm text-gray-400 mb-2">Minimum Withdrawal: <span id="min-withdrawal-info">...</span> Coins</p>
                     <p class="text-sm text-gray-400 mb-4 font-semibold" id="coin-value-info">...</p>
                     <input id="withdraw-amount" type="number" placeholder="Enter coin amount" class="w-full p-3 rounded-lg input-field mb-3">
-                    <select id="withdraw-method" class="w-full p-3 rounded-lg input-field mb-3"></select>
-                    <div id="payment-details-container"></div>
+                    <select id="withdraw-method" class="w-full p-3 rounded-lg input-field mb-3">
+                        <option value="Bkash">Bkash</option>
+                    </select>
+                    <div id="payment-details-container">
+                        <input id="payment-detail-input" type="text" placeholder="Your Bkash Number" class="w-full p-3 rounded-lg input-field">
+                    </div>
                     <button id="withdraw-btn" class="w-full p-3 rounded-lg btn-accent mt-3">Request Withdrawal</button>
                 </div>
                 <div>
@@ -299,7 +304,7 @@
                 const configSnap = await getDoc(configRef);
                 appConfig = configSnap.exists() ? configSnap.data() : { 
                     minWithdrawal: 5000, 
-                    paymentMethods: ["Bkash", "Nagad", "Rocket"], 
+                    paymentMethods: ["Bkash"], 
                     dailyAdLimit: 10, 
                     coinValueCoins: 1000, 
                     coinValueInr: 10,
@@ -320,14 +325,16 @@
             referralCodeEl.textContent = userData.referralCode || '...';
             minWithdrawalInfoEl.textContent = `${appConfig.minWithdrawal || 5000} Coins`;
             coinValueInfoEl.textContent = `${appConfig.coinValueCoins || 1000} Coins = ৳${appConfig.coinValueInr || 10}`;
-            withdrawMethodSelect.innerHTML = '';
-            (appConfig.paymentMethods || []).forEach(method => {
-                const option = document.createElement('option');
-                option.value = method;
-                option.textContent = method;
-                withdrawMethodSelect.appendChild(option);
-            });
-            updateDynamicPaymentFields();
+            
+            // Update payment method dropdown to only show Bkash
+            withdrawMethodSelect.innerHTML = '<option value="Bkash">Bkash</option>';
+            
+            // Update payment details input placeholder
+            const paymentDetailInput = document.getElementById('payment-detail-input');
+            if (paymentDetailInput) {
+                paymentDetailInput.placeholder = "Your Bkash Number";
+            }
+            
             updateAdsLeftCount();
         }
 
@@ -338,15 +345,6 @@
             }
             const adsLeft = Math.max(0, (appConfig.dailyAdLimit || 10) - userData.dailyAdCount);
             adsLeftCountEl.textContent = adsLeft;
-        }
-
-        function updateDynamicPaymentFields() {
-            const selectedMethod = withdrawMethodSelect.value.toLowerCase();
-            let placeholder = "Enter details";
-            if (selectedMethod.includes('bkash')) placeholder = "Your Bkash Number";
-            if (selectedMethod.includes('nagad')) placeholder = "Your Nagad Number";
-            if (selectedMethod.includes('rocket')) placeholder = "Your Rocket Number";
-            paymentDetailsContainer.innerHTML = `<input id="payment-detail-input" type="text" placeholder="${placeholder}" class="w-full p-3 rounded-lg input-field">`;
         }
 
         function showMainPage(pageId) {
@@ -384,7 +382,6 @@
             document.getElementById('withdraw-btn').addEventListener('click', handleWithdrawal);
             document.getElementById('home-withdraw-btn').addEventListener('click', () => navigateTo('wallet-page'));
             document.getElementById('apply-referral-btn').addEventListener('click', handleApplyReferralCode);
-            withdrawMethodSelect.addEventListener('change', updateDynamicPaymentFields);
         }
 
         async function handleSignup() {
@@ -534,7 +531,7 @@
             if (!amount || amount <= 0) return showAlert("Please enter a valid amount.");
             if (amount < minWithdrawal) return showAlert(`Minimum withdrawal is ${minWithdrawal} coins.`);
             if (amount > userData.balance) return showAlert("Insufficient balance.");
-            if (!paymentDetail) return showAlert("Please enter payment details (Bkash/Nagad/Rocket Number).");
+            if (!paymentDetail) return showAlert("Please enter payment details (Bkash Number).");
 
             try {
                 await updateBalance(-amount);
@@ -676,3 +673,4 @@
     </script>
 </body>
 </html>
+```
