@@ -120,7 +120,6 @@
     .modal-content h3 { margin-top: 0; font-size: 20px; }
     .modal-content p { color: var(--text-muted-color); margin-bottom: 25px; }
     .modal-actions { display: flex; gap: 10px; }
-    
     /* Withdraw Modal Specific Styles */
     .withdraw-form {
       text-align: left;
@@ -144,7 +143,6 @@
     .status-processing { color: var(--processing-color); font-weight: bold; }
     .status-success { color: var(--success-color); font-weight: bold; }
     .status-rejected { color: var(--rejected-color); font-weight: bold; }
-    
     /* Loading and Error States */
     .loading, .error-message {
       text-align: center;
@@ -156,11 +154,61 @@
       font-weight: bold;
     }
     .hidden { display: none; }
-    
     /* Disabled state for UI elements */
     .disabled {
       pointer-events: none;
       opacity: 0.5;
+    }
+    /* Withdraw History Modal */
+    #withdraw-history-modal .modal-content {
+        width: 95%;
+        max-width: 400px;
+        max-height: 80vh;
+        overflow-y: auto;
+    }
+    #withdraw-history-modal-list {
+        text-align: left;
+        max-height: 60vh;
+        overflow-y: auto;
+    }
+    /* Share Modal */
+    #share-modal .modal-content {
+        width: 95%;
+        max-width: 400px;
+        max-height: 80vh;
+        overflow-y: auto;
+    }
+    #referral-link {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        font-size: 14px;
+        margin-bottom: 15px;
+        background-color: #f9f9f9;
+    }
+    .referral-stats {
+        display: flex;
+        justify-content: space-around;
+        margin: 20px 0;
+        text-align: center;
+    }
+    .referral-stat-item {
+        background: var(--card-bg);
+        padding: 15px;
+        border-radius: 12px;
+        flex: 1;
+        margin: 0 5px;
+        border: 1px solid rgba(0, 0, 0, 0.1);
+    }
+    .referral-stat-value {
+        font-size: 24px;
+        font-weight: bold;
+        color: var(--primary-color);
+    }
+    .referral-stat-label {
+        font-size: 14px;
+        color: var(--text-muted-color);
     }
   </style>
   <!-- Updated Monetag SDK Script with new zone ID -->
@@ -196,7 +244,6 @@
             <div class="task-arrow"><i class="fa-solid fa-chevron-right"></i></div>
         </div>
       </div>
-
       <!-- TASKS VIEW -->
       <div id="tasks-view" class="view">
         <h2 class="section-title">Earning Tasks</h2>
@@ -208,11 +255,9 @@
         </div>
         <!-- Removed other task cards as per request -->
       </div>
-
       <!-- WITHDRAW VIEW -->
       <div id="withdraw-view" class="view">
         <h2 class="section-title">Withdraw Funds</h2>
-        
         <!-- Withdraw Form -->
         <div class="withdraw-form">
           <div class="form-group">
@@ -223,34 +268,28 @@
               <option value="rocket">Rocket</option>
             </select>
           </div>
-          
           <div class="form-group">
             <label for="mobileNumber">Mobile Number</label>
             <input type="tel" id="mobileNumber" class="form-control" placeholder="Enter mobile number">
           </div>
-          
           <div class="form-group">
             <label for="withdrawAmount">Amount ($)</label>
             <input type="number" id="withdrawAmount" class="form-control" placeholder="Enter amount" step="0.01" min="5">
           </div>
-          
           <button id="requestWithdrawBtn" class="action-button primary-button" onclick="requestWithdraw()">
             <i class="fa-solid fa-paper-plane"></i> Request Withdrawal
           </button>
         </div>
-        
         <!-- Withdraw History Button -->
         <button class="action-button secondary-button" onclick="openWithdrawHistoryModal()" style="margin-top: 20px;">
           <i class="fa-solid fa-history"></i> View Withdraw History
         </button>
       </div>
-
       <!-- HISTORY VIEW -->
       <div id="history-view" class="view">
         <h2 class="section-title">Recent Activity</h2>
         <div id="history-list"><!-- History items will be generated here by JS --></div>
       </div>
-      
       <!-- BLOCKED VIEW -->
       <div id="blocked-view" class="view">
         <div class="error-message">
@@ -260,17 +299,15 @@
         </div>
       </div>
     </main>
-
     <nav class="footer-nav">
       <button class="nav-button active" onclick="showView('home-view')"><i class="icon fa-solid fa-house"></i>Home</button>
       <button class="nav-button" onclick="showView('tasks-view')"><i class="icon fa-solid fa-list-check"></i>Tasks</button>
       <button class="nav-button" onclick="showView('history-view')"><i class="icon fa-solid fa-clock-rotate-left"></i>History</button>
       <!-- Added Withdraw button -->
       <button class="nav-button" onclick="showView('withdraw-view')"><i class="icon fa-solid fa-wallet"></i>Withdraw</button>
-      <button class="nav-button" onclick="shareApp()"><i class="icon fa-solid fa-share-nodes"></i>Share</button>
+      <button class="nav-button" onclick="openShareModal()"><i class="icon fa-solid fa-share-nodes"></i>Share</button>
     </nav>
   </div>
-  
   <!-- Generic Modal for Messages -->
   <div class="modal-overlay" id="message-modal">
     <div class="modal-content">
@@ -281,7 +318,6 @@
         </div>
     </div>
   </div>
-  
   <!-- Withdraw History Modal -->
   <div class="modal-overlay" id="withdraw-history-modal">
     <div class="modal-content">
@@ -294,13 +330,11 @@
         </div>
     </div>
   </div>
-  
   <!-- Share Modal -->
   <div class="modal-overlay" id="share-modal">
     <div class="modal-content">
         <h3>Share & Earn</h3>
         <p>Share your referral link and earn coins!</p>
-        
         <div class="referral-stats">
             <div class="referral-stat-item">
                 <div class="referral-stat-value" id="referral-count">0</div>
@@ -311,26 +345,21 @@
                 <div class="referral-stat-label">Coins Earned</div>
             </div>
         </div>
-        
         <div class="form-group">
             <label for="referral-link">Your Referral Link:</label>
             <input type="text" id="referral-link" readonly>
         </div>
-        
         <button class="action-button primary-button" onclick="copyReferralLink()">
             <i class="fa-solid fa-copy"></i> Copy Link
         </button>
-        
         <button class="action-button secondary-button" onclick="shareOnTelegram()" style="margin-top: 10px;">
             <i class="fa-brands fa-telegram"></i> Share on Telegram
         </button>
-        
         <div class="modal-actions" style="margin-top: 20px;">
             <button class="action-button primary-button" onclick="closeShareModal()">Close</button>
         </div>
     </div>
   </div>
-
 <script>
     // --- Firebase Configuration ---
     const firebaseConfig = {
@@ -343,11 +372,9 @@
       appId: "1:25930019210:web:6441562811d3e7e9631873",
       measurementId: "G-P9HX6XXT1Q"
     };
-
     // Initialize Firebase
     firebase.initializeApp(firebaseConfig);
     const database = firebase.database();
-
     // --- State Variables ---
     let points = 0;
     let balance = 0.00;
@@ -358,26 +385,25 @@
     let appConfig = {
       pointsPerAd: 10,
       coinsForConversion: 1000,
-      valuePerConversion: 0.30
+      valuePerConversion: 0.30,
+      referralRewardCoins: 10, // Default value
+      referralClaimThreshold: 200, // Default value
+      minWithdrawAmount: 5 // Default value
     };
     let referralData = {
       referralCount: 0,
       referralEarnings: 0
     };
-    
+
     // For real-time listener reference
     let userBlockedListener = null;
     let withdrawHistoryListener = null;
     let userPointsBalanceListener = null;
     let referralListener = null;
-    
-    // Flag to prevent duplicate withdrawal requests
-    let isWithdrawalInProgress = false;
-    
+
     // --- Updated Balance Logic ---
     // Dynamic from Firebase: 1000 coins = 30 cents = $0.30 USD
     // 1 coin = $0.0003 USD (calculated dynamically)
-
     // --- Core App Logic ---
     document.addEventListener('DOMContentLoaded', () => {
         initApp();
@@ -388,7 +414,6 @@
             Telegram.WebApp.ready();
             Telegram.WebApp.expand();
             tgUser = Telegram.WebApp.initDataUnsafe.user;
-            
             if (!tgUser) {
                 // Don't show blocked view immediately, wait for Firebase check
                 console.log("Telegram user data not available immediately, waiting for Firebase check");
@@ -405,7 +430,6 @@
                 });
                 return;
             }
-            
             // Load app configuration and user data
             loadAppConfig().then(() => {
                 loadUserData().then(() => {
@@ -427,7 +451,7 @@
             showView('home-view'); // Show home view initially
         }
     }
-    
+
     // --- Firebase Functions ---
     async function loadAppConfig() {
         try {
@@ -437,7 +461,10 @@
                 appConfig = {
                     pointsPerAd: config.pointsPerAd || 10,
                     coinsForConversion: config.coinsForConversion || 1000,
-                    valuePerConversion: config.valuePerConversion || 0.30
+                    valuePerConversion: config.valuePerConversion || 0.30,
+                    referralRewardCoins: config.referralRewardCoins !== undefined ? config.referralRewardCoins : 10,
+                    referralClaimThreshold: config.referralClaimThreshold !== undefined ? config.referralClaimThreshold : 200,
+                    minWithdrawAmount: config.minWithdrawAmount !== undefined ? config.minWithdrawAmount : 5
                 };
             }
         } catch (error) {
@@ -448,12 +475,10 @@
 
     async function loadUserData() {
         if (!tgUser || !tgUser.id) return Promise.resolve(); // Resolve immediately if no user ID
-        
         try {
             const userRef = database.ref('users/' + tgUser.id);
             const snapshot = await userRef.once('value');
             const userData = snapshot.val();
-            
             if (userData) {
                 points = userData.points || 0;
                 balance = userData.balance || 0.00;
@@ -461,14 +486,11 @@
                 isBlocked = userData.isBlocked || false;
                 referralData.referralCount = userData.referralCount || 0;
                 referralData.referralEarnings = userData.referralEarnings || 0;
-                
                 updateDisplay();
-                
                 // Only show blocked view if user is actually blocked
                 if (isBlocked) {
                     showBlockedView();
                 }
-                
                 // Set up real-time listeners
                 setupBlockingListener(userRef);
                 setupWithdrawHistoryListener(userRef);
@@ -487,7 +509,6 @@
                     referralEarnings: 0,
                     createdAt: new Date().toISOString()
                 });
-                
                 // Set up real-time listeners
                 setupBlockingListener(userRef);
                 setupWithdrawHistoryListener(userRef);
@@ -503,14 +524,11 @@
     // Check if user was referred
     function checkForReferral() {
         if (!tgUser || !tgUser.id) return;
-        
         // Get the start parameter from Telegram WebApp
         const startParam = Telegram.WebApp.initDataUnsafe.start_param;
-        
         // If there's a start parameter and it's not the user's own ID, it means they were referred
         if (startParam && startParam !== tgUser.id.toString()) {
             const referrerId = startParam;
-            
             // Check if referral has already been processed for this user
             database.ref('users/' + tgUser.id + '/referredBy').once('value').then((snapshot) => {
                 if (!snapshot.val()) {
@@ -527,15 +545,13 @@
             // Verify referrer exists
             const referrerRef = database.ref('users/' + referrerId);
             const referrerSnapshot = await referrerRef.once('value');
-            
             if (referrerSnapshot.exists()) {
-                // Reward referrer (10 coins)
+                // Reward referrer (coins from Firebase config)
                 const referrerData = referrerSnapshot.val();
-                const newReferralEarnings = (referrerData.referralEarnings || 0) + 10;
+                const newReferralEarnings = (referrerData.referralEarnings || 0) + appConfig.referralRewardCoins;
                 const newReferralCount = (referrerData.referralCount || 0) + 1;
-                const newPoints = referrerData.points + 10;
+                const newPoints = referrerData.points + appConfig.referralRewardCoins;
                 const newBalance = (newPoints / appConfig.coinsForConversion) * appConfig.valuePerConversion;
-                
                 // Update referrer's data
                 await referrerRef.update({
                     referralEarnings: newReferralEarnings,
@@ -543,12 +559,10 @@
                     points: newPoints,
                     balance: newBalance
                 });
-                
                 // Mark this user as referred by this referrer
                 await database.ref('users/' + tgUser.id).update({
                     referredBy: referrerId
                 });
-                
                 console.log(`Referral processed: User ${tgUser.id} referred by ${referrerId}`);
             }
         } catch (error) {
@@ -561,7 +575,6 @@
             // Remove previous listener if exists
             userRef.child('isBlocked').off('value', userBlockedListener);
         }
-        
         // Set up new listener
         userBlockedListener = userRef.child('isBlocked').on('value', (snapshot) => {
             const blockedStatus = snapshot.val() || false;
@@ -574,7 +587,6 @@
             // Remove previous listener if exists
             userRef.child('withdrawHistory').off('value', withdrawHistoryListener);
         }
-        
         // Set up new listener
         withdrawHistoryListener = userRef.child('withdrawHistory').on('value', (snapshot) => {
             const history = snapshot.val();
@@ -585,7 +597,6 @@
             } else {
                 withdrawHistory = [];
             }
-            
             // Render history in modal if it's open
             if (document.getElementById('withdraw-history-modal').classList.contains('active')) {
                 renderWithdrawHistoryModal();
@@ -599,7 +610,6 @@
             userRef.child('points').off('value', userPointsBalanceListener);
             userRef.child('balance').off('value', userPointsBalanceListener);
         }
-        
         // Set up new listeners for points and balance
         userPointsBalanceListener = userRef.on('value', (snapshot) => {
             const userData = snapshot.val();
@@ -617,21 +627,18 @@
             userRef.child('referralCount').off('value', referralListener);
             userRef.child('referralEarnings').off('value', referralListener);
         }
-        
         // Set up new listeners for referral data
         referralListener = userRef.on('value', (snapshot) => {
             const userData = snapshot.val();
             if (userData) {
                 referralData.referralCount = userData.referralCount || 0;
                 referralData.referralEarnings = userData.referralEarnings || 0;
-                
                 // Update share modal if it's open
                 if (document.getElementById('share-modal').classList.contains('active')) {
                     updateShareModal();
                 }
-                
-                // Check if referral earnings reached 200 coins
-                if (referralData.referralEarnings >= 200) {
+                // Check if referral earnings reached threshold (from Firebase config)
+                if (referralData.referralEarnings >= appConfig.referralClaimThreshold) {
                     claimReferralEarnings();
                 }
             }
@@ -641,32 +648,26 @@
     // Claim referral earnings (convert to main balance)
     async function claimReferralEarnings() {
         if (!tgUser || !tgUser.id) return;
-        
         try {
             // Calculate coins and value
-            const coinsToClaim = 200;
+            const coinsToClaim = appConfig.referralClaimThreshold;
             const valueToClaim = (coinsToClaim / appConfig.coinsForConversion) * appConfig.valuePerConversion;
-            
             // Update user's main balance
             points += coinsToClaim;
             balance += valueToClaim;
-            
             // Reset referral earnings
             referralData.referralEarnings -= coinsToClaim;
             referralData.referralCount = referralData.referralCount; // Keep count unchanged
-            
             // Update Firebase
             await database.ref('users/' + tgUser.id).update({
                 points: points,
                 balance: balance,
                 referralEarnings: referralData.referralEarnings
             });
-            
             // Update display
             updateDisplay();
-            
             // Show notification
-            showMessageModal('Success', `Congratulations! You've claimed 200 referral coins ($${valueToClaim.toFixed(2)}) and they've been added to your main balance.`);
+            showMessageModal('Success', `Congratulations! You've claimed ${appConfig.referralClaimThreshold} referral coins ($${valueToClaim.toFixed(2)}) and they've been added to your main balance.`);
         } catch (error) {
             console.error("Error claiming referral earnings:", error);
             showMessageModal('Error', 'Failed to claim referral earnings. Please try again.');
@@ -692,7 +693,6 @@
 
     async function saveUserData() {
         if (!tgUser || !tgUser.id) return;
-        
         try {
             await database.ref('users/' + tgUser.id).update({
                 points: points,
@@ -711,48 +711,40 @@
             showBlockedView();
             return;
         }
-        
         document.querySelectorAll('.view').forEach(view => view.classList.remove('active'));
         document.getElementById(viewId).classList.add('active');
-        
         document.querySelectorAll('.nav-button').forEach(btn => btn.classList.remove('active'));
         const activeBtn = document.querySelector(`.nav-button[onclick="showView('${viewId}')"]`);
         if(activeBtn) activeBtn.classList.add('active');
-        
         if (viewId === 'history-view') renderHistory();
-        if (viewId === 'withdraw-view') renderWithdrawHistory();
     }
-    
+
     function showBlockedView() {
         isBlocked = true;
         showView('blocked-view');
         disableUI();
     }
-    
+
     function disableUI() {
         // Add 'disabled' class to interactive elements
         document.querySelectorAll('.task-card, .nav-button, .action-button').forEach(el => {
             el.classList.add('disabled');
         });
-        
         // Disable specific buttons that might not have the class
         const withdrawBtn = document.querySelector('.task-card[onclick="showView(\'withdraw-view\')"]');
         if (withdrawBtn) withdrawBtn.classList.add('disabled');
-        
         const taskBtn = document.querySelector('.task-card[onclick="showAd()"]');
         if (taskBtn) taskBtn.classList.add('disabled');
     }
-    
+
     function enableUI() {
         // Remove 'disabled' class from interactive elements
         document.querySelectorAll('.task-card, .nav-button, .action-button').forEach(el => {
             el.classList.remove('disabled');
         });
-        
         // Enable specific buttons
         const withdrawBtn = document.querySelector('.task-card[onclick="showView(\'withdraw-view\')"]');
         if (withdrawBtn) withdrawBtn.classList.remove('disabled');
-        
         const taskBtn = document.querySelector('.task-card[onclick="showAd()"]');
         if (taskBtn) taskBtn.classList.remove('disabled');
     }
@@ -761,7 +753,7 @@
         document.getElementById('points-value').textContent = points.toLocaleString();
         document.getElementById('balance-value').textContent = `$${balance.toFixed(2)}`;
     }
-    
+
     // --- User & Profile ---
     function loadTelegramUser() {
         if (tgUser) {
@@ -789,7 +781,6 @@
             list.innerHTML = `<div class="list-item"><div class="info"><div class="name">No activity yet.</div><div class="detail">Watch some ads to get started!</div></div></div>`;
             return;
         }
-        
         list.innerHTML = historyLog.map(item => {
             const icon = item.type === 'earn' 
                 ? '<i class="fa-solid fa-plus-circle" style="color: var(--primary-color);"></i>' 
@@ -810,19 +801,17 @@
         renderWithdrawHistoryModal();
         document.getElementById('withdraw-history-modal').classList.add('active');
     }
-    
+
     function closeWithdrawHistoryModal() {
         document.getElementById('withdraw-history-modal').classList.remove('active');
     }
-    
+
     function renderWithdrawHistoryModal() {
         const list = document.getElementById('withdraw-history-modal-list');
-        
         if (withdrawHistory.length === 0) {
             list.innerHTML = '<p style="text-align: center; color: var(--text-muted-color);">No withdrawal history found.</p>';
             return;
         }
-        
         list.innerHTML = withdrawHistory.map(item => {
             const statusClass = `status-${item.status.toLowerCase()}`;
             return `
@@ -843,35 +832,32 @@
             showBlockedView();
             return;
         }
-        
         // Generate referral link
         const botUsername = "TKBD5_bot";
         const referralLink = `https://t.me/${botUsername}?start=${tgUser.id}`;
         document.getElementById('referral-link').value = referralLink;
-        
         // Update modal content
         updateShareModal();
-        
         // Show modal
         document.getElementById('share-modal').classList.add('active');
     }
-    
+
     function closeShareModal() {
         document.getElementById('share-modal').classList.remove('active');
     }
-    
+
     function updateShareModal() {
         document.getElementById('referral-count').textContent = referralData.referralCount;
         document.getElementById('referral-earnings').textContent = referralData.referralEarnings;
     }
-    
+
     function copyReferralLink() {
         const referralLinkInput = document.getElementById('referral-link');
         referralLinkInput.select();
         document.execCommand('copy');
         showMessageModal('Success', 'Referral link copied to clipboard!');
     }
-    
+
     function shareOnTelegram() {
         const referralLink = document.getElementById('referral-link').value;
         const text = "🎉 Join this amazing bot and start earning! Use my link to get a special bonus:";
@@ -888,7 +874,6 @@
             { name: "Aisha", score: 17500, avatar: "https://i.pravatar.cc/150?img=4" },
             { name: "BotMaster", score: 15300, avatar: "https://i.pravatar.cc/150?img=5" },
         ];
-        
         // This function is kept but not used in current UI
     }
 
@@ -898,18 +883,14 @@
             showBlockedView();
             return;
         }
-        
         // Add coins for watching ad (from Firebase config)
         points += appConfig.pointsPerAd;
-        
         // Calculate balance dynamically from Firebase config
         balance = (points / appConfig.coinsForConversion) * appConfig.valuePerConversion;
-        
         updateDisplay();
         addToHistory('earn', `+${appConfig.pointsPerAd} Coin(s) from Ad`);
         saveUserData();
         Telegram.WebApp.HapticFeedback.notificationOccurred('success');
-        
         showMessageModal('Success', `Congratulations! You've earned +${appConfig.pointsPerAd} coins. Your new balance is $${balance.toFixed(2)}.`);
     }
 
@@ -919,7 +900,6 @@
             showBlockedView();
             return;
         }
-        
         // Check if the Monetag SDK function is available
         if (typeof show_9807992 === 'function') {
             // Call the Monetag function to show the ad
@@ -944,48 +924,41 @@
             showBlockedView();
             return;
         }
-        
-        // Prevent duplicate withdrawal requests
-        if (isWithdrawalInProgress) {
-            showMessageModal('Warning', 'A withdrawal request is already in progress. Please wait.');
-            return;
+
+        // Prevent double click by disabling the button immediately
+        const requestBtn = document.getElementById('requestWithdrawBtn');
+        if (requestBtn.disabled) {
+            return; // Already processing
         }
-        
+
         const paymentMethod = document.getElementById('paymentMethod').value;
         const mobileNumber = document.getElementById('mobileNumber').value.trim();
         const amount = parseFloat(document.getElementById('withdrawAmount').value);
-        const requestBtn = document.getElementById('requestWithdrawBtn');
-        
+
         // Validation
         if (!mobileNumber) {
             showMessageModal('Error', 'Please enter your mobile number.');
             return;
         }
-        
         if (!amount || isNaN(amount)) {
             showMessageModal('Error', 'Please enter a valid amount.');
             return;
         }
-        
-        if (amount < 5) {
-            showMessageModal('Error', 'Minimum withdrawal amount is $5.00.');
+        if (amount < appConfig.minWithdrawAmount) {
+            showMessageModal('Error', `Minimum withdrawal amount is $${appConfig.minWithdrawAmount.toFixed(2)}.`);
             return;
         }
-        
         if (amount > balance) {
             showMessageModal('Error', 'Insufficient balance for this withdrawal.');
             return;
         }
-        
-        // Set flag to prevent duplicate requests
-        isWithdrawalInProgress = true;
-        
+
         // Change button to red "Requesting..." state immediately
         requestBtn.textContent = 'Requesting...';
         requestBtn.classList.remove('primary-button');
         requestBtn.classList.add('requesting-button');
         requestBtn.disabled = true;
-        
+
         // Create withdraw request with Pending status
         const withdrawRequest = {
             id: Date.now().toString(),
@@ -997,11 +970,10 @@
             status: 'Pending',
             timestamp: new Date().toISOString()
         };
-        
+
         // Save to Firebase
         const userRef = database.ref('users/' + tgUser.id);
         const newWithdrawRef = userRef.child('withdrawHistory').push();
-        
         newWithdrawRef.set(withdrawRequest)
             .then(() => {
                 // Immediately deduct balance and update points in Firebase
@@ -1009,27 +981,21 @@
                 points = Math.max(0, Math.round(balance / appConfig.valuePerConversion * appConfig.coinsForConversion));
                 updateDisplay();
                 saveUserData();
-                
                 // Add to local withdrawHistory array for immediate display in modal if open
                 withdrawHistory.unshift(withdrawRequest);
                 if (document.getElementById('withdraw-history-modal').classList.contains('active')) {
                     renderWithdrawHistoryModal();
                 }
-                
                 // Add to activity history
                 addToHistory('withdraw', `Request for $${amount.toFixed(2)} via ${paymentMethod}`);
-                
                 // Show success message after 3 seconds
                 setTimeout(() => {
                     showMessageModal('Success', 'Your withdrawal request has been submitted successfully!');
-                    
-                    // Reset button state and flag
+                    // Reset button state
                     requestBtn.textContent = 'Request Withdrawal';
                     requestBtn.classList.remove('requesting-button');
                     requestBtn.classList.add('primary-button');
                     requestBtn.disabled = false;
-                    isWithdrawalInProgress = false;
-                    
                     // Clear form
                     document.getElementById('mobileNumber').value = '';
                     document.getElementById('withdrawAmount').value = '';
@@ -1038,13 +1004,11 @@
             .catch((error) => {
                 console.error('Error submitting withdrawal request:', error);
                 showMessageModal('Error', 'Failed to submit withdrawal request. Please try again.');
-                
-                // Reset button state and flag on error
+                // Reset button state on error
                 requestBtn.textContent = 'Request Withdrawal';
                 requestBtn.classList.remove('requesting-button');
                 requestBtn.classList.add('primary-button');
                 requestBtn.disabled = false;
-                isWithdrawalInProgress = false;
             });
     }
 
@@ -1054,51 +1018,9 @@
         document.getElementById('message-modal-text').textContent = message;
         document.getElementById('message-modal').classList.add('active');
     }
-    
+
     function closeMessageModal() {
         document.getElementById('message-modal').classList.remove('active');
-    }
-
-    // --- Share & Referral ---
-    function shareApp() {
-        if (isBlocked) {
-            showBlockedView();
-            return;
-        }
-        
-        if (!tgUser) {
-            showMessageModal('Error', 'Could not get user data from Telegram.');
-            return;
-        }
-        
-        const botUsername = "NSMTECHBD_Bot";
-        const referralLink = `https://t.me/${botUsername}?start=${tgUser.id}`;
-        const text = `🎉 Join this amazing bot and start earning! Use my link to get a special bonus:`;
-        const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(referralLink)}&text=${encodeURIComponent(text)}`;
-        Telegram.WebApp.openTelegramLink(shareUrl);
-    }
-    
-    // --- Withdraw History Logic ---
-    function renderWithdrawHistory() {
-        const list = document.getElementById('withdraw-history-list');
-        
-        // Always render the history, even if empty
-        if (withdrawHistory.length === 0) {
-            list.innerHTML = ''; // Clear any placeholder text
-            return;
-        }
-        
-        list.innerHTML = withdrawHistory.map(item => {
-            const statusClass = `status-${item.status.toLowerCase()}`;
-            return `
-                <div class="list-item">
-                    <div class="info">
-                        <div class="name">$${parseFloat(item.amount).toFixed(2)} via ${item.method}</div>
-                        <div class="detail">${item.mobileNumber}</div>
-                    </div>
-                    <div class="${statusClass}">${item.status}</div>
-                </div>`;
-        }).join('');
     }
 
     // Cleanup listener on unload
