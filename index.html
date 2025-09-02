@@ -157,14 +157,14 @@
             <div id="refer-page" class="p-4 space-y-6 sub-page">
                  <h2 class="text-xl font-bold text-center">Refer & Earn</h2>
                  <div class="card-bg p-6 rounded-lg text-center">
-                     <p class="text-gray-400 mb-2">Your Referral Code</p>
+                     <p class="text-gray-400 mb-2">Your Referral Link</p>
                      <div class="bg-gray-800 p-3 rounded-lg flex items-center justify-center mb-4">
-                         <span id="referral-code" class="text-2xl font-bold tracking-widest">LOADING...</span>
-                         <button id="copy-code-btn" class="ml-4"><i data-lucide="copy" class="w-6 h-6 text-gray-400"></i></button>
+                         <input type="text" id="referral-link" readonly value="Loading..." class="bg-transparent text-white text-sm w-full truncate mr-2">
+                         <button id="copy-code-btn" class="ml-2"><i data-lucide="copy" class="w-5 h-5 text-gray-400"></i></button>
                      </div>
-                     <p class="text-sm text-gray-300">Share your code with friends.</p>
+                     <p class="text-sm text-gray-300">Share this link with friends.</p>
                  </div>
-                 <button id="share-btn" class="w-full p-3 rounded-lg btn-accent">Share Your Code</button>
+                 <button id="share-btn" class="w-full p-3 rounded-lg btn-accent">Share Your Link</button>
                  <div class="card-bg p-4 rounded-lg mt-6">
                     <h3 class="font-semibold mb-3 text-center">Have someone's referral code?</h3>
                     <input id="enter-referral-code" type="text" placeholder="Enter code here" class="w-full p-3 rounded-lg input-field mb-3">
@@ -232,7 +232,7 @@
         const walletCoinBalanceEl = document.getElementById('wallet-coin-balance');
         const profileNameEl = document.getElementById('profile-name');
         const profileEmailEl = document.getElementById('profile-email');
-        const referralCodeEl = document.getElementById('referral-code');
+        const referralLinkEl = document.getElementById('referral-link');
         const minWithdrawalInfoEl = document.getElementById('min-withdrawal-info');
         const coinValueInfoEl = document.getElementById('coin-value-info');
         const withdrawMethodSelect = document.getElementById('withdraw-method');
@@ -280,13 +280,20 @@
                 if (userSnap.exists()) {
                     userData = userSnap.data();
                 } else {
-                    const ownReferralCode = Math.random().toString(36).substring(2, 8).toUpperCase();
+                    // Generate unique referral code based on UID
+                    const ownReferralCode = `REF_${currentUser.uid.substring(0, 8)}`;
                     const defaultUserData = {
-                        uid: currentUser.uid, name: currentUser.email.split('@')[0], email: currentUser.email,
-                        balance: 50, referralCode: ownReferralCode, referredBy: null,
+                        uid: currentUser.uid, 
+                        name: currentUser.email.split('@')[0], 
+                        email: currentUser.email,
+                        balance: 50, 
+                        referralCode: ownReferralCode, 
+                        referredBy: null,
                         lastNotificationCheck: new Date(),
                         createdAt: serverTimestamp(),
-                        dailyAdCount: 0, lastAdWatchDate: new Date().toISOString().split('T')[0], isBlocked: false,
+                        dailyAdCount: 0, 
+                        lastAdWatchDate: new Date().toISOString().split('T')[0], 
+                        isBlocked: false,
                         unlimitedAdCount: 0 // Added for unlimited ads tracking
                     };
                     await setDoc(userRef, defaultUserData);
@@ -322,7 +329,11 @@
             walletCoinBalanceEl.textContent = balance;
             profileNameEl.textContent = userData.name || 'No Name';
             profileEmailEl.textContent = userData.email || 'No Email';
-            referralCodeEl.textContent = userData.referralCode || '...';
+            
+            // Update referral link
+            const referralLink = `https://t.me/TKBD5_bot?start=${userData.referralCode}`;
+            referralLinkEl.value = referralLink;
+            
             minWithdrawalInfoEl.textContent = `${appConfig.minWithdrawal || 5000} Coins`;
             coinValueInfoEl.textContent = `${appConfig.coinValueCoins || 1000} Coins = ৳${appConfig.coinValueInr || 10}`;
             
@@ -377,8 +388,8 @@
                 });
             });
             document.getElementById('notification-bell').addEventListener('click', () => { navigateTo('notifications-page'); loadNotifications(); });
-            document.getElementById('copy-code-btn').addEventListener('click', copyReferralCode);
-            document.getElementById('share-btn').addEventListener('click', shareReferralCode);
+            document.getElementById('copy-code-btn').addEventListener('click', copyReferralLink);
+            document.getElementById('share-btn').addEventListener('click', shareReferralLink);
             document.getElementById('withdraw-btn').addEventListener('click', handleWithdrawal);
             document.getElementById('home-withdraw-btn').addEventListener('click', () => navigateTo('wallet-page'));
             document.getElementById('apply-referral-btn').addEventListener('click', handleApplyReferralCode);
@@ -479,7 +490,7 @@
         async function handleApplyReferralCode() {
             if (userData.referredBy) return showAlert("You have already used a referral code.");
             const codeInput = document.getElementById('enter-referral-code');
-            const code = codeInput.value.trim().toUpperCase();
+            const code = codeInput.value.trim();
             if (!code) return showAlert("Please enter a code.");
             if (code === userData.referralCode) return showAlert("You cannot use your own referral code.");
             loader.style.display = 'flex';
@@ -548,30 +559,41 @@
             }
         }
 
-        function copyReferralCode() {
-            const textToCopy = referralCodeEl.textContent;
-            const textArea = document.createElement("textarea");
-            textArea.style.position = 'fixed'; textArea.style.top = '-100px';
-            textArea.value = textToCopy;
-            document.body.appendChild(textArea);
-            textArea.focus(); textArea.select();
-            try {
+        function copyReferralLink() {
+            const textToCopy = referralLinkEl.value;
+            navigator.clipboard.writeText(textToCopy).then(() => {
+                showAlert("Referral link copied to clipboard!");
+            }).catch(err => {
+                console.error('Failed to copy: ', err);
+                // Fallback
+                const textArea = document.createElement("textarea");
+                textArea.value = textToCopy;
+                document.body.appendChild(textArea);
+                textArea.select();
                 document.execCommand('copy');
-                showAlert("Referral code copied!");
-            } catch (err) {
-                showAlert("Failed to copy code.");
-            }
-            document.body.removeChild(textArea);
+                document.body.removeChild(textArea);
+                showAlert("Referral link copied!");
+            });
         }
         
-        function shareReferralCode() {
-            const text = `Join CashReward and earn money! Use my referral code to get a bonus: ${userData.referralCode}`;
+        function shareReferralLink() {
+            const referralLink = referralLinkEl.value;
+            
+            // Try to use Web Share API first (mobile browsers)
             if (navigator.share) {
-                navigator.share({ title: 'Join CashReward!', text: text, url: window.location.href })
-                    .catch((error) => console.error("Share failed:", error));
-            } else {
-                copyReferralCode();
-                showAlert("Share feature not available. Copied referral code instead!");
+                navigator.share({
+                    title: 'Join CashReward and earn money!',
+                    text: 'Use my referral link to get a bonus:',
+                    url: referralLink
+                }).catch(console.error);
+            } 
+            // Try Telegram WebApp share (if in Telegram)
+            else if (window.Telegram && window.Telegram.WebApp) {
+                window.Telegram.WebApp.openTelegramLink(referralLink);
+            }
+            // Fallback: copy to clipboard
+            else {
+                copyReferralLink();
             }
         }
 
