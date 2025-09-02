@@ -206,20 +206,26 @@
     </div>
 
     <script type="module">
+        // Your web app's Firebase configuration
         const firebaseConfig = {
-            apiKey: "AIzaSyAjdPczpLlBINxzGQ1dvwDRlvZpdUCfKUk",
-            authDomain: "earningapp-c292c.firebaseapp.com",
-            projectId: "earningapp-c292c",
-            storageBucket: "earningapp-c292c.appspot.com",
-            messagingSenderId: "81626520266",
-            appId: "1:81626520266:web:af31f7d303477a3d973233"
+            apiKey: "AIzaSyD3BGZ0MVLpbQbIpLUAnYvWNEIyk7Y6S0Q",
+            authDomain: "earning-app-80258.firebaseapp.com",
+            databaseURL: "https://earning-app-80258-default-rtdb.firebaseio.com",
+            projectId: "earning-app-80258",
+            storageBucket: "earning-app-80258.appspot.com",
+            messagingSenderId: "25930019210",
+            appId: "1:25930019210:web:6441562811d3e7e9631873",
+            measurementId: "G-P9HX6XXT1Q"
         };
         
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-        import { getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
-        import { getFirestore, doc, setDoc, getDoc, updateDoc, collection, addDoc, serverTimestamp, query, where, getDocs, orderBy, limit } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-analytics.js";
+        import { getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc, updateDoc, collection, addDoc, serverTimestamp, query, where, getDocs, orderBy, limit } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
 
+        // Initialize Firebase
         const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
         const auth = getAuth(app);
         const db = getFirestore(app);
 
@@ -691,7 +697,7 @@
             };
         }
         window.showAlert = showAlert;
-
+ 
     </script>
 </body>
 </html>
