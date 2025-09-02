@@ -406,13 +406,11 @@
       referralCount: 0,
       referralEarnings: 0
     };
-
     // For real-time listener reference
     let userBlockedListener = null;
     let withdrawHistoryListener = null;
     let userPointsBalanceListener = null;
     let referralListener = null;
-
     // --- Updated Balance Logic ---
     // Dynamic from Firebase: 1000 coins = 30 cents = $0.30 USD
     // 1 coin = $0.0003 USD (calculated dynamically)
@@ -420,7 +418,6 @@
     document.addEventListener('DOMContentLoaded', () => {
         initApp();
     });
-
     function initApp() {
         if (window.Telegram && Telegram.WebApp) {
             Telegram.WebApp.ready();
@@ -463,7 +460,6 @@
             showView('home-view'); // Show home view initially
         }
     }
-
     // --- Firebase Functions ---
     async function loadAppConfig() {
         try {
@@ -484,7 +480,6 @@
             throw error;
         }
     }
-
     async function loadUserData() {
         if (!tgUser || !tgUser.id) return Promise.resolve(); // Resolve immediately if no user ID
         try {
@@ -532,7 +527,6 @@
             throw error;
         }
     }
-
     // Check if user was referred
     function checkForReferral() {
         if (!tgUser || !tgUser.id) return;
@@ -550,7 +544,6 @@
             });
         }
     }
-
     // Process referral and reward referrer
     async function processReferral(referrerId) {
         try {
@@ -581,7 +574,6 @@
             console.error("Error processing referral:", error);
         }
     }
-
     function setupBlockingListener(userRef) {
         if (userBlockedListener) {
             // Remove previous listener if exists
@@ -593,7 +585,6 @@
             handleBlockingStatus(blockedStatus);
         });
     }
-
     function setupWithdrawHistoryListener(userRef) {
         if (withdrawHistoryListener) {
             // Remove previous listener if exists
@@ -615,7 +606,6 @@
             }
         });
     }
-
     function setupPointsBalanceListener(userRef) {
         if (userPointsBalanceListener) {
             // Remove previous listener if exists
@@ -632,7 +622,6 @@
             }
         });
     }
-
     function setupReferralListener(userRef) {
         if (referralListener) {
             // Remove previous listener if exists
@@ -656,7 +645,6 @@
             }
         });
     }
-
     // Claim referral earnings (convert to main balance)
     async function claimReferralEarnings() {
         if (!tgUser || !tgUser.id) return;
@@ -685,7 +673,6 @@
             showMessageModal('Error', 'Failed to claim referral earnings. Please try again.');
         }
     }
-
     function handleBlockingStatus(blockedStatus) {
         if (blockedStatus !== isBlocked) {
             isBlocked = blockedStatus;
@@ -702,7 +689,6 @@
             }
         }
     }
-
     async function saveUserData() {
         if (!tgUser || !tgUser.id) return;
         try {
@@ -715,7 +701,6 @@
             console.error("Failed to save user ", error);
         }
     }
-
     // --- View Management ---
     function showView(viewId) {
         // Prevent navigation if user is blocked (except to blocked view)
@@ -730,13 +715,11 @@
         if(activeBtn) activeBtn.classList.add('active');
         if (viewId === 'history-view') renderHistory();
     }
-
     function showBlockedView() {
         isBlocked = true;
         showView('blocked-view');
         disableUI();
     }
-
     function disableUI() {
         // Add 'disabled' class to interactive elements
         document.querySelectorAll('.task-card, .nav-button, .action-button').forEach(el => {
@@ -748,7 +731,6 @@
         const taskBtns = document.querySelectorAll('.task-card[onclick^="showAd"]');
         taskBtns.forEach(btn => btn.classList.add('disabled'));
     }
-
     function enableUI() {
         // Remove 'disabled' class from interactive elements
         document.querySelectorAll('.task-card, .nav-button, .action-button').forEach(el => {
@@ -760,12 +742,10 @@
         const taskBtns = document.querySelectorAll('.task-card[onclick^="showAd"]');
         taskBtns.forEach(btn => btn.classList.remove('disabled'));
     }
-
     function updateDisplay() {
         document.getElementById('points-value').textContent = points.toLocaleString();
         document.getElementById('balance-value').textContent = `$${balance.toFixed(2)}`;
     }
-
     // --- User & Profile ---
     function loadTelegramUser() {
         if (tgUser) {
@@ -778,7 +758,6 @@
             }
         }
     }
-
     // --- History Logic ---
     function addToHistory(type, detail) {
         const timestamp = new Date().toISOString();
@@ -786,7 +765,6 @@
         if (historyLog.length > 50) historyLog.pop();
         saveUserData();
     }
-
     function renderHistory() {
         const list = document.getElementById('history-list');
         if (historyLog.length === 0) {
@@ -807,17 +785,14 @@
                 </div>`;
         }).join('');
     }
-
     // --- Withdraw History Modal Logic ---
     function openWithdrawHistoryModal() {
         renderWithdrawHistoryModal();
         document.getElementById('withdraw-history-modal').classList.add('active');
     }
-
     function closeWithdrawHistoryModal() {
         document.getElementById('withdraw-history-modal').classList.remove('active');
     }
-
     function renderWithdrawHistoryModal() {
         const list = document.getElementById('withdraw-history-modal-list');
         if (withdrawHistory.length === 0) {
@@ -837,7 +812,6 @@
                 </div>`;
         }).join('');
     }
-
     // --- Share Modal Logic ---
     function openShareModal() {
         if (isBlocked) {
@@ -853,30 +827,25 @@
         // Show modal
         document.getElementById('share-modal').classList.add('active');
     }
-
     function closeShareModal() {
         document.getElementById('share-modal').classList.remove('active');
     }
-
     function updateShareModal() {
         document.getElementById('referral-count').textContent = referralData.referralCount;
         document.getElementById('referral-earnings').textContent = referralData.referralEarnings;
     }
-
     function copyReferralLink() {
         const referralLinkInput = document.getElementById('referral-link');
         referralLinkInput.select();
         document.execCommand('copy');
         showMessageModal('Success', 'Referral link copied to clipboard!');
     }
-
     function shareOnTelegram() {
         const referralLink = document.getElementById('referral-link').value;
         const text = "🎉 Join this amazing bot and start earning! Use my link to get a special bonus:";
         const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(referralLink)}&text=${encodeURIComponent(text)}`;
         Telegram.WebApp.openTelegramLink(shareUrl);
     }
-
     // --- Leaderboard Logic (kept for compatibility) ---
     function renderLeaderboard() {
         const leaderboardData = [
@@ -888,7 +857,6 @@
         ];
         // This function is kept but not used in current UI
     }
-
     // --- Earning Functions ---
     function grantReward() {
         if (isBlocked) {
@@ -905,31 +873,38 @@
         Telegram.WebApp.HapticFeedback.notificationOccurred('success');
         showMessageModal('Success', `Congratulations! You've earned +${appConfig.pointsPerAd} coins. Your new balance is $${balance.toFixed(2)}.`);
     }
-
     // Function to show the ad using the original Monetag zone
     function showAd() {
         if (isBlocked) {
             showBlockedView();
             return;
         }
+        // Prevent double click by disabling the button immediately
+        const taskCard = event.currentTarget; // Get the clicked task card
+        if (taskCard.classList.contains('disabled')) {
+            return; // Already processing
+        }
+        taskCard.classList.add('disabled'); // Disable the button
         // Check if the Monetag SDK function is available
         if (typeof show_9807992 === 'function') {
             // Call the Monetag function to show the ad
             show_9807992().then(() => {
                 // Ad shown successfully (or user interacted)
                 grantReward(); // Grant reward after ad interaction
+                taskCard.classList.remove('disabled'); // Re-enable the button
             }).catch((error) => {
                 // Handle errors, e.g., ad failed to load
                 console.error("Ad could not be shown:", error);
                 showMessageModal('Error', "Sorry, the ad could not be loaded. Please try again.");
+                taskCard.classList.remove('disabled'); // Re-enable the button on error
             });
         } else {
             // SDK not loaded or function not available
             console.warn("Monetag SDK is not ready yet.");
             showMessageModal('Warning', "Ad provider is not ready. Please try again in a moment.");
+            taskCard.classList.remove('disabled'); // Re-enable the button
         }
     }
-
     // Function to show the ad using the new Monetag zone 9702109
     function showAdOne() {
         if (isBlocked) {
@@ -942,7 +917,6 @@
             return; // Already processing
         }
         taskCard.classList.add('disabled'); // Disable the button
-
         // Check if the Monetag SDK function is available
         if (typeof show_9702109 === 'function') {
             // Call the Monetag function to show the ad
@@ -963,7 +937,6 @@
             taskCard.classList.remove('disabled'); // Re-enable the button
         }
     }
-
     // Function to show the ad using the new Monetag zone 9292001
     function showAdTwo() {
         if (isBlocked) {
@@ -976,7 +949,6 @@
             return; // Already processing
         }
         taskCard.classList.add('disabled'); // Disable the button
-
         // Check if the Monetag SDK function is available
         if (typeof show_9292001 === 'function') {
             // Call the Monetag function to show the ad
@@ -997,25 +969,27 @@
             taskCard.classList.remove('disabled'); // Re-enable the button
         }
     }
-
     // --- Withdrawal Logic ---
+    // Flag to prevent multiple withdrawal requests
+    let isWithdrawRequestPending = false;
+
     function requestWithdraw() {
         if (isBlocked) {
             showBlockedView();
             return;
         }
 
-        // Prevent double click by disabling the button immediately
-        const requestBtn = document.getElementById('requestWithdrawBtn');
-        if (requestBtn.disabled) {
-            return; // Already processing
+        // Prevent multiple simultaneous requests using flag
+        if (isWithdrawRequestPending) {
+            console.log("Withdrawal request already in progress.");
+            return;
         }
 
+        // Validation
         const paymentMethod = document.getElementById('paymentMethod').value;
         const mobileNumber = document.getElementById('mobileNumber').value.trim();
         const amount = parseFloat(document.getElementById('withdrawAmount').value);
 
-        // Validation
         if (!mobileNumber) {
             showMessageModal('Error', 'Please enter your mobile number.');
             return;
@@ -1033,7 +1007,21 @@
             return;
         }
 
+        // Check for existing pending/processing requests in local array
+        const hasPendingRequest = withdrawHistory.some(request =>
+            request.status === 'Pending' || request.status === 'Processing'
+        );
+
+        if (hasPendingRequest) {
+            showMessageModal('Error', 'You already have a pending or processing withdrawal request. Please wait for it to be completed before submitting a new one.');
+            return;
+        }
+
+        // Set flag to indicate a request is in progress
+        isWithdrawRequestPending = true;
+
         // Change button to red "Requesting..." state immediately
+        const requestBtn = document.getElementById('requestWithdrawBtn');
         requestBtn.textContent = 'Requesting...';
         requestBtn.classList.remove('primary-button');
         requestBtn.classList.add('requesting-button');
@@ -1041,7 +1029,7 @@
 
         // Create withdraw request with Pending status
         const withdrawRequest = {
-            id: Date.now().toString(),
+            id: Date.now().toString(), // This should be unique per request
             userId: tgUser.id,
             username: tgUser.username || 'Unknown',
             method: paymentMethod,
@@ -1053,21 +1041,25 @@
 
         // Save to Firebase
         const userRef = database.ref('users/' + tgUser.id);
-        const newWithdrawRef = userRef.child('withdrawHistory').push();
-        newWithdrawRef.set(withdrawRequest)
+
+        userRef.child('withdrawHistory').push(withdrawRequest)
             .then(() => {
                 // Immediately deduct balance and update points in Firebase
                 balance -= amount;
+                // Ensure points are calculated correctly and don't go negative
                 points = Math.max(0, Math.round(balance / appConfig.valuePerConversion * appConfig.coinsForConversion));
                 updateDisplay();
                 saveUserData();
+
                 // Add to local withdrawHistory array for immediate display in modal if open
                 withdrawHistory.unshift(withdrawRequest);
                 if (document.getElementById('withdraw-history-modal').classList.contains('active')) {
                     renderWithdrawHistoryModal();
                 }
+
                 // Add to activity history
                 addToHistory('withdraw', `Request for $${amount.toFixed(2)} via ${paymentMethod}`);
+
                 // Show success message after 3 seconds
                 setTimeout(() => {
                     showMessageModal('Success', 'Your withdrawal request has been submitted successfully!');
@@ -1079,6 +1071,8 @@
                     // Clear form
                     document.getElementById('mobileNumber').value = '';
                     document.getElementById('withdrawAmount').value = '';
+                    // Reset flag
+                    isWithdrawRequestPending = false;
                 }, 3000); // 3 seconds delay before showing success message
             })
             .catch((error) => {
@@ -1089,20 +1083,19 @@
                 requestBtn.classList.remove('requesting-button');
                 requestBtn.classList.add('primary-button');
                 requestBtn.disabled = false;
+                // Reset flag
+                isWithdrawRequestPending = false;
             });
     }
-
     // --- Message Modal ---
     function showMessageModal(title, message) {
         document.getElementById('message-modal-title').textContent = title;
         document.getElementById('message-modal-text').textContent = message;
         document.getElementById('message-modal').classList.add('active');
     }
-
     function closeMessageModal() {
         document.getElementById('message-modal').classList.remove('active');
     }
-
     // Cleanup listener on unload
     window.addEventListener('beforeunload', () => {
         if (userBlockedListener && tgUser && tgUser.id) {
