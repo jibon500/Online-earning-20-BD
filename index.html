@@ -1,4 +1,4 @@
-
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -9,8 +9,10 @@
     <!-- Your New Ad Code -->
     <script src='//libtl.com/sdk.js' data-zone='9344336' data-sdk='show_9344336'></script>
 
+    <!-- এখানে স্পেস মুছে ফেলা হয়েছে -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- এখানে স্পেস মুছে ফেলা হয়েছে -->
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
         body { font-family: 'Inter', sans-serif; background-color: #121212; color: #ffffff; }
@@ -211,7 +213,8 @@
         const firebaseConfig = {
             apiKey: "AIzaSyD3BGZ0MVLpbQbIpLUAnYvWNEIyk7Y6S0Q",
             authDomain: "earning-app-80258.firebaseapp.com",
-            databaseURL: "https://earning-app-80258-default-rtdb.firebaseio.com",
+            // এই লাইনটি মুছে ফেলা হয়েছে কারণ Firestore ব্যবহার করা হচ্ছে
+            // databaseURL: "https://earning-app-80258-default-rtdb.firebaseio.com",
             projectId: "earning-app-80258",
             storageBucket: "earning-app-80258.appspot.com",
             messagingSenderId: "25930019210",
@@ -220,14 +223,17 @@
         };
 
         // Import the functions you need from the SDKs you need
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
-        import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-analytics.js";
-        import { getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc, getDoc, updateDoc, collection, addDoc, serverTimestamp, query, where, getDocs, orderBy, limit } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
+        // এখানে স্পেস মুছে ফেলা হয়েছে এবং সংস্করণ 9.23.0 ব্যবহার করা হয়েছে
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+        // Analytics ইমপোর্ট মুছে ফেলা হয়েছে (ঐচ্ছিক)
+        // import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-analytics.js";
+        import { getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc, updateDoc, collection, addDoc, serverTimestamp, query, where, getDocs, orderBy, limit } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
         // Initialize Firebase
         const app = initializeApp(firebaseConfig);
-        const analytics = getAnalytics(app);
+        // Analytics ইনিশিয়ালাইজ মুছে ফেলা হয়েছে (ঐচ্ছিক)
+        // const analytics = getAnalytics(app);
         const auth = getAuth(app);
         const db = getFirestore(app);
 
@@ -705,5 +711,3 @@
 </body>
 </html>
 ```
-
-This corrected code should resolve the "Error loading user data" issue and allow users to sign up and log in correctly by ensuring the Firebase SDK is correctly initialized and imported.
