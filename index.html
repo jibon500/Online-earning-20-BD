@@ -1,4 +1,4 @@
-
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -21,6 +21,11 @@
       --accent-color: #ff8c00; /* Keep orange for accents */
       --card-bg: #f5f5f5; /* Light grey card background */
       --error-color: #ff4444; /* Error color */
+      --pending-color: #ffc107; /* Yellow for pending */
+      --processing-color: #17a2b8; /* Blue for processing */
+      --success-color: #28a745; /* Green for success */
+      --rejected-color: #dc3545; /* Red for rejected */
+      --requesting-color: #dc3545; /* Red for requesting state */
     }
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
     body {
@@ -100,6 +105,8 @@
     .primary-button:hover { background: var(--primary-hover); transform: translateY(-2px); box-shadow: 0 5px 15px rgba(46, 217, 20, 0.3); }
     .secondary-button { background: var(--secondary-color); color: var(--primary-color); border: 1px solid rgba(0, 0, 0, 0.1); }
     .secondary-button:hover { background: #d0d0d0; }
+    .requesting-button { background: var(--requesting-color); color: #fff; }
+    .requesting-button:hover { background: #c82333; }
     .modal-overlay {
       position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7);
       display: none; align-items: center; justify-content: center; z-index: 1000; animation: fadeIn 0.3s;
@@ -113,6 +120,30 @@
     .modal-content h3 { margin-top: 0; font-size: 20px; }
     .modal-content p { color: var(--text-muted-color); margin-bottom: 25px; }
     .modal-actions { display: flex; gap: 10px; }
+    
+    /* Withdraw Modal Specific Styles */
+    .withdraw-form {
+      text-align: left;
+    }
+    .form-group {
+      margin-bottom: 15px;
+    }
+    .form-group label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: 600;
+    }
+    .form-control {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 16px;
+    }
+    .status-pending { color: var(--pending-color); font-weight: bold; }
+    .status-processing { color: var(--processing-color); font-weight: bold; }
+    .status-success { color: var(--success-color); font-weight: bold; }
+    .status-rejected { color: var(--rejected-color); font-weight: bold; }
     
     /* Loading and Error States */
     .loading, .error-message {
@@ -159,7 +190,7 @@
             <div class="task-details"><h3>View Tasks</h3><p>Watch ads and complete tasks to earn coins.</p></div>
             <div class="task-arrow"><i class="fa-solid fa-chevron-right"></i></div>
         </div>
-        <div class="task-card" onclick="openWithdrawModal()">
+        <div class="task-card" onclick="showView('withdraw-view')">
             <div class="task-icon"><i class="fa-solid fa-wallet"></i></div>
             <div class="task-details"><h3>Withdraw Funds</h3><p>Request to withdraw your available balance.</p></div>
             <div class="task-arrow"><i class="fa-solid fa-chevron-right"></i></div>
@@ -178,10 +209,41 @@
         <!-- Removed other task cards as per request -->
       </div>
 
-      <!-- LEADERBOARD VIEW -->
-      <div id="leaderboard-view" class="view">
-        <h2 class="section-title">Top Earners</h2>
-        <div id="leaderboard-list"><!-- Leaderboard items will be generated here by JS --></div>
+      <!-- WITHDRAW VIEW -->
+      <div id="withdraw-view" class="view">
+        <h2 class="section-title">Withdraw Funds</h2>
+        
+        <!-- Withdraw Form -->
+        <div class="withdraw-form">
+          <div class="form-group">
+            <label for="paymentMethod">Payment Method</label>
+            <select id="paymentMethod" class="form-control">
+              <option value="bkash">Bkash</option>
+              <option value="nagad">Nagad</option>
+              <option value="rocket">Rocket</option>
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label for="mobileNumber">Mobile Number</label>
+            <input type="tel" id="mobileNumber" class="form-control" placeholder="Enter mobile number">
+          </div>
+          
+          <div class="form-group">
+            <label for="withdrawAmount">Amount ($)</label>
+            <input type="number" id="withdrawAmount" class="form-control" placeholder="Enter amount" step="0.01" min="5">
+          </div>
+          
+          <button id="requestWithdrawBtn" class="action-button primary-button" onclick="requestWithdraw()">
+            <i class="fa-solid fa-paper-plane"></i> Request Withdrawal
+          </button>
+        </div>
+        
+        <!-- Withdraw History -->
+        <h3 class="section-title" style="margin-top: 30px;">Withdraw History</h3>
+        <div id="withdraw-history-list">
+          <!-- History items will be populated here -->
+        </div>
       </div>
 
       <!-- HISTORY VIEW -->
@@ -203,20 +265,20 @@
     <nav class="footer-nav">
       <button class="nav-button active" onclick="showView('home-view')"><i class="icon fa-solid fa-house"></i>Home</button>
       <button class="nav-button" onclick="showView('tasks-view')"><i class="icon fa-solid fa-list-check"></i>Tasks</button>
-      <button class="nav-button" onclick="showView('leaderboard-view')"><i class="icon fa-solid fa-trophy"></i>Leaders</button>
       <button class="nav-button" onclick="showView('history-view')"><i class="icon fa-solid fa-clock-rotate-left"></i>History</button>
+      <!-- Added Withdraw button -->
+      <button class="nav-button" onclick="showView('withdraw-view')"><i class="icon fa-solid fa-wallet"></i>Withdraw</button>
       <button class="nav-button" onclick="shareApp()"><i class="icon fa-solid fa-share-nodes"></i>Share</button>
     </nav>
   </div>
   
-  <!-- WITHDRAWAL MODAL -->
-  <div class="modal-overlay" id="withdraw-modal">
+  <!-- Generic Modal for Messages -->
+  <div class="modal-overlay" id="message-modal">
     <div class="modal-content">
-        <h3>Confirm Withdrawal</h3>
-        <p>You are about to request a withdrawal of your entire balance. Please confirm.</p>
+        <h3 id="message-modal-title">Notification</h3>
+        <p id="message-modal-text">Operation completed.</p>
         <div class="modal-actions">
-            <button class="action-button secondary-button" onclick="closeWithdrawModal()">Cancel</button>
-            <button class="action-button primary-button" onclick="requestWithdraw()">Confirm</button>
+            <button class="action-button primary-button" onclick="closeMessageModal()">OK</button>
         </div>
     </div>
   </div>
@@ -242,6 +304,7 @@
     let points = 0;
     let balance = 0.00;
     let historyLog = [];
+    let withdrawHistory = [];
     let tgUser = null;
     let isBlocked = false;
     let appConfig = {
@@ -252,6 +315,7 @@
     
     // For real-time listener reference
     let userBlockedListener = null;
+    let withdrawHistoryListener = null;
     
     // --- Updated Balance Logic ---
     // Dynamic from Firebase: 1000 coins = 30 cents = $0.30 USD
@@ -277,7 +341,7 @@
                         loadTelegramUser();
                         renderLeaderboard();
                     }).catch(error => {
-                        console.error("Error loading user data:", error);
+                        console.error("Error loading user ", error);
                         // Handle error appropriately, maybe show a message
                     });
                 });
@@ -291,7 +355,7 @@
                     showView('home-view');
                     renderLeaderboard();
                 }).catch(error => {
-                    console.error("Error loading user data:", error);
+                    console.error("Error loading user ", error);
                     // Handle error appropriately
                 });
             }).catch(error => {
@@ -346,6 +410,9 @@
                 
                 // Set up real-time listener for blocking status
                 setupBlockingListener(userRef);
+                
+                // Set up real-time listener for withdraw history
+                setupWithdrawHistoryListener(userRef);
             } else {
                 // Initialize new user
                 await userRef.set({
@@ -360,9 +427,12 @@
                 
                 // Set up real-time listener for blocking status
                 setupBlockingListener(userRef);
+                
+                // Set up real-time listener for withdraw history
+                setupWithdrawHistoryListener(userRef);
             }
         } catch (error) {
-            console.error("Failed to load user data:", error);
+            console.error("Failed to load user ", error);
             throw error;
         }
     }
@@ -377,6 +447,30 @@
         userBlockedListener = userRef.child('isBlocked').on('value', (snapshot) => {
             const blockedStatus = snapshot.val() || false;
             handleBlockingStatus(blockedStatus);
+        });
+    }
+
+    function setupWithdrawHistoryListener(userRef) {
+        if (withdrawHistoryListener) {
+            // Remove previous listener if exists
+            userRef.child('withdrawHistory').off('value', withdrawHistoryListener);
+        }
+        
+        // Set up new listener
+        withdrawHistoryListener = userRef.child('withdrawHistory').on('value', (snapshot) => {
+            const history = snapshot.val();
+            if (history) {
+                withdrawHistory = Object.values(history);
+                // Sort by timestamp descending
+                withdrawHistory.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+            } else {
+                withdrawHistory = [];
+            }
+            
+            // Render history if on withdraw view
+            if (document.getElementById('withdraw-view').classList.contains('active')) {
+                renderWithdrawHistory();
+            }
         });
     }
 
@@ -407,7 +501,7 @@
                 historyLog: historyLog
             });
         } catch (error) {
-            console.error("Failed to save user data:", error);
+            console.error("Failed to save user ", error);
         }
     }
 
@@ -427,6 +521,7 @@
         if(activeBtn) activeBtn.classList.add('active');
         
         if (viewId === 'history-view') renderHistory();
+        if (viewId === 'withdraw-view') renderWithdrawHistory();
     }
     
     function showBlockedView() {
@@ -442,7 +537,7 @@
         });
         
         // Disable specific buttons that might not have the class
-        const withdrawBtn = document.querySelector('.task-card[onclick="openWithdrawModal()"]');
+        const withdrawBtn = document.querySelector('.task-card[onclick="showView(\'withdraw-view\')"]');
         if (withdrawBtn) withdrawBtn.classList.add('disabled');
         
         const taskBtn = document.querySelector('.task-card[onclick="showAd()"]');
@@ -456,7 +551,7 @@
         });
         
         // Enable specific buttons
-        const withdrawBtn = document.querySelector('.task-card[onclick="openWithdrawModal()"]');
+        const withdrawBtn = document.querySelector('.task-card[onclick="showView(\'withdraw-view\')"]');
         if (withdrawBtn) withdrawBtn.classList.remove('disabled');
         
         const taskBtn = document.querySelector('.task-card[onclick="showAd()"]');
@@ -511,7 +606,30 @@
         }).join('');
     }
 
-    // --- Leaderboard Logic ---
+    // --- Withdraw History Logic ---
+    function renderWithdrawHistory() {
+        const list = document.getElementById('withdraw-history-list');
+        
+        // Always render the history, even if empty
+        if (withdrawHistory.length === 0) {
+            list.innerHTML = ''; // Clear any placeholder text
+            return;
+        }
+        
+        list.innerHTML = withdrawHistory.map(item => {
+            const statusClass = `status-${item.status.toLowerCase()}`;
+            return `
+                <div class="list-item">
+                    <div class="info">
+                        <div class="name">$${parseFloat(item.amount).toFixed(2)} via ${item.method}</div>
+                        <div class="detail">${item.mobileNumber}</div>
+                    </div>
+                    <div class="${statusClass}">${item.status}</div>
+                </div>`;
+        }).join('');
+    }
+
+    // --- Leaderboard Logic (kept for compatibility) ---
     function renderLeaderboard() {
         const leaderboardData = [
             { name: "CryptoKing", score: 25400, avatar: "https://i.pravatar.cc/150?img=1" },
@@ -521,14 +639,7 @@
             { name: "BotMaster", score: 15300, avatar: "https://i.pravatar.cc/150?img=5" },
         ];
         
-        document.getElementById('leaderboard-list').innerHTML = leaderboardData.map((user, index) => `
-            <div class="list-item">
-                <div class="rank">#${index + 1}</div>
-                <img src="${user.avatar}" class="avatar" alt="Avatar">
-                <div class="info"><div class="name">${user.name}</div></div>
-                <div class="score">${user.score.toLocaleString()} coins</div>
-            </div>
-        `).join('');
+        // This function is kept but not used in current UI
     }
 
     // --- Earning Functions ---
@@ -549,7 +660,7 @@
         saveUserData();
         Telegram.WebApp.HapticFeedback.notificationOccurred('success');
         
-        alert(`Congratulations! You've earned +${appConfig.pointsPerAd} coins. Your new balance is $${balance.toFixed(2)}.`);
+        showMessageModal('Success', `Congratulations! You've earned +${appConfig.pointsPerAd} coins. Your new balance is $${balance.toFixed(2)}.`);
     }
 
     // Function to show the ad using the new Monetag zone
@@ -568,64 +679,122 @@
             }).catch((error) => {
                 // Handle errors, e.g., ad failed to load
                 console.error("Ad could not be shown:", error);
-                alert("Sorry, the ad could not be loaded. Please try again.");
+                showMessageModal('Error', "Sorry, the ad could not be loaded. Please try again.");
             });
         } else {
             // SDK not loaded or function not available
             console.warn("Monetag SDK is not ready yet.");
-            alert("Ad provider is not ready. Please try again in a moment.");
+            showMessageModal('Warning', "Ad provider is not ready. Please try again in a moment.");
         }
     }
 
     // --- Withdrawal Logic ---
-    function openWithdrawModal() {
-        if (isBlocked) {
-            showBlockedView();
-            return;
-        }
-        
-        if (balance < 5) {
-            Telegram.WebApp.HapticFeedback.notificationOccurred('error');
-            return alert("Minimum withdrawal amount is $5.00. Keep earning!");
-        }
-        document.getElementById('withdraw-modal').classList.add('active');
-    }
-    
-    function closeWithdrawModal() {
-        document.getElementById('withdraw-modal').classList.remove('active');
-    }
-
     function requestWithdraw() {
         if (isBlocked) {
             showBlockedView();
             return;
         }
         
-        closeWithdrawModal();
-        const botToken = 'AAGXSk0suIC-ELK51_l53n6XxxvOtsBTvkY';
-        const adminUserId = '7609218468';
-        const userInfo = tgUser ? `@${tgUser.username} (ID: ${tgUser.id})` : 'Unknown User';
-        const message = `💸 *Withdrawal Request*\n\n👤 *User:* ${userInfo}\n💰 *Amount:* $${balance.toFixed(2)}\n\n_Please process this request._`;
+        const paymentMethod = document.getElementById('paymentMethod').value;
+        const mobileNumber = document.getElementById('mobileNumber').value.trim();
+        const amount = parseFloat(document.getElementById('withdrawAmount').value);
+        const requestBtn = document.getElementById('requestWithdrawBtn');
+        
+        // Validation
+        if (!mobileNumber) {
+            showMessageModal('Error', 'Please enter your mobile number.');
+            return;
+        }
+        
+        if (!amount || isNaN(amount)) {
+            showMessageModal('Error', 'Please enter a valid amount.');
+            return;
+        }
+        
+        if (amount < 5) {
+            showMessageModal('Error', 'Minimum withdrawal amount is $5.00.');
+            return;
+        }
+        
+        if (amount > balance) {
+            showMessageModal('Error', 'Insufficient balance for this withdrawal.');
+            return;
+        }
+        
+        // Change button to red "Requesting..." state immediately
+        requestBtn.textContent = 'Requesting...';
+        requestBtn.classList.remove('primary-button');
+        requestBtn.classList.add('requesting-button');
+        requestBtn.disabled = true;
+        
+        // Create withdraw request with Pending status
+        const withdrawRequest = {
+            id: Date.now().toString(),
+            userId: tgUser.id,
+            username: tgUser.username || 'Unknown',
+            method: paymentMethod,
+            mobileNumber: mobileNumber,
+            amount: amount.toFixed(2),
+            status: 'Pending',
+            timestamp: new Date().toISOString()
+        };
+        
+        // Save to Firebase
+        const userRef = database.ref('users/' + tgUser.id);
+        const newWithdrawRef = userRef.child('withdrawHistory').push();
+        
+        newWithdrawRef.set(withdrawRequest)
+            .then(() => {
+                // Add to local withdrawHistory array for immediate display
+                withdrawHistory.unshift(withdrawRequest);
+                renderWithdrawHistory(); // Re-render the history immediately
+                
+                // Deduct balance and update points after 3 seconds
+                setTimeout(() => {
+                    // Update user balance
+                    balance -= amount;
+                    points = Math.max(0, Math.round(balance / appConfig.valuePerConversion * appConfig.coinsForConversion));
+                    updateDisplay();
+                    saveUserData();
+                    
+                    // Add to activity history
+                    addToHistory('withdraw', `Request for $${amount.toFixed(2)} via ${paymentMethod}`);
+                    
+                    // Show success message
+                    showMessageModal('Success', 'Your withdrawal request has been submitted successfully!');
+                    
+                    // Reset button state
+                    requestBtn.textContent = 'Request Withdrawal';
+                    requestBtn.classList.remove('requesting-button');
+                    requestBtn.classList.add('primary-button');
+                    requestBtn.disabled = false;
+                    
+                    // Clear form
+                    document.getElementById('mobileNumber').value = '';
+                    document.getElementById('withdrawAmount').value = '';
+                }, 3000); // 3 seconds delay
+            })
+            .catch((error) => {
+                console.error('Error submitting withdrawal request:', error);
+                showMessageModal('Error', 'Failed to submit withdrawal request. Please try again.');
+                
+                // Reset button state on error
+                requestBtn.textContent = 'Request Withdrawal';
+                requestBtn.classList.remove('requesting-button');
+                requestBtn.classList.add('primary-button');
+                requestBtn.disabled = false;
+            });
+    }
 
-        fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
-            method: "POST",
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ chat_id: adminUserId, text: message, parse_mode: "Markdown" })
-        }).then(res => res.json())
-        .then(data => {
-            if (data.ok) {
-                Telegram.WebApp.HapticFeedback.notificationOccurred('success');
-                alert("Your withdrawal request has been sent successfully!");
-                addToHistory('withdraw', `Request for $${balance.toFixed(2)}`);
-                saveUserData();
-            } else {
-                Telegram.WebApp.HapticFeedback.notificationOccurred('error');
-                alert("Failed to send request. Please try again later.");
-            }
-        }).catch(err => {
-            Telegram.WebApp.HapticFeedback.notificationOccurred('error');
-            alert("An error occurred. Check your connection and try again.");
-        });
+    // --- Message Modal ---
+    function showMessageModal(title, message) {
+        document.getElementById('message-modal-title').textContent = title;
+        document.getElementById('message-modal-text').textContent = message;
+        document.getElementById('message-modal').classList.add('active');
+    }
+    
+    function closeMessageModal() {
+        document.getElementById('message-modal').classList.remove('active');
     }
 
     // --- Share & Referral ---
@@ -635,7 +804,11 @@
             return;
         }
         
-        if (!tgUser) return alert("Could not get user data from Telegram.");
+        if (!tgUser) {
+            showMessageModal('Error', 'Could not get user data from Telegram.');
+            return;
+        }
+        
         const botUsername = "NSMTECHBD_Bot";
         const referralLink = `https://t.me/${botUsername}?start=${tgUser.id}`;
         const text = `🎉 Join this amazing bot and start earning! Use my link to get a special bonus:`;
@@ -649,7 +822,12 @@
             const userRef = database.ref('users/' + tgUser.id);
             userRef.child('isBlocked').off('value', userBlockedListener);
         }
+        if (withdrawHistoryListener && tgUser && tgUser.id) {
+            const userRef = database.ref('users/' + tgUser.id);
+            userRef.child('withdrawHistory').off('value', withdrawHistoryListener);
+        }
     });
 </script>
 </body>
 </html>
+```
