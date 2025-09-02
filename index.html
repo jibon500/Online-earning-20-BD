@@ -1,16 +1,3 @@
-ঠিক আছে, আমি কোডটি আপডেট করেছি।
-
-**করা পরিবর্তন:**
-
-1.  **Monetag SDK লোডিং অর্ডার:** Monetag SDK স্ক্রিপ্ট (`<script src='//libtl.com/sdk.js' ...`) এখন Firebase SDK স্ক্রিপ্টের *আগে* `<head>` এর মধ্যে লোড হবে।
-2.  **Firebase Config আপডেট:** `appConfig` অবজেক্টে `referralRewardCoins`, `referralClaimThreshold`, এবং `minWithdrawAmount` প্রপার্টি যোগ করা হয়েছে এবং `loadAppConfig` ফাংশন আপডেট করা হয়েছে যাতে এগুলো Firebase থেকে লোড করে।
-3.  **ডাবল উইথড্র রিকোয়েস্ট ঠিক করা:** `requestWithdraw` ফাংশনে ডাবল ক্লিক প্রতিরোধ লজিক আপডেট করা হয়েছে (বাটন ডিসএবল করা এবং "Requesting..." টেক্সট দেখানো)।
-4.  **রেফারেল এবং উইথড্র লজিক আপডেট:** রেফারেল রিওয়ার্ড, ক্লেইম থ্রেসহোল্ড, এবং মিনিমাম উইথড্র অ্যামাউন্ট এখন Firebase কনফিগ থেকে লোড হয়।
-5.  **নতুন অ্যাড বাটন:** "Earning Tasks" ভিউতে "Tap to Earn One" এবং "Tap to Earn Two" বাটন যোগ করা হয়েছে, যার জন্য নতুন Monetag SDK স্ক্রিপ্ট হেডারে যোগ করা হয়েছে এবং নতুন `showAdOne()` ও `showAdTwo()` ফাংশন যোগ করা হয়েছে।
-
-এখানে আপডেট করা সম্পূর্ণ HTML কোড রয়েছে:
-
-```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1139,4 +1126,3 @@
 </script>
 </body>
 </html>
-```
