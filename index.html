@@ -156,8 +156,35 @@
         @keyframes fadeInSlideUp { to { opacity: 1; transform: translateY(0); } }
     </style>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <!-- Add script to your app -->
-    <script src='//libtl.com/sdk.js' data-zone='9292109' data-sdk='show_9292109'></script>
+    <!-- Firebase App (the core Firebase SDK) -->
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+        import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
+
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyD3BGZ0MVLpbQbIpLUAnYvWNEIyk7Y6S0Q",
+            authDomain: "earning-app-80258.firebaseapp.com",
+            databaseURL: "https://earning-app-80258-default-rtdb.firebaseio.com",
+            projectId: "earning-app-80258",
+            storageBucket: "earning-app-80258.appspot.com",
+            messagingSenderId: "25930019210",
+            appId: "1:25930019210:web:6441562811d3e7e9631873",
+            measurementId: "G-P9HX6XXT1Q"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+        
+        // Make Firebase globally accessible for the app logic
+        window.firebaseApp = app;
+        window.firebaseDatabase = database;
+        window.firebaseRefs = { ref, onValue, set };
+    </script>
+    <!-- Monetag Ad Script -->
+    <script src='//solseewuthi.net/sdk.js' data-zone='9344336' data-sdk='show_9344336' async></script>
 </head>
 <body>
     <div class="app-container">
@@ -351,7 +378,7 @@
             monetagConfig: {
                 dailyTaskLimit: 1000,
                 rewardPerTaskUSD: 0.0006,
-                adZone: '9292109' // Updated zone ID
+                adZone: '9344336'
             },
             todayStats: { 
                 date: new Date().toDateString(), 
@@ -525,6 +552,49 @@
             updateDisplays();
             saveState();
         }
+
+        // Firebase Integration Functions
+        function getFirebaseUserPath() {
+            if (appState.telegramUser && appState.telegramUser.id) {
+                return `users/tg${appState.telegramUser.id}`;
+            }
+            return null;
+        }
+
+        function syncBalanceWithFirebase() {
+            const userPath = getFirebaseUserPath();
+            if (!userPath || !window.firebaseRefs) return;
+
+            const userRef = window.firebaseRefs.ref(window.firebaseDatabase, userPath);
+            window.firebaseRefs.onValue(userRef, (snapshot) => {
+                const data = snapshot.val();
+                if (data && data.balance !== undefined) {
+                    // Update local balance if Firebase has a different value
+                    if (appState.userUSDTBalance !== data.balance) {
+                        appState.userUSDTBalance = data.balance;
+                        updateDisplays();
+                        saveState();
+                        console.log("Balance synced from Firebase:", appState.userUSDTBalance);
+                    }
+                }
+            });
+        }
+
+        function updateBalanceInFirebase(newBalance) {
+            const userPath = getFirebaseUserPath();
+            if (!userPath || !window.firebaseRefs) return;
+
+            const userRef = window.firebaseRefs.ref(window.firebaseDatabase, userPath);
+            window.firebaseRefs.set(userRef, {
+                balance: newBalance,
+                lastUpdated: new Date().toISOString()
+            }).then(() => {
+                console.log("Balance updated in Firebase:", newBalance);
+            }).catch((error) => {
+                console.error("Error updating balance in Firebase:", error);
+            });
+        }
+
         function showMonetagAd() {
             if (adStatusMessageElement) adStatusMessageElement.textContent = "Loading ad...";
             startTaskMonetagButton.disabled = true;
@@ -534,6 +604,10 @@
                     if (adStatusMessageElement) adStatusMessageElement.textContent = "Ad shown successfully!";
                     appState.todayStats.monetagTasksCompleted++;
                     appState.userUSDTBalance += appState.monetagConfig.rewardPerTaskUSD;
+                    
+                    // Update Firebase with new balance
+                    updateBalanceInFirebase(appState.userUSDTBalance);
+                    
                     updateDisplays();
                     saveState();
                     setTimeout(() => { if (adStatusMessageElement) adStatusMessageElement.textContent = ""; }, 1500);
@@ -679,6 +753,10 @@ Address: ${address}
                     const rewardAmount = REWARD_PER_REFERRAL_INITIATION_USDT;
                     appState.referralData.usdtEarnedFromReferrals += rewardAmount;
                     appState.userUSDTBalance += rewardAmount; 
+                    
+                    // Update Firebase with new balance
+                    updateBalanceInFirebase(appState.userUSDTBalance);
+                    
                     finalMessage = `+$${rewardAmount.toFixed(2)} Earned! (${appState.todayStats.referralSharesToday}/${MAX_PAID_SHARES_PER_DAY} today)`;
                 } else {
                     finalMessage = `Daily share reward limit reached. No reward this time.`;
@@ -729,6 +807,12 @@ Address: ${address}
             loadTelegramUserData(); 
             showScreen('homeScreen');
             startWithdrawalHistoryFeedSimulation(); 
+            
+            // Initialize Firebase sync after user data is loaded
+            setTimeout(() => {
+                syncBalanceWithFirebase();
+            }, 3000);
+
             setTimeout(() => { 
                 const adFunction = `show_${appState.monetagConfig.adZone}`;
                 if (typeof window[adFunction] === 'function') {
