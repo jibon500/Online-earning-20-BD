@@ -1,4 +1,3 @@
-```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,11 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>App (Delayed Share Reward - 1 Min, Msg Update)</title>
     <style>
-      <!-- Add script to your app -->
+        
+    <!-- Add script to your app -->
     <script src='//libtl.com/sdk.js' data-zone='9807992' data-sdk='show_9807992'></script>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-</head>
-
         body {
             font-family: 'Helvetica Neue', Arial, sans-serif;
             margin: 0;
@@ -160,7 +158,7 @@
         .withdrawal-list .status-success { color: #34c759; margin-left: 5px; font-size: 12px; flex-basis: 15%; text-align: right; }
         @keyframes fadeInSlideUp { to { opacity: 1; transform: translateY(0); } }
     </style>
-  
+</head>
 <body>
     <div class="app-container">
         <div id="homeScreen" class="screen active">
@@ -181,9 +179,12 @@
             </div>
             <div class="content-padding">
                 <div class="info-card">
-                    <h3>Today's Summary & Earnings</h3>
+                    <h3>Today's Tasks (Overall Summary)</h3>
                     <p><span>Monetag Tasks Completed Today:</span> <span id="homeMonetagTasksCompleted">0</span></p>
                     <p><span>Daily Monetag Limit:</span> <span id="homeMonetagDailyLimit">1000</span></p>
+                </div>
+                <div class="info-card">
+                    <h3>Earnings</h3>
                     <p><span>Total Monetag Earnings (USDT):</span> <span id="homeTotalMonetagEarnings">0.0000</span></p>
                 </div>
                 <div class="withdrawal-history-card">
@@ -743,4 +744,3 @@ Address: ${address}
     </script>
 </body>
 </html>
-```
