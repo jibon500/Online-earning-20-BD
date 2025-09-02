@@ -162,6 +162,19 @@
       pointer-events: none;
       opacity: 0.5;
     }
+    
+    /* Withdraw History Modal */
+    #withdraw-history-modal .modal-content {
+        width: 95%;
+        max-width: 400px;
+        max-height: 80vh;
+        overflow-y: auto;
+    }
+    #withdraw-history-modal-list {
+        text-align: left;
+        max-height: 60vh;
+        overflow-y: auto;
+    }
   </style>
   <!-- Updated Monetag SDK Script with new zone ID -->
   <script src='//libtl.com/sdk.js' data-zone='9807992' data-sdk='show_9807992'></script>
@@ -239,11 +252,10 @@
           </button>
         </div>
         
-        <!-- Withdraw History -->
-        <h3 class="section-title" style="margin-top: 30px;">Withdraw History</h3>
-        <div id="withdraw-history-list">
-          <!-- History items will be populated here -->
-        </div>
+        <!-- Withdraw History Button -->
+        <button class="action-button secondary-button" onclick="openWithdrawHistoryModal()" style="margin-top: 20px;">
+          <i class="fa-solid fa-history"></i> View Withdraw History
+        </button>
       </div>
 
       <!-- HISTORY VIEW -->
@@ -282,6 +294,19 @@
         </div>
     </div>
   </div>
+  
+  <!-- Withdraw History Modal -->
+  <div class="modal-overlay" id="withdraw-history-modal">
+    <div class="modal-content">
+        <h3>Withdraw History</h3>
+        <div id="withdraw-history-modal-list">
+            <!-- History items will be populated here -->
+        </div>
+        <div class="modal-actions" style="margin-top: 20px;">
+            <button class="action-button primary-button" onclick="closeWithdrawHistoryModal()">Close</button>
+        </div>
+    </div>
+  </div>
 
 <script>
     // --- Firebase Configuration ---
@@ -316,6 +341,7 @@
     // For real-time listener reference
     let userBlockedListener = null;
     let withdrawHistoryListener = null;
+    let userPointsBalanceListener = null;
     
     // --- Updated Balance Logic ---
     // Dynamic from Firebase: 1000 coins = 30 cents = $0.30 USD
@@ -408,11 +434,10 @@
                     showBlockedView();
                 }
                 
-                // Set up real-time listener for blocking status
+                // Set up real-time listeners
                 setupBlockingListener(userRef);
-                
-                // Set up real-time listener for withdraw history
                 setupWithdrawHistoryListener(userRef);
+                setupPointsBalanceListener(userRef);
             } else {
                 // Initialize new user
                 await userRef.set({
@@ -425,11 +450,10 @@
                     createdAt: new Date().toISOString()
                 });
                 
-                // Set up real-time listener for blocking status
+                // Set up real-time listeners
                 setupBlockingListener(userRef);
-                
-                // Set up real-time listener for withdraw history
                 setupWithdrawHistoryListener(userRef);
+                setupPointsBalanceListener(userRef);
             }
         } catch (error) {
             console.error("Failed to load user ", error);
@@ -467,9 +491,27 @@
                 withdrawHistory = [];
             }
             
-            // Render history if on withdraw view
-            if (document.getElementById('withdraw-view').classList.contains('active')) {
-                renderWithdrawHistory();
+            // Render history in modal if it's open
+            if (document.getElementById('withdraw-history-modal').classList.contains('active')) {
+                renderWithdrawHistoryModal();
+            }
+        });
+    }
+
+    function setupPointsBalanceListener(userRef) {
+        if (userPointsBalanceListener) {
+            // Remove previous listener if exists
+            userRef.child('points').off('value', userPointsBalanceListener);
+            userRef.child('balance').off('value', userPointsBalanceListener);
+        }
+        
+        // Set up new listeners for points and balance
+        userPointsBalanceListener = userRef.on('value', (snapshot) => {
+            const userData = snapshot.val();
+            if (userData) {
+                points = userData.points || 0;
+                balance = userData.balance || 0.00;
+                updateDisplay();
             }
         });
     }
@@ -521,7 +563,6 @@
         if(activeBtn) activeBtn.classList.add('active');
         
         if (viewId === 'history-view') renderHistory();
-        if (viewId === 'withdraw-view') renderWithdrawHistory();
     }
     
     function showBlockedView() {
@@ -606,13 +647,21 @@
         }).join('');
     }
 
-    // --- Withdraw History Logic ---
-    function renderWithdrawHistory() {
-        const list = document.getElementById('withdraw-history-list');
+    // --- Withdraw History Modal Logic ---
+    function openWithdrawHistoryModal() {
+        renderWithdrawHistoryModal();
+        document.getElementById('withdraw-history-modal').classList.add('active');
+    }
+    
+    function closeWithdrawHistoryModal() {
+        document.getElementById('withdraw-history-modal').classList.remove('active');
+    }
+    
+    function renderWithdrawHistoryModal() {
+        const list = document.getElementById('withdraw-history-modal-list');
         
-        // Always render the history, even if empty
         if (withdrawHistory.length === 0) {
-            list.innerHTML = ''; // Clear any placeholder text
+            list.innerHTML = '<p style="text-align: center; color: var(--text-muted-color);">No withdrawal history found.</p>';
             return;
         }
         
@@ -623,6 +672,7 @@
                     <div class="info">
                         <div class="name">$${parseFloat(item.amount).toFixed(2)} via ${item.method}</div>
                         <div class="detail">${item.mobileNumber}</div>
+                        <div class="detail">${new Date(item.timestamp).toLocaleString()}</div>
                     </div>
                     <div class="${statusClass}">${item.status}</div>
                 </div>`;
@@ -745,22 +795,23 @@
         
         newWithdrawRef.set(withdrawRequest)
             .then(() => {
-                // Add to local withdrawHistory array for immediate display
-                withdrawHistory.unshift(withdrawRequest);
-                renderWithdrawHistory(); // Re-render the history immediately
+                // Immediately deduct balance and update points in Firebase
+                balance -= amount;
+                points = Math.max(0, Math.round(balance / appConfig.valuePerConversion * appConfig.coinsForConversion));
+                updateDisplay();
+                saveUserData();
                 
-                // Deduct balance and update points after 3 seconds
+                // Add to local withdrawHistory array for immediate display in modal if open
+                withdrawHistory.unshift(withdrawRequest);
+                if (document.getElementById('withdraw-history-modal').classList.contains('active')) {
+                    renderWithdrawHistoryModal();
+                }
+                
+                // Add to activity history
+                addToHistory('withdraw', `Request for $${amount.toFixed(2)} via ${paymentMethod}`);
+                
+                // Show success message after 3 seconds
                 setTimeout(() => {
-                    // Update user balance
-                    balance -= amount;
-                    points = Math.max(0, Math.round(balance / appConfig.valuePerConversion * appConfig.coinsForConversion));
-                    updateDisplay();
-                    saveUserData();
-                    
-                    // Add to activity history
-                    addToHistory('withdraw', `Request for $${amount.toFixed(2)} via ${paymentMethod}`);
-                    
-                    // Show success message
                     showMessageModal('Success', 'Your withdrawal request has been submitted successfully!');
                     
                     // Reset button state
@@ -772,7 +823,7 @@
                     // Clear form
                     document.getElementById('mobileNumber').value = '';
                     document.getElementById('withdrawAmount').value = '';
-                }, 3000); // 3 seconds delay
+                }, 3000); // 3 seconds delay before showing success message
             })
             .catch((error) => {
                 console.error('Error submitting withdrawal request:', error);
@@ -825,6 +876,10 @@
         if (withdrawHistoryListener && tgUser && tgUser.id) {
             const userRef = database.ref('users/' + tgUser.id);
             userRef.child('withdrawHistory').off('value', withdrawHistoryListener);
+        }
+        if (userPointsBalanceListener && tgUser && tgUser.id) {
+            const userRef = database.ref('users/' + tgUser.id);
+            userRef.off('value', userPointsBalanceListener);
         }
     });
 </script>
