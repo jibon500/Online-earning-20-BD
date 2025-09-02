@@ -175,6 +175,46 @@
         max-height: 60vh;
         overflow-y: auto;
     }
+    
+    /* Share Modal */
+    #share-modal .modal-content {
+        width: 95%;
+        max-width: 400px;
+        max-height: 80vh;
+        overflow-y: auto;
+    }
+    #referral-link {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        font-size: 14px;
+        margin-bottom: 15px;
+        background-color: #f9f9f9;
+    }
+    .referral-stats {
+        display: flex;
+        justify-content: space-around;
+        margin: 20px 0;
+        text-align: center;
+    }
+    .referral-stat-item {
+        background: var(--card-bg);
+        padding: 15px;
+        border-radius: 12px;
+        flex: 1;
+        margin: 0 5px;
+        border: 1px solid rgba(0, 0, 0, 0.1);
+    }
+    .referral-stat-value {
+        font-size: 24px;
+        font-weight: bold;
+        color: var(--primary-color);
+    }
+    .referral-stat-label {
+        font-size: 14px;
+        color: var(--text-muted-color);
+    }
   </style>
   <!-- Updated Monetag SDK Script with new zone ID -->
   <script src='//libtl.com/sdk.js' data-zone='9807992' data-sdk='show_9807992'></script>
@@ -280,7 +320,7 @@
       <button class="nav-button" onclick="showView('history-view')"><i class="icon fa-solid fa-clock-rotate-left"></i>History</button>
       <!-- Added Withdraw button -->
       <button class="nav-button" onclick="showView('withdraw-view')"><i class="icon fa-solid fa-wallet"></i>Withdraw</button>
-      <button class="nav-button" onclick="shareApp()"><i class="icon fa-solid fa-share-nodes"></i>Share</button>
+      <button class="nav-button" onclick="openShareModal()"><i class="icon fa-solid fa-share-nodes"></i>Share</button>
     </nav>
   </div>
   
@@ -304,6 +344,42 @@
         </div>
         <div class="modal-actions" style="margin-top: 20px;">
             <button class="action-button primary-button" onclick="closeWithdrawHistoryModal()">Close</button>
+        </div>
+    </div>
+  </div>
+  
+  <!-- Share Modal -->
+  <div class="modal-overlay" id="share-modal">
+    <div class="modal-content">
+        <h3>Share & Earn</h3>
+        <p>Share your referral link and earn coins!</p>
+        
+        <div class="referral-stats">
+            <div class="referral-stat-item">
+                <div class="referral-stat-value" id="referral-count">0</div>
+                <div class="referral-stat-label">Referrals</div>
+            </div>
+            <div class="referral-stat-item">
+                <div class="referral-stat-value" id="referral-earnings">0</div>
+                <div class="referral-stat-label">Coins Earned</div>
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label for="referral-link">Your Referral Link:</label>
+            <input type="text" id="referral-link" readonly>
+        </div>
+        
+        <button class="action-button primary-button" onclick="copyReferralLink()">
+            <i class="fa-solid fa-copy"></i> Copy Link
+        </button>
+        
+        <button class="action-button secondary-button" onclick="shareOnTelegram()" style="margin-top: 10px;">
+            <i class="fa-brands fa-telegram"></i> Share on Telegram
+        </button>
+        
+        <div class="modal-actions" style="margin-top: 20px;">
+            <button class="action-button primary-button" onclick="closeShareModal()">Close</button>
         </div>
     </div>
   </div>
@@ -337,11 +413,16 @@
       coinsForConversion: 1000,
       valuePerConversion: 0.30
     };
+    let referralData = {
+      referralCount: 0,
+      referralEarnings: 0
+    };
     
     // For real-time listener reference
     let userBlockedListener = null;
     let withdrawHistoryListener = null;
     let userPointsBalanceListener = null;
+    let referralListener = null;
     
     // --- Updated Balance Logic ---
     // Dynamic from Firebase: 1000 coins = 30 cents = $0.30 USD
@@ -366,6 +447,7 @@
                     loadUserData().then(() => {
                         loadTelegramUser();
                         renderLeaderboard();
+                        checkForReferral(); // Check if this user was referred
                     }).catch(error => {
                         console.error("Error loading user ", error);
                         // Handle error appropriately, maybe show a message
@@ -380,6 +462,7 @@
                     loadTelegramUser();
                     showView('home-view');
                     renderLeaderboard();
+                    checkForReferral(); // Check if this user was referred
                 }).catch(error => {
                     console.error("Error loading user ", error);
                     // Handle error appropriately
@@ -426,6 +509,8 @@
                 balance = userData.balance || 0.00;
                 historyLog = userData.historyLog || [];
                 isBlocked = userData.isBlocked || false;
+                referralData.referralCount = userData.referralCount || 0;
+                referralData.referralEarnings = userData.referralEarnings || 0;
                 
                 updateDisplay();
                 
@@ -438,6 +523,7 @@
                 setupBlockingListener(userRef);
                 setupWithdrawHistoryListener(userRef);
                 setupPointsBalanceListener(userRef);
+                setupReferralListener(userRef);
             } else {
                 // Initialize new user
                 await userRef.set({
@@ -447,6 +533,8 @@
                     points: 0,
                     balance: 0.00,
                     isBlocked: false,
+                    referralCount: 0,
+                    referralEarnings: 0,
                     createdAt: new Date().toISOString()
                 });
                 
@@ -454,10 +542,67 @@
                 setupBlockingListener(userRef);
                 setupWithdrawHistoryListener(userRef);
                 setupPointsBalanceListener(userRef);
+                setupReferralListener(userRef);
             }
         } catch (error) {
             console.error("Failed to load user ", error);
             throw error;
+        }
+    }
+
+    // Check if user was referred
+    function checkForReferral() {
+        if (!tgUser || !tgUser.id) return;
+        
+        // Get the start parameter from Telegram WebApp
+        const startParam = Telegram.WebApp.initDataUnsafe.start_param;
+        
+        // If there's a start parameter and it's not the user's own ID, it means they were referred
+        if (startParam && startParam !== tgUser.id.toString()) {
+            const referrerId = startParam;
+            
+            // Check if referral has already been processed for this user
+            database.ref('users/' + tgUser.id + '/referredBy').once('value').then((snapshot) => {
+                if (!snapshot.val()) {
+                    // Process referral
+                    processReferral(referrerId);
+                }
+            });
+        }
+    }
+
+    // Process referral and reward referrer
+    async function processReferral(referrerId) {
+        try {
+            // Verify referrer exists
+            const referrerRef = database.ref('users/' + referrerId);
+            const referrerSnapshot = await referrerRef.once('value');
+            
+            if (referrerSnapshot.exists()) {
+                // Reward referrer (10 coins)
+                const referrerData = referrerSnapshot.val();
+                const newReferralEarnings = (referrerData.referralEarnings || 0) + 10;
+                const newReferralCount = (referrerData.referralCount || 0) + 1;
+                const newPoints = referrerData.points + 10;
+                const newBalance = (newPoints / appConfig.coinsForConversion) * appConfig.valuePerConversion;
+                
+                // Update referrer's data
+                await referrerRef.update({
+                    referralEarnings: newReferralEarnings,
+                    referralCount: newReferralCount,
+                    points: newPoints,
+                    balance: newBalance
+                });
+                
+                // Mark this user as referred by this referrer
+                await database.ref('users/' + tgUser.id).update({
+                    referredBy: referrerId
+                });
+                
+                console.log(`Referral processed: User ${tgUser.id} referred by ${referrerId}`);
+            }
+        } catch (error) {
+            console.error("Error processing referral:", error);
         }
     }
 
@@ -514,6 +659,68 @@
                 updateDisplay();
             }
         });
+    }
+
+    function setupReferralListener(userRef) {
+        if (referralListener) {
+            // Remove previous listener if exists
+            userRef.child('referralCount').off('value', referralListener);
+            userRef.child('referralEarnings').off('value', referralListener);
+        }
+        
+        // Set up new listeners for referral data
+        referralListener = userRef.on('value', (snapshot) => {
+            const userData = snapshot.val();
+            if (userData) {
+                referralData.referralCount = userData.referralCount || 0;
+                referralData.referralEarnings = userData.referralEarnings || 0;
+                
+                // Update share modal if it's open
+                if (document.getElementById('share-modal').classList.contains('active')) {
+                    updateShareModal();
+                }
+                
+                // Check if referral earnings reached 200 coins
+                if (referralData.referralEarnings >= 200) {
+                    claimReferralEarnings();
+                }
+            }
+        });
+    }
+
+    // Claim referral earnings (convert to main balance)
+    async function claimReferralEarnings() {
+        if (!tgUser || !tgUser.id) return;
+        
+        try {
+            // Calculate coins and value
+            const coinsToClaim = 200;
+            const valueToClaim = (coinsToClaim / appConfig.coinsForConversion) * appConfig.valuePerConversion;
+            
+            // Update user's main balance
+            points += coinsToClaim;
+            balance += valueToClaim;
+            
+            // Reset referral earnings
+            referralData.referralEarnings -= coinsToClaim;
+            referralData.referralCount = referralData.referralCount; // Keep count unchanged
+            
+            // Update Firebase
+            await database.ref('users/' + tgUser.id).update({
+                points: points,
+                balance: balance,
+                referralEarnings: referralData.referralEarnings
+            });
+            
+            // Update display
+            updateDisplay();
+            
+            // Show notification
+            showMessageModal('Success', `Congratulations! You've claimed 200 referral coins ($${valueToClaim.toFixed(2)}) and they've been added to your main balance.`);
+        } catch (error) {
+            console.error("Error claiming referral earnings:", error);
+            showMessageModal('Error', 'Failed to claim referral earnings. Please try again.');
+        }
     }
 
     function handleBlockingStatus(blockedStatus) {
@@ -677,6 +884,48 @@
                     <div class="${statusClass}">${item.status}</div>
                 </div>`;
         }).join('');
+    }
+
+    // --- Share Modal Logic ---
+    function openShareModal() {
+        if (isBlocked) {
+            showBlockedView();
+            return;
+        }
+        
+        // Generate referral link
+        const botUsername = "TKBD5_bot";
+        const referralLink = `https://t.me/${botUsername}?start=${tgUser.id}`;
+        document.getElementById('referral-link').value = referralLink;
+        
+        // Update modal content
+        updateShareModal();
+        
+        // Show modal
+        document.getElementById('share-modal').classList.add('active');
+    }
+    
+    function closeShareModal() {
+        document.getElementById('share-modal').classList.remove('active');
+    }
+    
+    function updateShareModal() {
+        document.getElementById('referral-count').textContent = referralData.referralCount;
+        document.getElementById('referral-earnings').textContent = referralData.referralEarnings;
+    }
+    
+    function copyReferralLink() {
+        const referralLinkInput = document.getElementById('referral-link');
+        referralLinkInput.select();
+        document.execCommand('copy');
+        showMessageModal('Success', 'Referral link copied to clipboard!');
+    }
+    
+    function shareOnTelegram() {
+        const referralLink = document.getElementById('referral-link').value;
+        const text = "🎉 Join this amazing bot and start earning! Use my link to get a special bonus:";
+        const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(referralLink)}&text=${encodeURIComponent(text)}`;
+        Telegram.WebApp.openTelegramLink(shareUrl);
     }
 
     // --- Leaderboard Logic (kept for compatibility) ---
@@ -848,25 +1097,6 @@
         document.getElementById('message-modal').classList.remove('active');
     }
 
-    // --- Share & Referral ---
-    function shareApp() {
-        if (isBlocked) {
-            showBlockedView();
-            return;
-        }
-        
-        if (!tgUser) {
-            showMessageModal('Error', 'Could not get user data from Telegram.');
-            return;
-        }
-        
-        const botUsername = "NSMTECHBD_Bot";
-        const referralLink = `https://t.me/${botUsername}?start=${tgUser.id}`;
-        const text = `🎉 Join this amazing bot and start earning! Use my link to get a special bonus:`;
-        const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(referralLink)}&text=${encodeURIComponent(text)}`;
-        Telegram.WebApp.openTelegramLink(shareUrl);
-    }
-    
     // Cleanup listener on unload
     window.addEventListener('beforeunload', () => {
         if (userBlockedListener && tgUser && tgUser.id) {
@@ -880,6 +1110,11 @@
         if (userPointsBalanceListener && tgUser && tgUser.id) {
             const userRef = database.ref('users/' + tgUser.id);
             userRef.off('value', userPointsBalanceListener);
+        }
+        if (referralListener && tgUser && tgUser.id) {
+            const userRef = database.ref('users/' + tgUser.id);
+            userRef.child('referralCount').off('value', referralListener);
+            userRef.child('referralEarnings').off('value', referralListener);
         }
     });
 </script>
