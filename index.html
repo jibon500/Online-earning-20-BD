@@ -5,11 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>TKBD5 Earning App</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <!-- Monetag Ad Network -->
+    <script src='//libtl.com/sdk.js' data-zone='9807992' data-sdk='show_9807992'></script>
     <script type="module" defer>
         // Import Firebase modules
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
         import { getDatabase, ref, get, set, update, child } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-database.js";
         import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-storage.js";
+        
         // Firebase configuration
         const firebaseConfig = {
             apiKey: "AIzaSyD3BGZ0MVLpbQbIpLUAnYvWNEIyk7Y6S0Q",
@@ -21,19 +24,23 @@
             appId: "1:25930019210:web:6441562811d3e7e9631873",
             measurementId: "G-P9HX6XXT1Q"
         };
+        
         // Initialize Firebase
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
         const storage = getStorage(app);
+        
         // Initialize Telegram Web App
         const tg = window.Telegram.WebApp;
         tg.expand();
         tg.ready();
+        
         // Global variables
         let userId = null;
         let userData = null;
         let isBlocked = false;
-        let monetagInitialized = false;
+        let adScriptLoaded = false;
+        
         // Initialize app
         document.addEventListener('DOMContentLoaded', async () => {
             // Check if user is blocked
@@ -53,6 +60,7 @@
                 showPage('home');
             }
         });
+        
         // Check if user is blocked
         async function checkUserBlockStatus() {
             userId = tg.initDataUnsafe.user ? tg.initDataUnsafe.user.id : null;
@@ -64,6 +72,7 @@
                 document.getElementById('block-page').style.display = 'flex';
             }
         }
+        
         // Load user data from Firebase
         async function loadUserData() {
             const userRef = ref(db, 'users/' + userId);
@@ -94,6 +103,7 @@
             // Update UI
             updateUIWithUserData();
         }
+        
         // Handle referral
         async function handleReferral(referrerId) {
             const referrerRef = ref(db, 'users/' + referrerId);
@@ -113,11 +123,13 @@
                 userData.referralLevel = 1; // Direct referral
             }
         }
+        
         // Generate referral code
         function generateReferralCode(userId) {
             // Create a unique referral code based on user ID
             return `TKBD${userId.toString().slice(-6)}`;
         }
+        
         // Update UI with user data
         function updateUIWithUserData() {
             // Update profile picture (small and circular)
@@ -144,6 +156,7 @@
             document.getElementById('referral-code').textContent = referralCode;
             document.getElementById('referral-link').value = `https://t.me/TKBD5_bot?start=ref_${userId}`;
         }
+        
         // Setup event listeners
         function setupEventListeners() {
             // Navigation
@@ -156,28 +169,41 @@
                     item.classList.add('active');
                 });
             });
+            
             // Tab to Earn button
             document.getElementById('tab-to-earn').addEventListener('click', () => {
                 showAd();
             });
+            
             // Withdraw button
             document.getElementById('withdraw-btn').addEventListener('click', () => {
                 const amount = parseFloat(document.getElementById('withdraw-amount').value);
                 const method = document.querySelector('input[name="withdraw-method"]:checked')?.value;
+                const phone = document.getElementById('withdraw-phone').value;
+                
                 if (!method) {
                     alert('অনুগ্রহ পূর্বক উইথড্র মাধ্যম নির্বাচন করুন');
                     return;
                 }
+                
+                if (!phone || phone.length < 11) {
+                    alert('অনুগ্রহ পূর্বক সঠিক মোবাইল নম্বর দিন');
+                    return;
+                }
+                
                 if (amount < 200) {
                     alert('ন্যূনতম উইথড্র পরিমাণ ২০০ টাকা');
                     return;
                 }
+                
                 if (amount > userData.balance) {
                     alert('আপনার ব্যালেন্স অপর্যাপ্ত');
                     return;
                 }
-                processWithdrawal(amount, method);
+                
+                processWithdrawal(amount, method, phone);
             });
+            
             // Copy referral link
             document.getElementById('copy-referral').addEventListener('click', () => {
                 const referralLink = document.getElementById('referral-link');
@@ -185,15 +211,18 @@
                 document.execCommand('copy');
                 alert('রেফারেল লিঙ্ক কপি করা হয়েছে!');
             });
+            
             // Contact admin from block page
             document.getElementById('contact-admin').addEventListener('click', () => {
                 tg.openTelegramLink('https://t.me/Nikhil_Shaan');
             });
+            
             // Close ad button
             document.getElementById('close-ad').addEventListener('click', () => {
                 document.getElementById('ad-container').style.display = 'none';
             });
         }
+        
         // Show specific page
         function showPage(pageId) {
             // Hide all pages
@@ -209,19 +238,24 @@
                 updateReferralStats();
             }
         }
+        
         // Show ad and reward user
         function showAd() {
             // Show the ad container
             document.getElementById('ad-container').style.display = 'flex';
             
-            // Initialize Monetag ad if not already done
-            if (!monetagInitialized) {
-                const adScript = document.createElement('script');
-                adScript.src = 'https://libtl.com/sdk.js';
-                adScript.setAttribute('data-zone', '9807992');
-                adScript.setAttribute('data-sdk', 'show_9807992');
-                document.head.appendChild(adScript);
-                monetagInitialized = true;
+            // Load Monetag ad if not already loaded
+            if (!adScriptLoaded) {
+                const scriptId = 'monetag-script';
+                if (!document.getElementById(scriptId)) {
+                    const adScript = document.createElement('script');
+                    adScript.id = scriptId;
+                    adScript.src = '//libtl.com/sdk.js';
+                    adScript.setAttribute('data-zone', '9807992');
+                    adScript.setAttribute('data-sdk', 'show_9807992');
+                    document.head.appendChild(adScript);
+                    adScriptLoaded = true;
+                }
             }
             
             // Add event listener for ad completion
@@ -230,60 +264,75 @@
                 const reward = 0.05;
                 userData.balance = (userData.balance || 0) + reward;
                 userData.totalEarned = (userData.totalEarned || 0) + reward;
+                
                 // Update Firebase
                 const userRef = ref(db, 'users/' + userId);
                 await update(userRef, {
                     balance: userData.balance,
                     totalEarned: userData.totalEarned
                 });
+                
                 // Update UI
                 updateUIWithUserData();
+                
                 // Hide ad container
                 document.getElementById('ad-container').style.display = 'none';
+                
                 alert(`আপনি ${reward} টাকা আয় করেছেন!`);
             });
         }
+        
         // Process withdrawal
-        async function processWithdrawal(amount, method) {
+        async function processWithdrawal(amount, method, phone) {
             const withdrawalId = 'WID_' + Date.now();
             const withdrawalData = {
                 id: withdrawalId,
                 amount: amount,
                 method: method,
+                phone: phone,
                 status: 'pending',
                 timestamp: new Date().toISOString(),
                 userId: userId
             };
+            
             // Save to Firebase
             const withdrawalRef = ref(db, 'withdrawals/' + withdrawalId);
             await set(withdrawalRef, withdrawalData);
+            
             // Update user balance
             userData.balance -= amount;
             const userRef = ref(db, 'users/' + userId);
             await update(userRef, {
                 balance: userData.balance
             });
+            
             // Update UI
             updateUIWithUserData();
             showPage('history');
-            alert('উইথড্র রিকোয়েস্ট সাবমিট করা হয়েছে!');
+            
+            alert('উইথড্র রিকোয়েস্ট সাবমিট করা হয়েছে! এডমিন শীঘ্রই প্রসেস করবেন।');
         }
+        
         // Load withdrawal history
         async function loadWithdrawalHistory() {
             const historyList = document.getElementById('withdrawal-history');
             historyList.innerHTML = '<div class="loading">লোড হচ্ছে...</div>';
+            
             const withdrawalsRef = ref(db, 'withdrawals');
             const snapshot = await get(child(withdrawalsRef, `?orderByChild=userId&equalTo=${userId}`));
+            
             historyList.innerHTML = '';
             if (snapshot.exists()) {
                 const withdrawals = snapshot.val();
                 let hasHistory = false;
+                
                 for (const id in withdrawals) {
                     if (withdrawals[id].userId === userId) {
                         hasHistory = true;
                         const withdrawal = withdrawals[id];
                         const statusClass = withdrawal.status === 'approved' ? 'status-success' : 
                                           withdrawal.status === 'rejected' ? 'status-rejected' : 'status-pending';
+                        
                         const historyItem = document.createElement('div');
                         historyItem.className = 'history-item';
                         historyItem.innerHTML = `
@@ -293,6 +342,7 @@
                             </div>
                             <div class="history-details">
                                 <p><strong>মাধ্যম:</strong> ${getPaymentMethodText(withdrawal.method)}</p>
+                                <p><strong>মোবাইল:</strong> ${withdrawal.phone || 'N/A'}</p>
                                 <p><strong>তারিখ:</strong> ${formatDate(withdrawal.timestamp)}</p>
                                 ${withdrawal.status === 'rejected' ? `<p><strong>কারণ:</strong> ${withdrawal.rejectionReason || 'অজানা'}</p>` : ''}
                             </div>
@@ -300,6 +350,7 @@
                         historyList.appendChild(historyItem);
                     }
                 }
+                
                 if (!hasHistory) {
                     historyList.innerHTML = '<div class="no-history">কোন উইথড্র ইতিহাস নেই</div>';
                 }
@@ -307,19 +358,24 @@
                 historyList.innerHTML = '<div class="no-history">কোন উইথড্র ইতিহাস নেই</div>';
             }
         }
+        
         // Update referral stats
         async function updateReferralStats() {
             // Update referral count
             document.getElementById('referral-count').textContent = userData.referrals || 0;
+            
             // Load referral history
             const referralsList = document.getElementById('referrals-list');
             referralsList.innerHTML = '<div class="loading">লোড হচ্ছে...</div>';
+            
             const usersRef = ref(db, 'users');
             const snapshot = await get(usersRef);
+            
             referralsList.innerHTML = '';
             if (snapshot.exists()) {
                 const users = snapshot.val();
                 let referralCount = 0;
+                
                 for (const id in users) {
                     if (users[id].referrerId === userId) {
                         referralCount++;
@@ -336,6 +392,7 @@
                         referralsList.appendChild(referralItem);
                     }
                 }
+                
                 if (referralCount === 0) {
                     referralsList.innerHTML = '<div class="no-referrals">কোন রেফারেল নেই</div>';
                 }
@@ -343,6 +400,7 @@
                 referralsList.innerHTML = '<div class="no-referrals">কোন রেফারেল নেই</div>';
             }
         }
+        
         // Helper functions
         function getStatusText(status) {
             const statusMap = {
@@ -352,6 +410,7 @@
             };
             return statusMap[status] || status;
         }
+        
         function getPaymentMethodText(method) {
             const methodMap = {
                 'nagad': 'নগদ',
@@ -360,6 +419,7 @@
             };
             return methodMap[method] || method;
         }
+        
         function formatDate(timestamp) {
             const date = new Date(timestamp);
             return date.toLocaleDateString('bn-BD', { 
@@ -486,6 +546,7 @@
             text-align: center;
             box-shadow: 0 4px 10px rgba(0,0,0,0.08);
             transition: transform 0.2s;
+            cursor: pointer;
         }
         .action-btn:active {
             transform: translateY(2px);
@@ -541,6 +602,22 @@
             font-weight: 600;
             color: #6a11cb;
         }
+        .phone-input {
+            display: flex;
+            align-items: center;
+            background-color: #f8f8f8;
+            border-radius: 10px;
+            padding: 10px 15px;
+            margin-bottom: 15px;
+        }
+        .phone-input input {
+            flex: 1;
+            border: none;
+            background: none;
+            font-size: 18px;
+            padding: 5px;
+            outline: none;
+        }
         .payment-methods {
             display: flex;
             gap: 10px;
@@ -548,27 +625,28 @@
         }
         .payment-method {
             flex: 1;
-            border: 1px solid #ddd;
+            border: 2px solid #ddd;
             border-radius: 10px;
-            padding: 12px 5px;
+            padding: 15px 5px;
             text-align: center;
             transition: all 0.2s;
+            cursor: pointer;
         }
         .payment-method input {
             display: none;
         }
-        .payment-method img {
-            height: 24px;
-            margin: 0 auto 8px;
+        .payment-method.selected {
+            border-color: #6a11cb;
+            background-color: #f0e6ff;
+        }
+        .payment-icon {
+            font-size: 30px;
+            margin-bottom: 8px;
         }
         .payment-method label {
-            font-size: 12px;
+            font-size: 14px;
             display: block;
-        }
-        .payment-method input:checked + img {
-            border: 2px solid #6a11cb;
-            border-radius: 8px;
-            padding: 2px;
+            font-weight: 500;
         }
         .withdraw-btn {
             background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
@@ -729,6 +807,7 @@
             color: #888;
             font-size: 12px;
             transition: color 0.2s;
+            cursor: pointer;
         }
         .nav-item.active {
             color: #6a11cb;
@@ -775,6 +854,7 @@
             color: #666;
             font-size: 24px;
             z-index: 2001;
+            cursor: pointer;
         }
         /* Block Page */
         #block-page {
@@ -844,6 +924,9 @@
         .icon-profile::before { content: "👤"; }
         .icon-earn::before { content: "🎯"; }
         .icon-close::before { content: "×"; }
+        .icon-nagad::before { content: "💜"; }
+        .icon-bkash::before { content: "🔴"; }
+        .icon-rocket::before { content: "🚀"; }
     </style>
 </head>
 <body>
@@ -884,31 +967,6 @@
                         <div class="action-btn-subtext">প্রতি ক্লিকে ০.০৫ টাকা</div>
                     </div>
                 </div>
-                <div class="section-title">উইথড্র</div>
-                <div class="withdraw-section">
-                    <div class="withdraw-input">
-                        <input type="number" id="withdraw-amount" placeholder="200" min="200">
-                        <span>টাকা</span>
-                    </div>
-                    <div class="payment-methods">
-                        <label class="payment-method">
-                            <input type="radio" name="withdraw-method" value="nagad">
-                            <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNDAgODAiPjxwYXRoIGZpbGw9IiBlYTJlYTUiIGQ9Ik04MCA0MGExNiAxNiAwIDEgMSAwLTMxLjkgMTYgMTYgMCAwIDEgMCAzMS45eiIvPjxwYXRoIGZpbGw9IiMwMDAiIGQ9Ik0xMDQgMjRoMzJ2MzJoLTMyVjI0em0zMiAzMkg4OHYtMTZoNDh2MTZ6Ii8+PC9zdmc+" alt="Nagad">
-                            <label>নগদ</label>
-                        </label>
-                        <label class="payment-method">
-                            <input type="radio" name="withdraw-method" value="bkash">
-                            <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNDAgODAiPjxwYXRoIGZpbGw9IiNlMTAwNTAiIGQ9Ik04MCA0MGExNiAxNiAwIDEgMSAwLTMxLjkgMTYgMTYgMCAwIDEgMCAzMS45eiIvPjxwYXRoIGZpbGw9IiNmZmYiIGQ9Ik0xMDQgMjRoMzJ2MzJoLTMyVjI0em0zMiAzMkg4OHYtMTZoNDh2MTZ6Ii8+PC9zdmc+" alt="bKash">
-                            <label>বিকাশ</label>
-                        </label>
-                        <label class="payment-method">
-                            <input type="radio" name="withdraw-method" value="rocket">
-                            <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNDAgODAiPjxwYXRoIGZpbGw9IiMwMDcy2zYiIGQ9Ik04MCA0MGExNiAxNiAwIDEgMSAwLTMxLjkgMTYgMTYgMCAwIDEgMCAzMS45eiIvPjxwYXRoIGZpbGw9IiNmZmYiIGQ9Ik0xMDQgMjRoMzJ2MzJoLTMyVjI0em0zMiAzMkg4OHYtMTZoNDh2MTZ6Ii8+PC9zdmc+" alt="Rocket">
-                            <label>রকেট</label>
-                        </label>
-                    </div>
-                    <button id="withdraw-btn" class="withdraw-btn">উইথড্র করুন</button>
-                </div>
             </div>
         </div>
         <!-- Withdraw Page -->
@@ -920,27 +978,27 @@
             <div class="main-content" style="padding-top: 20px;">
                 <div class="withdraw-section">
                     <div class="withdraw-input">
-                        <input type="number" id="withdraw-amount-2" placeholder="200" min="200">
+                        <input type="number" id="withdraw-amount" placeholder="200" min="200">
                         <span>টাকা</span>
                     </div>
-                    <div class="payment-methods">
-                        <label class="payment-method">
-                            <input type="radio" name="withdraw-method-2" value="nagad">
-                            <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNDAgODAiPjxwYXRoIGZpbGw9IiBlYTJlYTUiIGQ9Ik04MCA0MGExNiAxNiAwIDEgMSAwLTMxLjkgMTYgMTYgMCAwIDEgMCAzMS45eiIvPjxwYXRoIGZpbGw9IiMwMDAiIGQ9Ik0xMDQgMjRoMzJ2MzJoLTMyVjI0em0zMiAzMkg4OHYtMTZoNDh2MTZ6Ii8+PC9zdmc+" alt="Nagad">
-                            <label>নগদ</label>
-                        </label>
-                        <label class="payment-method">
-                            <input type="radio" name="withdraw-method-2" value="bkash">
-                            <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNDAgODAiPjxwYXRoIGZpbGw9IiNlMTAwNTAiIGQ9Ik04MCA0MGExNiAxNiAwIDEgMSAwLTMxLjkgMTYgMTYgMCAwIDEgMCAzMS45eiIvPjxwYXRoIGZpbGw9IiNmZmYiIGQ9Ik0xMDQgMjRoMzJ2MzJoLTMyVjI0em0zMiAzMkg4OHYtMTZoNDh2MTZ6Ii8+PC9zdmc+" alt="bKash">
-                            <label>বিকাশ</label>
-                        </label>
-                        <label class="payment-method">
-                            <input type="radio" name="withdraw-method-2" value="rocket">
-                            <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNDAgODAiPjxwYXRo IGZpbGw9IiMwMDcy2zYiIGQ9Ik04MCA0MGExNiAxNiAwIDEgMSAwLTMxLjkgMTYgMTYgMCAwIDEgMCAzMS45eiIvPjxwYXRoIGZpbGw9IiNmZmYiIGQ9Ik0xMDQgMjRoMzJ2MzJoLTMyVjI0em0zMiAzMkg4OHYtMTZoNDh2MTZ6Ii8+PC9zdmc+" alt="Rocket">
-                            <label>রকেট</label>
-                        </label>
+                    <div class="phone-input">
+                        <input type="tel" id="withdraw-phone" placeholder="মোবাইল নম্বর" pattern="[0-9]{11}">
                     </div>
-                    <button id="withdraw-btn-2" class="withdraw-btn">উইথড্র করুন</button>
+                    <div class="payment-methods">
+                        <div class="payment-method" data-method="nagad">
+                            <div class="payment-icon icon-nagad"></div>
+                            <label>নগদ</label>
+                        </div>
+                        <div class="payment-method" data-method="bkash">
+                            <div class="payment-icon icon-bkash"></div>
+                            <label>বিকাশ</label>
+                        </div>
+                        <div class="payment-method" data-method="rocket">
+                            <div class="payment-icon icon-rocket"></div>
+                            <label>রকেট</label>
+                        </div>
+                    </div>
+                    <button id="withdraw-btn" class="withdraw-btn">উইথড্র করুন</button>
                 </div>
             </div>
         </div>
@@ -1043,5 +1101,28 @@
             </div>
         </div>
     </div>
+    <script>
+        // Payment method selection
+        document.querySelectorAll('.payment-method').forEach(method => {
+            method.addEventListener('click', () => {
+                document.querySelectorAll('.payment-method').forEach(m => m.classList.remove('selected'));
+                method.classList.add('selected');
+            });
+        });
+        
+        // Update profile data on profile page
+        function updateProfilePage() {
+            if (tg.initDataUnsafe.user && tg.initDataUnsafe.user.photo_url) {
+                document.getElementById('profile-pic-2').src = tg.initDataUnsafe.user.photo_url;
+            }
+            if (tg.initDataUnsafe.user) {
+                document.getElementById('user-name-2').textContent = 
+                    tg.initDataUnsafe.user.first_name + (tg.initDataUnsafe.user.last_name ? ' ' + tg.initDataUnsafe.user.last_name : '');
+                document.getElementById('user-id-2').textContent = `@${tg.initDataUnsafe.user.username || 'ID: ' + userId}`;
+            }
+            document.getElementById('balance-amount-2').textContent = userData.balance.toFixed(2);
+            document.getElementById('total-earned-2').textContent = userData.totalEarned.toFixed(2);
+        }
+    </script>
 </body>
 </html>
