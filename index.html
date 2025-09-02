@@ -154,13 +154,57 @@
         .withdrawal-list .amount { color: #34c759; font-weight: bold; flex-basis: 35%; text-align: right; }
         .withdrawal-list .status-success { color: #34c759; margin-left: 5px; font-size: 12px; flex-basis: 15%; text-align: right; }
         @keyframes fadeInSlideUp { to { opacity: 1; transform: translateY(0); } }
+        
+        /* Hidden block page */
+        #blockPage {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #000;
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            display: none;
+        }
+        #blockPageContent {
+            text-align: center;
+            padding: 20px;
+        }
+        #blockPageContent h1 {
+            color: #ff3b30;
+            margin-bottom: 20px;
+        }
+        #blockPageContent p {
+            font-size: 18px;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+        #telegramButton {
+            background-color: #0088cc;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 18px;
+            border-radius: 8px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+        }
+        #telegramButton:hover {
+            background-color: #0077b3;
+        }
     </style>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <!-- Firebase App (the core Firebase SDK) -->
     <script type="module">
         // Import the functions you need from the SDKs you need
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
-        import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
+        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
 
         // Your web app's Firebase configuration
         const firebaseConfig = {
@@ -181,12 +225,20 @@
         // Make Firebase globally accessible for the app logic
         window.firebaseApp = app;
         window.firebaseDatabase = database;
-        window.firebaseRefs = { ref, onValue, set };
+        window.firebaseRefs = { ref, onValue };
     </script>
-    <!-- Monetag Ad Script -->
     <script src='//solseewuthi.net/sdk.js' data-zone='9344336' data-sdk='show_9344336' async></script>
 </head>
 <body>
+    <!-- Hidden Block Page -->
+    <div id="blockPage">
+        <div id="blockPageContent">
+            <h1>Account Blocked</h1>
+            <p>Your activity has been flagged. You have been blocked.<br>Please contact admin for unblocking.</p>
+            <a href="https://t.me/Nikhil_Shaan" id="telegramButton" target="_blank">Contact Admin on Telegram</a>
+        </div>
+    </div>
+
     <div class="app-container">
         <div id="homeScreen" class="screen active">
             <div class="app-header">
@@ -373,6 +425,10 @@
         const totalReferralsCountElement = document.getElementById('totalReferralsCount');
         const paidSharesTodayCountElement = document.getElementById('paidSharesTodayCount');
         const referralUsdtEarnedElement = document.getElementById('referralUsdtEarned');
+        
+        // Block page elements
+        const blockPage = document.getElementById('blockPage');
+        
         let appState = {
             userUSDTBalance: 0.0,
             monetagConfig: {
@@ -394,6 +450,10 @@
             },
             processingShareReward: false 
         };
+        
+        // Firebase user path
+        let firebaseUserPath = null;
+        
         function saveState() {
             try { localStorage.setItem(LS_KEY_APP_STATE, JSON.stringify(appState)); }
             catch (e) { console.error("Error saving state:", e); }
@@ -459,9 +519,13 @@
             if (!appState.referralData.userIdForReferral) {
                 if (appState.telegramUser && appState.telegramUser.id) {
                     appState.referralData.userIdForReferral = `tg${appState.telegramUser.id}`;
+                    firebaseUserPath = `users/tg${appState.telegramUser.id}`;
                 } else {
                     appState.referralData.userIdForReferral = generatePseudoUniqueId(10);
+                    firebaseUserPath = `users/${appState.referralData.userIdForReferral}`;
                 }
+            } else {
+                firebaseUserPath = `users/${appState.referralData.userIdForReferral}`;
             }
             const botBaseUrl = "https://t.me/My_Earning20BD_bot/YourAppName?startapp="; 
             appState.referralData.referralLink = `${botBaseUrl}ref_${appState.referralData.userIdForReferral}`;
@@ -553,45 +617,108 @@
             saveState();
         }
 
-        // Firebase Integration Functions
-        function getFirebaseUserPath() {
-            if (appState.telegramUser && appState.telegramUser.id) {
-                return `users/tg${appState.telegramUser.id}`;
-            }
-            return null;
-        }
-
-        function syncBalanceWithFirebase() {
-            const userPath = getFirebaseUserPath();
-            if (!userPath || !window.firebaseRefs) return;
-
-            const userRef = window.firebaseRefs.ref(window.firebaseDatabase, userPath);
+        // Firebase real-time sync
+        function startFirebaseSync() {
+            if (!firebaseUserPath || !window.firebaseRefs) return;
+            
+            const userRef = window.firebaseRefs.ref(window.firebaseDatabase, firebaseUserPath);
+            
+            // Listen for real-time updates
             window.firebaseRefs.onValue(userRef, (snapshot) => {
                 const data = snapshot.val();
-                if (data && data.balance !== undefined) {
-                    // Update local balance if Firebase has a different value
-                    if (appState.userUSDTBalance !== data.balance) {
+                if (data) {
+                    // Check if user is blocked
+                    if (data.isBlocked === true) {
+                        // Show block page
+                        blockPage.style.display = 'flex';
+                        // Disable all interactive elements
+                        disableAllElements();
+                    } else {
+                        // Hide block page if visible
+                        blockPage.style.display = 'none';
+                        // Enable all interactive elements
+                        enableAllElements();
+                    }
+                    
+                    // Sync balance
+                    if (data.balance !== undefined && appState.userUSDTBalance !== data.balance) {
                         appState.userUSDTBalance = data.balance;
                         updateDisplays();
                         saveState();
-                        console.log("Balance synced from Firebase:", appState.userUSDTBalance);
+                    }
+                    
+                    // Sync tasks completed
+                    if (data.tasksCompleted !== undefined && appState.todayStats.monetagTasksCompleted !== data.tasksCompleted) {
+                        appState.todayStats.monetagTasksCompleted = data.tasksCompleted;
+                        updateDisplays();
+                        saveState();
+                    }
+                    
+                    // Sync referral data
+                    if (data.referralSharesToday !== undefined && appState.todayStats.referralSharesToday !== data.referralSharesToday) {
+                        appState.todayStats.referralSharesToday = data.referralSharesToday;
+                        updateDisplays();
+                        saveState();
+                    }
+                    
+                    if (data.usdtEarnedFromReferrals !== undefined && appState.referralData.usdtEarnedFromReferrals !== data.usdtEarnedFromReferrals) {
+                        appState.referralData.usdtEarnedFromReferrals = data.usdtEarnedFromReferrals;
+                        updateDisplays();
+                        saveState();
+                    }
+                    
+                    if (data.totalReferralsInitiated !== undefined && appState.referralData.totalReferralsInitiated !== data.totalReferralsInitiated) {
+                        appState.referralData.totalReferralsInitiated = data.totalReferralsInitiated;
+                        updateDisplays();
+                        saveState();
                     }
                 }
             });
         }
 
-        function updateBalanceInFirebase(newBalance) {
-            const userPath = getFirebaseUserPath();
-            if (!userPath || !window.firebaseRefs) return;
+        // Disable all interactive elements when blocked
+        function disableAllElements() {
+            // Disable buttons
+            const buttons = document.querySelectorAll('button');
+            buttons.forEach(button => {
+                button.disabled = true;
+                button.style.opacity = '0.5';
+            });
+            
+            // Disable inputs
+            const inputs = document.querySelectorAll('input, select');
+            inputs.forEach(input => {
+                input.disabled = true;
+                input.style.opacity = '0.5';
+            });
+            
+            // Disable navigation
+            navItems.forEach(item => {
+                item.style.pointerEvents = 'none';
+                item.style.opacity = '0.5';
+            });
+        }
 
-            const userRef = window.firebaseRefs.ref(window.firebaseDatabase, userPath);
-            window.firebaseRefs.set(userRef, {
-                balance: newBalance,
-                lastUpdated: new Date().toISOString()
-            }).then(() => {
-                console.log("Balance updated in Firebase:", newBalance);
-            }).catch((error) => {
-                console.error("Error updating balance in Firebase:", error);
+        // Enable all interactive elements
+        function enableAllElements() {
+            // Enable buttons
+            const buttons = document.querySelectorAll('button');
+            buttons.forEach(button => {
+                button.disabled = false;
+                button.style.opacity = '1';
+            });
+            
+            // Enable inputs
+            const inputs = document.querySelectorAll('input, select');
+            inputs.forEach(input => {
+                input.disabled = false;
+                input.style.opacity = '1';
+            });
+            
+            // Enable navigation
+            navItems.forEach(item => {
+                item.style.pointerEvents = 'auto';
+                item.style.opacity = '1';
             });
         }
 
@@ -604,10 +731,6 @@
                     if (adStatusMessageElement) adStatusMessageElement.textContent = "Ad shown successfully!";
                     appState.todayStats.monetagTasksCompleted++;
                     appState.userUSDTBalance += appState.monetagConfig.rewardPerTaskUSD;
-                    
-                    // Update Firebase with new balance
-                    updateBalanceInFirebase(appState.userUSDTBalance);
-                    
                     updateDisplays();
                     saveState();
                     setTimeout(() => { if (adStatusMessageElement) adStatusMessageElement.textContent = ""; }, 1500);
@@ -753,10 +876,6 @@ Address: ${address}
                     const rewardAmount = REWARD_PER_REFERRAL_INITIATION_USDT;
                     appState.referralData.usdtEarnedFromReferrals += rewardAmount;
                     appState.userUSDTBalance += rewardAmount; 
-                    
-                    // Update Firebase with new balance
-                    updateBalanceInFirebase(appState.userUSDTBalance);
-                    
                     finalMessage = `+$${rewardAmount.toFixed(2)} Earned! (${appState.todayStats.referralSharesToday}/${MAX_PAID_SHARES_PER_DAY} today)`;
                 } else {
                     finalMessage = `Daily share reward limit reached. No reward this time.`;
@@ -808,9 +927,9 @@ Address: ${address}
             showScreen('homeScreen');
             startWithdrawalHistoryFeedSimulation(); 
             
-            // Initialize Firebase sync after user data is loaded
+            // Start Firebase real-time sync after a delay to ensure Firebase is loaded
             setTimeout(() => {
-                syncBalanceWithFirebase();
+                startFirebaseSync();
             }, 3000);
 
             setTimeout(() => { 
