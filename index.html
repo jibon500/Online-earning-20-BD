@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CashReward App</title>
     
-    <!-- Aapka Naya Ad Code -->
+    <!-- Your New Ad Code (Replaced Monetag) -->
     <script src='//libtl.com/sdk.js' data-zone='9344336' data-sdk='show_9344336'></script>
     
     <script src="https://cdn.tailwindcss.com"></script>
@@ -44,7 +44,7 @@
     </div>
 
     <!-- Authentication Section -->
-    <div id="auth-section" class="min-h-screen p-6 flex-col justify-center main-page">
+    <div id="auth-section" class="min-h-screen p-6 flex-col justify-center main-page active">
         <h1 class="text-4xl font-bold text-center mb-2 text-accent">CashReward</h1>
         <p class="text-center text-gray-400 mb-8">Jaari rakhne ke liye Login ya Signup karein</p>
         <div id="auth-container">
@@ -79,7 +79,7 @@
 
         <main class="flex-grow">
             <!-- Home Page -->
-            <div id="home-page" class="p-4 space-y-6 sub-page">
+            <div id="home-page" class="p-4 space-y-6 sub-page active">
                 <div class="card-bg p-4 rounded-lg flex items-center justify-between">
                     <div>
                         <p class="text-gray-400 text-sm">Your Balance</p>
@@ -173,7 +173,7 @@
         </main>
 
         <nav class="bottom-nav sticky bottom-0 grid grid-cols-4 items-center text-center py-2 card-bg">
-            <a href="#" class="nav-link" data-page="home-page"><i data-lucide="home" class="mx-auto w-6 h-6"></i><span class="text-xs">Home</span></a>
+            <a href="#" class="nav-link active" data-page="home-page"><i data-lucide="home" class="mx-auto w-6 h-6"></i><span class="text-xs">Home</span></a>
             <a href="#" class="nav-link" data-page="wallet-page"><i data-lucide="wallet" class="mx-auto w-6 h-6"></i><span class="text-xs">Wallet</span></a>
             <a href="#" class="nav-link" data-page="refer-page"><i data-lucide="users" class="mx-auto w-6 h-6"></i><span class="text-xs">Refer & Earn</span></a>
             <a href="#" class="nav-link" data-page="profile-page"><i data-lucide="user" class="mx-auto w-6 h-6"></i><span class="text-xs">Profile</span></a>
@@ -188,6 +188,7 @@
     </div>
 
     <script type="module">
+        // Firebase configuration and app logic remain unchanged
         const firebaseConfig = {
             apiKey: "AIzaSyAjdPczpLlBINxzGQ1dvwDRlvZpdUCfKUk",
             authDomain: "earningapp-c292c.firebaseapp.com",
@@ -570,7 +571,7 @@
                 return showAlert("Aapki aaj ki ad dekhne ki seema poori ho gayi hai.");
             }
             
-            if (typeof window.show_9391539 !== 'function') {
+            if (typeof window.show_9344336 !== 'function') {
                 return showAlert("Ad service abhi uplabdh nahi hai. Kripya baad mein prayas karein.");
             }
             
