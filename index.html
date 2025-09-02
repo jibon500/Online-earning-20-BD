@@ -2,16 +2,15 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Telecom Mini App</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script src='//libtl.com/sdk.js' data-zone='9807992' data-sdk='show_9807992'></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Earning App</title>
+    <!-- Firebase SDK -->
     <script type="module">
         // Import the functions you need from the SDKs you need
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
-        import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-analytics.js";
-        import { getFirestore, doc, setDoc, getDoc, updateDoc, collection, addDoc, query, where, getDocs, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-analytics.js";
+        import { getFirestore, doc, getDoc, setDoc, updateDoc, collection, query, where, getDocs, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
         // Your web app's Firebase configuration
         const firebaseConfig = {
@@ -27,1145 +26,898 @@
 
         // Initialize Firebase
         const app = initializeApp(firebaseConfig);
-        const analytics = getAnalytics(app);
+        // const analytics = getAnalytics(app); // Optional
         const db = getFirestore(app);
-        
-        // Make Firebase available globally
-        window.firebase = {
-            app,
-            db,
-            doc,
-            setDoc,
-            getDoc,
-            updateDoc,
-            collection,
-            addDoc,
-            query,
-            where,
-            getDocs,
-            orderBy,
-            onSnapshot
-        };
+        const auth = getAuth(app);
+
+        // Make Firebase objects globally accessible within the script
+        window.firebaseApp = app;
+        window.db = db;
+        window.auth = auth;
     </script>
+
     <style>
         :root {
-            --primary-color: #6a11cb;
-            --secondary-color: #2575fc;
-            --background-color: #f8f9fa;
-            --card-bg: #ffffff;
-            --text-color: #333333;
-            --border-radius: 15px;
-            --box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            --bg-color: #ffffff;
+            --text-color: #000000;
+            --card-bg: #f0f0f0;
+            --nav-bg: #e0e0e0;
+            --button-bg: #0088cc;
+            --button-text: #ffffff;
+            --border-color: #cccccc;
+            --success-color: #4caf50;
+            --pending-color: #ff9800;
+            --processing-color: #2196f3;
+            --rejected-color: #f44336;
         }
 
         .dark-mode {
-            --primary-color: #8a2be2;
-            --secondary-color: #4a86e8;
-            --background-color: #1a1a1a;
-            --card-bg: #2d2d2d;
+            --bg-color: #121212;
             --text-color: #ffffff;
-            --box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            --card-bg: #1e1e1e;
+            --nav-bg: #252525;
+            --button-bg: #bb86fc;
+            --button-text: #000000;
+            --border-color: #444444;
+            --success-color: #81c784;
+            --pending-color: #ffb74d;
+            --processing-color: #64b5f6;
+            --rejected-color: #e57373;
         }
-        
-        * {
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             margin: 0;
             padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
             transition: background-color 0.3s, color 0.3s;
         }
-        
-        body {
-            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
-            color: var(--text-color);
-            min-height: 100vh;
-            padding-bottom: 70px;
-        }
-        
+
         .container {
-            max-width: 100%;
-            padding: 15px;
+            padding: 20px;
+            max-width: 600px;
             margin: 0 auto;
         }
-        
-        .card {
-            background: var(--card-bg);
-            border-radius: var(--border-radius);
-            padding: 20px;
-            margin-bottom: 20px;
-            box-shadow: var(--box-shadow);
-        }
-        
+
         .header {
             text-align: center;
-            color: white;
-            padding: 20px 0;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .header h1 {
-            font-size: 24px;
-            font-weight: 600;
-            flex: 1;
-        }
-        
-        .theme-toggle {
-            background: rgba(255, 255, 255, 0.2);
-            border: none;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            cursor: pointer;
-        }
-        
-        .profile-section {
-            display: flex;
-            align-items: center;
             margin-bottom: 20px;
         }
-        
-        .profile-pic {
-            width: 70px;
-            height: 70px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+
+        .user-info {
             display: flex;
+            flex-direction: column;
             align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 28px;
-            margin-right: 15px;
-            border: 3px solid var(--card-bg);
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            overflow: hidden;
-        }
-        
-        .profile-pic img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-        
-        .profile-info h2 {
-            font-size: 18px;
-            margin-bottom: 5px;
-            color: var(--text-color);
-        }
-        
-        .profile-info p {
-            color: #666;
-            font-size: 14px;
-        }
-        
-        .balance-section {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 20px;
-            gap: 10px;
-        }
-        
-        .balance-card {
-            background: linear-gradient(135deg, #43cea2 0%, #185a9d 100%);
-            color: white;
-            border-radius: 12px;
-            padding: 15px;
-            flex: 1;
-            text-align: center;
-        }
-        
-        .balance-card h3 {
-            font-size: 14px;
-            margin-bottom: 8px;
-            font-weight: 500;
-        }
-        
-        .balance-card p {
-            font-size: 18px;
-            font-weight: 700;
-        }
-        
-        .btn {
-            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
-            color: white;
-            border: none;
+            background-color: var(--card-bg);
             padding: 15px;
             border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .profile-pic {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 10px;
+            border: 2px solid var(--border-color);
+        }
+
+        .balance-info {
+            display: flex;
+            justify-content: space-around;
             width: 100%;
-            font-size: 16px;
-            font-weight: 600;
+            margin-top: 15px;
+        }
+
+        .balance-item {
+            text-align: center;
+        }
+
+        .balance-amount {
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+
+        .tap-to-earn {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            margin: 20px 0;
+            background-color: var(--button-bg);
+            color: var(--button-text);
+            border: none;
+            border-radius: 5px;
+            font-size: 1em;
             cursor: pointer;
-            margin: 10px 0;
-            transition: all 0.3s ease;
+            text-align: center;
+            text-decoration: none;
         }
-        
-        .btn:active {
-            transform: scale(0.98);
+
+        .tap-to-earn:hover {
+            opacity: 0.9;
         }
-        
-        .btn-secondary {
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-        }
-        
+
         .nav-bar {
             position: fixed;
             bottom: 0;
             left: 0;
             right: 0;
-            background: var(--card-bg);
             display: flex;
             justify-content: space-around;
-            padding: 12px 0;
-            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
-            border-top-left-radius: var(--border-radius);
-            border-top-right-radius: var(--border-radius);
-        }
-        
-        .nav-item {
-            display: flex;
-            flex-direction: column;
             align-items: center;
-            color: #666;
-            font-size: 12px;
-            cursor: pointer;
+            height: 60px;
+            background-color: var(--nav-bg);
+            box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
+            z-index: 1000;
         }
-        
+
+        .nav-item {
+            flex: 1;
+            text-align: center;
+            padding: 10px 0;
+            text-decoration: none;
+            color: var(--text-color);
+            font-size: 0.9em;
+        }
+
         .nav-item.active {
-            color: var(--primary-color);
+             font-weight: bold;
+             /* border-top: 2px solid var(--button-bg); */
         }
-        
-        .nav-item i {
-            font-size: 20px;
-            margin-bottom: 5px;
-        }
-        
+
         .page {
             display: none;
         }
-        
-        .page.active {
+
+        .active-page {
             display: block;
         }
-        
-        .loading {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.7);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-        }
-        
-        .spinner {
-            width: 50px;
-            height: 50px;
-            border: 5px solid rgba(255, 255, 255, 0.3);
-            border-radius: 50%;
-            border-top-color: var(--primary-color);
-            animation: spin 1s ease-in-out infinite;
-        }
-        
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-        
-        .history-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 12px 0;
-            border-bottom: 1px solid #eee;
-        }
-        
-        .referral-section {
-            text-align: center;
-            padding: 15px;
-        }
-        
-        .referral-code {
-            background: #f5f5f5;
-            padding: 15px;
-            border-radius: 10px;
-            margin: 15px 0;
-            font-size: 18px;
-            font-weight: 600;
-            letter-spacing: 2px;
-            word-break: break-all;
-        }
-        
-        .share-buttons {
-            display: flex;
-            justify-content: space-around;
-            margin-top: 20px;
-        }
-        
-        .share-btn {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 10px;
-            background: #f5f5f5;
-            border-radius: 10px;
-            width: 45%;
-            cursor: pointer;
-        }
-        
-        .share-btn i {
-            font-size: 24px;
-            margin-bottom: 5px;
-            color: var(--primary-color);
-        }
-        
-        .ad-container {
-            margin: 20px 0;
-            text-align: center;
-            min-height: 100px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: #f9f9f9;
-            border-radius: 10px;
-        }
-        
-        #monetag-ad {
-            width: 100%;
-        }
-        
-        .status-pending {
-            color: #ff9800;
-            font-weight: 600;
-        }
-        
-        .status-processing {
-            color: #2196f3;
-            font-weight: 600;
-        }
-        
-        .status-success {
-            color: #4caf50;
-            font-weight: 600;
-        }
-        
-        .status-rejected {
-            color: #f44336;
-            font-weight: 600;
-        }
-        
-        .withdrawal-method {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-bottom: 15px;
-        }
-        
-        .method-option {
-            flex: 1;
-            min-width: 100px;
-            text-align: center;
-            padding: 12px;
-            border: 2px solid #ddd;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        
-        .method-option.selected {
-            border-color: var(--primary-color);
-            background-color: rgba(106, 17, 203, 0.1);
-        }
-        
-        .method-option i {
-            font-size: 24px;
-            margin-bottom: 5px;
-            color: var(--primary-color);
-        }
-        
-        .toast {
-            position: fixed;
-            bottom: 100px;
-            left: 50%;
-            transform: translateX(-50%);
-            background-color: #333;
-            color: white;
-            padding: 12px 20px;
-            border-radius: 8px;
-            z-index: 1000;
-            opacity: 0;
-            transition: opacity 0.3s;
-        }
-        
-        .toast.show {
-            opacity: 1;
-        }
-        
-        .conversion-info {
-            text-align: center;
-            margin: 10px 0;
-            font-size: 14px;
-            color: #666;
-        }
-        
+
         .form-group {
             margin-bottom: 15px;
         }
-        
-        .form-group label {
+
+        label {
             display: block;
-            margin-bottom: 8px;
-            font-weight: 500;
-            color: var(--text-color);
+            margin-bottom: 5px;
         }
-        
-        .form-group input, .form-group select {
+
+        input, select {
             width: 100%;
-            padding: 14px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            font-size: 16px;
-            background: var(--card-bg);
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            background-color: var(--card-bg);
             color: var(--text-color);
-            transition: border-color 0.3s;
+            box-sizing: border-box;
         }
-        
-        .form-group input:focus, .form-group select:focus {
-            border-color: var(--primary-color);
-            outline: none;
+
+        button {
+            padding: 10px 15px;
+            background-color: var(--button-bg);
+            color: var(--button-text);
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
         }
+
+        button:disabled {
+             opacity: 0.6;
+             cursor: not-allowed;
+        }
+
+        .history-item {
+            background-color: var(--card-bg);
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            border-left: 5px solid var(--pending-color); /* Default color */
+        }
+
+        .history-item.status-success {
+            border-left-color: var(--success-color);
+        }
+
+        .history-item.status-processing {
+            border-left-color: var(--processing-color);
+        }
+
+        .history-item.status-rejected {
+            border-left-color: var(--rejected-color);
+        }
+
+        .history-item .amount {
+            font-weight: bold;
+        }
+
+        .history-item .status {
+            font-size: 0.9em;
+            color: #777; /* Adjust based on status if needed */
+        }
+
+        .referral-info {
+            background-color: var(--card-bg);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .referral-stats {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 15px;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.1em;
+            font-weight: bold;
+        }
+
+        .theme-toggle {
+             position: absolute;
+             top: 10px;
+             right: 10px;
+             background: none;
+             border: none;
+             color: var(--text-color);
+             cursor: pointer;
+             font-size: 1.2em;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .error {
+            color: var(--rejected-color);
+            text-align: center;
+            padding: 10px;
+            background-color: rgba(244, 67, 54, 0.1);
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+
+        .success {
+            color: var(--success-color);
+            text-align: center;
+            padding: 10px;
+            background-color: rgba(76, 175, 80, 0.1);
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+
+         /* Monetag Ad Placeholder/Container */
+         #monetag-ad-container {
+             margin: 20px 0;
+             min-height: 100px; /* Adjust based on ad size */
+             background-color: #f9f9f9; /* Light placeholder */
+             border: 1px dashed #ccc;
+             display: flex;
+             align-items: center;
+             justify-content: center;
+             color: #666;
+         }
+         .dark-mode #monetag-ad-container {
+             background-color: #2a2a2a;
+             border-color: #555;
+             color: #aaa;
+         }
+
+
     </style>
 </head>
 <body>
-    <div class="loading" id="loading">
-        <div class="spinner"></div>
-    </div>
-    
-    <div class="toast" id="toast"></div>
+    <div class="theme-toggle" id="themeToggle">🌙</div> <!-- Simple toggle icon -->
+    <div class="container">
 
-    <!-- Home Page -->
-    <div class="page active" id="home-page">
-        <div class="header">
-            <button class="theme-toggle" id="theme-toggle">
-                <i class="fas fa-moon"></i>
-            </button>
-            <h1>Telecom Mini App</h1>
-            <div style="width: 40px;"></div>
-        </div>
-        
-        <div class="container">
-            <div class="card">
-                <div class="profile-section">
-                    <div class="profile-pic" id="profile-picture">
-                        <i class="fas fa-user" id="profile-icon"></i>
-                    </div>
-                    <div class="profile-info">
-                        <h2 id="user-name">User Name</h2>
-                        <p id="user-id">Telegram ID: Loading...</p>
-                    </div>
-                </div>
-                
-                <div class="balance-section">
-                    <div class="balance-card">
-                        <h3>Balance</h3>
-                        <p id="balance-amount">৳ 0.00</p>
-                    </div>
-                    <div class="balance-card">
-                        <h3>Coins</h3>
-                        <p id="coin-amount">0 coins</p>
-                    </div>
-                </div>
-                
-                <div class="conversion-info">
-                    <p>1000 coins = ৳ 1.00</p>
-                    <p id="coins-value">Your coins value: ৳ 0.00</p>
-                </div>
-                
-                <div class="ad-container">
-                    <div id="monetag-ad"></div>
-                </div>
-                
-                <button class="btn" id="earn-btn">Tap to Earn (10 coins)</button>
+        <!-- Home Page -->
+        <div id="homePage" class="page active-page">
+            <div class="header">
+                <h2>Home</h2>
             </div>
-            
-            <div class="card">
-                <h3>Refer and Earn</h3>
-                <p>Invite friends and earn 10 TK for each referral</p>
-                <button class="btn btn-secondary" onclick="showPage('referral-page')">Refer Now</button>
+            <div class="user-info">
+                <img id="userPhoto" class="profile-pic" src="" alt="Profile Picture">
+                <div id="userName">Loading...</div>
+                <div id="userId">ID: Loading...</div>
+                <div class="balance-info">
+                    <div class="balance-item">
+                        <div>Balance (BDT)</div>
+                        <div id="userBalanceBDT" class="balance-amount">0.00</div>
+                    </div>
+                    <div class="balance-item">
+                        <div>Coins</div>
+                        <div id="userBalanceCoins" class="balance-amount">0</div>
+                    </div>
+                </div>
+            </div>
+            <button id="tapToEarnBtn" class="tap-to-earn">Tap to Earn</button>
+            <div id="monetag-ad-container">
+                 <!-- Ad will be loaded here or placeholder shown -->
+                 <div id="adPlaceholder">Watch Ad to Earn 10 Coins</div>
+                 <!-- Monetag Script will be injected here dynamically -->
             </div>
         </div>
-    </div>
 
-    <!-- Wallet Page -->
-    <div class="page" id="wallet-page">
-        <div class="header">
-            <button class="theme-toggle" onclick="showPage('home-page')">
-                <i class="fas fa-arrow-left"></i>
-            </button>
-            <h1>Wallet</h1>
-            <div style="width: 40px;"></div>
-        </div>
-        
-        <div class="container">
-            <div class="card">
-                <h3>Withdraw Money</h3>
-                
-                <div class="form-group">
-                    <label for="withdraw-method">Withdrawal Method</label>
-                    <div class="withdrawal-method">
-                        <div class="method-option" data-method="bkash" onclick="selectWithdrawalMethod('bkash')">
-                            <i class="fas fa-mobile-alt"></i>
-                            <div>bKash</div>
-                        </div>
-                        <div class="method-option" data-method="nagad" onclick="selectWithdrawalMethod('nagad')">
-                            <i class="fas fa-wallet"></i>
-                            <div>Nagad</div>
-                        </div>
-                        <div class="method-option" data-method="rocket" onclick="selectWithdrawalMethod('rocket')">
-                            <i class="fas fa-rocket"></i>
-                            <div>Rocket</div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="form-group">
-                    <label for="phone-number">Mobile Number</label>
-                    <input type="text" id="phone-number" placeholder="Your mobile number">
-                </div>
-                
-                <div class="form-group">
-                    <label for="withdraw-amount">Amount (BDT)</label>
-                    <input type="number" id="withdraw-amount" placeholder="Enter amount to withdraw" min="100">
-                </div>
-                
-                <div class="conversion-info">
-                    <p id="withdrawal-conversion">Coins to be deducted: 0</p>
-                </div>
-                
-                <button class="btn" id="withdraw-btn">Request Withdrawal</button>
+        <!-- Wallet Page -->
+        <div id="walletPage" class="page">
+            <div class="header">
+                <h2>Wallet</h2>
             </div>
-            
-            <div class="card">
-                <h3>Withdrawal History</h3>
-                <div class="history-item">
-                    <div>Date</div>
-                    <div>Amount</div>
-                    <div>Status</div>
-                </div>
-                <div id="withdrawal-history">
-                    <!-- History will be loaded here -->
-                </div>
+            <div class="form-group">
+                <label for="withdrawMethod">Withdraw Method</label>
+                <select id="withdrawMethod">
+                    <option value="Bkash">Bkash</option>
+                    <option value="Nagad">Nagad</option>
+                    <option value="Rocket">Rocket</option>
+                </select>
             </div>
-        </div>
-    </div>
+            <div class="form-group">
+                <label for="mobileNumber">Mobile Number</label>
+                <input type="text" id="mobileNumber" placeholder="Enter mobile number">
+            </div>
+            <div class="form-group">
+                <label for="withdrawAmount">Amount (BDT)</label>
+                <input type="number" id="withdrawAmount" step="0.01" min="10" placeholder="Minimum 10 BDT">
+            </div>
+            <button id="requestWithdrawBtn">Request Withdrawal</button>
+            <div id="withdrawalMessage"></div> <!-- For success/error messages -->
 
-    <!-- Referral Page -->
-    <div class="page" id="referral-page">
-        <div class="header">
-            <button class="theme-toggle" onclick="showPage('home-page')">
-                <i class="fas fa-arrow-left"></i>
-            </button>
-            <h1>Refer & Earn</h1>
-            <div style="width: 40px;"></div>
-        </div>
-        
-        <div class="container">
-            <div class="card">
-                <div class="referral-section">
-                    <h3>Your Referral Code</h3>
-                    <div class="referral-code" id="referral-code">LOADING...</div>
-                    <p>Earn 10 TK for each successful referral</p>
-                </div>
-                
-                <div class="share-buttons">
-                    <div class="share-btn" onclick="copyReferralCode()">
-                        <i class="fas fa-copy"></i>
-                        <span>Copy Code</span>
-                    </div>
-                    <div class="share-btn" onclick="shareToTelegram()">
-                        <i class="fab fa-telegram"></i>
-                        <span>Share on Telegram</span>
-                    </div>
-                </div>
+            <h3>Withdrawal History</h3>
+            <div id="withdrawalHistory">
+                <!-- History items will be populated here -->
+                <div class="loading">Loading history...</div>
             </div>
-            
-            <div class="card">
-                <h3>Referral Statistics</h3>
-                <div class="history-item">
+        </div>
+
+        <!-- Refer Page -->
+        <div id="referPage" class="page">
+            <div class="header">
+                <h2>Refer & Earn</h2>
+            </div>
+            <div class="referral-info">
+                <p>Share your referral link and earn 10 BDT for each friend who joins!</p>
+                <p>When your referral earnings reach 500 BDT, it will be added to your main balance.</p>
+                <div class="form-group">
+                    <label for="referralLink">Your Referral Link:</label>
+                    <input type="text" id="referralLink" readonly>
+                </div>
+                <button id="copyLinkBtn">Copy Link</button>
+                <button id="shareLinkBtn">Share Link</button>
+            </div>
+            <div class="referral-stats">
+                <div class="stat-item">
                     <div>Total Referrals</div>
-                    <div id="total-referrals">0</div>
+                    <div id="totalReferrals" class="stat-value">0</div>
                 </div>
-                <div class="history-item">
-                    <div>Referral Earnings</div>
-                    <div id="referral-earnings">৳ 0</div>
+                <div class="stat-item">
+                    <div>Referral Earnings (BDT)</div>
+                    <div id="referralEarnings" class="stat-value">0.00</div>
                 </div>
-                <div class="history-item">
-                    <div>Available for withdrawal</div>
-                    <div id="referral-available">৳ 0</div>
-                </div>
-            </div>
-            
-            <div class="card">
-                <h3>Your Referral Link</h3>
-                <p>Share this link with your friends to earn rewards:</p>
-                <div class="referral-code" id="referral-link">Loading...</div>
-                <button class="btn" onclick="copyReferralLink()">
-                    <i class="fas fa-copy"></i> Copy Referral Link
-                </button>
             </div>
         </div>
-    </div>
 
-    <!-- Profile Page -->
-    <div class="page" id="profile-page">
-        <div class="header">
-            <button class="theme-toggle" onclick="showPage('home-page')">
-                <i class="fas fa-arrow-left"></i>
-            </button>
-            <h1>Profile</h1>
-            <div style="width: 40px;"></div>
-        </div>
-        
-        <div class="container">
-            <div class="card">
-                <div class="profile-section" style="justify-content: center;">
-                    <div class="profile-pic" id="profile-picture-large">
-                        <i class="fas fa-user" id="profile-icon-large"></i>
+        <!-- Profile Page -->
+        <div id="profilePage" class="page">
+            <div class="header">
+                <h2>Profile</h2>
+            </div>
+            <div class="user-info">
+                <img id="profileUserPhoto" class="profile-pic" src="" alt="Profile Picture">
+                <div id="profileUserName">Loading...</div>
+                <div id="profileUserId">ID: Loading...</div>
+                <div class="balance-info">
+                    <div class="balance-item">
+                        <div>Main Balance (BDT)</div>
+                        <div id="profileUserBalanceBDT" class="balance-amount">0.00</div>
+                    </div>
+                    <div class="balance-item">
+                        <div>Referral Earnings (BDT)</div>
+                        <div id="profileReferralEarnings" class="balance-amount">0.00</div>
                     </div>
                 </div>
-                
-                <div style="text-align: center; margin-bottom: 20px;">
-                    <h2 id="profile-name">User Name</h2>
-                    <p id="profile-telegram-id">Telegram ID: Loading...</p>
-                </div>
-                
-                <div class="form-group">
-                    <label>Telegram Username</label>
-                    <input type="text" id="profile-username" value="Loading..." readonly>
-                </div>
-                
-                <div class="form-group">
-                    <label>Joined Date</label>
-                    <input type="text" id="profile-joined" value="Loading..." readonly>
-                </div>
+                 <div class="referral-stats" style="width:100%; margin-top: 10px;">
+                    <div class="stat-item">
+                        <div>Total Referrals</div>
+                        <div id="profileTotalReferrals" class="stat-value">0</div>
+                    </div>
+                 </div>
             </div>
+             <h3>Recent Withdrawal Requests</h3>
+             <div id="profileWithdrawalHistory">
+                 <!-- History items will be populated here -->
+                 <div class="loading">Loading history...</div>
+             </div>
         </div>
+
     </div>
 
-    <!-- Navigation Bar -->
-    <div class="nav-bar" id="nav-bar">
-        <div class="nav-item active" onclick="showPage('home-page')">
-            <i class="fas fa-home"></i>
-            <span>Home</span>
-        </div>
-        <div class="nav-item" onclick="showPage('wallet-page')">
-            <i class="fas fa-wallet"></i>
-            <span>Wallet</span>
-        </div>
-        <div class="nav-item" onclick="showPage('referral-page')">
-            <i class="fas fa-gift"></i>
-            <span>Referral</span>
-        </div>
-        <div class="nav-item" onclick="showPage('profile-page')">
-            <i class="fas fa-user"></i>
-            <span>Profile</span>
-        </div>
+    <div class="nav-bar">
+        <a href="#" class="nav-item active" data-page="homePage">🏠 Home</a>
+        <a href="#" class="nav-item" data-page="walletPage">💰 Wallet</a>
+        <a href="#" class="nav-item" data-page="referPage">👥 Refer</a>
+        <a href="#" class="nav-item" data-page="profilePage">👤 Profile</a>
     </div>
 
     <script>
-        // Initialize Telegram WebApp
-        let TelegramWebApp;
-        let telegramUser = null;
-        let selectedWithdrawalMethod = '';
-        let isDarkMode = false;
+        // --- App State & Initialization ---
         let currentUser = null;
-        
-        // Check if we're in Telegram
-        if (window.Telegram && window.Telegram.WebApp) {
-            TelegramWebApp = window.Telegram.WebApp;
-            TelegramWebApp.ready();
-            TelegramWebApp.expand();
-            
-            // Get Telegram user data
-            telegramUser = TelegramWebApp.initDataUnsafe.user;
-            console.log("Telegram User:", telegramUser);
-            
-            // Set theme based on Telegram theme
-            if (TelegramWebApp.colorScheme === 'dark') {
-                enableDarkMode();
-            }
-        } else {
-            console.log("Not in Telegram environment. Using test data.");
-            // Test data for development outside Telegram
-            telegramUser = {
-                id: 123456789,
-                first_name: "Test",
-                last_name: "User",
-                username: "testuser",
-                photo_url: "https://via.placeholder.com/100"
-            };
-        }
-        
-        // DOM elements
-        const loadingElement = document.getElementById('loading');
-        const toastElement = document.getElementById('toast');
-        const navBar = document.getElementById('nav-bar');
-        const themeToggle = document.getElementById('theme-toggle');
-        
-        // Toggle dark/light mode
-        function toggleDarkMode() {
-            if (isDarkMode) {
-                document.body.classList.remove('dark-mode');
-                themeToggle.innerHTML = '<i class="fas fa-moon"></i>';
-            } else {
-                document.body.classList.add('dark-mode');
-                themeToggle.innerHTML = '<i class="fas fa-sun"></i>';
-            }
+        let currentUserId = null;
+        let currentUserData = null; // Stores data fetched from Firestore
+        let isDarkMode = localStorage.getItem('darkMode') === 'true'; // Persist theme
+
+        // --- DOM Elements ---
+        const themeToggle = document.getElementById('themeToggle');
+        const navItems = document.querySelectorAll('.nav-item');
+        const pages = document.querySelectorAll('.page');
+        const userPhoto = document.getElementById('userPhoto');
+        const userName = document.getElementById('userName');
+        const userId = document.getElementById('userId');
+        const userBalanceBDT = document.getElementById('userBalanceBDT');
+        const userBalanceCoins = document.getElementById('userBalanceCoins');
+        const tapToEarnBtn = document.getElementById('tapToEarnBtn');
+        const monetagAdContainer = document.getElementById('monetag-ad-container');
+        const adPlaceholder = document.getElementById('adPlaceholder');
+
+        const withdrawMethod = document.getElementById('withdrawMethod');
+        const mobileNumber = document.getElementById('mobileNumber');
+        const withdrawAmount = document.getElementById('withdrawAmount');
+        const requestWithdrawBtn = document.getElementById('requestWithdrawBtn');
+        const withdrawalMessage = document.getElementById('withdrawalMessage');
+        const withdrawalHistory = document.getElementById('withdrawalHistory');
+
+        const referralLink = document.getElementById('referralLink');
+        const copyLinkBtn = document.getElementById('copyLinkBtn');
+        const shareLinkBtn = document.getElementById('shareLinkBtn');
+        const totalReferrals = document.getElementById('totalReferrals');
+        const referralEarnings = document.getElementById('referralEarnings');
+
+        const profileUserPhoto = document.getElementById('profileUserPhoto');
+        const profileUserName = document.getElementById('profileUserName');
+        const profileUserId = document.getElementById('profileUserId');
+        const profileUserBalanceBDT = document.getElementById('profileUserBalanceBDT');
+        const profileReferralEarnings = document.getElementById('profileReferralEarnings');
+        const profileTotalReferrals = document.getElementById('profileTotalReferrals');
+        const profileWithdrawalHistory = document.getElementById('profileWithdrawalHistory');
+
+        // --- Utility Functions ---
+        function toggleTheme() {
             isDarkMode = !isDarkMode;
+            document.body.classList.toggle('dark-mode', isDarkMode);
+            localStorage.setItem('darkMode', isDarkMode);
+            themeToggle.textContent = isDarkMode ? '☀️' : '🌙';
         }
-        
-        function enableDarkMode() {
-            document.body.classList.add('dark-mode');
-            themeToggle.innerHTML = '<i class="fas fa-sun"></i>';
-            isDarkMode = true;
-        }
-        
-        // Show toast message
-        function showToast(message, duration = 3000) {
-            toastElement.textContent = message;
-            toastElement.classList.add('show');
-            
-            setTimeout(() => {
-                toastElement.classList.remove('show');
-            }, duration);
-        }
-        
-        // Page display function
+
         function showPage(pageId) {
-            document.querySelectorAll('.page').forEach(page => {
-                page.classList.remove('active');
+            pages.forEach(page => {
+                page.classList.remove('active-page');
+                if (page.id === pageId) {
+                    page.classList.add('active-page');
+                }
             });
-            document.getElementById(pageId).classList.add('active');
-            
-            // Update navigation items
-            document.querySelectorAll('.nav-item').forEach(item => {
+            navItems.forEach(item => {
                 item.classList.remove('active');
-            });
-            
-            if (pageId === 'home-page') {
-                document.querySelectorAll('.nav-item')[0].classList.add('active');
-            } else if (pageId === 'wallet-page') {
-                document.querySelectorAll('.nav-item')[1].classList.add('active');
-                loadWithdrawalHistory();
-            } else if (pageId === 'referral-page') {
-                document.querySelectorAll('.nav-item')[2].classList.add('active');
-            } else if (pageId === 'profile-page') {
-                document.querySelectorAll('.nav-item')[3].classList.add('active');
-            }
-        }
-        
-        // Show loading
-        function showLoading() {
-            loadingElement.style.display = 'flex';
-        }
-        
-        // Hide loading
-        function hideLoading() {
-            loadingElement.style.display = 'none';
-        }
-        
-        // Select withdrawal method
-        function selectWithdrawalMethod(method) {
-            selectedWithdrawalMethod = method;
-            document.querySelectorAll('.method-option').forEach(option => {
-                option.classList.remove('selected');
-            });
-            document.querySelector(`.method-option[data-method="${method}"]`).classList.add('selected');
-            
-            // Update withdrawal conversion info
-            updateWithdrawalConversion();
-        }
-        
-        // Update withdrawal conversion info
-        function updateWithdrawalConversion() {
-            const amount = parseFloat(document.getElementById('withdraw-amount').value) || 0;
-            const coinsToDeduct = amount * 1000;
-            document.getElementById('withdrawal-conversion').textContent = `Coins to be deducted: ${coinsToDeduct}`;
-        }
-        
-        // Generate referral code
-        function generateReferralCode() {
-            return 'REF' + Math.floor(1000 + Math.random() * 9000);
-        }
-        
-        // Tap to Earn button event
-        document.getElementById('earn-btn').addEventListener('click', () => {
-            // Show Monetag ad
-            if (typeof show_9807992 !== 'undefined') {
-                show_9807992();
-                // Add coins after ad is shown
-                setTimeout(addCoinsAfterAd, 1000);
-            } else {
-                showToast('Ad is loading, please try again in a moment.');
-            }
-        });
-        
-        // Add coins after watching ad
-        function addCoinsAfterAd() {
-            const user = currentUser;
-            if (user) {
-                showLoading();
-                // Get current user data
-                window.firebase.getDoc(window.firebase.doc(window.firebase.db, "users", user.uid))
-                    .then((doc) => {
-                        if (doc.exists()) {
-                            const userData = doc.data();
-                            const newCoins = userData.coins + 10;
-                            const newBalance = newCoins / 1000;
-                            
-                            // Update coins and balance
-                            return window.firebase.updateDoc(window.firebase.doc(window.firebase.db, "users", user.uid), {
-                                coins: newCoins,
-                                balance: newBalance
-                            });
-                        }
-                    })
-                    .then(() => {
-                        hideLoading();
-                        // Update UI
-                        const currentCoins = parseInt(document.getElementById('coin-amount').textContent) || 0;
-                        document.getElementById('coin-amount').textContent = (currentCoins + 10) + ' coins';
-                        
-                        const currentBalance = parseFloat(document.getElementById('balance-amount').textContent.replace('৳ ', '')) || 0;
-                        const newBalance = currentBalance + 0.01;
-                        document.getElementById('balance-amount').textContent = '৳ ' + newBalance.toFixed(2);
-                        
-                        // Update coins value display
-                        document.getElementById('coins-value').textContent = `Your coins value: ৳ ${((currentCoins + 10) / 1000).toFixed(2)}`;
-                        
-                        showToast('You earned 10 coins!');
-                    })
-                    .catch((error) => {
-                        hideLoading();
-                        showToast('Error: ' + error.message);
-                    });
-            }
-        }
-        
-        // Withdraw button event
-        document.getElementById('withdraw-btn').addEventListener('click', () => {
-            const amount = parseFloat(document.getElementById('withdraw-amount').value);
-            const phone = document.getElementById('phone-number').value;
-            
-            if (!amount || amount <= 0 || !phone) {
-                showToast('Please provide a valid amount and phone number');
-                return;
-            }
-            
-            if (amount < 100) {
-                showToast('Minimum withdrawal amount is 100 BDT');
-                return;
-            }
-            
-            if (!selectedWithdrawalMethod) {
-                showToast('Please select a withdrawal method');
-                return;
-            }
-            
-            const user = currentUser;
-            if (user) {
-                showLoading();
-                // Get current balance and coins
-                window.firebase.getDoc(window.firebase.doc(window.firebase.db, "users", user.uid))
-                    .then((doc) => {
-                        if (doc.exists()) {
-                            const userData = doc.data();
-                            const coinsToDeduct = amount * 1000;
-                            
-                            if (userData.coins < coinsToDeduct) {
-                                hideLoading();
-                                showToast('Insufficient coins for this withdrawal');
-                                return;
-                            }
-                            
-                            const newCoins = userData.coins - coinsToDeduct;
-                            const newBalance = newCoins / 1000;
-                            
-                            // Create withdrawal request
-                            const withdrawalData = {
-                                userId: user.uid,
-                                amount: amount,
-                                coinsDeducted: coinsToDeduct,
-                                phone: phone,
-                                method: selectedWithdrawalMethod,
-                                status: 'pending',
-                                date: new Date().toISOString(),
-                                userName: `${userData.telegramFirstName} ${userData.telegramLastName || ''}`
-                            };
-                            
-                            // Update user coins and balance
-                            return Promise.all([
-                                window.firebase.updateDoc(window.firebase.doc(window.firebase.db, "users", user.uid), {
-                                    coins: newCoins,
-                                    balance: newBalance
-                                }),
-                                window.firebase.addDoc(window.firebase.collection(window.firebase.db, "withdrawals"), withdrawalData)
-                            ]);
-                        }
-                    })
-                    .then(() => {
-                        hideLoading();
-                        showToast('Withdrawal request submitted. Coins deducted from your account.');
-                        document.getElementById('withdraw-amount').value = '';
-                        document.getElementById('phone-number').value = '';
-                        selectedWithdrawalMethod = '';
-                        document.querySelectorAll('.method-option').forEach(option => {
-                            option.classList.remove('selected');
-                        });
-                        
-                        // Update UI
-                        loadUserData(user.uid);
-                        
-                        // Reload withdrawal history
-                        loadWithdrawalHistory();
-                    })
-                    .catch((error) => {
-                        hideLoading();
-                        showToast('Error: ' + error.message);
-                    });
-            }
-        });
-        
-        // Copy referral code
-        function copyReferralCode() {
-            const referralCode = document.getElementById('referral-code').textContent;
-            navigator.clipboard.writeText(referralCode)
-                .then(() => {
-                    showToast('Referral code copied to clipboard: ' + referralCode);
-                })
-                .catch(err => {
-                    showToast('Failed to copy: ' + err);
-                });
-        }
-        
-        // Copy referral link
-        function copyReferralLink() {
-            const referralLink = document.getElementById('referral-link').textContent;
-            navigator.clipboard.writeText(referralLink)
-                .then(() => {
-                    showToast('Referral link copied to clipboard');
-                })
-                .catch(err => {
-                    showToast('Failed to copy: ' + err);
-                });
-        }
-        
-        // Share to Telegram
-        function shareToTelegram() {
-            const referralLink = document.getElementById('referral-link').textContent;
-            
-            if (TelegramWebApp) {
-                TelegramWebApp.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(referralLink)}&text=${encodeURIComponent('Join this awesome app using my referral link!')}`);
-            } else {
-                // Fallback for browser
-                window.open(`https://t.me/share/url?url=${encodeURIComponent(referralLink)}&text=${encodeURIComponent('Join this awesome app using my referral link!')}`, '_blank');
-            }
-        }
-        
-        // Load user data from Firestore
-        function loadUserData(userId) {
-            window.firebase.getDoc(window.firebase.doc(window.firebase.db, "users", userId))
-                .then((doc) => {
-                    if (doc.exists()) {
-                        const userData = doc.data();
-                        
-                        // Update UI with user data
-                        document.getElementById('user-name').textContent = userData.telegramFirstName + (userData.telegramLastName ? ' ' + userData.telegramLastName : '');
-                        document.getElementById('profile-name').textContent = userData.telegramFirstName + (userData.telegramLastName ? ' ' + userData.telegramLastName : '');
-                        document.getElementById('user-id').textContent = 'Telegram ID: ' + userData.telegramId;
-                        document.getElementById('profile-telegram-id').textContent = 'Telegram ID: ' + userData.telegramId;
-                        document.getElementById('balance-amount').textContent = '৳ ' + (userData.balance || 0).toFixed(2);
-                        document.getElementById('coin-amount').textContent = (userData.coins || 0) + ' coins';
-                        document.getElementById('referral-code').textContent = userData.referralCode;
-                        document.getElementById('profile-username').value = userData.telegramUsername || 'N/A';
-                        document.getElementById('profile-joined').value = new Date(userData.createdAt).toLocaleDateString();
-                        document.getElementById('total-referrals').textContent = userData.totalReferrals || 0;
-                        document.getElementById('referral-earnings').textContent = '৳ ' + (userData.referralEarnings || 0).toFixed(2);
-                        document.getElementById('referral-available').textContent = '৳ ' + (userData.referralEarnings || 0).toFixed(2);
-                        
-                        // Update coins value display
-                        document.getElementById('coins-value').textContent = `Your coins value: ৳ ${((userData.coins || 0) / 1000).toFixed(2)}`;
-                        
-                        // Set referral link
-                        document.getElementById('referral-link').textContent = `https://t.me/TKBD5_bot?start=ref_${userData.telegramId}`;
-                        
-                        // Load profile picture if available
-                        if (userData.telegramPhotoUrl) {
-                            document.getElementById('profile-picture').innerHTML = `<img src="${userData.telegramPhotoUrl}" alt="Profile">`;
-                            document.getElementById('profile-picture-large').innerHTML = `<img src="${userData.telegramPhotoUrl}" alt="Profile">`;
-                        } else {
-                            // Use first letter of name as profile icon
-                            const firstLetter = userData.telegramFirstName ? userData.telegramFirstName.charAt(0).toUpperCase() : 'U';
-                            document.getElementById('profile-icon').textContent = firstLetter;
-                            document.getElementById('profile-icon-large').textContent = firstLetter;
-                        }
-                        
-                        // Load withdrawal history
-                        loadWithdrawalHistory(userId);
-                    }
-                })
-                .catch((error) => {
-                    console.error("Error loading user data:", error);
-                });
-        }
-        
-        // Load withdrawal history
-        function loadWithdrawalHistory(userId = null) {
-            if (!userId) {
-                if (!currentUser) return;
-                userId = currentUser.uid;
-            }
-            
-            const historyContainer = document.getElementById('withdrawal-history');
-            historyContainer.innerHTML = '<div class="history-item"><div>Loading...</div></div>';
-            
-            // Query withdrawals for this user
-            const q = window.firebase.query(
-                window.firebase.collection(window.firebase.db, "withdrawals"),
-                window.firebase.where("userId", "==", userId),
-                window.firebase.orderBy("date", "desc")
-            );
-            
-            window.firebase.getDocs(q)
-                .then((querySnapshot) => {
-                    historyContainer.innerHTML = '';
-                    
-                    if (querySnapshot.empty) {
-                        historyContainer.innerHTML = '<div class="history-item"><div>No withdrawal history found</div></div>';
-                        return;
-                    }
-                    
-                    querySnapshot.forEach((doc) => {
-                        const withdrawal = doc.data();
-                        const date = new Date(withdrawal.date).toLocaleDateString();
-                        const statusClass = `status-${withdrawal.status.toLowerCase()}`;
-                        
-                        const historyItem = document.createElement('div');
-                        historyItem.className = 'history-item';
-                        historyItem.innerHTML = `
-                            <div>${date}</div>
-                            <div>৳ ${withdrawal.amount}</div>
-                            <div class="${statusClass}">${withdrawal.status}</div>
-                        `;
-                        
-                        historyContainer.appendChild(historyItem);
-                    });
-                })
-                .catch((error) => {
-                    console.error("Error loading withdrawal history:", error);
-                    historyContainer.innerHTML = '<div class="history-item"><div>Error loading history</div></div>';
-                });
-        }
-        
-        // Initialize user automatically
-        function initializeUser() {
-            if (!telegramUser) {
-                showToast('Telegram user data not available');
-                return;
-            }
-            
-            showLoading();
-            
-            // Create a custom UID based on Telegram ID
-            const uid = 'telegram_' + telegramUser.id;
-            
-            // Check if user already exists
-            window.firebase.getDoc(window.firebase.doc(window.firebase.db, "users", uid))
-                .then((doc) => {
-                    if (doc.exists()) {
-                        // User exists, load their data
-                        currentUser = { uid: uid };
-                        hideLoading();
-                        loadUserData(uid);
-                        
-                        // Set up real-time listener for withdrawal status updates
-                        setupRealTimeListeners(uid);
-                    } else {
-                        // Create new user
-                        const userData = {
-                            telegramId: telegramUser.id,
-                            telegramUsername: telegramUser.username || '',
-                            telegramFirstName: telegramUser.first_name,
-                            telegramLastName: telegramUser.last_name || '',
-                            telegramPhotoUrl: telegramUser.photo_url || '',
-                            balance: 0,
-                            coins: 0,
-                            referralCode: generateReferralCode(),
-                            referralEarnings: 0,
-                            totalReferrals: 0,
-                            createdAt: new Date().toISOString()
-                        };
-                        
-                        // Save user data to Firestore
-                        return window.firebase.setDoc(window.firebase.doc(window.firebase.db, "users", uid), userData)
-                            .then(() => {
-                                currentUser = { uid: uid };
-                                hideLoading();
-                                loadUserData(uid);
-                                showToast('Welcome to Telecom Mini App!');
-                                
-                                // Set up real-time listener for withdrawal status updates
-                                setupRealTimeListeners(uid);
-                            });
-                    }
-                })
-                .catch((error) => {
-                    hideLoading();
-                    showToast('Error: ' + error.message);
-                });
-        }
-        
-        // Set up real-time listeners for data changes
-        function setupRealTimeListeners(userId) {
-            // Listen for withdrawal status changes
-            const q = window.firebase.query(
-                window.firebase.collection(window.firebase.db, "withdrawals"),
-                window.firebase.where("userId", "==", userId)
-            );
-            
-            window.firebase.onSnapshot(q, (snapshot) => {
-                snapshot.docChanges().forEach((change) => {
-                    if (change.type === "modified") {
-                        // Reload withdrawal history when status changes
-                        loadWithdrawalHistory(userId);
-                    }
-                });
-            });
-            
-            // Listen for user data changes (like balance updates from admin)
-            window.firebase.onSnapshot(window.firebase.doc(window.firebase.db, "users", userId), (doc) => {
-                if (doc.exists()) {
-                    loadUserData(userId);
+                if (item.dataset.page === pageId) {
+                    item.classList.add('active');
                 }
             });
         }
-        
-        // Initialize when page loads
-        window.onload = function() {
-            // Initialize user automatically
-            initializeUser();
-            
-            // Add event listener for withdrawal amount input
-            document.getElementById('withdraw-amount').addEventListener('input', updateWithdrawalConversion);
-            
-            // Add event listener for theme toggle
-            themeToggle.addEventListener('click', toggleDarkMode);
-        };
+
+        function formatCurrency(amount) {
+            return parseFloat(amount).toFixed(2);
+        }
+
+        function coinsToBDT(coins) {
+             return coins / 1000; // 1000 coins = 1 BDT
+        }
+
+        function bdtToCoins(bdt) {
+             return bdt * 1000;
+        }
+
+        function updateUIWithUserData() {
+            if (!currentUserData) return;
+
+            const coins = currentUserData.balance * 1000; // Convert BDT balance to coins for display
+
+            // Update Home Page UI
+            userPhoto.src = currentUserData.telegramPhotoUrl || 'https://via.placeholder.com/80';
+            userName.textContent = currentUserData.telegramName || 'Unknown';
+            userId.textContent = `ID: ${currentUserData.telegramId || 'N/A'}`;
+            userBalanceBDT.textContent = formatCurrency(currentUserData.balance);
+            userBalanceCoins.textContent = Math.floor(coins); // Display whole coins
+
+            // Update Profile Page UI
+            profileUserPhoto.src = currentUserData.telegramPhotoUrl || 'https://via.placeholder.com/80';
+            profileUserName.textContent = currentUserData.telegramName || 'Unknown';
+            profileUserId.textContent = `ID: ${currentUserData.telegramId || 'N/A'}`;
+            profileUserBalanceBDT.textContent = formatCurrency(currentUserData.balance);
+            profileReferralEarnings.textContent = formatCurrency(currentUserData.referralEarnings);
+            profileTotalReferrals.textContent = currentUserData.totalReferrals || 0;
+
+            // Update Refer Page UI
+            referralEarnings.textContent = formatCurrency(currentUserData.referralEarnings);
+            totalReferrals.textContent = currentUserData.totalReferrals || 0;
+        }
+
+        function showLoading(targetElement) {
+             targetElement.innerHTML = '<div class="loading">Loading...</div>';
+        }
+
+        function showError(targetElement, message) {
+             targetElement.innerHTML = `<div class="error">${message}</div>`;
+        }
+
+        function showSuccess(targetElement, message) {
+             targetElement.innerHTML = `<div class="success">${message}</div>`;
+        }
+
+        // --- Firebase Interaction Functions ---
+        async function initializeUser(telegramUser) {
+            if (!window.db) {
+                 console.error("Firebase not initialized yet.");
+                 return null;
+            }
+            const userRef = doc(db, "users", telegramUser.id.toString());
+            const userSnap = await getDoc(userRef);
+
+            if (userSnap.exists()) {
+                console.log("User exists:", userSnap.data());
+                return userSnap.data();
+            } else {
+                console.log("New user, creating...");
+                // Check for referrer from URL parameter
+                const urlParams = new URLSearchParams(window.location.search);
+                const referrerId = urlParams.get('start'); // Telegram passes start param
+
+                const newUser = {
+                    telegramId: telegramUser.id.toString(),
+                    telegramName: telegramUser.first_name + (telegramUser.last_name ? ` ${telegramUser.last_name}` : ''),
+                    telegramPhotoUrl: telegramUser.photo_url || '',
+                    balance: 0,
+                    referralEarnings: 0,
+                    totalReferrals: 0,
+                    referrerId: referrerId ? referrerId.toString() : null, // Store referrer ID
+                    createdAt: new Date(),
+                    lastActiveAt: new Date()
+                };
+                try {
+                     await setDoc(userRef, newUser);
+                     console.log("User created:", newUser);
+
+                     // If user has a referrer, update referrer's data
+                     if (referrerId) {
+                         const referrerRef = doc(db, "users", referrerId.toString());
+                         const referrerSnap = await getDoc(referrerRef);
+                         if(referrerSnap.exists()) {
+                             const referrerData = referrerSnap.data();
+                             await updateDoc(referrerRef, {
+                                 totalReferrals: (referrerData.totalReferrals || 0) + 1
+                             });
+                             console.log(`Referrer ${referrerId} totalReferrals updated.`);
+                         }
+                     }
+
+                     return newUser;
+                } catch (error) {
+                    console.error("Error creating user:", error);
+                    return null;
+                }
+            }
+        }
+
+        async function updateUserBalance(userId, amountBDT, isReferralBonus = false) {
+             if (!window.db) return;
+             const userRef = doc(db, "users", userId.toString());
+             try {
+                 if (isReferralBonus) {
+                     // Update referral earnings
+                     await updateDoc(userRef, {
+                         referralEarnings: parseFloat((currentUserData.referralEarnings + amountBDT).toFixed(2)),
+                         lastActiveAt: new Date()
+                     });
+                     currentUserData.referralEarnings += amountBDT;
+
+                     // Check if referral earnings reached 500 BDT
+                     if (currentUserData.referralEarnings >= 500) {
+                         // Transfer to main balance
+                         await updateDoc(userRef, {
+                             balance: parseFloat((currentUserData.balance + 500).toFixed(2)),
+                             referralEarnings: parseFloat((currentUserData.referralEarnings - 500).toFixed(2)) // Reset to 0 or remaining
+                         });
+                         currentUserData.balance += 500;
+                         currentUserData.referralEarnings -= 500;
+                         console.log("500 BDT transferred from referral earnings to main balance.");
+                         showSuccess(withdrawalMessage, "500 BDT transferred from referral earnings to main balance!"); // Show on wallet page for now
+                     }
+
+                 } else {
+                     // Update main balance
+                     await updateDoc(userRef, {
+                         balance: parseFloat((currentUserData.balance + amountBDT).toFixed(2)),
+                         lastActiveAt: new Date()
+                     });
+                     currentUserData.balance += amountBDT;
+                 }
+                 updateUIWithUserData(); // Refresh UI
+                 console.log(`User ${userId} balance updated by ${amountBDT} BDT`);
+             } catch (error) {
+                 console.error("Error updating user balance:", error);
+             }
+        }
+
+        async function requestWithdrawal(userId, method, mobile, amountBDT) {
+            if (!window.db) return false;
+            if (amountBDT > currentUserData.balance) {
+                showError(withdrawalMessage, "Insufficient balance.");
+                return false;
+            }
+            const requestRef = collection(db, "withdrawalRequests");
+            const newRequest = {
+                userId: userId.toString(),
+                method: method,
+                mobileNumber: mobile,
+                amount: amountBDT,
+                status: "Pending",
+                requestedAt: new Date()
+            };
+            try {
+                await setDoc(doc(requestRef), newRequest); // Add new document
+                // Deduct balance immediately upon request
+                await updateUserBalance(userId, -amountBDT);
+                console.log("Withdrawal request submitted:", newRequest);
+                return true;
+            } catch (error) {
+                console.error("Error submitting withdrawal request:", error);
+                return false;
+            }
+        }
+
+        async function loadWithdrawalHistory(userId, targetElement, limitCount = 10) {
+             if (!window.db) {
+                 showError(targetElement, "Database not initialized.");
+                 return;
+             }
+             showLoading(targetElement);
+             try {
+                 const q = query(
+                     collection(db, "withdrawalRequests"),
+                     where("userId", "==", userId.toString()),
+                     orderBy("requestedAt", "desc"),
+                     limit(limitCount)
+                 );
+                 const querySnapshot = await getDocs(q);
+                 if (querySnapshot.empty) {
+                     targetElement.innerHTML = '<p>No withdrawal history found.</p>';
+                     return;
+                 }
+                 let historyHTML = '';
+                 querySnapshot.forEach((doc) => {
+                     const data = doc.data();
+                     const dateStr = data.requestedAt.toDate().toLocaleString(); // Format date
+                     const statusClass = `status-${data.status.toLowerCase()}`;
+                     historyHTML += `
+                         <div class="history-item ${statusClass}">
+                             <div><span class="amount">${formatCurrency(data.amount)} BDT</span> via ${data.method}</div>
+                             <div>To: ${data.mobileNumber}</div>
+                             <div>Requested: ${dateStr}</div>
+                             <div class="status">Status: ${data.status}</div>
+                         </div>
+                     `;
+                 });
+                 targetElement.innerHTML = historyHTML;
+             } catch (error) {
+                 console.error("Error loading withdrawal history:", error);
+                 showError(targetElement, "Failed to load history.");
+             }
+        }
+
+
+        // --- Event Listeners ---
+        themeToggle.addEventListener('click', toggleTheme);
+
+        navItems.forEach(item => {
+            item.addEventListener('click', (e) => {
+                e.preventDefault();
+                const pageId = item.dataset.page;
+                showPage(pageId);
+
+                // Load data specific to the page if needed
+                if (pageId === 'walletPage' && currentUserId) {
+                     loadWithdrawalHistory(currentUserId, withdrawalHistory);
+                }
+                if (pageId === 'profilePage' && currentUserId) {
+                     loadWithdrawalHistory(currentUserId, profileWithdrawalHistory, 5); // Load last 5 for profile
+                }
+            });
+        });
+
+        tapToEarnBtn.addEventListener('click', async () => {
+            if (!currentUserId) return;
+
+            // --- Simulate Ad View and Reward ---
+            // In a real scenario, you'd integrate Monetag's SDK properly and listen for ad completion events.
+            // For simulation:
+            tapToEarnBtn.disabled = true;
+            tapToEarnBtn.textContent = "Loading Ad...";
+            monetagAdContainer.innerHTML = "<p>Ad is playing... Please wait 3 seconds.</p>"; // Placeholder
+
+            // Simulate ad loading/viewing time
+            await new Promise(resolve => setTimeout(resolve, 3000)); // Wait 3 seconds
+
+            // Simulate ad completion/reward
+            const rewardCoins = 10;
+            const rewardBDT = coinsToBDT(rewardCoins);
+            await updateUserBalance(currentUserId, rewardBDT); // Add reward to main balance
+
+            monetagAdContainer.innerHTML = `<div id="adPlaceholder">You earned ${rewardCoins} coins! Watch again?</div>`; // Reset ad container
+            tapToEarnBtn.disabled = false;
+            tapToEarnBtn.textContent = "Tap to Earn";
+
+            // --- End Simulation ---
+
+            /*
+            // --- Potential Monetag Integration (Conceptual) ---
+            // 1. Load Monetag SDK dynamically if not already loaded
+            // 2. Configure the ad unit with your zone ID
+            // 3. Listen for Monetag's ad completion callback/event
+            // 4. Inside the callback, call updateUserBalance(currentUserId, rewardBDT);
+            // Example (requires Monetag API details):
+            // if (typeof window.libtl !== 'undefined') {
+            //    window.libtl.showAd('9807992', function(result) {
+            //        if (result.completed) {
+            //             const rewardCoins = 10; // Defined reward
+            //             const rewardBDT = coinsToBDT(rewardCoins);
+            //             updateUserBalance(currentUserId, rewardBDT);
+            //        }
+            //    });
+            // } else {
+            //    console.error("Monetag SDK not loaded.");
+            // }
+            // --- End Monetag Integration ---
+            */
+        });
+
+
+        requestWithdrawBtn.addEventListener('click', async () => {
+            if (!currentUserId || !currentUserData) {
+                showError(withdrawalMessage, "User data not loaded.");
+                return;
+            }
+            const method = withdrawMethod.value;
+            const mobile = mobileNumber.value.trim();
+            const amountStr = withdrawAmount.value.trim();
+
+            if (!mobile || !amountStr) {
+                showError(withdrawalMessage, "Please fill in all fields.");
+                return;
+            }
+
+            const amountBDT = parseFloat(amountStr);
+            if (isNaN(amountBDT) || amountBDT < 10) {
+                showError(withdrawalMessage, "Minimum withdrawal amount is 10 BDT.");
+                return;
+            }
+
+            if (amountBDT > currentUserData.balance) {
+                showError(withdrawalMessage, "Insufficient balance.");
+                return;
+            }
+
+            withdrawalMessage.innerHTML = '<div class="loading">Processing request...</div>';
+            requestWithdrawBtn.disabled = true;
+
+            const success = await requestWithdrawal(currentUserId, method, mobile, amountBDT);
+
+            if (success) {
+                showSuccess(withdrawalMessage, "Withdrawal request submitted successfully!");
+                // Clear form
+                mobileNumber.value = '';
+                withdrawAmount.value = '';
+                // Reload history
+                loadWithdrawalHistory(currentUserId, withdrawalHistory);
+            } else {
+                showError(withdrawalMessage, "Failed to submit request. Please try again.");
+            }
+            requestWithdrawBtn.disabled = false;
+        });
+
+        copyLinkBtn.addEventListener('click', () => {
+            if (referralLink.value) {
+                navigator.clipboard.writeText(referralLink.value).then(() => {
+                    const originalText = copyLinkBtn.textContent;
+                    copyLinkBtn.textContent = 'Copied!';
+                    setTimeout(() => { copyLinkBtn.textContent = originalText; }, 2000);
+                }).catch(err => {
+                    console.error('Failed to copy: ', err);
+                });
+            }
+        });
+
+        shareLinkBtn.addEventListener('click', () => {
+            if (referralLink.value && window.Telegram && window.Telegram.WebApp) {
+                window.Telegram.WebApp.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(referralLink.value)}&text=Join me on this awesome earning app!`);
+            } else if (referralLink.value) {
+                 // Fallback if Telegram WebApp API is not available or not in Telegram
+                 if (navigator.share) {
+                     navigator.share({
+                         title: 'Join me!',
+                         text: 'Join me on this awesome earning app!',
+                         url: referralLink.value
+                     }).catch(console.error);
+                 } else {
+                     // Last resort: copy link
+                     navigator.clipboard.writeText(referralLink.value);
+                     alert('Link copied to clipboard. You can now share it!');
+                 }
+            }
+        });
+
+
+        // --- App Initialization ---
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Set initial theme
+            document.body.classList.toggle('dark-mode', isDarkMode);
+            themeToggle.textContent = isDarkMode ? '☀️' : '🌙';
+
+            // Check if running inside Telegram
+            if (window.Telegram && window.Telegram.WebApp) {
+                window.Telegram.WebApp.ready();
+                window.Telegram.WebApp.expand(); // Expand to full screen
+
+                const telegramUser = window.Telegram.WebApp.initDataUnsafe.user;
+
+                if (telegramUser && telegramUser.id) {
+                    currentUserId = telegramUser.id.toString();
+                    console.log("Telegram User Data:", telegramUser);
+
+                    // Set referral link based on user ID
+                    referralLink.value = `https://t.me/TKBD5_bot?start=${currentUserId}`;
+
+                    try {
+                        // Ensure Firebase Auth is ready (anonymous sign-in)
+                        await signInAnonymously(window.auth);
+                        console.log("Firebase Auth: Signed in anonymously.");
+
+                        // Initialize or fetch user data from Firestore
+                        currentUserData = await initializeUser(telegramUser);
+                        if (currentUserData) {
+                            updateUIWithUserData();
+                            // Load initial history for wallet page
+                            loadWithdrawalHistory(currentUserId, withdrawalHistory);
+                        } else {
+                            console.error("Failed to initialize user data.");
+                            // Show error on UI
+                            document.querySelector('.container').innerHTML = '<div class="error">Failed to load user data. Please try again later.</div>';
+                        }
+                    } catch (authError) {
+                        console.error("Firebase Auth Error:", authError);
+                        document.querySelector('.container').innerHTML = '<div class="error">Authentication failed. Please try again later.</div>';
+                    }
+
+                } else {
+                    console.error("Telegram User data not available.");
+                    document.querySelector('.container').innerHTML = '<div class="error">Unable to get Telegram user information.</div>';
+                }
+            } else {
+                console.warn("Not running inside Telegram Mini App environment.");
+                // For testing outside Telegram, you might mock the user data
+                // const mockUser = { id: "123456789", first_name: "Test", last_name: "User", photo_url: "https://via.placeholder.com/80" };
+                // currentUserId = mockUser.id;
+                // referralLink.value = `https://t.me/TKBD5_bot?start=${currentUserId}`;
+                // currentUserData = await initializeUser(mockUser);
+                // if (currentUserData) updateUIWithUserData();
+                 document.querySelector('.container').innerHTML = '<div class="error">This app must be opened within Telegram.</div>';
+            }
+        });
+
     </script>
 </body>
 </html>
