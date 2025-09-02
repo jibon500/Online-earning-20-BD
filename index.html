@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CashReward App</title>
     
-    <!-- Your New Ad Code (Replaced Monetag) -->
+    <!-- Your New Ad Code -->
     <script src='//libtl.com/sdk.js' data-zone='9344336' data-sdk='show_9344336'></script>
     
     <script src="https://cdn.tailwindcss.com"></script>
@@ -34,6 +34,14 @@
             background-color: #ef4444; border-radius: 50%; border: 2px solid #121212; display: none;
         }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .pulse-animation {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
     </style>
 </head>
 <body class="max-w-md mx-auto">
@@ -112,6 +120,11 @@
                             <div class="flex items-center space-x-3"><span class="text-3xl">🎮</span><div><h3 class="font-semibold">Play Mini App</h3><p class="text-xs text-gray-400">Get a big reward!</p></div></div>
                             <button class="bg-blue-500 text-white font-bold px-6 py-2 rounded-lg text-sm btn" onclick="claimReward('miniApp')">Play</button>
                         </div>
+                        <!-- New Unlimited Earning Button -->
+                        <div class="bg-gradient-to-r from-purple-600 to-indigo-600 p-3 rounded-lg flex items-center justify-between text-white pulse-animation">
+                            <div class="flex items-center space-x-3"><span class="text-3xl">🔥</span><div><h3 class="font-bold">ট্যাব টু আর্নিং</h3><p class="text-xs font-medium">Unlimited Earnings - 10 Coins per Ad</p></div></div>
+                            <button class="bg-white text-purple-600 font-bold px-6 py-2 rounded-lg text-sm btn" onclick="claimUnlimitedReward()">Start</button>
+                        </div>
                     </div>
                 </section>
             </div>
@@ -188,7 +201,6 @@
     </div>
 
     <script type="module">
-        // Firebase configuration and app logic remain unchanged
         const firebaseConfig = {
             apiKey: "AIzaSyAjdPczpLlBINxzGQ1dvwDRlvZpdUCfKUk",
             authDomain: "earningapp-c292c.firebaseapp.com",
@@ -269,7 +281,8 @@
                         balance: 50, referralCode: ownReferralCode, referredBy: null,
                         lastNotificationCheck: new Date(),
                         createdAt: serverTimestamp(),
-                        dailyAdCount: 0, lastAdWatchDate: new Date().toISOString().split('T')[0], isBlocked: false
+                        dailyAdCount: 0, lastAdWatchDate: new Date().toISOString().split('T')[0], isBlocked: false,
+                        unlimitedAdCount: 0 // Added for unlimited ads tracking
                     };
                     await setDoc(userRef, defaultUserData);
                     userData = defaultUserData;
@@ -284,7 +297,14 @@
             const configRef = doc(db, "config", "main");
             try {
                 const configSnap = await getDoc(configRef);
-                appConfig = configSnap.exists() ? configSnap.data() : { minWithdrawal: 5000, paymentMethods: ["UPI", "Paytm"], dailyAdLimit: 10, coinValueCoins: 1000, coinValueInr: 10 };
+                appConfig = configSnap.exists() ? configSnap.data() : { 
+                    minWithdrawal: 5000, 
+                    paymentMethods: ["UPI", "Paytm"], 
+                    dailyAdLimit: 10, 
+                    coinValueCoins: 1000, 
+                    coinValueInr: 10,
+                    unlimitedAdReward: 10 // Default reward for unlimited ads
+                };
             } catch (error) {
                 console.error("Error fetching app config:", error);
             }
@@ -556,6 +576,33 @@
                 showAlert("Share feature available nahi hai. Iske bajaye referral code copy kar diya gaya hai!");
             }
         }
+
+        // New function for unlimited earning
+        window.claimUnlimitedReward = async function() {
+            if (typeof window.show_9344336 !== 'function') {
+                return showAlert("Ad service abhi uplabdh nahi hai. Kripya baad mein prayas karein.");
+            }
+            
+            try {
+                // Show the ad
+                await window.show_9344336();
+                
+                // Update unlimited ad count
+                const userRef = doc(db, "users", currentUser.uid);
+                const newUnlimitedCount = (userData.unlimitedAdCount || 0) + 1;
+                await updateDoc(userRef, { unlimitedAdCount: newUnlimitedCount });
+                userData.unlimitedAdCount = newUnlimitedCount;
+                
+                // Reward user with 10 coins
+                const rewardAmount = appConfig.unlimitedAdReward || 10;
+                await updateBalance(rewardAmount);
+                showAlert(`Badhai ho! Aapne ${rewardAmount} coins jeete hain.`);
+                
+            } catch(e) {
+                console.error("Ad error:", e);
+                showAlert('Ad nahi dikhaya ja saka. Kripya baad mein prayas karein.');
+            }
+        };
 
         window.claimReward = async function(taskType) {
             const today = new Date().toISOString().split('T')[0];
