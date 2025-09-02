@@ -33,6 +33,7 @@
         let userId = null;
         let userData = null;
         let isBlocked = false;
+        let monetagInitialized = false;
         // Initialize app
         document.addEventListener('DOMContentLoaded', async () => {
             // Check if user is blocked
@@ -119,9 +120,14 @@
         }
         // Update UI with user data
         function updateUIWithUserData() {
-            // Update profile picture
+            // Update profile picture (small and circular)
             if (tg.initDataUnsafe.user && tg.initDataUnsafe.user.photo_url) {
-                document.getElementById('profile-pic').src = tg.initDataUnsafe.user.photo_url;
+                const profilePic = document.getElementById('profile-pic');
+                profilePic.src = tg.initDataUnsafe.user.photo_url;
+                profilePic.style.width = '50px';
+                profilePic.style.height = '50px';
+                profilePic.style.borderRadius = '50%';
+                profilePic.style.objectFit = 'cover';
             }
             // Update user info
             if (tg.initDataUnsafe.user) {
@@ -183,6 +189,10 @@
             document.getElementById('contact-admin').addEventListener('click', () => {
                 tg.openTelegramLink('https://t.me/Nikhil_Shaan');
             });
+            // Close ad button
+            document.getElementById('close-ad').addEventListener('click', () => {
+                document.getElementById('ad-container').style.display = 'none';
+            });
         }
         // Show specific page
         function showPage(pageId) {
@@ -202,13 +212,18 @@
         // Show ad and reward user
         function showAd() {
             // Show the ad container
-            document.getElementById('ad-container').style.display = 'block';
-            // Initialize Monetag ad
-            const adScript = document.createElement('script');
-            adScript.src = '//libtl.com/sdk.js';
-            adScript.setAttribute('data-zone', '9807992');
-            adScript.setAttribute('data-sdk', 'show_9807992');
-            document.head.appendChild(adScript);
+            document.getElementById('ad-container').style.display = 'flex';
+            
+            // Initialize Monetag ad if not already done
+            if (!monetagInitialized) {
+                const adScript = document.createElement('script');
+                adScript.src = 'https://libtl.com/sdk.js';
+                adScript.setAttribute('data-zone', '9807992');
+                adScript.setAttribute('data-sdk', 'show_9807992');
+                document.head.appendChild(adScript);
+                monetagInitialized = true;
+            }
+            
             // Add event listener for ad completion
             window.addEventListener('monetagAdClosed', async () => {
                 // Reward user 5 poysha (0.05 taka)
@@ -407,8 +422,8 @@
             z-index: 10;
         }
         .profile-pic {
-            width: 70px;
-            height: 70px;
+            width: 50px;
+            height: 50px;
             border-radius: 50%;
             object-fit: cover;
             border: 3px solid #6a11cb;
@@ -701,10 +716,11 @@
             justify-content: space-around;
             padding: 12px 0;
             border-top: 1px solid #eee;
-            position: absolute;
+            position: fixed;
             bottom: 0;
             width: 100%;
             box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+            z-index: 100;
         }
         .nav-item {
             display: flex;
@@ -729,19 +745,27 @@
             width: 100%;
             height: 100%;
             background-color: white;
-            z-index: 1000;
+            z-index: 2000;
             display: none;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             padding: 20px;
         }
+        .ad-content {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
         .ad-close {
             position: absolute;
             top: 15px;
             right: 15px;
-            width: 30px;
-            height: 30px;
+            width: 40px;
+            height: 40px;
             border-radius: 50%;
             background-color: #f0f0f0;
             display: flex;
@@ -749,6 +773,8 @@
             justify-content: center;
             font-weight: bold;
             color: #666;
+            font-size: 24px;
+            z-index: 2001;
         }
         /* Block Page */
         #block-page {
@@ -832,4 +858,190 @@
         <!-- Home Page -->
         <div id="home-page" class="page">
             <div class="header">
-                <h1>TKBD5 Earning App
+                <h1>TKBD5 Earning App</h1>
+                <p>টাকা আয় করুন সহজে</p>
+            </div>
+            <div class="user-profile">
+                <img id="profile-pic" class="profile-pic" src="https://via.placeholder.com/50" alt="Profile">
+                <div class="user-info">
+                    <div id="user-name" class="user-name">ইউজারের নাম</div>
+                    <div id="user-id" class="user-id">@username</div>
+                </div>
+            </div>
+            <div class="main-content">
+                <div class="balance-card">
+                    <div class="balance-label">আপনার ব্যালেন্স</div>
+                    <div id="balance-amount" class="balance-amount">0.00 টাকা</div>
+                    <div class="balance-footer">সর্বমোট আয়: <span id="total-earned">0.00 টাকা</span></div>
+                </div>
+                <div class="section-title">দ্রুত অ্যাকশন</div>
+                <div class="action-buttons">
+                    <div id="tab-to-earn" class="action-btn">
+                        <div class="action-btn-icon">
+                            <i class="icon-earn"></i>
+                        </div>
+                        <div class="action-btn-text">ট্যাপ করে আয় করুন</div>
+                        <div class="action-btn-subtext">প্রতি ক্লিকে ০.০৫ টাকা</div>
+                    </div>
+                </div>
+                <div class="section-title">উইথড্র</div>
+                <div class="withdraw-section">
+                    <div class="withdraw-input">
+                        <input type="number" id="withdraw-amount" placeholder="200" min="200">
+                        <span>টাকা</span>
+                    </div>
+                    <div class="payment-methods">
+                        <label class="payment-method">
+                            <input type="radio" name="withdraw-method" value="nagad">
+                            <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNDAgODAiPjxwYXRoIGZpbGw9IiBlYTJlYTUiIGQ9Ik04MCA0MGExNiAxNiAwIDEgMSAwLTMxLjkgMTYgMTYgMCAwIDEgMCAzMS45eiIvPjxwYXRoIGZpbGw9IiMwMDAiIGQ9Ik0xMDQgMjRoMzJ2MzJoLTMyVjI0em0zMiAzMkg4OHYtMTZoNDh2MTZ6Ii8+PC9zdmc+" alt="Nagad">
+                            <label>নগদ</label>
+                        </label>
+                        <label class="payment-method">
+                            <input type="radio" name="withdraw-method" value="bkash">
+                            <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNDAgODAiPjxwYXRoIGZpbGw9IiNlMTAwNTAiIGQ9Ik04MCA0MGExNiAxNiAwIDEgMSAwLTMxLjkgMTYgMTYgMCAwIDEgMCAzMS45eiIvPjxwYXRoIGZpbGw9IiNmZmYiIGQ9Ik0xMDQgMjRoMzJ2MzJoLTMyVjI0em0zMiAzMkg4OHYtMTZoNDh2MTZ6Ii8+PC9zdmc+" alt="bKash">
+                            <label>বিকাশ</label>
+                        </label>
+                        <label class="payment-method">
+                            <input type="radio" name="withdraw-method" value="rocket">
+                            <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNDAgODAiPjxwYXRoIGZpbGw9IiMwMDcy2zYiIGQ9Ik04MCA0MGExNiAxNiAwIDEgMSAwLTMxLjkgMTYgMTYgMCAwIDEgMCAzMS45eiIvPjxwYXRoIGZpbGw9IiNmZmYiIGQ9Ik0xMDQgMjRoMzJ2MzJoLTMyVjI0em0zMiAzMkg4OHYtMTZoNDh2MTZ6Ii8+PC9zdmc+" alt="Rocket">
+                            <label>রকেট</label>
+                        </label>
+                    </div>
+                    <button id="withdraw-btn" class="withdraw-btn">উইথড্র করুন</button>
+                </div>
+            </div>
+        </div>
+        <!-- Withdraw Page -->
+        <div id="withdraw-page" class="page">
+            <div class="header">
+                <h1>উইথড্র</h1>
+                <p>টাকা উত্তোলন করুন</p>
+            </div>
+            <div class="main-content" style="padding-top: 20px;">
+                <div class="withdraw-section">
+                    <div class="withdraw-input">
+                        <input type="number" id="withdraw-amount-2" placeholder="200" min="200">
+                        <span>টাকা</span>
+                    </div>
+                    <div class="payment-methods">
+                        <label class="payment-method">
+                            <input type="radio" name="withdraw-method-2" value="nagad">
+                            <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNDAgODAiPjxwYXRoIGZpbGw9IiBlYTJlYTUiIGQ9Ik04MCA0MGExNiAxNiAwIDEgMSAwLTMxLjkgMTYgMTYgMCAwIDEgMCAzMS45eiIvPjxwYXRoIGZpbGw9IiMwMDAiIGQ9Ik0xMDQgMjRoMzJ2MzJoLTMyVjI0em0zMiAzMkg4OHYtMTZoNDh2MTZ6Ii8+PC9zdmc+" alt="Nagad">
+                            <label>নগদ</label>
+                        </label>
+                        <label class="payment-method">
+                            <input type="radio" name="withdraw-method-2" value="bkash">
+                            <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNDAgODAiPjxwYXRoIGZpbGw9IiNlMTAwNTAiIGQ9Ik04MCA0MGExNiAxNiAwIDEgMSAwLTMxLjkgMTYgMTYgMCAwIDEgMCAzMS45eiIvPjxwYXRoIGZpbGw9IiNmZmYiIGQ9Ik0xMDQgMjRoMzJ2MzJoLTMyVjI0em0zMiAzMkg4OHYtMTZoNDh2MTZ6Ii8+PC9zdmc+" alt="bKash">
+                            <label>বিকাশ</label>
+                        </label>
+                        <label class="payment-method">
+                            <input type="radio" name="withdraw-method-2" value="rocket">
+                            <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNDAgODAiPjxwYXRo IGZpbGw9IiMwMDcy2zYiIGQ9Ik04MCA0MGExNiAxNiAwIDEgMSAwLTMxLjkgMTYgMTYgMCAwIDEgMCAzMS45eiIvPjxwYXRoIGZpbGw9IiNmZmYiIGQ9Ik0xMDQgMjRoMzJ2MzJoLTMyVjI0em0zMiAzMkg4OHYtMTZoNDh2MTZ6Ii8+PC9zdmc+" alt="Rocket">
+                            <label>রকেট</label>
+                        </label>
+                    </div>
+                    <button id="withdraw-btn-2" class="withdraw-btn">উইথড্র করুন</button>
+                </div>
+            </div>
+        </div>
+        <!-- History Page -->
+        <div id="history-page" class="page">
+            <div class="header">
+                <h1>ইতিহাস</h1>
+                <p>আপনার লেনদেনের বিবরণ</p>
+            </div>
+            <div class="main-content" style="padding-top: 20px;">
+                <div id="withdrawal-history"></div>
+            </div>
+        </div>
+        <!-- Refer Page -->
+        <div id="refer-page" class="page">
+            <div class="header">
+                <h1>রেফার ও আয়</h1>
+                <p>বন্ধুদের রেফার করে আয় করুন</p>
+            </div>
+            <div class="main-content" style="padding-top: 20px;">
+                <div class="referral-card">
+                    <div class="referral-stats">
+                        <div class="stat-item">
+                            <div id="referral-count" class="stat-value">0</div>
+                            <div class="stat-label">রেফারেল</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">১০</div>
+                            <div class="stat-label">প্রতি রেফারেল</div>
+                        </div>
+                    </div>
+                    <div class="referral-link">
+                        <input type="text" id="referral-link" readonly>
+                        <button id="copy-referral" class="copy-btn">
+                            <i class="icon-copy">📋</i>
+                        </button>
+                    </div>
+                </div>
+                <div class="section-title">আপনার রেফারেলস</div>
+                <div id="referrals-list" class="referral-list"></div>
+            </div>
+        </div>
+        <!-- Profile Page -->
+        <div id="profile-page" class="page">
+            <div class="header">
+                <h1>প্রোফাইল</h1>
+                <p>আপনার তথ্য</p>
+            </div>
+            <div class="user-profile" style="margin-top: 20px;">
+                <img id="profile-pic-2" class="profile-pic" src="https://via.placeholder.com/50" alt="Profile">
+                <div class="user-info">
+                    <div id="user-name-2" class="user-name">ইউজারের নাম</div>
+                    <div id="user-id-2" class="user-id">@username</div>
+                </div>
+            </div>
+            <div class="main-content" style="padding-top: 20px;">
+                <div class="balance-card">
+                    <div class="balance-label">আপনার ব্যালেন্স</div>
+                    <div id="balance-amount-2" class="balance-amount">0.00 টাকা</div>
+                    <div class="balance-footer">সর্বমোট আয়: <span id="total-earned-2">0.00 টাকা</span></div>
+                </div>
+                <div class="section-title">আপনার রেফারেল কোড</div>
+                <div style="background-color: white; border-radius: 12px; padding: 15px; text-align: center; margin-bottom: 20px;">
+                    <div id="referral-code" style="font-size: 24px; font-weight: bold; color: #6a11cb;">TKBD123456</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Navigation -->
+    <div class="nav-bar">
+        <div class="nav-item active" data-page="home">
+            <div class="nav-icon icon-home"></div>
+            <div>হোম</div>
+        </div>
+        <div class="nav-item" data-page="withdraw">
+            <div class="nav-icon icon-withdraw"></div>
+            <div>উইথড্র</div>
+        </div>
+        <div class="nav-item" data-page="history">
+            <div class="nav-icon icon-history"></div>
+            <div>ইতিহাস</div>
+        </div>
+        <div class="nav-item" data-page="refer">
+            <div class="nav-icon icon-refer"></div>
+            <div>রেফার</div>
+        </div>
+        <div class="nav-item" data-page="profile">
+            <div class="nav-icon icon-profile"></div>
+            <div>প্রোফাইল</div>
+        </div>
+    </div>
+    <!-- Ad Container -->
+    <div id="ad-container">
+        <div class="ad-close" id="close-ad">×</div>
+        <div class="ad-content">
+            <!-- Ad will be loaded here -->
+            <div style="text-align: center; padding: 20px;">
+                <h3>অ্যাড লোড হচ্ছে...</h3>
+                <p>অ্যাড দেখার পর আপনাকে স্বয়ংক্রিয়ভাবে পুরস্কৃত করা হবে</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
