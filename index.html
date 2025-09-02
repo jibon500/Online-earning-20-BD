@@ -1,11 +1,52 @@
 <!DOCTYPE html>
-<html lang="bn">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Telecom Mini App</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src='//libtl.com/sdk.js' data-zone='9807992' data-sdk='show_9807992'></script>
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-analytics.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
+
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyD3BGZ0MVLpbQbIpLUAnYvWNEIyk7Y6S0Q",
+            authDomain: "earning-app-80258.firebaseapp.com",
+            databaseURL: "https://earning-app-80258-default-rtdb.firebaseio.com",
+            projectId: "earning-app-80258",
+            storageBucket: "earning-app-80258.appspot.com",
+            messagingSenderId: "25930019210",
+            appId: "1:25930019210:web:6441562811d3e7e9631873",
+            measurementId: "G-P9HX6XXT1Q"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        
+        // Make Firebase available globally
+        window.firebase = {
+            app,
+            auth,
+            db,
+            createUserWithEmailAndPassword,
+            signInWithEmailAndPassword,
+            signOut,
+            onAuthStateChanged,
+            doc,
+            setDoc,
+            getDoc,
+            updateDoc
+        };
+    </script>
     <style>
         * {
             margin: 0;
@@ -65,6 +106,13 @@
             margin-right: 15px;
             border: 3px solid white;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        
+        .profile-pic img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
         
         .profile-info h2 {
@@ -146,6 +194,7 @@
             align-items: center;
             color: #666;
             font-size: 12px;
+            cursor: pointer;
         }
         
         .nav-item.active {
@@ -273,12 +322,28 @@
             background: #f5f5f5;
             border-radius: 10px;
             width: 45%;
+            cursor: pointer;
         }
         
         .share-btn i {
             font-size: 24px;
             margin-bottom: 5px;
             color: #6a11cb;
+        }
+        
+        .ad-container {
+            margin: 20px 0;
+            text-align: center;
+            min-height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f9f9f9;
+            border-radius: 10px;
+        }
+        
+        #monetag-ad {
+            width: 100%;
         }
     </style>
 </head>
@@ -291,46 +356,41 @@
     <div class="page active" id="auth-page">
         <div class="header">
             <h1>Telecom Mini App</h1>
-            <p>সাইন আপ বা লগইন করুন</p>
+            <p>Sign up or login to continue</p>
         </div>
         
         <div class="auth-container">
             <div class="auth-tabs">
-                <div class="auth-tab active" id="login-tab">লগইন</div>
-                <div class="auth-tab" id="signup-tab">সাইন আপ</div>
+                <div class="auth-tab active" id="login-tab">Login</div>
+                <div class="auth-tab" id="signup-tab">Sign Up</div>
             </div>
             
             <div id="login-form">
                 <div class="form-group">
-                    <label for="login-email">ইমেইল</label>
-                    <input type="email" id="login-email" placeholder="আপনার ইমেইল দিন">
+                    <label for="login-email">Email</label>
+                    <input type="email" id="login-email" placeholder="Enter your email">
                 </div>
                 
                 <div class="form-group">
-                    <label for="login-password">পাসওয়ার্ড</label>
-                    <input type="password" id="login-password" placeholder="আপনার পাসওয়ার্ড দিন">
+                    <label for="login-password">Password</label>
+                    <input type="password" id="login-password" placeholder="Enter your password">
                 </div>
                 
-                <button class="btn" id="login-btn">লগইন</button>
+                <button class="btn" id="login-btn">Login</button>
             </div>
             
             <div id="signup-form" style="display: none;">
                 <div class="form-group">
-                    <label for="signup-email">ইমেইল</label>
-                    <input type="email" id="signup-email" placeholder="আপনার ইমেইল দিন">
+                    <label for="signup-email">Email</label>
+                    <input type="email" id="signup-email" placeholder="Enter your email">
                 </div>
                 
                 <div class="form-group">
-                    <label for="signup-password">পাসওয়ার্ড</label>
-                    <input type="password" id="signup-password" placeholder="একটি শক্তিশালী পাসওয়ার্ড দিন">
+                    <label for="signup-password">Password</label>
+                    <input type="password" id="signup-password" placeholder="Create a strong password">
                 </div>
                 
-                <div class="form-group">
-                    <label for="signup-name">নাম</label>
-                    <input type="text" id="signup-name" placeholder="আপনার সম্পূর্ণ নাম">
-                </div>
-                
-                <button class="btn" id="signup-btn">সাইন আপ</button>
+                <button class="btn" id="signup-btn">Sign Up</button>
             </div>
         </div>
     </div>
@@ -344,33 +404,37 @@
         <div class="container">
             <div class="card">
                 <div class="profile-section">
-                    <div class="profile-pic">
-                        <i class="fas fa-user"></i>
+                    <div class="profile-pic" id="profile-picture">
+                        <i class="fas fa-user" id="profile-icon"></i>
                     </div>
                     <div class="profile-info">
-                        <h2 id="user-name">ইউজারের নাম</h2>
-                        <p id="user-id">টেলিগ্রাম আইডি: 123456789</p>
+                        <h2 id="user-name">User Name</h2>
+                        <p id="user-id">Telegram ID: Loading...</p>
                     </div>
                 </div>
                 
                 <div class="balance-section">
                     <div class="balance-card">
-                        <h3>ব্যালেন্স</h3>
-                        <p id="balance-amount">৳ ০.০০</p>
+                        <h3>Balance</h3>
+                        <p id="balance-amount">৳ 0.00</p>
                     </div>
                     <div class="balance-card">
-                        <h3>কয়েন</h3>
-                        <p id="coin-amount">০ কয়েন</p>
+                        <h3>Coins</h3>
+                        <p id="coin-amount">0 coins</p>
                     </div>
                 </div>
                 
-                <button class="btn" id="earn-btn">ট্যাপ টু আর্ন</button>
+                <div class="ad-container">
+                    <div id="monetag-ad"></div>
+                </div>
+                
+                <button class="btn" id="earn-btn">Tap to Earn</button>
             </div>
             
             <div class="card">
-                <h3>রেফার এবং উপার্জন করুন</h3>
-                <p>বন্ধুদের আমন্ত্রণ করুন এবং ১০ টাকা উপার্জন করুন</p>
-                <button class="btn btn-secondary" onclick="showPage('referral-page')">রেফার এখনি</button>
+                <h3>Refer and Earn</h3>
+                <p>Invite friends and earn 10 TK for each referral</p>
+                <button class="btn btn-secondary" onclick="showPage('referral-page')">Refer Now</button>
             </div>
         </div>
     </div>
@@ -378,42 +442,35 @@
     <!-- Wallet Page -->
     <div class="page" id="wallet-page">
         <div class="header">
-            <h1>ওয়ালেট</h1>
+            <h1>Wallet</h1>
         </div>
         
         <div class="container">
             <div class="card">
-                <h3>উইথড্র করুন</h3>
+                <h3>Withdraw Money</h3>
                 
                 <div class="form-group">
-                    <label for="withdraw-amount">টাকার পরিমাণ</label>
-                    <input type="number" id="withdraw-amount" placeholder="উইথড্র করার পরিমাণ লিখুন">
+                    <label for="withdraw-amount">Amount (BDT)</label>
+                    <input type="number" id="withdraw-amount" placeholder="Enter amount to withdraw">
                 </div>
                 
                 <div class="form-group">
-                    <label for="phone-number">মোবাইল নম্বর</label>
-                    <input type="text" id="phone-number" placeholder="আপনার মোবাইল নম্বর">
+                    <label for="phone-number">Mobile Number</label>
+                    <input type="text" id="phone-number" placeholder="Your mobile number">
                 </div>
                 
-                <button class="btn" id="withdraw-btn">রিকোয়েস্ট উইথড্র</button>
+                <button class="btn" id="withdraw-btn">Request Withdrawal</button>
             </div>
             
             <div class="card">
-                <h3>উইথড্র ইতিহাস</h3>
+                <h3>Withdrawal History</h3>
                 <div class="history-item">
-                    <div>তারিখ</div>
-                    <div>পরিমাণ</div>
-                    <div>স্ট্যাটাস</div>
+                    <div>Date</div>
+                    <div>Amount</div>
+                    <div>Status</div>
                 </div>
-                <div class="history-item">
-                    <div>২৫/০৮/২০২৩</div>
-                    <div>৳ ৫০০</div>
-                    <div>Pending</div>
-                </div>
-                <div class="history-item">
-                    <div>১৫/০৮/২০২৩</div>
-                    <div>৳ ৩০০</div>
-                    <div>Completed</div>
+                <div id="withdrawal-history">
+                    <!-- History will be loaded here -->
                 </div>
             </div>
         </div>
@@ -422,42 +479,42 @@
     <!-- Referral Page -->
     <div class="page" id="referral-page">
         <div class="header">
-            <h1>রেফার এবং আয় করুন</h1>
+            <h1>Refer & Earn</h1>
         </div>
         
         <div class="container">
             <div class="card">
                 <div class="referral-section">
-                    <h3>আপনার রেফারাল কোড</h3>
-                    <div class="referral-code" id="referral-code">TELE1234</div>
-                    <p>প্রতিটি সফল রেফারেলের জন্য পাবেন ১০ টাকা</p>
+                    <h3>Your Referral Code</h3>
+                    <div class="referral-code" id="referral-code">LOADING...</div>
+                    <p>Earn 10 TK for each successful referral</p>
                 </div>
                 
                 <div class="share-buttons">
-                    <div class="share-btn">
+                    <div class="share-btn" onclick="copyReferralCode()">
                         <i class="fas fa-copy"></i>
-                        <span>কপি করুন</span>
+                        <span>Copy Code</span>
                     </div>
-                    <div class="share-btn">
+                    <div class="share-btn" onclick="shareToTelegram()">
                         <i class="fab fa-telegram"></i>
-                        <span>টেলিগ্রামে শেয়ার করুন</span>
+                        <span>Share on Telegram</span>
                     </div>
                 </div>
             </div>
             
             <div class="card">
-                <h3>রেফারেল পরিসংখ্যান</h3>
+                <h3>Referral Statistics</h3>
                 <div class="history-item">
-                    <div>মোট রেফারেল</div>
-                    <div>৫</div>
+                    <div>Total Referrals</div>
+                    <div id="total-referrals">0</div>
                 </div>
                 <div class="history-item">
-                    <div>রেফারেল আয়</div>
-                    <div>৳ ৫০</div>
+                    <div>Referral Earnings</div>
+                    <div id="referral-earnings">৳ 0</div>
                 </div>
                 <div class="history-item">
-                    <div>উইথড্র করা যায়</div>
-                    <div>৳ ৫০</div>
+                    <div>Available for withdrawal</div>
+                    <div id="referral-available">৳ 0</div>
                 </div>
             </div>
         </div>
@@ -466,28 +523,28 @@
     <!-- Profile Page -->
     <div class="page" id="profile-page">
         <div class="header">
-            <h1>প্রোফাইল</h1>
+            <h1>Profile</h1>
         </div>
         
         <div class="container">
             <div class="card">
                 <div class="profile-section" style="justify-content: center;">
-                    <div class="profile-pic">
-                        <i class="fas fa-user"></i>
+                    <div class="profile-pic" id="profile-picture-large">
+                        <i class="fas fa-user" id="profile-icon-large"></i>
                     </div>
                 </div>
                 
                 <div style="text-align: center; margin-bottom: 20px;">
-                    <h2 id="profile-name">ইউজারের নাম</h2>
-                    <p id="profile-telegram-id">টেলিগ্রাম আইডি: 123456789</p>
+                    <h2 id="profile-name">User Name</h2>
+                    <p id="profile-telegram-id">Telegram ID: Loading...</p>
                 </div>
                 
                 <div class="form-group">
-                    <label>ইমেইল</label>
-                    <input type="email" value="user@example.com" readonly>
+                    <label>Email</label>
+                    <input type="email" id="profile-email" value="Loading..." readonly>
                 </div>
                 
-                <button class="btn btn-secondary" id="logout-btn">লগআউট</button>
+                <button class="btn btn-secondary" id="logout-btn">Logout</button>
             </div>
         </div>
     </div>
@@ -496,47 +553,48 @@
     <div class="nav-bar">
         <div class="nav-item active" onclick="showPage('home-page')">
             <i class="fas fa-home"></i>
-            <span>হোম</span>
+            <span>Home</span>
         </div>
         <div class="nav-item" onclick="showPage('wallet-page')">
             <i class="fas fa-wallet"></i>
-            <span>ওয়ালেট</span>
+            <span>Wallet</span>
         </div>
         <div class="nav-item" onclick="showPage('referral-page')">
             <i class="fas fa-gift"></i>
-            <span>রেফার</span>
+            <span>Referral</span>
         </div>
         <div class="nav-item" onclick="showPage('profile-page')">
             <i class="fas fa-user"></i>
-            <span>প্রোফাইল</span>
+            <span>Profile</span>
         </div>
     </div>
 
-    <!-- Firebase App (core SDK is always required) -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <!-- Firebase Authentication -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-    <!-- Cloud Firestore -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-
     <script>
-        // আপনার Firebase কনফিগারেশন
-        const firebaseConfig = {
-            apiKey: "AIzaSyD3BGZ0MVLpbQbIpLUAnYvWNEIyk7Y6S0Q",
-            authDomain: "earning-app-80258.firebaseapp.com",
-            databaseURL: "https://earning-app-80258-default-rtdb.firebaseio.com",
-            projectId: "earning-app-80258",
-            storageBucket: "earning-app-80258.appspot.com",
-            messagingSenderId: "25930019210",
-            appId: "1:25930019210:web:6441562811d3e7e9631873",
-            measurementId: "G-P9HX6XXT1Q"
-        };
-
-        // Firebase初始化
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const db = firebase.firestore();
-
+        // Initialize Telegram WebApp
+        let TelegramWebApp;
+        let telegramUser = null;
+        
+        // Check if we're in Telegram
+        if (window.Telegram && window.Telegram.WebApp) {
+            TelegramWebApp = window.Telegram.WebApp;
+            TelegramWebApp.ready();
+            TelegramWebApp.expand();
+            
+            // Get Telegram user data
+            telegramUser = TelegramWebApp.initDataUnsafe.user;
+            console.log("Telegram User:", telegramUser);
+        } else {
+            console.log("Not in Telegram environment. Using test data.");
+            // Test data for development outside Telegram
+            telegramUser = {
+                id: 123456789,
+                first_name: "Test",
+                last_name: "User",
+                username: "testuser",
+                photo_url: "https://via.placeholder.com/100"
+            };
+        }
+        
         // DOM elements
         const loginTab = document.getElementById('login-tab');
         const signupTab = document.getElementById('signup-tab');
@@ -544,7 +602,7 @@
         const signupForm = document.getElementById('signup-form');
         const loadingElement = document.getElementById('loading');
         
-        // ট্যাব ক্লিক ইভেন্ট
+        // Tab click event
         loginTab.addEventListener('click', () => {
             loginTab.classList.add('active');
             signupTab.classList.remove('active');
@@ -559,14 +617,14 @@
             loginForm.style.display = 'none';
         });
         
-        // পৃষ্ঠা প্রদর্শন ফাংশন
+        // Page display function
         function showPage(pageId) {
             document.querySelectorAll('.page').forEach(page => {
                 page.classList.remove('active');
             });
             document.getElementById(pageId).classList.add('active');
             
-            // নেভিগেশন আইটেম আপডেট করুন
+            // Update navigation items
             document.querySelectorAll('.nav-item').forEach(item => {
                 item.classList.remove('active');
             });
@@ -582,149 +640,328 @@
             }
         }
         
-        // লোডিং প্রদর্শন
+        // Show loading
         function showLoading() {
             loadingElement.style.display = 'flex';
         }
         
-        // লোডিং লুকান
+        // Hide loading
         function hideLoading() {
             loadingElement.style.display = 'none';
         }
         
-        // লগইন বাটন ইভেন্ট
+        // Login button event
         document.getElementById('login-btn').addEventListener('click', () => {
             const email = document.getElementById('login-email').value;
             const password = document.getElementById('login-password').value;
             
             if (!email || !password) {
-                alert('দয়া করে ইমেইল এবং পাসওয়ার্ড প্রদান করুন');
+                alert('Please provide email and password');
                 return;
             }
             
             showLoading();
             
-            // Firebase দিয়ে লগইন
-            auth.signInWithEmailAndPassword(email, password)
+            // Login with Firebase
+            window.firebase.signInWithEmailAndPassword(window.firebase.auth, email, password)
                 .then((userCredential) => {
-                    // সফল লগইন
+                    // Successful login
                     hideLoading();
                     showPage('home-page');
                     document.getElementById('auth-page').classList.remove('active');
+                    loadUserData(userCredential.user.uid);
                 })
                 .catch((error) => {
                     hideLoading();
-                    alert('লগইন ত্রুটি: ' + error.message);
+                    alert('Login error: ' + error.message);
                 });
         });
         
-        // সাইন আপ বাটন ইভেন্ট
+        // Sign up button event
         document.getElementById('signup-btn').addEventListener('click', () => {
             const email = document.getElementById('signup-email').value;
             const password = document.getElementById('signup-password').value;
-            const name = document.getElementById('signup-name').value;
             
-            if (!email || !password || !name) {
-                alert('দয়া করে সকল তথ্য প্রদান করুন');
+            if (!email || !password) {
+                alert('Please provide all information');
                 return;
             }
             
             showLoading();
             
-            // Firebase দিয়ে ব্যবহারকারী তৈরি করুন
-            auth.createUserWithEmailAndPassword(email, password)
+            // Create user with Firebase
+            window.firebase.createUserWithEmailAndPassword(window.firebase.auth, email, password)
                 .then((userCredential) => {
-                    // ব্যবহারকারী তৈরি成功
+                    // User created successfully
                     const user = userCredential.user;
                     
-                    // Firestore-এ ব্যবহারকারীর তথ্য সংরক্ষণ করুন
-                    return db.collection('users').doc(user.uid).set({
-                        name: name,
+                    // Save user data to Firestore with Telegram info
+                    return window.firebase.setDoc(window.firebase.doc(window.firebase.db, "users", user.uid), {
                         email: email,
-                        telegramId: generateTelegramId(),
+                        telegramId: telegramUser.id,
+                        telegramUsername: telegramUser.username || '',
+                        telegramFirstName: telegramUser.first_name,
+                        telegramLastName: telegramUser.last_name || '',
+                        telegramPhotoUrl: telegramUser.photo_url || '',
                         balance: 0,
                         coins: 0,
-                        referralCode: generateReferralCode()
+                        referralCode: generateReferralCode(),
+                        referralEarnings: 0,
+                        totalReferrals: 0
                     });
                 })
                 .then(() => {
                     hideLoading();
                     showPage('home-page');
                     document.getElementById('auth-page').classList.remove('active');
+                    
+                    // Load user data
+                    const user = window.firebase.auth.currentUser;
+                    if (user) {
+                        loadUserData(user.uid);
+                    }
                 })
                 .catch((error) => {
                     hideLoading();
-                    alert('সাইন আপ ত্রুটি: ' + error.message);
+                    alert('Signup error: ' + error.message);
                 });
         });
         
-        // লগআউট বাটন ইভেন্ট
+        // Logout button event
         document.getElementById('logout-btn').addEventListener('click', () => {
             showLoading();
             
-            auth.signOut().then(() => {
+            window.firebase.signOut(window.firebase.auth).then(() => {
                 hideLoading();
                 showPage('auth-page');
                 document.getElementById('home-page').classList.remove('active');
             });
         });
         
-        // টেলিগ্রাম আইডি জেনারেট করুন (অস্থায়ী)
-        function generateTelegramId() {
-            return 'TG' + Math.floor(100000000 + Math.random() * 900000000);
-        }
-        
-        // রেফারেল কোড জেনারেট করুন
+        // Generate referral code
         function generateReferralCode() {
             return 'REF' + Math.floor(1000 + Math.random() * 9000);
         }
         
-        // ট্যাপ টু আর্ন বাটন ইভেন্ট
+        // Tap to Earn button event
         document.getElementById('earn-btn').addEventListener('click', () => {
-            alert('মনিটাইজেশন এড লোড হচ্ছে...');
-            // এখানে মনিটাইজেশন এড দেখানোর লজিক যোগ করুন
+            // Show Monetag ad
+            if (typeof show_9807992 !== 'undefined') {
+                show_9807992();
+            } else {
+                alert('Ad is loading, please try again in a moment.');
+            }
+            
+            // Add coins to user balance
+            const user = window.firebase.auth.currentUser;
+            if (user) {
+                // Get current user data
+                window.firebase.getDoc(window.firebase.doc(window.firebase.db, "users", user.uid))
+                    .then((doc) => {
+                        if (doc.exists()) {
+                            const userData = doc.data();
+                            const newCoins = userData.coins + 10;
+                            
+                            // Update coins
+                            return window.firebase.updateDoc(window.firebase.doc(window.firebase.db, "users", user.uid), {
+                                coins: newCoins
+                            });
+                        }
+                    })
+                    .then(() => {
+                        // Update UI
+                        document.getElementById('coin-amount').textContent = (parseInt(document.getElementById('coin-amount').textContent) + 10) + ' coins';
+                        
+                        // Check if we've reached 1000 coins to convert to 1 TK
+                        if (parseInt(document.getElementById('coin-amount').textContent) >= 1000) {
+                            const currentCoins = parseInt(document.getElementById('coin-amount').textContent);
+                            const currentBalance = parseFloat(document.getElementById('balance-amount').textContent.replace('৳ ', ''));
+                            const tkToAdd = Math.floor(currentCoins / 1000);
+                            const remainingCoins = currentCoins % 1000;
+                            
+                            const newBalance = currentBalance + tkToAdd;
+                            
+                            // Update balance and coins in database
+                            window.firebase.updateDoc(window.firebase.doc(window.firebase.db, "users", user.uid), {
+                                coins: remainingCoins,
+                                balance: newBalance
+                            }).then(() => {
+                                // Update UI
+                                document.getElementById('coin-amount').textContent = remainingCoins + ' coins';
+                                document.getElementById('balance-amount').textContent = '৳ ' + newBalance.toFixed(2);
+                            });
+                        }
+                    });
+            }
         });
         
-        // উইথড্র বাটন ইভেন্ট
+        // Withdraw button event
         document.getElementById('withdraw-btn').addEventListener('click', () => {
             const amount = document.getElementById('withdraw-amount').value;
             const phone = document.getElementById('phone-number').value;
             
             if (!amount || amount <= 0 || !phone) {
-                alert('দয়া করে একটি বৈধ পরিমাণ এবং ফোন নম্বর প্রদান করুন');
+                alert('Please provide a valid amount and phone number');
                 return;
             }
             
-            alert('উইথড্র অনুরোধ জমা দেওয়া হয়েছে। এডমিন Approval এর জন্য অপেক্ষা করুন।');
+            const user = window.firebase.auth.currentUser;
+            if (user) {
+                // Get current balance
+                window.firebase.getDoc(window.firebase.doc(window.firebase.db, "users", user.uid))
+                    .then((doc) => {
+                        if (doc.exists()) {
+                            const userData = doc.data();
+                            if (userData.balance < amount) {
+                                alert('Insufficient balance');
+                                return;
+                            }
+                            
+                            // Create withdrawal request
+                            const withdrawalData = {
+                                userId: user.uid,
+                                amount: parseFloat(amount),
+                                phone: phone,
+                                status: 'pending',
+                                date: new Date().toISOString()
+                            };
+                            
+                            // Save to Firestore
+                            return window.firebase.setDoc(window.firebase.doc(window.firebase.db, "withdrawals", Date.now().toString()), withdrawalData);
+                        }
+                    })
+                    .then(() => {
+                        alert('Withdrawal request submitted. Please wait for admin approval.');
+                        document.getElementById('withdraw-amount').value = '';
+                        document.getElementById('phone-number').value = '';
+                    })
+                    .catch((error) => {
+                        alert('Error: ' + error.message);
+                    });
+            }
         });
         
-        // অটোমেটিক অথেন্টিকেশন স্টেট ট্র্যাকিং
-        auth.onAuthStateChanged(user => {
+        // Copy referral code
+        function copyReferralCode() {
+            const referralCode = document.getElementById('referral-code').textContent;
+            navigator.clipboard.writeText(referralCode)
+                .then(() => {
+                    alert('Referral code copied to clipboard: ' + referralCode);
+                })
+                .catch(err => {
+                    alert('Failed to copy: ' + err);
+                });
+        }
+        
+        // Share to Telegram
+        function shareToTelegram() {
+            const referralCode = document.getElementById('referral-code').textContent;
+            const message = `Join this awesome app using my referral code: ${referralCode}`;
+            
+            if (TelegramWebApp) {
+                TelegramWebApp.openTelegramLink(`https://t.me/share/url?url=&text=${encodeURIComponent(message)}`);
+            } else {
+                // Fallback for browser
+                window.open(`https://t.me/share/url?url=&text=${encodeURIComponent(message)}`, '_blank');
+            }
+        }
+        
+        // Load user data from Firestore
+        function loadUserData(userId) {
+            window.firebase.getDoc(window.firebase.doc(window.firebase.db, "users", userId))
+                .then((doc) => {
+                    if (doc.exists()) {
+                        const userData = doc.data();
+                        
+                        // Update UI with user data
+                        document.getElementById('user-name').textContent = userData.telegramFirstName + (userData.telegramLastName ? ' ' + userData.telegramLastName : '');
+                        document.getElementById('profile-name').textContent = userData.telegramFirstName + (userData.telegramLastName ? ' ' + userData.telegramLastName : '');
+                        document.getElementById('user-id').textContent = 'Telegram ID: ' + userData.telegramId;
+                        document.getElementById('profile-telegram-id').textContent = 'Telegram ID: ' + userData.telegramId;
+                        document.getElementById('balance-amount').textContent = '৳ ' + userData.balance.toFixed(2);
+                        document.getElementById('coin-amount').textContent = userData.coins + ' coins';
+                        document.getElementById('referral-code').textContent = userData.referralCode;
+                        document.getElementById('profile-email').value = userData.email;
+                        document.getElementById('total-referrals').textContent = userData.totalReferrals || 0;
+                        document.getElementById('referral-earnings').textContent = '৳ ' + (userData.referralEarnings || 0);
+                        document.getElementById('referral-available').textContent = '৳ ' + (userData.referralEarnings || 0);
+                        
+                        // Load profile picture if available
+                        if (userData.telegramPhotoUrl) {
+                            document.getElementById('profile-picture').innerHTML = `<img src="${userData.telegramPhotoUrl}" alt="Profile">`;
+                            document.getElementById('profile-picture-large').innerHTML = `<img src="${userData.telegramPhotoUrl}" alt="Profile">`;
+                        }
+                        
+                        // Load withdrawal history
+                        loadWithdrawalHistory(userId);
+                    }
+                })
+                .catch((error) => {
+                    console.error("Error loading user data:", error);
+                });
+        }
+        
+        // Load withdrawal history
+        function loadWithdrawalHistory(userId) {
+            // This would normally query Firestore for user's withdrawal history
+            // For demo purposes, we'll just add some sample data
+            const historyContainer = document.getElementById('withdrawal-history');
+            historyContainer.innerHTML = `
+                <div class="history-item">
+                    <div>25/08/2023</div>
+                    <div>৳ 500</div>
+                    <div>Pending</div>
+                </div>
+                <div class="history-item">
+                    <div>15/08/2023</div>
+                    <div>৳ 300</div>
+                    <div>Completed</div>
+                </div>
+            `;
+        }
+        
+        // Authentication state change listener
+        window.firebase.onAuthStateChanged(window.firebase.auth, (user) => {
             if (user) {
-                // ব্যবহারকারী লগইন করেছেন
+                // User is signed in
                 showPage('home-page');
                 document.getElementById('auth-page').classList.remove('active');
                 
-                // Firestore থেকে ব্যবহারকারীর ডেটা লোড করুন
-                db.collection('users').doc(user.uid).get()
-                    .then(doc => {
-                        if (doc.exists) {
-                            const userData = doc.data();
-                            document.getElementById('user-name').textContent = userData.name;
-                            document.getElementById('profile-name').textContent = userData.name;
-                            document.getElementById('user-id').textContent = 'টেলিগ্রাম আইডি: ' + userData.telegramId;
-                            document.getElementById('profile-telegram-id').textContent = 'টেলিগ্রাম আইডি: ' + userData.telegramId;
-                            document.getElementById('balance-amount').textContent = '৳ ' + userData.balance.toFixed(2);
-                            document.getElementById('coin-amount').textContent = userData.coins + ' কয়েন';
-                            document.getElementById('referral-code').textContent = userData.referralCode;
-                        }
-                    });
+                // Load user data
+                loadUserData(user.uid);
             } else {
-                // ব্যবহারকারী লগআউট করেছেন
+                // User is signed out
                 showPage('auth-page');
                 document.getElementById('home-page').classList.remove('active');
             }
         });
+        
+        // Initialize Monetag ad
+        function initMonetagAd() {
+            if (typeof show_9807992 !== 'undefined') {
+                // Ad script is already loaded
+                console.log("Monetag ad script loaded");
+            } else {
+                // Try to reload the ad script
+                const script = document.createElement('script');
+                script.src = '//libtl.com/sdk.js';
+                script.setAttribute('data-zone', '9807992');
+                script.setAttribute('data-sdk', 'show_9807992');
+                document.head.appendChild(script);
+                
+                console.log("Monetag ad script reloaded");
+            }
+        }
+        
+        // Initialize when page loads
+        window.onload = function() {
+            initMonetagAd();
+            
+            // If we have Telegram user data, prefill the signup form
+            if (telegramUser) {
+                document.getElementById('signup-email').value = telegramUser.username ? `${telegramUser.username}@telegram.com` : '';
+            }
+        };
     </script>
 </body>
 </html>
