@@ -11,6 +11,7 @@
         // Import the functions you need from the SDKs you need
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
         import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-analytics.js";
+        import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
         import { getFirestore, doc, setDoc, getDoc, updateDoc, collection, addDoc, query, where, getDocs, orderBy } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
 
         // Your web app's Firebase configuration
@@ -28,12 +29,16 @@
         // Initialize Firebase
         const app = initializeApp(firebaseConfig);
         const analytics = getAnalytics(app);
+        const auth = getAuth(app);
         const db = getFirestore(app);
         
         // Make Firebase available globally
         window.firebase = {
             app,
+            auth,
             db,
+            signOut,
+            onAuthStateChanged,
             doc,
             setDoc,
             getDoc,
@@ -365,10 +370,17 @@
         .toast.show {
             opacity: 1;
         }
+        
+        .conversion-info {
+            text-align: center;
+            margin: 10px 0;
+            font-size: 14px;
+            color: #666;
+        }
     </style>
 </head>
 <body>
-    <div class="loading" id="loading" style="display: none;">
+    <div class="loading" id="loading">
         <div class="spinner"></div>
     </div>
     
@@ -403,11 +415,16 @@
                     </div>
                 </div>
                 
+                <div class="conversion-info">
+                    <p>1000 coins = ৳ 1.00</p>
+                    <p id="coins-value">Your coins value: ৳ 0.00</p>
+                </div>
+                
                 <div class="ad-container">
                     <div id="monetag-ad"></div>
                 </div>
                 
-                <button class="btn" id="earn-btn">Tap to Earn</button>
+                <button class="btn" id="earn-btn">Tap to Earn (10 coins)</button>
             </div>
             
             <div class="card">
@@ -454,6 +471,10 @@
                 <div class="form-group">
                     <label for="phone-number">Mobile Number</label>
                     <input type="text" id="phone-number" placeholder="Your mobile number">
+                </div>
+                
+                <div class="conversion-info">
+                    <p id="withdrawal-conversion">Coins to be deducted: 0</p>
                 </div>
                 
                 <button class="btn" id="withdraw-btn">Request Withdrawal</button>
@@ -546,9 +567,11 @@
                 </div>
                 
                 <div class="form-group">
-                    <label>Telegram Username</label>
-                    <input type="text" id="profile-username" value="Loading..." readonly>
+                    <label>Email</label>
+                    <input type="email" id="profile-email" value="Loading..." readonly>
                 </div>
+                
+                <button class="btn btn-secondary" id="logout-btn">Logout</button>
             </div>
         </div>
     </div>
@@ -656,7 +679,27 @@
                 option.classList.remove('selected');
             });
             document.querySelector(`.method-option[data-method="${method}"]`).classList.add('selected');
+            
+            // Update withdrawal conversion info
+            updateWithdrawalConversion();
         }
+        
+        // Update withdrawal conversion info
+        function updateWithdrawalConversion() {
+            const amount = parseFloat(document.getElementById('withdraw-amount').value) || 0;
+            const coinsToDeduct = amount * 1000;
+            document.getElementById('withdrawal-conversion').textContent = `Coins to be deducted: ${coinsToDeduct}`;
+        }
+        
+        // Logout button event
+        document.getElementById('logout-btn').addEventListener('click', () => {
+            showLoading();
+            
+            window.firebase.signOut(window.firebase.auth).then(() => {
+                hideLoading();
+                showToast('Logged out successfully');
+            });
+        });
         
         // Generate referral code
         function generateReferralCode() {
@@ -673,51 +716,42 @@
             }
             
             // Add coins to user balance
-            if (telegramUser) {
+            const user = window.firebase.auth.currentUser;
+            if (user) {
+                showLoading();
                 // Get current user data
-                window.firebase.getDoc(window.firebase.doc(window.firebase.db, "users", telegramUser.id.toString()))
+                window.firebase.getDoc(window.firebase.doc(window.firebase.db, "users", user.uid))
                     .then((doc) => {
                         if (doc.exists()) {
                             const userData = doc.data();
-                            const newCoins = (userData.coins || 0) + 10;
+                            const newCoins = userData.coins + 10;
+                            const newBalance = newCoins / 1000;
                             
-                            // Update coins
-                            return window.firebase.updateDoc(window.firebase.doc(window.firebase.db, "users", telegramUser.id.toString()), {
-                                coins: newCoins
-                            });
-                        } else {
-                            // Create user if doesn't exist
-                            return createUserIfNotExists().then(() => {
-                                return window.firebase.updateDoc(window.firebase.doc(window.firebase.db, "users", telegramUser.id.toString()), {
-                                    coins: 10
-                                });
+                            // Update coins and balance
+                            return window.firebase.updateDoc(window.firebase.doc(window.firebase.db, "users", user.uid), {
+                                coins: newCoins,
+                                balance: newBalance
                             });
                         }
                     })
                     .then(() => {
+                        hideLoading();
                         // Update UI
-                        document.getElementById('coin-amount').textContent = (parseInt(document.getElementById('coin-amount').textContent) + 10) + ' coins';
+                        const currentCoins = parseInt(document.getElementById('coin-amount').textContent) || 0;
+                        document.getElementById('coin-amount').textContent = (currentCoins + 10) + ' coins';
                         
-                        // Check if we've reached 1000 coins to convert to 1 TK
-                        if (parseInt(document.getElementById('coin-amount').textContent) >= 1000) {
-                            const currentCoins = parseInt(document.getElementById('coin-amount').textContent);
-                            const currentBalance = parseFloat(document.getElementById('balance-amount').textContent.replace('৳ ', ''));
-                            const tkToAdd = Math.floor(currentCoins / 1000);
-                            const remainingCoins = currentCoins % 1000;
-                            
-                            const newBalance = currentBalance + tkToAdd;
-                            
-                            // Update balance and coins in database
-                            window.firebase.updateDoc(window.firebase.doc(window.firebase.db, "users", telegramUser.id.toString()), {
-                                coins: remainingCoins,
-                                balance: newBalance
-                            }).then(() => {
-                                // Update UI
-                                document.getElementById('coin-amount').textContent = remainingCoins + ' coins';
-                                document.getElementById('balance-amount').textContent = '৳ ' + newBalance.toFixed(2);
-                                showToast(`Converted ${tkToAdd} TK from coins!`);
-                            });
-                        }
+                        const currentBalance = parseFloat(document.getElementById('balance-amount').textContent.replace('৳ ', '')) || 0;
+                        const newBalance = currentBalance + 0.01;
+                        document.getElementById('balance-amount').textContent = '৳ ' + newBalance.toFixed(2);
+                        
+                        // Update coins value display
+                        document.getElementById('coins-value').textContent = `Your coins value: ৳ ${((currentCoins + 10) / 1000).toFixed(2)}`;
+                        
+                        showToast('You earned 10 coins!');
+                    })
+                    .catch((error) => {
+                        hideLoading();
+                        showToast('Error: ' + error.message);
                     });
             }
         });
@@ -742,43 +776,63 @@
                 return;
             }
             
-            if (telegramUser) {
+            const user = window.firebase.auth.currentUser;
+            if (user) {
                 showLoading();
-                // Get current balance
-                window.firebase.getDoc(window.firebase.doc(window.firebase.db, "users", telegramUser.id.toString()))
+                // Get current balance and coins
+                window.firebase.getDoc(window.firebase.doc(window.firebase.db, "users", user.uid))
                     .then((doc) => {
                         if (doc.exists()) {
                             const userData = doc.data();
-                            if (userData.balance < amount) {
+                            const coinsToDeduct = amount * 1000;
+                            
+                            if (userData.coins < coinsToDeduct) {
                                 hideLoading();
-                                showToast('Insufficient balance');
+                                showToast('Insufficient coins for this withdrawal');
                                 return;
                             }
                             
+                            const newCoins = userData.coins - coinsToDeduct;
+                            const newBalance = newCoins / 1000;
+                            
                             // Create withdrawal request
                             const withdrawalData = {
-                                userId: telegramUser.id.toString(),
+                                userId: user.uid,
                                 amount: amount,
+                                coinsDeducted: coinsToDeduct,
                                 phone: phone,
                                 method: selectedWithdrawalMethod,
                                 status: 'pending',
                                 date: new Date().toISOString(),
+                                userEmail: userData.email,
                                 userName: `${userData.telegramFirstName} ${userData.telegramLastName || ''}`
                             };
                             
-                            // Save to Firestore
-                            return window.firebase.addDoc(window.firebase.collection(window.firebase.db, "withdrawals"), withdrawalData);
+                            // Update user coins and balance
+                            return Promise.all([
+                                window.firebase.updateDoc(window.firebase.doc(window.firebase.db, "users", user.uid), {
+                                    coins: newCoins,
+                                    balance: newBalance
+                                }),
+                                window.firebase.addDoc(window.firebase.collection(window.firebase.db, "withdrawals"), withdrawalData)
+                            ]);
                         }
                     })
                     .then(() => {
                         hideLoading();
-                        showToast('Withdrawal request submitted. Please wait for admin approval.');
+                        showToast('Withdrawal request submitted. Coins deducted from your account.');
                         document.getElementById('withdraw-amount').value = '';
                         document.getElementById('phone-number').value = '';
                         selectedWithdrawalMethod = '';
                         document.querySelectorAll('.method-option').forEach(option => {
                             option.classList.remove('selected');
                         });
+                        
+                        // Update UI
+                        const user = window.firebase.auth.currentUser;
+                        if (user) {
+                            loadUserData(user.uid);
+                        }
                         
                         // Reload withdrawal history
                         loadWithdrawalHistory();
@@ -826,28 +880,9 @@
             }
         }
         
-        // Create user if not exists
-        function createUserIfNotExists() {
-            return window.firebase.setDoc(window.firebase.doc(window.firebase.db, "users", telegramUser.id.toString()), {
-                telegramId: telegramUser.id,
-                telegramUsername: telegramUser.username || '',
-                telegramFirstName: telegramUser.first_name,
-                telegramLastName: telegramUser.last_name || '',
-                telegramPhotoUrl: telegramUser.photo_url || '',
-                balance: 0,
-                coins: 0,
-                referralCode: generateReferralCode(),
-                referralEarnings: 0,
-                totalReferrals: 0,
-                createdAt: new Date().toISOString()
-            });
-        }
-        
         // Load user data from Firestore
-        function loadUserData() {
-            if (!telegramUser) return;
-            
-            window.firebase.getDoc(window.firebase.doc(window.firebase.db, "users", telegramUser.id.toString()))
+        function loadUserData(userId) {
+            window.firebase.getDoc(window.firebase.doc(window.firebase.db, "users", userId))
                 .then((doc) => {
                     if (doc.exists()) {
                         const userData = doc.data();
@@ -860,10 +895,13 @@
                         document.getElementById('balance-amount').textContent = '৳ ' + (userData.balance || 0).toFixed(2);
                         document.getElementById('coin-amount').textContent = (userData.coins || 0) + ' coins';
                         document.getElementById('referral-code').textContent = userData.referralCode;
-                        document.getElementById('profile-username').value = userData.telegramUsername || 'Not set';
+                        document.getElementById('profile-email').value = userData.email;
                         document.getElementById('total-referrals').textContent = userData.totalReferrals || 0;
                         document.getElementById('referral-earnings').textContent = '৳ ' + (userData.referralEarnings || 0).toFixed(2);
                         document.getElementById('referral-available').textContent = '৳ ' + (userData.referralEarnings || 0).toFixed(2);
+                        
+                        // Update coins value display
+                        document.getElementById('coins-value').textContent = `Your coins value: ৳ ${((userData.coins || 0) / 1000).toFixed(2)}`;
                         
                         // Set referral link
                         document.getElementById('referral-link').textContent = `https://t.me/TKBD5_bot?start=ref_${userData.referralCode}`;
@@ -880,12 +918,7 @@
                         }
                         
                         // Load withdrawal history
-                        loadWithdrawalHistory();
-                    } else {
-                        // Create user if doesn't exist
-                        createUserIfNotExists().then(() => {
-                            loadUserData(); // Reload user data after creation
-                        });
+                        loadWithdrawalHistory(userId);
                     }
                 })
                 .catch((error) => {
@@ -894,8 +927,12 @@
         }
         
         // Load withdrawal history
-        function loadWithdrawalHistory() {
-            if (!telegramUser) return;
+        function loadWithdrawalHistory(userId = null) {
+            if (!userId) {
+                const user = window.firebase.auth.currentUser;
+                if (!user) return;
+                userId = user.uid;
+            }
             
             const historyContainer = document.getElementById('withdrawal-history');
             historyContainer.innerHTML = '<div class="history-item"><div>Loading...</div></div>';
@@ -903,7 +940,7 @@
             // Query withdrawals for this user
             const q = window.firebase.query(
                 window.firebase.collection(window.firebase.db, "withdrawals"),
-                window.firebase.where("userId", "==", telegramUser.id.toString()),
+                window.firebase.where("userId", "==", userId),
                 window.firebase.orderBy("date", "desc")
             );
             
@@ -938,10 +975,64 @@
                 });
         }
         
+        // Initialize user automatically
+        function initializeUser() {
+            if (!telegramUser) {
+                showToast('Telegram user data not available');
+                return;
+            }
+            
+            showLoading();
+            
+            // Create a custom UID based on Telegram ID
+            const uid = 'telegram_' + telegramUser.id;
+            
+            // Check if user already exists
+            window.firebase.getDoc(window.firebase.doc(window.firebase.db, "users", uid))
+                .then((doc) => {
+                    if (doc.exists()) {
+                        // User exists, load their data
+                        hideLoading();
+                        loadUserData(uid);
+                    } else {
+                        // Create new user
+                        const userData = {
+                            email: telegramUser.username ? `${telegramUser.username}@telegram.com` : `user${telegramUser.id}@telegram.com`,
+                            telegramId: telegramUser.id,
+                            telegramUsername: telegramUser.username || '',
+                            telegramFirstName: telegramUser.first_name,
+                            telegramLastName: telegramUser.last_name || '',
+                            telegramPhotoUrl: telegramUser.photo_url || '',
+                            balance: 0,
+                            coins: 0,
+                            referralCode: generateReferralCode(),
+                            referralEarnings: 0,
+                            totalReferrals: 0,
+                            createdAt: new Date().toISOString()
+                        };
+                        
+                        // Save user data to Firestore
+                        return window.firebase.setDoc(window.firebase.doc(window.firebase.db, "users", uid), userData)
+                            .then(() => {
+                                hideLoading();
+                                loadUserData(uid);
+                                showToast('Welcome to Telecom Mini App!');
+                            });
+                    }
+                })
+                .catch((error) => {
+                    hideLoading();
+                    showToast('Error: ' + error.message);
+                });
+        }
+        
         // Initialize when page loads
         window.onload = function() {
-            // Load user data
-            loadUserData();
+            // Initialize user automatically
+            initializeUser();
+            
+            // Add event listener for withdrawal amount input
+            document.getElementById('withdraw-amount').addEventListener('input', updateWithdrawalConversion);
         };
     </script>
 </body>
