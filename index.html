@@ -11,8 +11,7 @@
         // Import the functions you need from the SDKs you need
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
         import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-analytics.js";
-        import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc, getDoc, updateDoc, collection, addDoc, query, where, getDocs, orderBy } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
+        import { getFirestore, doc, setDoc, getDoc, updateDoc, collection, addDoc, query, where, getDocs, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
 
         // Your web app's Firebase configuration
         const firebaseConfig = {
@@ -29,16 +28,12 @@
         // Initialize Firebase
         const app = initializeApp(firebaseConfig);
         const analytics = getAnalytics(app);
-        const auth = getAuth(app);
         const db = getFirestore(app);
         
         // Make Firebase available globally
         window.firebase = {
             app,
-            auth,
             db,
-            signOut,
-            onAuthStateChanged,
             doc,
             setDoc,
             getDoc,
@@ -48,20 +43,41 @@
             query,
             where,
             getDocs,
-            orderBy
+            orderBy,
+            onSnapshot
         };
     </script>
     <style>
+        :root {
+            --primary-color: #6a11cb;
+            --secondary-color: #2575fc;
+            --background-color: #f8f9fa;
+            --card-bg: #ffffff;
+            --text-color: #333333;
+            --border-radius: 15px;
+            --box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .dark-mode {
+            --primary-color: #8a2be2;
+            --secondary-color: #4a86e8;
+            --background-color: #1a1a1a;
+            --card-bg: #2d2d2d;
+            --text-color: #ffffff;
+            --box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+        
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            transition: background-color 0.3s, color 0.3s;
         }
         
         body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: #333;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: var(--text-color);
             min-height: 100vh;
             padding-bottom: 70px;
         }
@@ -73,22 +89,39 @@
         }
         
         .card {
-            background: white;
-            border-radius: 15px;
+            background: var(--card-bg);
+            border-radius: var(--border-radius);
             padding: 20px;
             margin-bottom: 20px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            box-shadow: var(--box-shadow);
         }
         
         .header {
             text-align: center;
             color: white;
             padding: 20px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
         
         .header h1 {
             font-size: 24px;
             font-weight: 600;
+            flex: 1;
+        }
+        
+        .theme-toggle {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            cursor: pointer;
         }
         
         .profile-section {
@@ -101,14 +134,14 @@
             width: 70px;
             height: 70px;
             border-radius: 50%;
-            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
             display: flex;
             align-items: center;
             justify-content: center;
             color: white;
             font-size: 28px;
             margin-right: 15px;
-            border: 3px solid white;
+            border: 3px solid var(--card-bg);
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             overflow: hidden;
         }
@@ -122,7 +155,7 @@
         .profile-info h2 {
             font-size: 18px;
             margin-bottom: 5px;
-            color: #333;
+            color: var(--text-color);
         }
         
         .profile-info p {
@@ -134,6 +167,7 @@
             display: flex;
             justify-content: space-between;
             margin-bottom: 20px;
+            gap: 10px;
         }
         
         .balance-card {
@@ -141,7 +175,7 @@
             color: white;
             border-radius: 12px;
             padding: 15px;
-            width: 48%;
+            flex: 1;
             text-align: center;
         }
         
@@ -157,7 +191,7 @@
         }
         
         .btn {
-            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
             color: white;
             border: none;
             padding: 15px;
@@ -183,13 +217,13 @@
             bottom: 0;
             left: 0;
             right: 0;
-            background: white;
+            background: var(--card-bg);
             display: flex;
             justify-content: space-around;
             padding: 12px 0;
             box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
-            border-top-left-radius: 15px;
-            border-top-right-radius: 15px;
+            border-top-left-radius: var(--border-radius);
+            border-top-right-radius: var(--border-radius);
         }
         
         .nav-item {
@@ -202,7 +236,7 @@
         }
         
         .nav-item.active {
-            color: #6a11cb;
+            color: var(--primary-color);
         }
         
         .nav-item i {
@@ -236,7 +270,7 @@
             height: 50px;
             border: 5px solid rgba(255, 255, 255, 0.3);
             border-radius: 50%;
-            border-top-color: #6a11cb;
+            border-top-color: var(--primary-color);
             animation: spin 1s ease-in-out infinite;
         }
         
@@ -264,6 +298,7 @@
             font-size: 18px;
             font-weight: 600;
             letter-spacing: 2px;
+            word-break: break-all;
         }
         
         .share-buttons {
@@ -286,7 +321,7 @@
         .share-btn i {
             font-size: 24px;
             margin-bottom: 5px;
-            color: #6a11cb;
+            color: var(--primary-color);
         }
         
         .ad-container {
@@ -343,14 +378,14 @@
         }
         
         .method-option.selected {
-            border-color: #6a11cb;
+            border-color: var(--primary-color);
             background-color: rgba(106, 17, 203, 0.1);
         }
         
         .method-option i {
             font-size: 24px;
             margin-bottom: 5px;
-            color: #6a11cb;
+            color: var(--primary-color);
         }
         
         .toast {
@@ -377,6 +412,33 @@
             font-size: 14px;
             color: #666;
         }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--text-color);
+        }
+        
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 14px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            background: var(--card-bg);
+            color: var(--text-color);
+            transition: border-color 0.3s;
+        }
+        
+        .form-group input:focus, .form-group select:focus {
+            border-color: var(--primary-color);
+            outline: none;
+        }
     </style>
 </head>
 <body>
@@ -389,7 +451,11 @@
     <!-- Home Page -->
     <div class="page active" id="home-page">
         <div class="header">
+            <button class="theme-toggle" id="theme-toggle">
+                <i class="fas fa-moon"></i>
+            </button>
             <h1>Telecom Mini App</h1>
+            <div style="width: 40px;"></div>
         </div>
         
         <div class="container">
@@ -438,17 +504,16 @@
     <!-- Wallet Page -->
     <div class="page" id="wallet-page">
         <div class="header">
+            <button class="theme-toggle" onclick="showPage('home-page')">
+                <i class="fas fa-arrow-left"></i>
+            </button>
             <h1>Wallet</h1>
+            <div style="width: 40px;"></div>
         </div>
         
         <div class="container">
             <div class="card">
                 <h3>Withdraw Money</h3>
-                
-                <div class="form-group">
-                    <label for="withdraw-amount">Amount (BDT)</label>
-                    <input type="number" id="withdraw-amount" placeholder="Enter amount to withdraw" min="100">
-                </div>
                 
                 <div class="form-group">
                     <label for="withdraw-method">Withdrawal Method</label>
@@ -471,6 +536,11 @@
                 <div class="form-group">
                     <label for="phone-number">Mobile Number</label>
                     <input type="text" id="phone-number" placeholder="Your mobile number">
+                </div>
+                
+                <div class="form-group">
+                    <label for="withdraw-amount">Amount (BDT)</label>
+                    <input type="number" id="withdraw-amount" placeholder="Enter amount to withdraw" min="100">
                 </div>
                 
                 <div class="conversion-info">
@@ -497,7 +567,11 @@
     <!-- Referral Page -->
     <div class="page" id="referral-page">
         <div class="header">
+            <button class="theme-toggle" onclick="showPage('home-page')">
+                <i class="fas fa-arrow-left"></i>
+            </button>
             <h1>Refer & Earn</h1>
+            <div style="width: 40px;"></div>
         </div>
         
         <div class="container">
@@ -550,7 +624,11 @@
     <!-- Profile Page -->
     <div class="page" id="profile-page">
         <div class="header">
+            <button class="theme-toggle" onclick="showPage('home-page')">
+                <i class="fas fa-arrow-left"></i>
+            </button>
             <h1>Profile</h1>
+            <div style="width: 40px;"></div>
         </div>
         
         <div class="container">
@@ -567,11 +645,14 @@
                 </div>
                 
                 <div class="form-group">
-                    <label>Email</label>
-                    <input type="email" id="profile-email" value="Loading..." readonly>
+                    <label>Telegram Username</label>
+                    <input type="text" id="profile-username" value="Loading..." readonly>
                 </div>
                 
-                <button class="btn btn-secondary" id="logout-btn">Logout</button>
+                <div class="form-group">
+                    <label>Joined Date</label>
+                    <input type="text" id="profile-joined" value="Loading..." readonly>
+                </div>
             </div>
         </div>
     </div>
@@ -601,6 +682,8 @@
         let TelegramWebApp;
         let telegramUser = null;
         let selectedWithdrawalMethod = '';
+        let isDarkMode = false;
+        let currentUser = null;
         
         // Check if we're in Telegram
         if (window.Telegram && window.Telegram.WebApp) {
@@ -611,6 +694,11 @@
             // Get Telegram user data
             telegramUser = TelegramWebApp.initDataUnsafe.user;
             console.log("Telegram User:", telegramUser);
+            
+            // Set theme based on Telegram theme
+            if (TelegramWebApp.colorScheme === 'dark') {
+                enableDarkMode();
+            }
         } else {
             console.log("Not in Telegram environment. Using test data.");
             // Test data for development outside Telegram
@@ -627,6 +715,25 @@
         const loadingElement = document.getElementById('loading');
         const toastElement = document.getElementById('toast');
         const navBar = document.getElementById('nav-bar');
+        const themeToggle = document.getElementById('theme-toggle');
+        
+        // Toggle dark/light mode
+        function toggleDarkMode() {
+            if (isDarkMode) {
+                document.body.classList.remove('dark-mode');
+                themeToggle.innerHTML = '<i class="fas fa-moon"></i>';
+            } else {
+                document.body.classList.add('dark-mode');
+                themeToggle.innerHTML = '<i class="fas fa-sun"></i>';
+            }
+            isDarkMode = !isDarkMode;
+        }
+        
+        function enableDarkMode() {
+            document.body.classList.add('dark-mode');
+            themeToggle.innerHTML = '<i class="fas fa-sun"></i>';
+            isDarkMode = true;
+        }
         
         // Show toast message
         function showToast(message, duration = 3000) {
@@ -691,16 +798,6 @@
             document.getElementById('withdrawal-conversion').textContent = `Coins to be deducted: ${coinsToDeduct}`;
         }
         
-        // Logout button event
-        document.getElementById('logout-btn').addEventListener('click', () => {
-            showLoading();
-            
-            window.firebase.signOut(window.firebase.auth).then(() => {
-                hideLoading();
-                showToast('Logged out successfully');
-            });
-        });
-        
         // Generate referral code
         function generateReferralCode() {
             return 'REF' + Math.floor(1000 + Math.random() * 9000);
@@ -711,12 +808,16 @@
             // Show Monetag ad
             if (typeof show_9807992 !== 'undefined') {
                 show_9807992();
+                // Add coins after ad is shown
+                setTimeout(addCoinsAfterAd, 1000);
             } else {
                 showToast('Ad is loading, please try again in a moment.');
             }
-            
-            // Add coins to user balance
-            const user = window.firebase.auth.currentUser;
+        });
+        
+        // Add coins after watching ad
+        function addCoinsAfterAd() {
+            const user = currentUser;
             if (user) {
                 showLoading();
                 // Get current user data
@@ -754,7 +855,7 @@
                         showToast('Error: ' + error.message);
                     });
             }
-        });
+        }
         
         // Withdraw button event
         document.getElementById('withdraw-btn').addEventListener('click', () => {
@@ -776,7 +877,7 @@
                 return;
             }
             
-            const user = window.firebase.auth.currentUser;
+            const user = currentUser;
             if (user) {
                 showLoading();
                 // Get current balance and coins
@@ -804,7 +905,6 @@
                                 method: selectedWithdrawalMethod,
                                 status: 'pending',
                                 date: new Date().toISOString(),
-                                userEmail: userData.email,
                                 userName: `${userData.telegramFirstName} ${userData.telegramLastName || ''}`
                             };
                             
@@ -829,10 +929,7 @@
                         });
                         
                         // Update UI
-                        const user = window.firebase.auth.currentUser;
-                        if (user) {
-                            loadUserData(user.uid);
-                        }
+                        loadUserData(user.uid);
                         
                         // Reload withdrawal history
                         loadWithdrawalHistory();
@@ -895,7 +992,8 @@
                         document.getElementById('balance-amount').textContent = '৳ ' + (userData.balance || 0).toFixed(2);
                         document.getElementById('coin-amount').textContent = (userData.coins || 0) + ' coins';
                         document.getElementById('referral-code').textContent = userData.referralCode;
-                        document.getElementById('profile-email').value = userData.email;
+                        document.getElementById('profile-username').value = userData.telegramUsername || 'N/A';
+                        document.getElementById('profile-joined').value = new Date(userData.createdAt).toLocaleDateString();
                         document.getElementById('total-referrals').textContent = userData.totalReferrals || 0;
                         document.getElementById('referral-earnings').textContent = '৳ ' + (userData.referralEarnings || 0).toFixed(2);
                         document.getElementById('referral-available').textContent = '৳ ' + (userData.referralEarnings || 0).toFixed(2);
@@ -904,7 +1002,7 @@
                         document.getElementById('coins-value').textContent = `Your coins value: ৳ ${((userData.coins || 0) / 1000).toFixed(2)}`;
                         
                         // Set referral link
-                        document.getElementById('referral-link').textContent = `https://t.me/TKBD5_bot?start=ref_${userData.referralCode}`;
+                        document.getElementById('referral-link').textContent = `https://t.me/TKBD5_bot?start=ref_${userData.telegramId}`;
                         
                         // Load profile picture if available
                         if (userData.telegramPhotoUrl) {
@@ -929,9 +1027,8 @@
         // Load withdrawal history
         function loadWithdrawalHistory(userId = null) {
             if (!userId) {
-                const user = window.firebase.auth.currentUser;
-                if (!user) return;
-                userId = user.uid;
+                if (!currentUser) return;
+                userId = currentUser.uid;
             }
             
             const historyContainer = document.getElementById('withdrawal-history');
@@ -992,12 +1089,15 @@
                 .then((doc) => {
                     if (doc.exists()) {
                         // User exists, load their data
+                        currentUser = { uid: uid };
                         hideLoading();
                         loadUserData(uid);
+                        
+                        // Set up real-time listener for withdrawal status updates
+                        setupRealTimeListeners(uid);
                     } else {
                         // Create new user
                         const userData = {
-                            email: telegramUser.username ? `${telegramUser.username}@telegram.com` : `user${telegramUser.id}@telegram.com`,
                             telegramId: telegramUser.id,
                             telegramUsername: telegramUser.username || '',
                             telegramFirstName: telegramUser.first_name,
@@ -1014,9 +1114,13 @@
                         // Save user data to Firestore
                         return window.firebase.setDoc(window.firebase.doc(window.firebase.db, "users", uid), userData)
                             .then(() => {
+                                currentUser = { uid: uid };
                                 hideLoading();
                                 loadUserData(uid);
                                 showToast('Welcome to Telecom Mini App!');
+                                
+                                // Set up real-time listener for withdrawal status updates
+                                setupRealTimeListeners(uid);
                             });
                     }
                 })
@@ -1026,6 +1130,31 @@
                 });
         }
         
+        // Set up real-time listeners for data changes
+        function setupRealTimeListeners(userId) {
+            // Listen for withdrawal status changes
+            const q = window.firebase.query(
+                window.firebase.collection(window.firebase.db, "withdrawals"),
+                window.firebase.where("userId", "==", userId)
+            );
+            
+            window.firebase.onSnapshot(q, (snapshot) => {
+                snapshot.docChanges().forEach((change) => {
+                    if (change.type === "modified") {
+                        // Reload withdrawal history when status changes
+                        loadWithdrawalHistory(userId);
+                    }
+                });
+            });
+            
+            // Listen for user data changes (like balance updates from admin)
+            window.firebase.onSnapshot(window.firebase.doc(window.firebase.db, "users", userId), (doc) => {
+                if (doc.exists()) {
+                    loadUserData(userId);
+                }
+            });
+        }
+        
         // Initialize when page loads
         window.onload = function() {
             // Initialize user automatically
@@ -1033,6 +1162,9 @@
             
             // Add event listener for withdrawal amount input
             document.getElementById('withdraw-amount').addEventListener('input', updateWithdrawalConversion);
+            
+            // Add event listener for theme toggle
+            themeToggle.addEventListener('click', toggleDarkMode);
         };
     </script>
 </body>
