@@ -1,885 +1,1118 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Coins Miner</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        /* --- Base Styles --- */
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
-        body {
-            background-color: var(--background-color);
-            color: var(--text-color);
-            padding-top: 60px; /* Space for fixed header */
-            padding-bottom: 70px; /* Space for fixed footer */
-            overflow-x: hidden; /* Prevent horizontal scroll */
-        }
-
-        /* --- CSS Variables --- */
-        :root {
-            --primary-color: #4CAF50; /* Green */
-            --primary-hover: #3bff21;
-            --secondary-color: #e0e0e0; /* Light grey instead of dark */
-            --background-color: #ffffff; /* White background */
-            --text-color: #000000; /* Black text */
-            --text-muted-color: #666666; /* Dark grey for muted text */
-            --accent-color: #ff8c00; /* Keep orange for accents */
-            --card-bg: #f5f5f5; /* Light grey card background */
-            --error-color: #ff4444; /* Error color */
-            --pending-color: #ffc107; /* Yellow for pending */
-            --processing-color: #17a2b8; /* Blue for processing */
-            --success-color: #28a745; /* Green for success */
-            --rejected-color: #dc3545; /* Red for rejected */
-        }
-
-        /* --- Header --- */
-        .header {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 60px;
-            background-color: var(--primary-color);
-            color: white;
-            display: flex;
-            align-items: center;
-            padding: 0 15px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            z-index: 1000;
-        }
-
-        .header h1 {
-            font-size: 1.5rem;
-            font-weight: bold;
-            margin: 0;
-            flex-grow: 1;
-            text-align: center;
-        }
-
-        /* --- Main Content --- */
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 15px;
-        }
-
-        /* --- Views --- */
-        .view {
-            display: none;
-        }
-
-        .view.active {
-            display: block;
-        }
-
-        /* --- Sections --- */
-        .section {
-            background-color: var(--card-bg);
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-        }
-
-        .section-title {
-            font-size: 1.3rem;
-            margin-bottom: 15px;
-            color: var(--text-color);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .section-title i {
-            color: var(--accent-color);
-        }
-
-        /* --- Profile --- */
-        .profile-header {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-
-        #profile-pic {
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            background-color: var(--secondary-color);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
-            color: var(--text-muted-color);
-            overflow: hidden;
-        }
-
-        #profile-pic img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-        #username {
-            font-size: 1.2rem;
-            font-weight: bold;
-        }
-
-        .stats-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-        }
-
-        .stat-card {
-            background-color: white;
-            border-radius: 10px;
-            padding: 15px;
-            text-align: center;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-        }
-
-        .stat-value {
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: var(--primary-color);
-        }
-
-        .stat-label {
-            font-size: 0.9rem;
-            color: var(--text-muted-color);
-        }
-
-        /* --- Action Buttons --- */
-        .action-buttons {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .action-button {
-            padding: 15px;
-            border: none;
-            border-radius: 10px;
-            font-size: 1rem;
-            font-weight: bold;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            transition: background-color 0.3s, transform 0.1s;
-        }
-
-        .action-button:active {
-            transform: scale(0.98);
-        }
-
-        .primary-button {
-            background-color: var(--primary-color);
-            color: white;
-        }
-
-        .primary-button:hover {
-            background-color: var(--primary-hover);
-        }
-
-        .secondary-button {
-            background-color: var(--secondary-color);
-            color: var(--text-color);
-        }
-
-        .secondary-button:hover {
-            background-color: #d0d0d0;
-        }
-
-        /* --- Tasks View --- */
-        .task-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px 0;
-            border-bottom: 1px solid #eee;
-        }
-
-        .task-item:last-child {
-            border-bottom: none;
-        }
-
-        .task-info {
-            flex-grow: 1;
-        }
-
-        .task-title {
-            font-weight: bold;
-            margin-bottom: 5px;
-        }
-
-        .task-description {
-            font-size: 0.9rem;
-            color: var(--text-muted-color);
-            margin-bottom: 5px;
-        }
-
-        .task-reward {
-            font-weight: bold;
-            color: var(--accent-color);
-        }
-
-        /* --- History View --- */
-        #history-list {
-            max-height: 500px; /* Limit height and enable scrolling */
-            overflow-y: auto;
-        }
-
-        .history-item {
-            padding: 12px 0;
-            border-bottom: 1px solid #eee;
-            font-size: 0.95rem;
-        }
-
-        .history-item:last-child {
-            border-bottom: none;
-        }
-
-        .history-item-type {
-            font-weight: bold;
-            margin-right: 5px;
-        }
-
-        .history-item-type.claim {
-            color: var(--success-color);
-        }
-
-        .history-item-type.task {
-            color: var(--accent-color);
-        }
-
-        .history-item-type.withdraw {
-            color: var(--rejected-color);
-        }
-
-        .history-item-details {
-            display: flex;
-            justify-content: space-between;
-            color: var(--text-muted-color);
-            font-size: 0.85rem;
-        }
-
-        /* --- Withdraw View --- */
-        .withdraw-section {
-            margin-bottom: 20px;
-        }
-
-        .input-group {
-            margin-bottom: 15px;
-        }
-
-        .input-group label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-        }
-
-        .input-group select,
-        .input-group input {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            font-size: 1rem;
-        }
-
-        .withdraw-info {
-            background-color: #e8f4fd;
-            border-left: 4px solid var(--processing-color);
-            padding: 15px;
-            border-radius: 0 8px 8px 0;
-            margin-top: 10px;
-        }
-
-        .info-text {
-            font-size: 0.9rem;
-            color: #333;
-            margin: 5px 0;
-        }
-
-        .info-text strong {
-            color: var(--processing-color);
-        }
-
-        /* --- Withdraw History Modal --- */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0,0,0,0.5);
-            z-index: 1001;
-            overflow: auto;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .modal.active {
-            display: flex;
-        }
-
-        .modal-content {
-            background-color: var(--background-color);
-            margin: auto;
-            padding: 0;
-            border-radius: 12px;
-            width: 90%;
-            max-width: 500px;
-            max-height: 80vh;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .modal-header {
-            padding: 15px 20px;
-            background-color: var(--primary-color);
-            color: white;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .modal-title {
-            font-size: 1.2rem;
-            font-weight: bold;
-            margin: 0;
-        }
-
-        .modal-close {
-            background: none;
-            border: none;
-            color: white;
-            font-size: 1.5rem;
-            cursor: pointer;
-        }
-
-        .modal-body {
-            padding: 20px;
-            overflow-y: auto;
-            flex-grow: 1;
-        }
-
-        .withdraw-history-item {
-            padding: 15px 0;
-            border-bottom: 1px solid #eee;
-        }
-
-        .withdraw-history-item:last-child {
-            border-bottom: none;
-        }
-
-        .withdraw-history-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 8px;
-        }
-
-        .withdraw-method {
-            font-weight: bold;
-        }
-
-        .withdraw-amount {
-            font-weight: bold;
-            color: var(--text-color);
-        }
-
-        .withdraw-status {
-            font-size: 0.85rem;
-        }
-
-        .withdraw-details {
-            display: flex;
-            justify-content: space-between;
-            color: var(--text-muted-color);
-            font-size: 0.85rem;
-        }
-
-        /* --- Status Colors --- */
-        .status-pending { color: var(--pending-color); font-weight: bold; }
-        .status-processing { color: var(--processing-color); font-weight: bold; }
-        .status-success { color: var(--success-color); font-weight: bold; }
-        .status-rejected { color: var(--rejected-color); font-weight: bold; }
-
-        /* --- Loading and Error States --- */
-        .loading, .error-message {
-            text-align: center;
-            padding: 20px;
-            font-size: 16px;
-        }
-
-        .error-message {
-            color: var(--error-color);
-            font-weight: bold;
-        }
-
-        .hidden {
-            display: none;
-        }
-
-        /* --- Disabled state for UI elements --- */
-        .disabled {
-            pointer-events: none;
-            opacity: 0.5;
-        }
-
-        /* --- Footer Navigation --- */
-        .footer-nav {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            height: 70px;
-            background-color: white;
-            border-top: 1px solid #eee;
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            padding: 0 10px;
-            box-shadow: 0 -2px 5px rgba(0,0,0,0.05);
-            z-index: 1000;
-            transition: transform 0.3s ease-in-out;
-        }
-
-        .footer-nav.hide-footer {
-            transform: translateY(100%);
-        }
-
-        .nav-button {
-            flex: 1;
-            background: none;
-            border: none;
-            padding: 10px 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 5px;
-            font-size: 0.75rem;
-            color: var(--text-muted-color);
-            cursor: pointer;
-        }
-
-        .nav-button.active {
-            color: var(--primary-color);
-        }
-
-        .nav-button i {
-            font-size: 1.2rem;
-        }
-
-        /* --- Message Modal --- */
-        #message-modal .modal-content {
-            text-align: center;
-        }
-
-        #message-modal-text {
-            margin-top: 10px;
-            font-size: 1rem;
-        }
-
-        /* --- Blocked View --- */
-        #blocked-view {
-            text-align: center;
-            padding: 40px 20px;
-        }
-
-        #blocked-view h2 {
-            margin-bottom: 20px;
-            color: var(--error-color);
-        }
-
-        #blocked-view p {
-            color: var(--text-muted-color);
-            line-height: 1.6;
-        }
-
-        /* --- Responsive --- */
-        @media (max-width: 480px) {
-            .stats-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        /* --- Requesting Button Style --- */
-        .requesting-button {
-            background-color: #ff9800; /* Orange for requesting */
-            color: white;
-        }
-
-        .requesting-button:hover {
-            background-color: #f57c00;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"/>
+  <title>TKBD5_bot</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
+  <style>
+    :root {
+      /* -- Updated all colors to white theme -- */
+      --primary-color: #2ed914; /* Keep green for accents */
+      --primary-hover: #3bff21;
+      --secondary-color: #e0e0e0; /* Light grey instead of dark */
+      --background-color: #ffffff; /* White background */
+      --text-color: #000000; /* Black text */
+      --text-muted-color: #666666; /* Dark grey for muted text */
+      --accent-color: #ff8c00; /* Keep orange for accents */
+      --card-bg: #f5f5f5; /* Light grey card background */
+      --error-color: #ff4444; /* Error color */
+      --pending-color: #ffc107; /* Yellow for pending */
+      --processing-color: #17a2b8; /* Blue for processing */
+      --success-color: #28a745; /* Green for success */
+      --rejected-color: #dc3545; /* Red for rejected */
+      --requesting-color: #dc3545; /* Red for requesting state */
+    }
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    body {
+      margin: 0; padding: 0; background-color: var(--background-color); color: var(--text-color);
+      font-family: 'Segoe UI', 'Roboto', sans-serif; display: flex; justify-content: center; align-items: center;
+      height: 100vh; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
+    }
+    .container {
+      width: 100%; height: 100%; max-width: 400px; background: var(--background-color);
+      display: flex; flex-direction: column; overflow: hidden; position: relative;
+    }
+    main {
+      flex-grow: 1; overflow-y: auto; padding: 20px; padding-bottom: 80px; /* Space for footer nav */
+    }
+    .view { display: none; animation: fadeIn 0.4s ease-in-out; }
+    .view.active { display: block; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    .user-header-card {
+      background: var(--card-bg); border-radius: 16px; padding: 15px; margin-bottom: 25px;
+      display: flex; align-items: center; border: 1px solid rgba(0, 0, 0, 0.1); /* Light border */
+    }
+    .user-avatar {
+      width: 50px; height: 50px; border-radius: 50%; margin-right: 15px; overflow: hidden;
+      background: linear-gradient(135deg, var(--primary-color), #00a651);
+      display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 20px;
+    }
+    .user-avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .user-info .username { font-size: 18px; font-weight: 700; margin: 0; }
+    .user-info .title { font-size: 14px; color: var(--text-muted-color); margin: 0; }
+    .balance-card {
+      background: linear-gradient(135deg, #00a651, #00753a); border-radius: 16px; padding: 20px;
+      text-align: center; margin-bottom: 25px;
+    }
+    .balance-card .label { font-size: 16px; opacity: 0.9; color: #ffffff; margin-bottom: 5px; }
+    .balance-card .balance-value { font-size: 36px; font-weight: 800; margin: 0; letter-spacing: 1px; color: #ffffff; }
+    .balance-card .points-value { font-size: 16px; font-weight: 600; color: #ffffff; margin-top: 10px; } /* Changed to white */
+    .section-title { font-size: 20px; font-weight: 700; margin-bottom: 15px; padding-left: 5px; border-left: 4px solid var(--primary-color); }
+    .task-card {
+      background: var(--card-bg); border-radius: 12px; padding: 20px; margin-bottom: 15px;
+      display: flex; align-items: center; cursor: pointer; transition: transform 0.2s ease, background-color 0.2s ease;
+      border: 1px solid rgba(0, 0, 0, 0.1); /* Light border */
+    }
+    .task-card:hover { transform: translateY(-3px); background-color: var(--secondary-color); }
+    .task-icon { font-size: 24px; color: var(--primary-color); margin-right: 20px; width: 30px; text-align: center; }
+    .task-details h3 { margin: 0; font-size: 16px; font-weight: 600; }
+    .task-details p { margin: 3px 0 0; font-size: 13px; color: var(--text-muted-color); }
+    .task-arrow { margin-left: auto; font-size: 18px; color: var(--text-muted-color); }
+    .list-item {
+      display: flex; align-items: center; background: var(--card-bg); padding: 12px 15px;
+      border-radius: 10px; margin-bottom: 10px; border: 1px solid rgba(0, 0, 0, 0.1); /* Light border */
+    }
+    .list-item .rank { font-size: 16px; font-weight: 700; color: var(--text-muted-color); width: 30px; }
+    .list-item .avatar { width: 40px; height: 40px; border-radius: 50%; background: var(--secondary-color); margin-right: 15px; object-fit: cover; }
+    .list-item .info { flex-grow: 1; }
+    .list-item .info .name { font-weight: 600; font-size: 15px; }
+    .list-item .info .detail { font-size: 13px; color: var(--text-muted-color); }
+    .list-item .score { font-size: 16px; font-weight: 700; color: var(--accent-color); }
+    .history-icon { color: var(--primary-color); margin-right: 15px; font-size: 18px; }
+    .footer-nav {
+      position: fixed; bottom: 0; left: 0; right: 0; width: 100%; max-width: 400px; margin: 0 auto;
+      display: flex; justify-content: space-around; background: var(--secondary-color);
+      padding: 10px 0; border-top: 1px solid rgba(0, 0, 0, 0.1); /* Light border */
+    }
+    .nav-button {
+      display: flex; flex-direction: column; align-items: center; color: var(--text-muted-color);
+      background: none; border: none; font-size: 12px; transition: color 0.2s ease, transform 0.2s ease;
+      cursor: pointer; padding: 5px 10px;
+    }
+    .nav-button .icon { font-size: 22px; margin-bottom: 4px; }
+    .nav-button:hover { color: var(--text-color); }
+    .nav-button.active { color: var(--primary-color); transform: scale(1.1); }
+    .action-button {
+      width: 100%; padding: 15px; border-radius: 12px; border: none; font-size: 16px; font-weight: 700;
+      margin-top: 15px; cursor: pointer; transition: all 0.3s ease; text-transform: uppercase; letter-spacing: 1px;
+    }
+    .primary-button { background: var(--primary-color); color: #000; }
+    .primary-button:hover { background: var(--primary-hover); transform: translateY(-2px); box-shadow: 0 5px 15px rgba(46, 217, 20, 0.3); }
+    .secondary-button { background: var(--secondary-color); color: var(--primary-color); border: 1px solid rgba(0, 0, 0, 0.1); }
+    .secondary-button:hover { background: #d0d0d0; }
+    .requesting-button { background: var(--requesting-color); color: #fff; }
+    .requesting-button:hover { background: #c82333; }
+    .modal-overlay {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7);
+      display: none; align-items: center; justify-content: center; z-index: 1000; animation: fadeIn 0.3s;
+    }
+    .modal-overlay.active { display: flex; }
+    .modal-content {
+      background: var(--card-bg); padding: 25px; border-radius: 16px; width: 90%; max-width: 320px;
+      text-align: center; animation: slideIn 0.3s; border: 1px solid rgba(0, 0, 0, 0.1); /* Light border */
+    }
+    @keyframes slideIn { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    .modal-content h3 { margin-top: 0; font-size: 20px; }
+    .modal-content p { color: var(--text-muted-color); margin-bottom: 25px; }
+    .modal-actions { display: flex; gap: 10px; }
+    /* Withdraw Modal Specific Styles */
+    .withdraw-form {
+      text-align: left;
+    }
+    .form-group {
+      margin-bottom: 15px;
+    }
+    .form-group label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: 600;
+    }
+    .form-control {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 16px;
+    }
+    .status-pending { color: var(--pending-color); font-weight: bold; }
+    .status-processing { color: var(--processing-color); font-weight: bold; }
+    .status-success { color: var(--success-color); font-weight: bold; }
+    .status-rejected { color: var(--rejected-color); font-weight: bold; }
+    /* Loading and Error States */
+    .loading, .error-message {
+      text-align: center;
+      padding: 20px;
+      font-size: 16px;
+    }
+    .error-message {
+      color: var(--error-color);
+      font-weight: bold;
+    }
+    .hidden { display: none; }
+    /* Disabled state for UI elements */
+    .disabled {
+      pointer-events: none;
+      opacity: 0.5;
+    }
+    /* Withdraw History Modal */
+    #withdraw-history-modal .modal-content {
+        width: 95%;
+        max-width: 400px;
+        max-height: 80vh;
+        overflow-y: auto;
+    }
+    #withdraw-history-modal-list {
+        text-align: left;
+        max-height: 60vh;
+        overflow-y: auto;
+    }
+    /* Share Modal */
+    #share-modal .modal-content {
+        width: 95%;
+        max-width: 400px;
+        max-height: 80vh;
+        overflow-y: auto;
+    }
+    #referral-link {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        font-size: 14px;
+        margin-bottom: 15px;
+        background-color: #f9f9f9;
+    }
+    .referral-stats {
+        display: flex;
+        justify-content: space-around;
+        margin: 20px 0;
+        text-align: center;
+    }
+    .referral-stat-item {
+        background: var(--card-bg);
+        padding: 15px;
+        border-radius: 12px;
+        flex: 1;
+        margin: 0 5px;
+        border: 1px solid rgba(0, 0, 0, 0.1);
+    }
+    .referral-stat-value {
+        font-size: 24px;
+        font-weight: bold;
+        color: var(--primary-color);
+    }
+    .referral-stat-label {
+        font-size: 14px;
+        color: var(--text-muted-color);
+    }
+    /* --- New CSS for hiding footer on blocked view --- */
+    .hide-footer {
+        display: none !important;
+    }
+  </style>
+  <!-- Monetag SDK Scripts -->
+  <script src='//libtl.com/sdk.js' data-zone='9807992' data-sdk='show_9807992'></script>
+  <script src='//libtl.com/sdk.js' data-zone='9702109' data-sdk='show_9702109'></script>
+  <script src='//libtl.com/sdk.js' data-zone='9292001' data-sdk='show_9292001'></script>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body>
-
-    <!-- Header -->
-    <div class="header">
-        <h1>Coins Miner</h1>
-    </div>
-
-    <!-- Main Content -->
-    <div class="container">
-
-        <!-- HOME VIEW -->
-        <div id="home-view" class="view active">
-            <div class="section">
-                <div class="profile-header">
-                    <div id="profile-pic">
-                        <i class="fa-solid fa-user"></i>
-                    </div>
-                    <div id="username">Loading...</div>
-                </div>
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-value" id="points-value">0</div>
-                        <div class="stat-label">Points</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-value" id="balance-value">$0.00</div>
-                        <div class="stat-label">Balance</div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="section">
-                <h2 class="section-title"><i class="fa-solid fa-bolt"></i> Quick Actions</h2>
-                <div class="action-buttons">
-                    <button class="action-button primary-button" onclick="showView('tasks-view')">
-                        <i class="fa-solid fa-list-check"></i> Complete Tasks
-                    </button>
-                    <button class="action-button secondary-button" onclick="showView('history-view')">
-                        <i class="fa-solid fa-clock-rotate-left"></i> View History
-                    </button>
-                    <button class="action-button secondary-button" onclick="showView('withdraw-view')">
-                        <i class="fa-solid fa-wallet"></i> Withdraw Funds
-                    </button>
-                </div>
-            </div>
-
-            <div class="section">
-                <h2 class="section-title"><i class="fa-solid fa-users"></i> Referral Program</h2>
-                <p>Earn <strong>10%</strong> of your referrals' earnings!</p>
-                <div class="action-buttons" style="margin-top: 15px;">
-                    <button class="action-button secondary-button" onclick="shareReferralLink()">
-                        <i class="fa-solid fa-share-nodes"></i> Share Referral Link
-                    </button>
-                    <button class="action-button secondary-button" onclick="claimReferralEarnings()">
-                        <i class="fa-solid fa-coins"></i> Claim Referral Earnings
-                    </button>
-                </div>
-            </div>
+  <div class="container">
+    <main id="main-content">
+      <!-- HOME VIEW -->
+      <div id="home-view" class="view active">
+        <div class="user-header-card">
+          <div class="user-avatar" id="profile-pic">EE</div>
+          <div class="user-info">
+            <h2 class="username" id="username">Loading...</h2>
+            <p class="title">Welcome Back!</p>
+          </div>
         </div>
-
-        <!-- TASKS VIEW -->
-        <div id="tasks-view" class="view">
-            <div class="section">
-                <h2 class="section-title"><i class="fa-solid fa-list-check"></i> Available Tasks</h2>
-                <div id="tasks-list">
-                    <!-- Tasks will be generated here by JS -->
-                    <div class="loading">Loading tasks...</div>
-                </div>
-            </div>
+        <div class="balance-card">
+            <p class="label">Total Balance</p>
+            <h1 class="balance-value" id="balance-value">$0.00</h1>
+            <p class="points-value"><i class="fa-solid fa-coins"></i> <span id="points-value">0</span> Coins</p>
         </div>
-
-        <!-- HISTORY VIEW -->
-        <div id="history-view" class="view">
-            <div class="section">
-                <h2 class="section-title"><i class="fa-solid fa-clock-rotate-left"></i> Recent Activity</h2>
-                <div id="history-list">
-                    <!-- History items will be generated here by JS -->
-                    <div class="loading">Loading history...</div>
-                </div>
-            </div>
+        <h2 class="section-title">Quick Actions</h2>
+        <div class="task-card" onclick="showView('tasks-view')">
+            <div class="task-icon"><i class="fa-solid fa-list-check"></i></div>
+            <div class="task-details"><h3>View Tasks</h3><p>Watch ads and complete tasks to earn coins.</p></div>
+            <div class="task-arrow"><i class="fa-solid fa-chevron-right"></i></div>
         </div>
-
-        <!-- WITHDRAW VIEW -->
-        <div id="withdraw-view" class="view">
-            <div class="section">
-                <h2 class="section-title"><i class="fa-solid fa-money-bill-transfer"></i> Withdraw Funds</h2>
-                
-                <div class="withdraw-section">
-                    <div class="input-group">
-                        <label for="paymentMethod">Payment Method</label>
-                        <select id="paymentMethod">
-                            <option value="bkash">bKash</option>
-                            <option value="nagad">Nagad</option>
-                            <option value="rocket">Rocket</option>
-                        </select>
-                    </div>
-
-                    <div class="input-group">
-                        <label for="mobileNumber">Mobile Number</label>
-                        <input type="text" id="mobileNumber" placeholder="Enter your mobile number">
-                    </div>
-
-                    <div class="input-group">
-                        <label for="withdrawAmount">Amount (USD)</label>
-                        <input type="number" id="withdrawAmount" placeholder="0.00" min="0.5" step="0.01">
-                    </div>
-
-                    <button id="request-withdraw-btn" class="action-button primary-button" onclick="requestWithdraw()">
-                        Request Withdrawal
-                    </button>
-                </div>
-
-                <div class="withdraw-info">
-                    <p class="info-text"><strong>Minimum Withdrawal:</strong> $<span id="min-withdraw-amount">0.50</span></p>
-                    <p class="info-text"><strong>Processing Time:</strong> 1-3 Business Days</p>
-                    <p class="info-text"><strong>Fee:</strong> 0% (Free)</p>
-                </div>
-
-                <!-- Withdraw History Button -->
-                <button class="action-button secondary-button" onclick="openWithdrawHistoryModal()" style="margin-top: 20px;">
-                    <i class="fa-solid fa-history"></i> View Withdraw History
-                </button>
-            </div>
+        <div class="task-card" onclick="showView('withdraw-view')">
+            <div class="task-icon"><i class="fa-solid fa-wallet"></i></div>
+            <div class="task-details"><h3>Withdraw Funds</h3><p>Request to withdraw your available balance.</p></div>
+            <div class="task-arrow"><i class="fa-solid fa-chevron-right"></i></div>
         </div>
-
-        <!-- BLOCKED VIEW -->
-        <div id="blocked-view" class="view">
-            <div class="error-message">
-                <h2><i class="fa-solid fa-ban"></i> Account Blocked</h2>
-                <p>Your account has been blocked. Please contact support for more information.</p>
-            </div>
+      </div>
+      <!-- TASKS VIEW -->
+      <div id="tasks-view" class="view">
+        <h2 class="section-title">Earning Tasks</h2>
+        <!-- Original "Tap to Earn" Button -->
+        <div class="task-card" onclick="showAd()">
+            <div class="task-icon"><i class="fa-solid fa-hand-pointer"></i></div>
+            <div class="task-details"><h3>Tap to Earn</h3><p>Tap the button to watch an ad and earn 10 coins.</p></div>
+            <div class="task-arrow"><i class="fa-solid fa-play"></i></div>
         </div>
-
-    </div>
-
-    <!-- Footer Navigation -->
-    <div class="footer-nav">
-        <button class="nav-button active" onclick="showView('home-view')">
-            <i class="icon fa-solid fa-house"></i>
-            <span>Home</span>
+        <!-- New "Tap to Earn One" Button -->
+        <div class="task-card" onclick="showAdOne()">
+            <div class="task-icon"><i class="fa-solid fa-hand-pointer"></i></div>
+            <div class="task-details"><h3>Tap to Earn One</h3><p>Tap the button to watch an ad and earn 10 coins.</p></div>
+            <div class="task-arrow"><i class="fa-solid fa-play"></i></div>
+        </div>
+        <!-- New "Tap to Earn Two" Button -->
+        <div class="task-card" onclick="showAdTwo()">
+            <div class="task-icon"><i class="fa-solid fa-hand-pointer"></i></div>
+            <div class="task-details"><h3>Tap to Earn Two</h3><p>Tap the button to watch an ad and earn 10 coins.</p></div>
+            <div class="task-arrow"><i class="fa-solid fa-play"></i></div>
+        </div>
+      </div>
+      <!-- WITHDRAW VIEW -->
+      <div id="withdraw-view" class="view">
+        <h2 class="section-title">Withdraw Funds</h2>
+        <!-- Withdraw Form -->
+        <div class="withdraw-form">
+          <div class="form-group">
+            <label for="paymentMethod">Payment Method</label>
+            <select id="paymentMethod" class="form-control">
+              <option value="bkash">Bkash</option>
+              <option value="nagad">Nagad</option>
+              <option value="rocket">Rocket</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="mobileNumber">Mobile Number</label>
+            <input type="tel" id="mobileNumber" class="form-control" placeholder="Enter mobile number">
+          </div>
+          <div class="form-group">
+            <label for="withdrawAmount">Amount ($)</label>
+            <input type="number" id="withdrawAmount" class="form-control" placeholder="Enter amount" step="0.01" min="5">
+          </div>
+          <button id="requestWithdrawBtn" class="action-button primary-button" onclick="requestWithdraw()">
+            <i class="fa-solid fa-paper-plane"></i> Request Withdrawal
+          </button>
+        </div>
+        <!-- Withdraw History Button -->
+        <button class="action-button secondary-button" onclick="openWithdrawHistoryModal()" style="margin-top: 20px;">
+          <i class="fa-solid fa-history"></i> View Withdraw History
         </button>
-        <button class="nav-button" onclick="showView('tasks-view')">
-            <i class="icon fa-solid fa-list-check"></i>
-            <span>Tasks</span>
-        </button>
-        <button class="nav-button" onclick="showView('history-view')">
-            <i class="icon fa-solid fa-clock-rotate-left"></i>
-            <span>History</span>
-        </button>
-        <button class="nav-button" onclick="showView('withdraw-view')">
-            <i class="icon fa-solid fa-wallet"></i>
-            <span>Withdraw</span>
-        </button>
-    </div>
-
-    <!-- Withdraw History Modal -->
-    <div id="withdraw-history-modal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 class="modal-title">Withdrawal History</h3>
-                <button class="modal-close" onclick="closeWithdrawHistoryModal()">&times;</button>
-            </div>
-            <div class="modal-body">
-                <div id="withdraw-history-modal-list">
-                    <!-- Withdraw history items will be generated here -->
-                    <div class="loading">Loading history...</div>
-                </div>
-            </div>
+      </div>
+      <!-- HISTORY VIEW -->
+      <div id="history-view" class="view">
+        <h2 class="section-title">Recent Activity</h2>
+        <div id="history-list"><!-- History items will be generated here by JS --></div>
+      </div>
+      <!-- BLOCKED VIEW -->
+      <div id="blocked-view" class="view">
+        <div class="error-message">
+          <h2><i class="fa-solid fa-ban"></i> Account Blocked</h2>
+          <p>Your account has been blocked. Please contact admin to unblock.</p>
+          <!-- Telegram Contact Button (Special class to avoid disableUI) -->
+          <a href="https://t.me/Nikhil_Shaan" target="_blank" rel="noopener noreferrer" class="action-button primary-button telegram-button" style="display: inline-flex; align-items: center; justify-content: center; text-decoration: none; margin-top: 20px;">
+            <i class="fa-brands fa-telegram" style="margin-right: 8px;"></i> Contact Admin on Telegram
+          </a>
+        </div>
+      </div>
+    </main>
+    <nav class="footer-nav">
+      <button class="nav-button active" onclick="showView('home-view')"><i class="icon fa-solid fa-house"></i>Home</button>
+      <button class="nav-button" onclick="showView('tasks-view')"><i class="icon fa-solid fa-list-check"></i>Tasks</button>
+      <button class="nav-button" onclick="showView('history-view')"><i class="icon fa-solid fa-clock-rotate-left"></i>History</button>
+      <!-- Added Withdraw button -->
+      <button class="nav-button" onclick="showView('withdraw-view')"><i class="icon fa-solid fa-wallet"></i>Withdraw</button>
+      <button class="nav-button" onclick="openShareModal()"><i class="icon fa-solid fa-share-nodes"></i>Share</button>
+    </nav>
+  </div>
+  <!-- Generic Modal for Messages -->
+  <div class="modal-overlay" id="message-modal">
+    <div class="modal-content">
+        <h3 id="message-modal-title">Notification</h3>
+        <p id="message-modal-text">Operation completed.</p>
+        <div class="modal-actions">
+            <button class="action-button primary-button" onclick="closeMessageModal()">OK</button>
         </div>
     </div>
-
-    <!-- Generic Message Modal -->
-    <div id="message-modal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 class="modal-title" id="message-modal-title">Message</h3>
-                <button class="modal-close" onclick="document.getElementById('message-modal').classList.remove('active')">&times;</button>
-            </div>
-            <div class="modal-body">
-                <p id="message-modal-text"></p>
-            </div>
+  </div>
+  <!-- Withdraw History Modal -->
+  <div class="modal-overlay" id="withdraw-history-modal">
+    <div class="modal-content">
+        <h3>Withdraw History</h3>
+        <div id="withdraw-history-modal-list">
+            <!-- History items will be populated here -->
+        </div>
+        <div class="modal-actions" style="margin-top: 20px;">
+            <button class="action-button primary-button" onclick="closeWithdrawHistoryModal()">Close</button>
         </div>
     </div>
-
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
-    <script>
-        // Your web app's Firebase configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyBf467ZMZNP5DLvI1Q8mKb23DmzUH9zZy0",
-            authDomain: "test-320e3.firebaseapp.com",
-            databaseURL: "https://test-320e3-default-rtdb.firebaseio.com",
-            projectId: "test-320e3",
-            storageBucket: "test-320e3.appspot.com",
-            messagingSenderId: "123456789012",
-            appId: "1:123456789012:web:abcdefghijklmnopqrstuvwxyz"
-        };
-
-        // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
-        const database = firebase.database();
-
-        // --- App State ---
-        let tgUser = null;
-        let points = 0;
-        let balance = 0.00;
-        let historyLog = [];
-        let isBlocked = false;
-        let referralData = {
-            referralCount: 0,
-            referralEarnings: 0
-        };
-        let appConfig = {
-            minWithdrawAmount: 0.50,
-            coinsForConversion: 1000,
-            valuePerConversion: 1.00,
-            referralClaimThreshold: 5000
-        };
-        let tasks = [];
-        let withdrawHistory = [];
-
-        // --- Listeners ---
-        let userPointsBalanceListener = null;
-        let referralListener = null;
-        let appConfigListener = null;
-        let tasksListener = null;
-        let withdrawHistoryListener = null;
-
-        // --- Withdrawal Logic ---
-        // Flag to prevent multiple withdrawal requests
-        let isWithdrawRequestPending = false;
-
-        async function requestWithdraw() {
+  </div>
+  <!-- Share Modal -->
+  <div class="modal-overlay" id="share-modal">
+    <div class="modal-content">
+        <h3>Share & Earn</h3>
+        <p>Share your referral link and earn coins!</p>
+        <div class="referral-stats">
+            <div class="referral-stat-item">
+                <div class="referral-stat-value" id="referral-count">0</div>
+                <div class="referral-stat-label">Referrals</div>
+            </div>
+            <div class="referral-stat-item">
+                <div class="referral-stat-value" id="referral-earnings">0</div>
+                <div class="referral-stat-label">Coins Earned</div>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="referral-link">Your Referral Link:</label>
+            <input type="text" id="referral-link" readonly>
+        </div>
+        <button class="action-button primary-button" onclick="copyReferralLink()">
+            <i class="fa-solid fa-copy"></i> Copy Link
+        </button>
+        <button class="action-button secondary-button" onclick="shareOnTelegram()" style="margin-top: 10px;">
+            <i class="fa-brands fa-telegram"></i> Share on Telegram
+        </button>
+        <div class="modal-actions" style="margin-top: 20px;">
+            <button class="action-button primary-button" onclick="closeShareModal()">Close</button>
+        </div>
+    </div>
+  </div>
+<script>
+    // --- Firebase Configuration ---
+    const firebaseConfig = {
+      apiKey: "AIzaSyD3BGZ0MVLpbQbIpLUAnYvWNEIyk7Y6S0Q",
+      authDomain: "earning-app-80258.firebaseapp.com",
+      databaseURL: "https://earning-app-80258-default-rtdb.firebaseio.com",
+      projectId: "earning-app-80258",
+      storageBucket: "earning-app-80258.appspot.com",
+      messagingSenderId: "25930019210",
+      appId: "1:25930019210:web:6441562811d3e7e9631873",
+      measurementId: "G-P9HX6XXT1Q"
+    };
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+    // --- State Variables ---
+    let points = 0;
+    let balance = 0.00;
+    let historyLog = [];
+    let withdrawHistory = [];
+    let tgUser = null;
+    let isBlocked = false;
+    let appConfig = {
+      pointsPerAd: 10,
+      coinsForConversion: 1000,
+      valuePerConversion: 0.30,
+      referralRewardCoins: 10, // Default value
+      referralClaimThreshold: 200, // Default value
+      minWithdrawAmount: 5 // Default value
+    };
+    let referralData = {
+      referralCount: 0,
+      referralEarnings: 0
+    };
+    // For real-time listener reference
+    let userBlockedListener = null;
+    let withdrawHistoryListener = null;
+    let userPointsBalanceListener = null;
+    let referralListener = null;
+    let appConfigListener = null; // New listener for appConfig
+    // Flag to prevent multiple withdrawal requests
+    let isWithdrawRequestPending = false;
+    // --- Updated Balance Logic ---
+    // Dynamic from Firebase: 1000 coins = 30 cents = $0.30 USD
+    // 1 coin = $0.0003 USD (calculated dynamically)
+    // --- Core App Logic ---
+    document.addEventListener('DOMContentLoaded', () => {
+        initApp();
+    });
+    function initApp() {
+        if (window.Telegram && Telegram.WebApp) {
+            Telegram.WebApp.ready();
+            Telegram.WebApp.expand();
+            tgUser = Telegram.WebApp.initDataUnsafe.user;
+            if (!tgUser) {
+                // Don't show blocked view immediately, wait for Firebase check
+                console.log("Telegram user data not available immediately, waiting for Firebase check");
+                showView('home-view'); // Show home view initially
+                loadAppConfig().then(() => {
+                    loadUserData().then(() => {
+                        loadTelegramUser();
+                        renderLeaderboard();
+                        checkForReferral(); // Check if this user was referred
+                    }).catch(error => {
+                        console.error("Error loading user ", error);
+                        // Handle error appropriately, maybe show a message
+                    });
+                });
+                return;
+            }
+            // Load app configuration and user data
+            loadAppConfig().then(() => {
+                loadUserData().then(() => {
+                    loadTelegramUser();
+                    showView('home-view');
+                    renderLeaderboard();
+                    checkForReferral(); // Check if this user was referred
+                }).catch(error => {
+                    console.error("Error loading user ", error);
+                    // Handle error appropriately
+                });
+            }).catch(error => {
+                console.error("Error loading app config:", error);
+                // Handle error appropriately
+            });
+        } else {
+            // Don't show blocked view for non-Telegram access, just log
+            console.log("This app must be opened in Telegram.");
+            showView('home-view'); // Show home view initially
+        }
+    }
+    // --- Firebase Functions ---
+    async function loadAppConfig() {
+        try {
+            const snapshot = await database.ref('appConfig').once('value');
+            const config = snapshot.val();
+            if (config) {
+                appConfig = {
+                    pointsPerAd: config.pointsPerAd || 10,
+                    coinsForConversion: config.coinsForConversion || 1000,
+                    valuePerConversion: config.valuePerConversion || 0.30,
+                    referralRewardCoins: config.referralRewardCoins !== undefined ? config.referralRewardCoins : 10,
+                    referralClaimThreshold: config.referralClaimThreshold !== undefined ? config.referralClaimThreshold : 200,
+                    minWithdrawAmount: config.minWithdrawAmount !== undefined ? config.minWithdrawAmount : 5
+                };
+            }
+        } catch (error) {
+            console.error("Failed to load app config:", error);
+            throw error;
+        }
+    }
+    async function loadUserData() {
+        if (!tgUser || !tgUser.id) return Promise.resolve(); // Resolve immediately if no user ID
+        try {
+            const userRef = database.ref('users/' + tgUser.id);
+            const snapshot = await userRef.once('value');
+            const userData = snapshot.val();
+            if (userData) {
+                points = userData.points || 0;
+                balance = userData.balance || 0.00;
+                historyLog = userData.historyLog || [];
+                isBlocked = userData.isBlocked || false;
+                referralData.referralCount = userData.referralCount || 0;
+                referralData.referralEarnings = userData.referralEarnings || 0;
+                updateDisplay();
+                // Only show blocked view if user is actually blocked
+                if (isBlocked) {
+                    showBlockedView();
+                }
+                // Set up real-time listeners
+                setupBlockingListener(userRef);
+                setupWithdrawHistoryListener(userRef);
+                setupPointsBalanceListener(userRef);
+                setupReferralListener(userRef);
+                setupAppConfigListener(); // Setup listener for app config changes
+            } else {
+                // Initialize new user
+                await userRef.set({
+                    id: tgUser.id,
+                    username: tgUser.username || 'Unknown',
+                    firstName: tgUser.first_name || 'User',
+                    points: 0,
+                    balance: 0.00,
+                    isBlocked: false,
+                    referralCount: 0,
+                    referralEarnings: 0,
+                    createdAt: new Date().toISOString()
+                });
+                // Set up real-time listeners
+                setupBlockingListener(userRef);
+                setupWithdrawHistoryListener(userRef);
+                setupPointsBalanceListener(userRef);
+                setupReferralListener(userRef);
+                setupAppConfigListener(); // Setup listener for app config changes
+            }
+        } catch (error) {
+            console.error("Failed to load user ", error);
+            throw error;
+        }
+    }
+    // Check if user was referred
+    function checkForReferral() {
+        if (!tgUser || !tgUser.id) return;
+        // Get the start parameter from Telegram WebApp
+        const startParam = Telegram.WebApp.initDataUnsafe.start_param;
+        // If there's a start parameter and it's not the user's own ID, it means they were referred
+        if (startParam && startParam !== tgUser.id.toString()) {
+            const referrerId = startParam;
+            // Check if referral has already been processed for this user
+            database.ref('users/' + tgUser.id + '/referredBy').once('value').then((snapshot) => {
+                if (!snapshot.val()) {
+                    // Process referral
+                    processReferral(referrerId);
+                }
+            });
+        }
+    }
+    // Process referral and reward referrer
+    async function processReferral(referrerId) {
+        try {
+            // Verify referrer exists
+            const referrerRef = database.ref('users/' + referrerId);
+            const referrerSnapshot = await referrerRef.once('value');
+            if (referrerSnapshot.exists()) {
+                // Reward referrer (coins from Firebase config)
+                const referrerData = referrerSnapshot.val();
+                const newReferralEarnings = (referrerData.referralEarnings || 0) + appConfig.referralRewardCoins;
+                const newReferralCount = (referrerData.referralCount || 0) + 1;
+                const newPoints = referrerData.points + appConfig.referralRewardCoins;
+                const newBalance = (newPoints / appConfig.coinsForConversion) * appConfig.valuePerConversion;
+                // Update referrer's data
+                await referrerRef.update({
+                    referralEarnings: newReferralEarnings,
+                    referralCount: newReferralCount,
+                    points: newPoints,
+                    balance: newBalance
+                });
+                // Mark this user as referred by this referrer
+                await database.ref('users/' + tgUser.id).update({
+                    referredBy: referrerId
+                });
+                console.log(`Referral processed: User ${tgUser.id} referred by ${referrerId}`);
+            }
+        } catch (error) {
+            console.error("Error processing referral:", error);
+        }
+    }
+    function setupBlockingListener(userRef) {
+        if (userBlockedListener) {
+            // Remove previous listener if exists
+            userRef.child('isBlocked').off('value', userBlockedListener);
+        }
+        // Set up new listener
+        userBlockedListener = userRef.child('isBlocked').on('value', (snapshot) => {
+            const blockedStatus = snapshot.val() || false;
+            handleBlockingStatus(blockedStatus);
+        });
+    }
+    function setupWithdrawHistoryListener(userRef) {
+        if (withdrawHistoryListener) {
+            // Remove previous listener if exists
+            userRef.child('withdrawHistory').off('value', withdrawHistoryListener);
+        }
+        // Set up new listener
+        withdrawHistoryListener = userRef.child('withdrawHistory').on('value', (snapshot) => {
+            const history = snapshot.val();
+            if (history) {
+                withdrawHistory = Object.values(history);
+                // Sort by timestamp descending
+                withdrawHistory.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+            } else {
+                withdrawHistory = [];
+            }
+            // Render history in modal if it's open
+            if (document.getElementById('withdraw-history-modal').classList.contains('active')) {
+                renderWithdrawHistoryModal();
+            }
+        });
+    }
+    function setupPointsBalanceListener(userRef) {
+        if (userPointsBalanceListener) {
+            // Remove previous listener if exists
+            userRef.child('points').off('value', userPointsBalanceListener);
+            userRef.child('balance').off('value', userPointsBalanceListener);
+        }
+        // Set up new listeners for points and balance
+        userPointsBalanceListener = userRef.on('value', (snapshot) => {
+            const userData = snapshot.val();
+            if (userData) {
+                points = userData.points || 0;
+                balance = userData.balance || 0.00;
+                updateDisplay();
+            }
+        });
+    }
+    function setupReferralListener(userRef) {
+        if (referralListener) {
+            // Remove previous listener if exists
+            userRef.child('referralCount').off('value', referralListener);
+            userRef.child('referralEarnings').off('value', referralListener);
+        }
+        // Set up new listeners for referral data
+        referralListener = userRef.on('value', (snapshot) => {
+            const userData = snapshot.val();
+            if (userData) {
+                referralData.referralCount = userData.referralCount || 0;
+                referralData.referralEarnings = userData.referralEarnings || 0;
+                // Update share modal if it's open
+                if (document.getElementById('share-modal').classList.contains('active')) {
+                    updateShareModal();
+                }
+                // Check if referral earnings reached threshold (from Firebase config)
+                if (referralData.referralEarnings >= appConfig.referralClaimThreshold) {
+                    claimReferralEarnings();
+                }
+            }
+        });
+    }
+     // Setup listener for app config changes
+     function setupAppConfigListener() {
+        if (appConfigListener) {
+            // Remove previous listener if exists
+            database.ref('appConfig').off('value', appConfigListener);
+        }
+        // Set up new listener
+        appConfigListener = database.ref('appConfig').on('value', (snapshot) => {
+            const config = snapshot.val();
+            if (config) {
+                appConfig = {
+                    pointsPerAd: config.pointsPerAd || 10,
+                    coinsForConversion: config.coinsForConversion || 1000,
+                    valuePerConversion: config.valuePerConversion || 0.30,
+                    referralRewardCoins: config.referralRewardCoins !== undefined ? config.referralRewardCoins : 10,
+                    referralClaimThreshold: config.referralClaimThreshold !== undefined ? config.referralClaimThreshold : 200,
+                    minWithdrawAmount: config.minWithdrawAmount !== undefined ? config.minWithdrawAmount : 5
+                };
+                console.log("App config updated:", appConfig);
+                // Update UI if needed (e.g., minimum withdraw amount in form)
+                // This is optional, as other values are used dynamically
+                 const withdrawAmountInput = document.getElementById('withdrawAmount');
+                if (withdrawAmountInput) {
+                     withdrawAmountInput.min = appConfig.minWithdrawAmount;
+                }
+            }
+        });
+    }
+    // Claim referral earnings (convert to main balance)
+    async function claimReferralEarnings() {
+        if (!tgUser || !tgUser.id) return;
+        try {
+            // Calculate coins and value
+            const coinsToClaim = appConfig.referralClaimThreshold;
+            const valueToClaim = (coinsToClaim / appConfig.coinsForConversion) * appConfig.valuePerConversion;
+            // Update user's main balance
+            points += coinsToClaim;
+            balance += valueToClaim;
+            // Reset referral earnings
+            referralData.referralEarnings -= coinsToClaim;
+            referralData.referralCount = referralData.referralCount; // Keep count unchanged
+            // Update Firebase
+            await database.ref('users/' + tgUser.id).update({
+                points: points,
+                balance: balance,
+                referralEarnings: referralData.referralEarnings
+            });
+            // Update display
+            updateDisplay();
+            // Show notification
+            showMessageModal('Success', `Congratulations! You've claimed ${appConfig.referralClaimThreshold} referral coins ($${valueToClaim.toFixed(2)}) and they've been added to your main balance.`);
+        } catch (error) {
+            console.error("Error claiming referral earnings:", error);
+            showMessageModal('Error', 'Failed to claim referral earnings. Please try again.');
+        }
+    }
+    function handleBlockingStatus(blockedStatus) {
+        if (blockedStatus !== isBlocked) {
+            isBlocked = blockedStatus;
             if (isBlocked) {
                 showBlockedView();
-                return;
-            }
-
-            // Prevent multiple simultaneous requests using flag
-            if (isWithdrawRequestPending) {
-                console.log("Withdrawal request already in progress.");
-                showMessageModal('Wait', 'A withdrawal request is already being processed. Please wait.');
-                return;
-            }
-
-            const requestBtn = document.getElementById('request-withdraw-btn');
-            requestBtn.disabled = true; // Disable button immediately on click
-
-            // Validation
-            const paymentMethod = document.getElementById('paymentMethod').value;
-            const mobileNumber = document.getElementById('mobileNumber').value.trim();
-            const amount = parseFloat(document.getElementById('withdrawAmount').value);
-
-            if (!mobileNumber) {
-                showMessageModal('Error', 'Please enter your mobile number.');
-                requestBtn.disabled = false; // Re-enable button
-                return;
-            }
-
-            if (!amount || isNaN(amount) || amount < appConfig.minWithdrawAmount) {
-                showMessageModal('Error', `Minimum withdrawal amount is $${appConfig.minWithdrawAmount.toFixed(2)}.`);
-                requestBtn.disabled = false; // Re-enable button
-                return;
-            }
-
-            if (amount > balance) {
-                showMessageModal('Error', 'Insufficient balance.');
-                requestBtn.disabled = false; // Re-enable button
-                return;
-            }
-
-            // --- Double Request Prevention Logic ---
-            isWithdrawRequestPending = true;
-            requestBtn.textContent = 'Requesting...';
-            requestBtn.classList.remove('primary-button');
-            requestBtn.classList.add('requesting-button');
-
-            try {
-                // 1. Check for existing pending/processing requests in Firebase
-                const userRef = database.ref('users/' + tgUser.id);
-                const withdrawHistorySnapshot = await userRef.child('withdrawHistory').orderByChild('status').equalTo('Pending').once('value');
-                const pendingRequests = withdrawHistorySnapshot.val();
-
-                if (pendingRequests) {
-                    // Check for Processing status too
-                    const processingSnapshot = await userRef.child('withdrawHistory').orderByChild('status').equalTo('Processing').once('value');
-                    const processingRequests = processingSnapshot.val();
-
-                    if (processingRequests) {
-                        // Combine pending and processing requests
-                        const allActiveRequests = { ...pendingRequests, ...processingRequests };
-                        if (Object.keys(allActiveRequests).length > 0) {
-                             showMessageModal('Request Pending', 'You already have a pending or processing withdrawal request. Please wait for it to be completed before submitting another.');
-                            // Reset button state
-                            requestBtn.textContent = 'Request Withdrawal';
-                            requestBtn.classList.remove('requesting-button');
-                            requestBtn.classList.add('primary-button');
-                            requestBtn.disabled = false;
-                            isWithdrawRequestPending = false;
-                            return;
-                        }
-                    } else if (Object.keys(pendingRequests).length > 0) {
-                        showMessageModal('Request Pending', 'You already have a pending withdrawal request. Please wait for it to be processed before submitting another.');
-                        // Reset button state
-                        requestBtn.textContent = 'Request Withdrawal';
-                        requestBtn.classList.remove('requesting-button');
-                        requestBtn.classList.add('primary-button');
-                        requestBtn.disabled = false;
-                        isWithdrawRequestPending = false;
-                        return;
-                    }
-                } else {
-                    // Also check for Processing status if no Pending found
-                    const processingSnapshot = await userRef.child('withdrawHistory').orderByChild('status').equalTo('Processing').once('value');
-                    const processingRequests = processingSnapshot.val();
-                     if (processingRequests && Object.keys(processingRequests).length > 0) {
-                         showMessageModal('Request Pending', 'You already have a processing withdrawal request. Please wait for it to be completed before submitting another.');
-                        // Reset button state
-                        requestBtn.textContent = 'Request Withdrawal';
-                        requestBtn.classList.remove('requesting-button');
-                        requestBtn.classList.add('primary-button');
-                        requestBtn.disabled = false;
-                        isWithdrawRequestPending = false;
-                        return;
-                    }
+                disableUI();
+            } else {
+                // Re-enable UI if unblocked
+                enableUI();
+                // Optionally switch back to home view if currently on blocked view
+                if (document.getElementById('blocked-view').classList.contains('active')) {
+                    showView('home-view');
                 }
+            }
+        }
+    }
+    async function saveUserData() {
+        if (!tgUser || !tgUser.id) return;
+        try {
+            await database.ref('users/' + tgUser.id).update({
+                points: points,
+                balance: balance,
+                historyLog: historyLog
+            });
+        } catch (error) {
+            console.error("Failed to save user ", error);
+        }
+    }
+    // --- View Management ---
+    function showView(viewId) {
+        // Prevent navigation if user is blocked (except to blocked view)
+        if (isBlocked && viewId !== 'blocked-view') {
+            showBlockedView();
+            return;
+        }
+        document.querySelectorAll('.view').forEach(view => view.classList.remove('active'));
+        document.getElementById(viewId).classList.add('active');
+        document.querySelectorAll('.nav-button').forEach(btn => btn.classList.remove('active'));
+        const activeBtn = document.querySelector(`.nav-button[onclick="showView('${viewId}')"]`);
+        if(activeBtn) activeBtn.classList.add('active');
+        if (viewId === 'history-view') renderHistory();
+    }
+    function showBlockedView() {
+        isBlocked = true;
+        showView('blocked-view');
+        // --- Hide the footer when blocked view is shown ---
+        document.querySelector('.footer-nav').classList.add('hide-footer');
+        // --- Ensure the Telegram button is not disabled ---
+        const telegramBtn = document.querySelector('.telegram-button');
+        if (telegramBtn) {
+            telegramBtn.classList.remove('disabled');
+        }
+        disableUI();
+    }
+    function disableUI() {
+        // Add 'disabled' class to interactive elements
+        // --- Exclude the Telegram button from being disabled ---
+        document.querySelectorAll('.task-card, .nav-button, .action-button:not(.telegram-button)').forEach(el => {
+            el.classList.add('disabled');
+        });
+        // Disable specific buttons that might not have the class
+        const withdrawBtn = document.querySelector('.task-card[onclick="showView(\'withdraw-view\')"]');
+        if (withdrawBtn) withdrawBtn.classList.add('disabled');
+        const taskBtns = document.querySelectorAll('.task-card[onclick^="showAd"]');
+        taskBtns.forEach(btn => btn.classList.add('disabled'));
+    }
+    function enableUI() {
+        // Remove 'disabled' class from interactive elements
+        document.querySelectorAll('.task-card, .nav-button, .action-button').forEach(el => {
+            el.classList.remove('disabled');
+        });
+        // Enable specific buttons
+        const withdrawBtn = document.querySelector('.task-card[onclick="showView(\'withdraw-view\')"]');
+        if (withdrawBtn) withdrawBtn.classList.remove('disabled');
+        const taskBtns = document.querySelectorAll('.task-card[onclick^="showAd"]');
+        taskBtns.forEach(btn => btn.classList.remove('disabled'));
+        // --- Show the footer when UI is enabled (e.g., user unblocked) ---
+        document.querySelector('.footer-nav').classList.remove('hide-footer');
+    }
+    function updateDisplay() {
+        document.getElementById('points-value').textContent = points.toLocaleString();
+        document.getElementById('balance-value').textContent = `$${balance.toFixed(2)}`;
+    }
+    // --- User & Profile ---
+    function loadTelegramUser() {
+        if (tgUser) {
+            document.getElementById('username').textContent = tgUser.first_name || 'Telegram User';
+            const profilePicDiv = document.getElementById('profile-pic');
+            if (tgUser.photo_url) {
+                profilePicDiv.innerHTML = `<img src="${tgUser.photo_url}" alt="P">`;
+            } else {
+                profilePicDiv.textContent = (tgUser.first_name || 'U').charAt(0);
+            }
+        }
+    }
+    // --- History Logic ---
+    function addToHistory(type, detail) {
+        const timestamp = new Date().toISOString();
+        historyLog.unshift({ type, detail, timestamp });
+        if (historyLog.length > 50) historyLog.pop();
+        saveUserData();
+    }
+    function renderHistory() {
+        const list = document.getElementById('history-list');
+        if (historyLog.length === 0) {
+            list.innerHTML = `<div class="list-item"><div class="info"><div class="name">No activity yet.</div><div class="detail">Watch some ads to get started!</div></div></div>`;
+            return;
+        }
+        list.innerHTML = historyLog.map(item => {
+            const icon = item.type === 'earn'
+                ? '<i class="fa-solid fa-plus-circle" style="color: var(--primary-color);"></i>'
+                : '<i class="fa-solid fa-paper-plane" style="color: var(--accent-color);"></i>';
+            return `
+                <div class="list-item">
+                    <div class="history-icon">${icon}</div>
+                    <div class="info">
+                        <div class="name">${item.detail}</div>
+                        <div class="detail">${new Date(item.timestamp).toLocaleString()}</div>
+                    </div>
+                </div>`;
+        }).join('');
+    }
+    // --- Withdraw History Modal Logic ---
+    function openWithdrawHistoryModal() {
+        renderWithdrawHistoryModal();
+        document.getElementById('withdraw-history-modal').classList.add('active');
+    }
+    function closeWithdrawHistoryModal() {
+        document.getElementById('withdraw-history-modal').classList.remove('active');
+    }
+    function renderWithdrawHistoryModal() {
+        const list = document.getElementById('withdraw-history-modal-list');
+        if (withdrawHistory.length === 0) {
+            list.innerHTML = '<p style="text-align: center; color: var(--text-muted-color);">No withdrawal history found.</p>';
+            return;
+        }
+        list.innerHTML = withdrawHistory.map(item => {
+            const statusClass = `status-${item.status.toLowerCase()}`;
+            return `
+                <div class="list-item">
+                    <div class="info">
+                        <div class="name">$${parseFloat(item.amount).toFixed(2)} via ${item.method}</div>
+                        <div class="detail">${item.mobileNumber}</div>
+                        <div class="detail">${new Date(item.timestamp).toLocaleString()}</div>
+                    </div>
+                    <div class="${statusClass}">${item.status}</div>
+                </div>`;
+        }).join('');
+    }
+    // --- Share Modal Logic ---
+    function openShareModal() {
+        if (isBlocked) {
+            showBlockedView();
+            return;
+        }
+        // Generate referral link
+        const botUsername = "TKBD5_bot";
+        const referralLink = `https://t.me/${botUsername}?start=${tgUser.id}`;
+        document.getElementById('referral-link').value = referralLink;
+        // Update modal content
+        updateShareModal();
+        // Show modal
+        document.getElementById('share-modal').classList.add('active');
+    }
+    function closeShareModal() {
+        document.getElementById('share-modal').classList.remove('active');
+    }
+    function updateShareModal() {
+        document.getElementById('referral-count').textContent = referralData.referralCount;
+        document.getElementById('referral-earnings').textContent = referralData.referralEarnings;
+    }
+    function copyReferralLink() {
+        const referralLinkInput = document.getElementById('referral-link');
+        referralLinkInput.select();
+        document.execCommand('copy');
+        showMessageModal('Success', 'Referral link copied to clipboard!');
+    }
+    function shareOnTelegram() {
+        const referralLink = document.getElementById('referral-link').value;
+        const text = "🎉 Join this amazing bot and start earning! Use my link to get a special bonus:";
+        const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(referralLink)}&text=${encodeURIComponent(text)}`;
+        Telegram.WebApp.openTelegramLink(shareUrl);
+    }
+    // --- Leaderboard Logic (kept for compatibility) ---
+    function renderLeaderboard() {
+        const leaderboardData = [
+            { name: "CryptoKing", score: 25400, avatar: "https://i.pravatar.cc/150?img=1" },
+            { name: "Elena", score: 22100, avatar: "https://i.pravatar.cc/150?img=2" },
+            { name: "ProMiner", score: 19800, avatar: "https://i.pravatar.cc/150?img=3" },
+            { name: "Aisha", score: 17500, avatar: "https://i.pravatar.cc/150?img=4" },
+            { name: "BotMaster", score: 15300, avatar: "https://i.pravatar.cc/150?img=5" },
+        ];
+        // This function is kept but not used in current UI
+    }
+    // --- Earning Functions ---
+    function grantReward() {
+        if (isBlocked) {
+            showBlockedView();
+            return;
+        }
+        // Add coins for watching ad (from Firebase config)
+        points += appConfig.pointsPerAd;
+        // Calculate balance dynamically from Firebase config
+        balance = (points / appConfig.coinsForConversion) * appConfig.valuePerConversion;
+        updateDisplay();
+        addToHistory('earn', `+${appConfig.pointsPerAd} Coin(s) from Ad`);
+        saveUserData();
+        Telegram.WebApp.HapticFeedback.notificationOccurred('success');
+        showMessageModal('Success', `Congratulations! You've earned +${appConfig.pointsPerAd} coins. Your new balance is $${balance.toFixed(2)}.`);
+    }
+    // Function to show the ad using the original Monetag zone
+    function showAd() {
+        if (isBlocked) {
+            showBlockedView();
+            return;
+        }
+        // Prevent double click by disabling the button immediately
+        const taskCard = event.currentTarget; // Get the clicked task card
+        if (taskCard.classList.contains('disabled')) {
+            return; // Already processing
+        }
+        taskCard.classList.add('disabled'); // Disable the button
+        // Check if the Monetag SDK function is available
+        if (typeof show_9807992 === 'function') {
+            // Call the Monetag function to show the ad
+            show_9807992().then(() => {
+                // Ad shown successfully (or user interacted)
+                grantReward(); // Grant reward after ad interaction
+                taskCard.classList.remove('disabled'); // Re-enable the button
+            }).catch((error) => {
+                // Handle errors, e.g., ad failed to load
+                console.error("Ad could not be shown:", error);
+                showMessageModal('Error', "Sorry, the ad could not be loaded. Please try again.");
+                taskCard.classList.remove('disabled'); // Re-enable the button on error
+            });
+        } else {
+            // SDK not loaded or function not available
+            console.warn("Monetag SDK is not ready yet.");
+            showMessageModal('Warning', "Ad provider is not ready. Please try again in a moment.");
+            taskCard.classList.remove('disabled'); // Re-enable the button
+        }
+    }
+    // Function to show the ad using the new Monetag zone 9702109
+    function showAdOne() {
+        if (isBlocked) {
+            showBlockedView();
+            return;
+        }
+        // Prevent double click by disabling the button immediately
+        const taskCard = event.currentTarget; // Get the clicked task card
+        if (taskCard.classList.contains('disabled')) {
+            return; // Already processing
+        }
+        taskCard.classList.add('disabled'); // Disable the button
+        // Check if the Monetag SDK function is available
+        if (typeof show_9702109 === 'function') {
+            // Call the Monetag function to show the ad
+            show_9702109().then(() => {
+                // Ad shown successfully (or user interacted)
+                grantReward(); // Grant reward after ad interaction
+                taskCard.classList.remove('disabled'); // Re-enable the button
+            }).catch((error) => {
+                // Handle errors, e.g., ad failed to load
+                console.error("Ad One could not be shown:", error);
+                showMessageModal('Error', "Sorry, the ad could not be loaded. Please try again.");
+                taskCard.classList.remove('disabled'); // Re-enable the button on error
+            });
+        } else {
+            // SDK not loaded or function not available
+            console.warn("Monetag SDK for Ad One is not ready yet.");
+            showMessageModal('Warning', "Ad provider is not ready. Please try again in a moment.");
+            taskCard.classList.remove('disabled'); // Re-enable the button
+        }
+    }
+    // Function to show the ad using the new Monetag zone 9292001
+    function showAdTwo() {
+        if (isBlocked) {
+            showBlockedView();
+            return;
+        }
+        // Prevent double click by disabling the button immediately
+        const taskCard = event.currentTarget; // Get the clicked task card
+        if (taskCard.classList.contains('disabled')) {
+            return; // Already processing
+        }
+        taskCard.classList.add('disabled'); // Disable the button
+        // Check if the Monetag SDK function is available
+        if (typeof show_9292001 === 'function') {
+            // Call the Monetag function to show the ad
+            show_9292001().then(() => {
+                // Ad shown successfully (or user interacted)
+                grantReward(); // Grant reward after ad interaction
+                taskCard.classList.remove('disabled'); // Re-enable the button
+            }).catch((error) => {
+                // Handle errors, e.g., ad failed to load
+                console.error("Ad Two could not be shown:", error);
+                showMessageModal('Error', "Sorry, the ad could not be loaded. Please try again.");
+                taskCard.classList.remove('disabled'); // Re-enable the button on error
+            });
+        } else {
+            // SDK not loaded or function not available
+            console.warn("Monetag SDK for Ad Two is not ready yet.");
+            showMessageModal('Warning', "Ad provider is not ready. Please try again in a moment.");
+            taskCard.classList.remove('disabled'); // Re-enable the button
+        }
+    }
+    // --- Withdrawal Logic ---
+    function resetWithdrawButton() {
+        const requestBtn = document.getElementById('requestWithdrawBtn');
+        requestBtn.textContent = 'Request Withdrawal';
+        requestBtn.classList.remove('requesting-button');
+        requestBtn.classList.add('primary-button');
+        requestBtn.disabled = false;
+    }
 
-                // 2. If no conflicting requests, proceed to create the new one
-                // Create withdraw request with Pending status
-                const withdrawRequest = {
-                    id: Date.now().toString(), // This should be unique per request
-                    userId: tgUser.id,
-                    username: tgUser.username || 'Unknown',
-                    method: paymentMethod,
-                    mobileNumber: mobileNumber,
-                    amount: amount.toFixed(2),
-                    status: 'Pending',
-                    timestamp: new Date().toISOString()
-                };
+    function requestWithdraw() {
+        if (isBlocked) {
+            showBlockedView();
+            return;
+        }
 
-                // Save to Firebase
-                await userRef.child('withdrawHistory').push(withdrawRequest);
+        // Prevent multiple simultaneous requests using flag
+        if (isWithdrawRequestPending) {
+            console.log("Withdrawal request already in progress.");
+            return;
+        }
 
+        // Set flag and disable button immediately
+        isWithdrawRequestPending = true;
+        const requestBtn = document.getElementById('requestWithdrawBtn');
+        requestBtn.textContent = 'Requesting...';
+        requestBtn.classList.remove('primary-button');
+        requestBtn.classList.add('requesting-button');
+        requestBtn.disabled = true;
+
+        // Validation
+        const paymentMethod = document.getElementById('paymentMethod').value;
+        const mobileNumber = document.getElementById('mobileNumber').value.trim();
+        const amount = parseFloat(document.getElementById('withdrawAmount').value);
+
+        if (!mobileNumber) {
+            showMessageModal('Error', 'Please enter your mobile number.');
+            resetWithdrawButton();
+            isWithdrawRequestPending = false;
+            return;
+        }
+        if (!amount || isNaN(amount)) {
+            showMessageModal('Error', 'Please enter a valid amount.');
+            resetWithdrawButton();
+            isWithdrawRequestPending = false;
+            return;
+        }
+        if (amount < appConfig.minWithdrawAmount) {
+            showMessageModal('Error', `Minimum withdrawal amount is $${appConfig.minWithdrawAmount.toFixed(2)}.`);
+            resetWithdrawButton();
+            isWithdrawRequestPending = false;
+            return;
+        }
+        if (amount > balance) {
+            showMessageModal('Error', 'Insufficient balance for this withdrawal.');
+            resetWithdrawButton();
+            isWithdrawRequestPending = false;
+            return;
+        }
+
+        // Check for existing pending/processing requests in local array
+        const hasPendingRequest = withdrawHistory.some(request =>
+            request.status === 'Pending' || request.status === 'Processing'
+        );
+
+        if (hasPendingRequest) {
+            showMessageModal('Error', 'You already have a pending or processing withdrawal request. Please wait for it to be completed before submitting a new one.');
+            resetWithdrawButton();
+            isWithdrawRequestPending = false;
+            return;
+        }
+
+        // Create withdraw request with Pending status
+        const withdrawRequest = {
+            id: Date.now().toString(), // This should be unique per request
+            userId: tgUser.id,
+            username: tgUser.username || 'Unknown',
+            method: paymentMethod,
+            mobileNumber: mobileNumber,
+            amount: amount.toFixed(2),
+            status: 'Pending',
+            timestamp: new Date().toISOString()
+        };
+
+        // Save to Firebase
+        const userRef = database.ref('users/' + tgUser.id);
+
+        userRef.child('withdrawHistory').push(withdrawRequest)
+            .then(() => {
                 // Immediately deduct balance and update points in Firebase
                 balance -= amount;
                 // Ensure points are calculated correctly and don't go negative
                 points = Math.max(0, Math.round(balance / appConfig.valuePerConversion * appConfig.coinsForConversion));
                 updateDisplay();
-                await saveUserData();
+                saveUserData();
 
                 // Add to local withdrawHistory array for immediate display in modal if open
                 withdrawHistory.unshift(withdrawRequest);
@@ -892,563 +1125,57 @@
 
                 // Show success message after 3 seconds
                 setTimeout(() => {
-                    showMessageModal('Success', 'Withdrawal request submitted successfully!');
-                    
-                    // Reset button state on success
-                    requestBtn.textContent = 'Request Withdrawal';
-                    requestBtn.classList.remove('requesting-button');
-                    requestBtn.classList.add('primary-button');
-                    requestBtn.disabled = false;
-                    isWithdrawRequestPending = false;
-
+                    showMessageModal('Success', 'Your withdrawal request has been submitted successfully!');
+                    // Reset button state
+                    resetWithdrawButton();
                     // Clear form
                     document.getElementById('mobileNumber').value = '';
                     document.getElementById('withdrawAmount').value = '';
-                }, 3000);
-
-            } catch (error) {
-                console.error("Error submitting withdrawal request:", error);
+                    // Reset flag
+                    isWithdrawRequestPending = false;
+                }, 3000); // 3 seconds delay before showing success message
+            })
+            .catch((error) => {
+                console.error('Error submitting withdrawal request:', error);
                 showMessageModal('Error', 'Failed to submit withdrawal request. Please try again.');
-
                 // Reset button state on error
-                requestBtn.textContent = 'Request Withdrawal';
-                requestBtn.classList.remove('requesting-button');
-                requestBtn.classList.add('primary-button');
-                requestBtn.disabled = false;
+                resetWithdrawButton();
+                // Reset flag
                 isWithdrawRequestPending = false;
-            }
-        }
-
-        // --- Message Modal ---
-        function showMessageModal(title, message) {
-            document.getElementById('message-modal-title').textContent = title;
-            document.getElementById('message-modal-text').textContent = message;
-            document.getElementById('message-modal').classList.add('active');
-        }
-
-        // --- View Management ---
-        function showView(viewId) {
-            // Prevent navigation if user is blocked (except to blocked view)
-            if (isBlocked && viewId !== 'blocked-view') {
-                showBlockedView();
-                return;
-            }
-
-            document.querySelectorAll('.view').forEach(view => view.classList.remove('active'));
-            document.getElementById(viewId).classList.add('active');
-            
-            // Update active nav button
-            document.querySelectorAll('.nav-button').forEach(btn => btn.classList.remove('active'));
-            event.currentTarget?.classList?.add('active') || 
-                document.querySelector(`.nav-button[onclick="showView('${viewId}')"]`)?.classList?.add('active');
-            
-            // Load data for the view if needed
-            if (viewId === 'tasks-view') {
-                loadTasks();
-            } else if (viewId === 'history-view') {
-                loadHistory();
-            } else if (viewId === 'withdraw-view') {
-                 // Update min withdraw amount display
-                document.getElementById('min-withdraw-amount').textContent = appConfig.minWithdrawAmount.toFixed(2);
-            }
-        }
-
-        function showBlockedView() {
-            showView('blocked-view');
-            disableUI();
-        }
-
-        function disableUI() {
-            document.querySelector('.footer-nav').classList.add('hide-footer');
-            document.querySelectorAll('.action-button, .nav-button, input, select').forEach(el => {
-                el.classList.add('disabled');
             });
-        }
-
-        function enableUI() {
-            document.querySelector('.footer-nav').classList.remove('hide-footer');
-            document.querySelectorAll('.action-button, .nav-button, input, select').forEach(el => {
-                el.classList.remove('disabled');
-            });
-        }
-
-        // --- User & Profile ---
-        function loadTelegramUser() {
-            // In a real app, this would come from the Telegram WebApp SDK
-            // For simulation, we'll use a mock user
-            tgUser = {
-                id: "123456789", // Simulated user ID
-                first_name: "John",
-                last_name: "Doe",
-                username: "johndoe",
-                photo_url: "" // Add a URL if you have a test image
-            };
-
-            if (tgUser) {
-                document.getElementById('username').textContent = tgUser.first_name || 'Telegram User';
-                
-                const profilePicDiv = document.getElementById('profile-pic');
-                if (tgUser.photo_url) {
-                    profilePicDiv.innerHTML = `<img src="${tgUser.photo_url}" alt="Profile Picture">`;
-                } else {
-                    // Use first letter of first name or username
-                    const firstLetter = (tgUser.first_name?.[0] || tgUser.username?.[0] || 'U').toUpperCase();
-                    profilePicDiv.innerHTML = `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background-color:var(--secondary-color);color:var(--text-color);font-weight:bold;">${firstLetter}</div>`;
-                }
-                
-                // Load user data from Firebase
-                loadUserData();
-                setupRealTimeListeners();
-            }
-        }
-
-        async function loadUserData() {
-            if (!tgUser || !tgUser.id) return Promise.resolve(); // Resolve immediately if no user ID
-
-            try {
-                const userRef = database.ref('users/' + tgUser.id);
-                const snapshot = await userRef.once('value');
-                const userData = snapshot.val();
-
-                if (userData) {
-                    points = userData.points || 0;
-                    balance = userData.balance || 0.00;
-                    historyLog = userData.historyLog || [];
-                    isBlocked = userData.isBlocked || false;
-                    referralData.referralCount = userData.referralCount || 0;
-                    referralData.referralEarnings = userData.referralEarnings || 0;
-                    
-                    updateDisplay();
-
-                    // Only show blocked view if user is actually blocked
-                    if (isBlocked) {
-                        showBlockedView();
-                    }
-                } else {
-                    // Create new user if not exists
-                    await createUserInDatabase();
-                }
-            } catch (error) {
-                console.error("Error loading user data:", error);
-            }
-        }
-
-        async function createUserInDatabase() {
-            if (!tgUser || !tgUser.id) return;
-
-            const newUser = {
-                userId: tgUser.id,
-                username: tgUser.username || 'Unknown',
-                points: 0,
-                balance: 0.00,
-                historyLog: [],
-                isBlocked: false,
-                referralCount: 0,
-                referralEarnings: 0,
-                createdAt: new Date().toISOString()
-            };
-
-            try {
-                await database.ref('users/' + tgUser.id).set(newUser);
-                points = newUser.points;
-                balance = newUser.balance;
-                historyLog = newUser.historyLog;
-                isBlocked = newUser.isBlocked;
-                referralData.referralCount = newUser.referralCount;
-                referralData.referralEarnings = newUser.referralEarnings;
-                updateDisplay();
-            } catch (error) {
-                console.error("Error creating user:", error);
-            }
-        }
-
-        function setupRealTimeListeners() {
-            if (!tgUser || !tgUser.id) return;
-
+    }
+    // --- Message Modal ---
+    function showMessageModal(title, message) {
+        document.getElementById('message-modal-title').textContent = title;
+        document.getElementById('message-modal-text').textContent = message;
+        document.getElementById('message-modal').classList.add('active');
+    }
+    function closeMessageModal() {
+        document.getElementById('message-modal').classList.remove('active');
+    }
+    // Cleanup listener on unload
+    window.addEventListener('beforeunload', () => {
+        if (userBlockedListener && tgUser && tgUser.id) {
             const userRef = database.ref('users/' + tgUser.id);
-
-            // Set up listener for points and balance
-            setupPointsBalanceListener(userRef);
-
-            // Set up listener for referral data
-            setupReferralListener(userRef);
-
-             // Set up listener for withdraw history
-            setupWithdrawHistoryListener(userRef);
-
-            // Set up listener for app config
-            setupAppConfigListener();
-
-            // Set up listener for tasks
-            setupTasksListener();
+            userRef.child('isBlocked').off('value', userBlockedListener);
         }
-
-        function setupPointsBalanceListener(userRef) {
-            if (userPointsBalanceListener) {
-                // Remove previous listener if exists
-                userRef.child('points').off('value', userPointsBalanceListener);
-                userRef.child('balance').off('value', userPointsBalanceListener);
-            }
-
-            // Set up new listeners for points and balance
-            userPointsBalanceListener = userRef.on('value', (snapshot) => {
-                const userData = snapshot.val();
-                if (userData) {
-                    points = userData.points || 0;
-                    balance = userData.balance || 0.00;
-                    updateDisplay();
-                }
-            });
+        if (withdrawHistoryListener && tgUser && tgUser.id) {
+            const userRef = database.ref('users/' + tgUser.id);
+            userRef.child('withdrawHistory').off('value', withdrawHistoryListener);
         }
-
-        function setupReferralListener(userRef) {
-            if (referralListener) {
-                // Remove previous listener if exists
-                userRef.child('referralCount').off('value', referralListener);
-                userRef.child('referralEarnings').off('value', referralListener);
-            }
-
-            // Set up new listener for referral data
-            referralListener = userRef.on('value', (snapshot) => {
-                const userData = snapshot.val();
-                if (userData) {
-                    referralData.referralCount = userData.referralCount || 0;
-                    referralData.referralEarnings = userData.referralEarnings || 0;
-                    // Update UI if needed
-                }
-            });
+        if (userPointsBalanceListener && tgUser && tgUser.id) {
+            const userRef = database.ref('users/' + tgUser.id);
+            userRef.off('value', userPointsBalanceListener);
         }
-
-        function setupWithdrawHistoryListener(userRef) {
-             if (withdrawHistoryListener) {
-                // Remove previous listener if exists
-                userRef.child('withdrawHistory').off('value', withdrawHistoryListener);
-            }
-
-            // Set up new listener for withdraw history
-             withdrawHistoryListener = userRef.child('withdrawHistory').on('value', (snapshot) => {
-                const historyData = snapshot.val();
-                withdrawHistory = [];
-                if (historyData) {
-                    // Convert object to array and sort by timestamp
-                    for (const key in historyData) {
-                        withdrawHistory.push({ id: key, ...historyData[key] });
-                    }
-                    withdrawHistory.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-                }
-                // Update modal if it's open
-                if (document.getElementById('withdraw-history-modal').classList.contains('active')) {
-                    renderWithdrawHistoryModal();
-                }
-            });
+        if (referralListener && tgUser && tgUser.id) {
+            const userRef = database.ref('users/' + tgUser.id);
+            userRef.child('referralCount').off('value', referralListener);
+            userRef.child('referralEarnings').off('value', referralListener);
         }
-
-        function setupAppConfigListener() {
-            if (appConfigListener) {
-                // Remove previous listener if exists
-                database.ref('appConfig').off('value', appConfigListener);
-            }
-
-            // Set up new listener for app config
-            appConfigListener = database.ref('appConfig').on('value', (snapshot) => {
-                const configData = snapshot.val();
-                if (configData) {
-                    appConfig = { ...appConfig, ...configData };
-                    // Update UI that depends on config
-                    const minWithdrawElement = document.getElementById('min-withdraw-amount');
-                    if (minWithdrawElement) {
-                        minWithdrawElement.textContent = appConfig.minWithdrawAmount.toFixed(2);
-                    }
-                    // This is optional, as other values are used dynamically
-                    const withdrawAmountInput = document.getElementById('withdrawAmount');
-                    if (withdrawAmountInput) {
-                        withdrawAmountInput.min = appConfig.minWithdrawAmount;
-                    }
-                }
-            });
+         if (appConfigListener) {
+            database.ref('appConfig').off('value', appConfigListener);
         }
-
-        function setupTasksListener() {
-            if (tasksListener) {
-                // Remove previous listener if exists
-                database.ref('tasks').off('value', tasksListener);
-            }
-
-            // Set up new listener for tasks
-            tasksListener = database.ref('tasks').on('value', (snapshot) => {
-                const tasksData = snapshot.val();
-                tasks = [];
-                if (tasksData) {
-                    // Convert object to array
-                    for (const key in tasksData) {
-                        tasks.push({ id: key, ...tasksData[key] });
-                    }
-                }
-                // Update UI if tasks view is active
-                if (document.getElementById('tasks-view').classList.contains('active')) {
-                    renderTasks();
-                }
-            });
-        }
-
-        async function saveUserData() {
-            if (!tgUser || !tgUser.id) return;
-
-            try {
-                await database.ref('users/' + tgUser.id).update({
-                    points: points,
-                    balance: balance,
-                    historyLog: historyLog
-                });
-            } catch (error) {
-                console.error("Failed to save user ", error);
-            }
-        }
-
-        function updateDisplay() {
-            document.getElementById('points-value').textContent = points.toLocaleString();
-            document.getElementById('balance-value').textContent = `$${balance.toFixed(2)}`;
-        }
-
-        // --- Tasks ---
-        function loadTasks() {
-            // Tasks are loaded via real-time listener, so just render if data is available
-            renderTasks();
-        }
-
-        function renderTasks() {
-            const tasksList = document.getElementById('tasks-list');
-            if (tasks.length === 0) {
-                tasksList.innerHTML = '<div class="loading">No tasks available at the moment.</div>';
-                return;
-            }
-
-            tasksList.innerHTML = tasks.map(task => `
-                <div class="task-item">
-                    <div class="task-info">
-                        <div class="task-title">${task.title}</div>
-                        <div class="task-description">${task.description}</div>
-                        <div class="task-reward">+${task.reward} points</div>
-                    </div>
-                    <button class="action-button secondary-button" onclick="completeTask('${task.id}')">
-                        Complete
-                    </button>
-                </div>
-            `).join('');
-        }
-
-        async function completeTask(taskId) {
-            // In a real app, this would involve verifying the task completion (e.g., checking if a link was visited)
-            // For simulation, we'll just add points
-            const task = tasks.find(t => t.id === taskId);
-            if (!task) return;
-
-            points += task.reward;
-            // Update balance based on points
-            balance = (points / appConfig.coinsForConversion) * appConfig.valuePerConversion;
-            updateDisplay();
-            await saveUserData();
-            
-            // Add to history
-            addToHistory('task', `Completed task: ${task.title}`, task.reward);
-            
-            showMessageModal('Success', `You earned ${task.reward} points!`);
-            
-            // Re-render tasks to reflect completion (in a real app, you'd mark it as completed in the DB)
-            renderTasks();
-        }
-
-        // --- History ---
-        function loadHistory() {
-            renderHistory();
-        }
-
-        function renderHistory() {
-            const historyList = document.getElementById('history-list');
-            if (historyLog.length === 0) {
-                historyList.innerHTML = '<div class="loading">No activity yet.</div>';
-                return;
-            }
-
-            // Sort history by timestamp (newest first)
-            const sortedHistory = [...historyLog].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-
-            historyList.innerHTML = sortedHistory.map(item => {
-                let typeClass = '';
-                if (item.type === 'claim') typeClass = 'claim';
-                else if (item.type === 'task') typeClass = 'task';
-                else if (item.type === 'withdraw') typeClass = 'withdraw';
-
-                return `
-                    <div class="history-item">
-                        <span class="history-item-type ${typeClass}">
-                            [${item.type.toUpperCase()}]
-                        </span>
-                        ${item.description}
-                        <div class="history-item-details">
-                            <span>${item.amount ? `${item.amount > 0 ? '+' : ''}${item.amount}` : ''}</span>
-                            <span>${new Date(item.timestamp).toLocaleString()}</span>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        function addToHistory(type, description, amount = null) {
-            const historyItem = {
-                type: type,
-                description: description,
-                amount: amount,
-                timestamp: new Date().toISOString()
-            };
-            historyLog.unshift(historyItem); // Add to the beginning
-            // Keep only the last 50 items
-            if (historyLog.length > 50) {
-                historyLog = historyLog.slice(0, 50);
-            }
-            renderHistory(); // Update history view if it's open
-        }
-
-        // --- Withdraw History Modal Logic ---
-        function openWithdrawHistoryModal() {
-            renderWithdrawHistoryModal();
-            document.getElementById('withdraw-history-modal').classList.add('active');
-        }
-
-        function closeWithdrawHistoryModal() {
-            document.getElementById('withdraw-history-modal').classList.remove('active');
-        }
-
-        function renderWithdrawHistoryModal() {
-            const list = document.getElementById('withdraw-history-modal-list');
-            if (withdrawHistory.length === 0) {
-                list.innerHTML = '<div class="loading">No withdrawal history yet.</div>';
-                return;
-            }
-
-            list.innerHTML = withdrawHistory.map(item => {
-                let statusClass = '';
-                if (item.status === 'Pending') statusClass = 'status-pending';
-                else if (item.status === 'Processing') statusClass = 'status-processing';
-                else if (item.status === 'Success') statusClass = 'status-success';
-                else if (item.status === 'Rejected') statusClass = 'status-rejected';
-
-                return `
-                    <div class="withdraw-history-item">
-                        <div class="withdraw-history-header">
-                            <span class="withdraw-method">${item.method.toUpperCase()}</span>
-                            <span class="withdraw-amount">$${item.amount}</span>
-                        </div>
-                        <div class="withdraw-status ${statusClass}">${item.status}</div>
-                        <div class="withdraw-details">
-                            <span>${item.mobileNumber}</span>
-                            <span>${new Date(item.timestamp).toLocaleString()}</span>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        // --- Referral ---
-        function shareReferralLink() {
-            // In a real app, this would generate a real referral link
-            const referralLink = `https://t.me/YourBotName?start=${tgUser.id}`;
-            // Use Telegram's built-in share function if available, otherwise prompt to copy
-            if (window.Telegram && window.Telegram.WebApp) {
-                window.Telegram.WebApp.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(referralLink)}&text=${encodeURIComponent('Join me on this awesome app!')}`);
-            } else {
-                // Fallback for browser testing
-                if (navigator.clipboard) {
-                    navigator.clipboard.writeText(referralLink).then(() => {
-                        showMessageModal('Link Copied', 'Your referral link has been copied to the clipboard.');
-                    });
-                } else {
-                    const textArea = document.createElement("textarea");
-                    textArea.value = referralLink;
-                    document.body.appendChild(textArea);
-                    textArea.focus();
-                    textArea.select();
-                    try {
-                        document.execCommand('copy');
-                        showMessageModal('Link Copied', 'Your referral link has been copied to the clipboard.');
-                    } catch (err) {
-                        showMessageModal('Error', 'Failed to copy link. Please try again.');
-                    }
-                    document.body.removeChild(textArea);
-                }
-            }
-        }
-
-        // Claim referral earnings (convert to main balance)
-        async function claimReferralEarnings() {
-            if (!tgUser || !tgUser.id) return;
-
-            try {
-                // Calculate coins and value
-                const coinsToClaim = appConfig.referralClaimThreshold;
-                const valueToClaim = (coinsToClaim / appConfig.coinsForConversion) * appConfig.valuePerConversion;
-
-                // Update user's main balance
-                points += coinsToClaim;
-                balance += valueToClaim;
-                updateDisplay();
-                await saveUserData();
-
-                // Add to activity history
-                addToHistory('claim', `Claimed referral earnings`, `+$${valueToClaim.toFixed(2)}`);
-
-                showMessageModal('Success', `You have claimed $${valueToClaim.toFixed(2)} from your referral earnings!`);
-            } catch (error) {
-                console.error("Error claiming referral earnings:", error);
-                showMessageModal('Error', 'Failed to claim referral earnings. Please try again.');
-            }
-        }
-
-        // --- App Lifecycle ---
-        window.addEventListener('load', () => {
-            // Simulate Telegram Web App initialization
-            // In a real app, you would use: window.Telegram.WebApp.ready();
-            loadTelegramUser();
-        });
-
-        // Handle Telegram back button (if available)
-        window.addEventListener('Telegram.WebApp.BackButtonClicked', () => {
-            // Close modals or navigate back
-            if (document.getElementById('withdraw-history-modal').classList.contains('active')) {
-                closeWithdrawHistoryModal();
-            } else if (document.getElementById('message-modal').classList.contains('active')) {
-                document.getElementById('message-modal').classList.remove('active');
-            } else {
-                // Navigate to home if not already there
-                if (!document.getElementById('home-view').classList.contains('active')) {
-                    showView('home-view');
-                }
-            }
-        });
-
-        // Cleanup listeners on unload
-        window.addEventListener('beforeunload', () => {
-            if (userPointsBalanceListener && tgUser && tgUser.id) {
-                const userRef = database.ref('users/' + tgUser.id);
-                userRef.off('value', userPointsBalanceListener);
-            }
-            if (referralListener && tgUser && tgUser.id) {
-                const userRef = database.ref('users/' + tgUser.id);
-                userRef.child('referralCount').off('value', referralListener);
-                userRef.child('referralEarnings').off('value', referralListener);
-            }
-             if (withdrawHistoryListener && tgUser && tgUser.id) {
-                const userRef = database.ref('users/' + tgUser.id);
-                userRef.child('withdrawHistory').off('value', withdrawHistoryListener);
-            }
-            if (appConfigListener) {
-                database.ref('appConfig').off('value', appConfigListener);
-            }
-             if (tasksListener) {
-                database.ref('tasks').off('value', tasksListener);
-            }
-        });
-    </script>
+    });
+</script>
 </body>
 </html>
-```
