@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -306,8 +307,11 @@
       <div id="blocked-view" class="view">
         <div class="error-message">
           <h2><i class="fa-solid fa-ban"></i> Account Blocked</h2>
-          <p>Your account has been blocked by the administrator.</p>
-          <p>Please contact support for more information.</p>
+          <p>Your account has been blocked. Please contact admin to unblock.</p>
+          <!-- Telegram Contact Button -->
+          <a href="https://t.me/Nikhil_Shaan" target="_blank" rel="noopener noreferrer" class="action-button primary-button" style="display: inline-flex; align-items: center; justify-content: center; text-decoration: none; margin-top: 20px;">
+            <i class="fa-brands fa-telegram" style="margin-right: 8px;"></i> Contact Admin on Telegram
+          </a>
         </div>
       </div>
     </main>
@@ -429,7 +433,6 @@
                 console.log("Telegram user data not available immediately, waiting for Firebase check");
                 showView('home-view'); // Show home view initially
                 loadAppConfig().then(() => {
-                    setupAppConfigListener(); // Setup listener for appConfig
                     loadUserData().then(() => {
                         loadTelegramUser();
                         renderLeaderboard();
@@ -443,7 +446,6 @@
             }
             // Load app configuration and user data
             loadAppConfig().then(() => {
-                setupAppConfigListener(); // Setup listener for appConfig
                 loadUserData().then(() => {
                     loadTelegramUser();
                     showView('home-view');
@@ -461,9 +463,6 @@
             // Don't show blocked view for non-Telegram access, just log
             console.log("This app must be opened in Telegram.");
             showView('home-view'); // Show home view initially
-            loadAppConfig().then(() => {
-                setupAppConfigListener(); // Setup listener for appConfig
-            });
         }
     }
     // --- Firebase Functions ---
@@ -485,30 +484,6 @@
             console.error("Failed to load app config:", error);
             throw error;
         }
-    }
-    // New function to set up real-time listener for appConfig
-    function setupAppConfigListener() {
-        if (appConfigListener) {
-            // Remove previous listener if exists
-            database.ref('appConfig').off('value', appConfigListener);
-        }
-        // Set up new listener
-        appConfigListener = database.ref('appConfig').on('value', (snapshot) => {
-            const config = snapshot.val();
-            if (config) {
-                appConfig = {
-                    pointsPerAd: config.pointsPerAd || 10,
-                    coinsForConversion: config.coinsForConversion || 1000,
-                    valuePerConversion: config.valuePerConversion || 0.30,
-                    referralRewardCoins: config.referralRewardCoins !== undefined ? config.referralRewardCoins : 10,
-                    referralClaimThreshold: config.referralClaimThreshold !== undefined ? config.referralClaimThreshold : 200,
-                    minWithdrawAmount: config.minWithdrawAmount !== undefined ? config.minWithdrawAmount : 5
-                };
-                // Update display if needed (e.g., if values shown somewhere)
-                // For this app, the values are used dynamically, so no explicit UI update is needed here.
-                console.log("App config updated:", appConfig);
-            }
-        });
     }
     async function loadUserData() {
         if (!tgUser || !tgUser.id) return Promise.resolve(); // Resolve immediately if no user ID
@@ -1002,20 +977,24 @@
     // --- Withdrawal Logic ---
     // Flag to prevent multiple withdrawal requests
     let isWithdrawRequestPending = false;
+
     function requestWithdraw() {
         if (isBlocked) {
             showBlockedView();
             return;
         }
+
         // Prevent multiple simultaneous requests using flag
         if (isWithdrawRequestPending) {
             console.log("Withdrawal request already in progress.");
             return;
         }
+
         // Validation
         const paymentMethod = document.getElementById('paymentMethod').value;
         const mobileNumber = document.getElementById('mobileNumber').value.trim();
         const amount = parseFloat(document.getElementById('withdrawAmount').value);
+
         if (!mobileNumber) {
             showMessageModal('Error', 'Please enter your mobile number.');
             return;
@@ -1032,22 +1011,27 @@
             showMessageModal('Error', 'Insufficient balance for this withdrawal.');
             return;
         }
+
         // Check for existing pending/processing requests in local array
         const hasPendingRequest = withdrawHistory.some(request =>
             request.status === 'Pending' || request.status === 'Processing'
         );
+
         if (hasPendingRequest) {
             showMessageModal('Error', 'You already have a pending or processing withdrawal request. Please wait for it to be completed before submitting a new one.');
             return;
         }
+
         // Set flag to indicate a request is in progress
         isWithdrawRequestPending = true;
+
         // Change button to red "Requesting..." state immediately
         const requestBtn = document.getElementById('requestWithdrawBtn');
         requestBtn.textContent = 'Requesting...';
         requestBtn.classList.remove('primary-button');
         requestBtn.classList.add('requesting-button');
         requestBtn.disabled = true;
+
         // Create withdraw request with Pending status
         const withdrawRequest = {
             id: Date.now().toString(), // This should be unique per request
@@ -1059,8 +1043,10 @@
             status: 'Pending',
             timestamp: new Date().toISOString()
         };
+
         // Save to Firebase
         const userRef = database.ref('users/' + tgUser.id);
+
         userRef.child('withdrawHistory').push(withdrawRequest)
             .then(() => {
                 // Immediately deduct balance and update points in Firebase
@@ -1069,13 +1055,16 @@
                 points = Math.max(0, Math.round(balance / appConfig.valuePerConversion * appConfig.coinsForConversion));
                 updateDisplay();
                 saveUserData();
+
                 // Add to local withdrawHistory array for immediate display in modal if open
                 withdrawHistory.unshift(withdrawRequest);
                 if (document.getElementById('withdraw-history-modal').classList.contains('active')) {
                     renderWithdrawHistoryModal();
                 }
+
                 // Add to activity history
                 addToHistory('withdraw', `Request for $${amount.toFixed(2)} via ${paymentMethod}`);
+
                 // Show success message after 3 seconds
                 setTimeout(() => {
                     showMessageModal('Success', 'Your withdrawal request has been submitted successfully!');
@@ -1131,10 +1120,9 @@
             userRef.child('referralCount').off('value', referralListener);
             userRef.child('referralEarnings').off('value', referralListener);
         }
-        if (appConfigListener) {
-            database.ref('appConfig').off('value', appConfigListener);
-        }
     });
 </script>
 </body>
 </html>
+
+```
