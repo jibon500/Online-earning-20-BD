@@ -411,6 +411,7 @@
     let withdrawHistoryListener = null;
     let userPointsBalanceListener = null;
     let referralListener = null;
+    let appConfigListener = null; // New listener for appConfig
     // --- Updated Balance Logic ---
     // Dynamic from Firebase: 1000 coins = 30 cents = $0.30 USD
     // 1 coin = $0.0003 USD (calculated dynamically)
@@ -428,6 +429,7 @@
                 console.log("Telegram user data not available immediately, waiting for Firebase check");
                 showView('home-view'); // Show home view initially
                 loadAppConfig().then(() => {
+                    setupAppConfigListener(); // Setup listener for appConfig
                     loadUserData().then(() => {
                         loadTelegramUser();
                         renderLeaderboard();
@@ -441,6 +443,7 @@
             }
             // Load app configuration and user data
             loadAppConfig().then(() => {
+                setupAppConfigListener(); // Setup listener for appConfig
                 loadUserData().then(() => {
                     loadTelegramUser();
                     showView('home-view');
@@ -458,6 +461,9 @@
             // Don't show blocked view for non-Telegram access, just log
             console.log("This app must be opened in Telegram.");
             showView('home-view'); // Show home view initially
+            loadAppConfig().then(() => {
+                setupAppConfigListener(); // Setup listener for appConfig
+            });
         }
     }
     // --- Firebase Functions ---
@@ -479,6 +485,30 @@
             console.error("Failed to load app config:", error);
             throw error;
         }
+    }
+    // New function to set up real-time listener for appConfig
+    function setupAppConfigListener() {
+        if (appConfigListener) {
+            // Remove previous listener if exists
+            database.ref('appConfig').off('value', appConfigListener);
+        }
+        // Set up new listener
+        appConfigListener = database.ref('appConfig').on('value', (snapshot) => {
+            const config = snapshot.val();
+            if (config) {
+                appConfig = {
+                    pointsPerAd: config.pointsPerAd || 10,
+                    coinsForConversion: config.coinsForConversion || 1000,
+                    valuePerConversion: config.valuePerConversion || 0.30,
+                    referralRewardCoins: config.referralRewardCoins !== undefined ? config.referralRewardCoins : 10,
+                    referralClaimThreshold: config.referralClaimThreshold !== undefined ? config.referralClaimThreshold : 200,
+                    minWithdrawAmount: config.minWithdrawAmount !== undefined ? config.minWithdrawAmount : 5
+                };
+                // Update display if needed (e.g., if values shown somewhere)
+                // For this app, the values are used dynamically, so no explicit UI update is needed here.
+                console.log("App config updated:", appConfig);
+            }
+        });
     }
     async function loadUserData() {
         if (!tgUser || !tgUser.id) return Promise.resolve(); // Resolve immediately if no user ID
@@ -972,24 +1002,20 @@
     // --- Withdrawal Logic ---
     // Flag to prevent multiple withdrawal requests
     let isWithdrawRequestPending = false;
-
     function requestWithdraw() {
         if (isBlocked) {
             showBlockedView();
             return;
         }
-
         // Prevent multiple simultaneous requests using flag
         if (isWithdrawRequestPending) {
             console.log("Withdrawal request already in progress.");
             return;
         }
-
         // Validation
         const paymentMethod = document.getElementById('paymentMethod').value;
         const mobileNumber = document.getElementById('mobileNumber').value.trim();
         const amount = parseFloat(document.getElementById('withdrawAmount').value);
-
         if (!mobileNumber) {
             showMessageModal('Error', 'Please enter your mobile number.');
             return;
@@ -1006,27 +1032,22 @@
             showMessageModal('Error', 'Insufficient balance for this withdrawal.');
             return;
         }
-
         // Check for existing pending/processing requests in local array
         const hasPendingRequest = withdrawHistory.some(request =>
             request.status === 'Pending' || request.status === 'Processing'
         );
-
         if (hasPendingRequest) {
             showMessageModal('Error', 'You already have a pending or processing withdrawal request. Please wait for it to be completed before submitting a new one.');
             return;
         }
-
         // Set flag to indicate a request is in progress
         isWithdrawRequestPending = true;
-
         // Change button to red "Requesting..." state immediately
         const requestBtn = document.getElementById('requestWithdrawBtn');
         requestBtn.textContent = 'Requesting...';
         requestBtn.classList.remove('primary-button');
         requestBtn.classList.add('requesting-button');
         requestBtn.disabled = true;
-
         // Create withdraw request with Pending status
         const withdrawRequest = {
             id: Date.now().toString(), // This should be unique per request
@@ -1038,10 +1059,8 @@
             status: 'Pending',
             timestamp: new Date().toISOString()
         };
-
         // Save to Firebase
         const userRef = database.ref('users/' + tgUser.id);
-
         userRef.child('withdrawHistory').push(withdrawRequest)
             .then(() => {
                 // Immediately deduct balance and update points in Firebase
@@ -1050,16 +1069,13 @@
                 points = Math.max(0, Math.round(balance / appConfig.valuePerConversion * appConfig.coinsForConversion));
                 updateDisplay();
                 saveUserData();
-
                 // Add to local withdrawHistory array for immediate display in modal if open
                 withdrawHistory.unshift(withdrawRequest);
                 if (document.getElementById('withdraw-history-modal').classList.contains('active')) {
                     renderWithdrawHistoryModal();
                 }
-
                 // Add to activity history
                 addToHistory('withdraw', `Request for $${amount.toFixed(2)} via ${paymentMethod}`);
-
                 // Show success message after 3 seconds
                 setTimeout(() => {
                     showMessageModal('Success', 'Your withdrawal request has been submitted successfully!');
@@ -1114,6 +1130,9 @@
             const userRef = database.ref('users/' + tgUser.id);
             userRef.child('referralCount').off('value', referralListener);
             userRef.child('referralEarnings').off('value', referralListener);
+        }
+        if (appConfigListener) {
+            database.ref('appConfig').off('value', appConfigListener);
         }
     });
 </script>
