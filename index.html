@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -210,6 +209,10 @@
         font-size: 14px;
         color: var(--text-muted-color);
     }
+    /* --- New CSS for hiding footer on blocked view --- */
+    .hide-footer {
+        display: none !important;
+    }
   </style>
   <!-- Monetag SDK Scripts -->
   <script src='//libtl.com/sdk.js' data-zone='9807992' data-sdk='show_9807992'></script>
@@ -308,8 +311,8 @@
         <div class="error-message">
           <h2><i class="fa-solid fa-ban"></i> Account Blocked</h2>
           <p>Your account has been blocked. Please contact admin to unblock.</p>
-          <!-- Telegram Contact Button -->
-          <a href="https://t.me/Nikhil_Shaan" target="_blank" rel="noopener noreferrer" class="action-button primary-button" style="display: inline-flex; align-items: center; justify-content: center; text-decoration: none; margin-top: 20px;">
+          <!-- Telegram Contact Button (Special class to avoid disableUI) -->
+          <a href="https://t.me/Nikhil_Shaan" target="_blank" rel="noopener noreferrer" class="action-button primary-button telegram-button" style="display: inline-flex; align-items: center; justify-content: center; text-decoration: none; margin-top: 20px;">
             <i class="fa-brands fa-telegram" style="margin-right: 8px;"></i> Contact Admin on Telegram
           </a>
         </div>
@@ -723,11 +726,19 @@
     function showBlockedView() {
         isBlocked = true;
         showView('blocked-view');
+        // --- Hide the footer when blocked view is shown ---
+        document.querySelector('.footer-nav').classList.add('hide-footer');
+        // --- Ensure the Telegram button is not disabled ---
+        const telegramBtn = document.querySelector('.telegram-button');
+        if (telegramBtn) {
+            telegramBtn.classList.remove('disabled');
+        }
         disableUI();
     }
     function disableUI() {
         // Add 'disabled' class to interactive elements
-        document.querySelectorAll('.task-card, .nav-button, .action-button').forEach(el => {
+        // --- Exclude the Telegram button from being disabled ---
+        document.querySelectorAll('.task-card, .nav-button, .action-button:not(.telegram-button)').forEach(el => {
             el.classList.add('disabled');
         });
         // Disable specific buttons that might not have the class
@@ -746,6 +757,8 @@
         if (withdrawBtn) withdrawBtn.classList.remove('disabled');
         const taskBtns = document.querySelectorAll('.task-card[onclick^="showAd"]');
         taskBtns.forEach(btn => btn.classList.remove('disabled'));
+        // --- Show the footer when UI is enabled (e.g., user unblocked) ---
+        document.querySelector('.footer-nav').classList.remove('hide-footer');
     }
     function updateDisplay() {
         document.getElementById('points-value').textContent = points.toLocaleString();
@@ -1124,5 +1137,3 @@
 </script>
 </body>
 </html>
-
-```
