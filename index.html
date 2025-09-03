@@ -1,4 +1,4 @@
-.
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -210,10 +210,6 @@
         font-size: 14px;
         color: var(--text-muted-color);
     }
-    /* --- New CSS for hiding footer on blocked view --- */
-    .hide-footer {
-        display: none !important;
-    }
   </style>
   <!-- Monetag SDK Scripts -->
   <script src='//libtl.com/sdk.js' data-zone='9807992' data-sdk='show_9807992'></script>
@@ -311,11 +307,8 @@
       <div id="blocked-view" class="view">
         <div class="error-message">
           <h2><i class="fa-solid fa-ban"></i> Account Blocked</h2>
-          <p>Your account has been blocked. Please contact admin to unblock.</p>
-          <!-- Telegram Contact Button (Special class to avoid disableUI) -->
-          <a href="https://t.me/Nikhil_Shaan" target="_blank" rel="noopener noreferrer" class="action-button primary-button telegram-button" style="display: inline-flex; align-items: center; justify-content: center; text-decoration: none; margin-top: 20px;">
-            <i class="fa-brands fa-telegram" style="margin-right: 8px;"></i> Contact Admin on Telegram
-          </a>
+          <p>Your account has been blocked by the administrator.</p>
+          <p>Please contact support for more information.</p>
         </div>
       </div>
     </main>
@@ -420,8 +413,6 @@
     let userPointsBalanceListener = null;
     let referralListener = null;
     let appConfigListener = null; // New listener for appConfig
-    // Flag to prevent multiple withdrawal requests
-    let isWithdrawRequestPending = false;
     // --- Updated Balance Logic ---
     // Dynamic from Firebase: 1000 coins = 30 cents = $0.30 USD
     // 1 coin = $0.0003 USD (calculated dynamically)
@@ -439,6 +430,7 @@
                 console.log("Telegram user data not available immediately, waiting for Firebase check");
                 showView('home-view'); // Show home view initially
                 loadAppConfig().then(() => {
+                    setupAppConfigListener(); // Setup listener for appConfig
                     loadUserData().then(() => {
                         loadTelegramUser();
                         renderLeaderboard();
@@ -452,6 +444,7 @@
             }
             // Load app configuration and user data
             loadAppConfig().then(() => {
+                setupAppConfigListener(); // Setup listener for appConfig
                 loadUserData().then(() => {
                     loadTelegramUser();
                     showView('home-view');
@@ -469,6 +462,9 @@
             // Don't show blocked view for non-Telegram access, just log
             console.log("This app must be opened in Telegram.");
             showView('home-view'); // Show home view initially
+            loadAppConfig().then(() => {
+                setupAppConfigListener(); // Setup listener for appConfig
+            });
         }
     }
     // --- Firebase Functions ---
@@ -490,6 +486,30 @@
             console.error("Failed to load app config:", error);
             throw error;
         }
+    }
+    // New function to set up real-time listener for appConfig
+    function setupAppConfigListener() {
+        if (appConfigListener) {
+            // Remove previous listener if exists
+            database.ref('appConfig').off('value', appConfigListener);
+        }
+        // Set up new listener
+        appConfigListener = database.ref('appConfig').on('value', (snapshot) => {
+            const config = snapshot.val();
+            if (config) {
+                appConfig = {
+                    pointsPerAd: config.pointsPerAd || 10,
+                    coinsForConversion: config.coinsForConversion || 1000,
+                    valuePerConversion: config.valuePerConversion || 0.30,
+                    referralRewardCoins: config.referralRewardCoins !== undefined ? config.referralRewardCoins : 10,
+                    referralClaimThreshold: config.referralClaimThreshold !== undefined ? config.referralClaimThreshold : 200,
+                    minWithdrawAmount: config.minWithdrawAmount !== undefined ? config.minWithdrawAmount : 5
+                };
+                // Update display if needed (e.g., if values shown somewhere)
+                // For this app, the values are used dynamically, so no explicit UI update is needed here.
+                console.log("App config updated:", appConfig);
+            }
+        });
     }
     async function loadUserData() {
         if (!tgUser || !tgUser.id) return Promise.resolve(); // Resolve immediately if no user ID
@@ -514,7 +534,6 @@
                 setupWithdrawHistoryListener(userRef);
                 setupPointsBalanceListener(userRef);
                 setupReferralListener(userRef);
-                setupAppConfigListener(); // Setup listener for app config changes
             } else {
                 // Initialize new user
                 await userRef.set({
@@ -533,7 +552,6 @@
                 setupWithdrawHistoryListener(userRef);
                 setupPointsBalanceListener(userRef);
                 setupReferralListener(userRef);
-                setupAppConfigListener(); // Setup listener for app config changes
             }
         } catch (error) {
             console.error("Failed to load user ", error);
@@ -658,34 +676,6 @@
             }
         });
     }
-     // Setup listener for app config changes
-     function setupAppConfigListener() {
-        if (appConfigListener) {
-            // Remove previous listener if exists
-            database.ref('appConfig').off('value', appConfigListener);
-        }
-        // Set up new listener
-        appConfigListener = database.ref('appConfig').on('value', (snapshot) => {
-            const config = snapshot.val();
-            if (config) {
-                appConfig = {
-                    pointsPerAd: config.pointsPerAd || 10,
-                    coinsForConversion: config.coinsForConversion || 1000,
-                    valuePerConversion: config.valuePerConversion || 0.30,
-                    referralRewardCoins: config.referralRewardCoins !== undefined ? config.referralRewardCoins : 10,
-                    referralClaimThreshold: config.referralClaimThreshold !== undefined ? config.referralClaimThreshold : 200,
-                    minWithdrawAmount: config.minWithdrawAmount !== undefined ? config.minWithdrawAmount : 5
-                };
-                console.log("App config updated:", appConfig);
-                // Update UI if needed (e.g., minimum withdraw amount in form)
-                // This is optional, as other values are used dynamically
-                 const withdrawAmountInput = document.getElementById('withdrawAmount');
-                if (withdrawAmountInput) {
-                     withdrawAmountInput.min = appConfig.minWithdrawAmount;
-                }
-            }
-        });
-    }
     // Claim referral earnings (convert to main balance)
     async function claimReferralEarnings() {
         if (!tgUser || !tgUser.id) return;
@@ -759,19 +749,11 @@
     function showBlockedView() {
         isBlocked = true;
         showView('blocked-view');
-        // --- Hide the footer when blocked view is shown ---
-        document.querySelector('.footer-nav').classList.add('hide-footer');
-        // --- Ensure the Telegram button is not disabled ---
-        const telegramBtn = document.querySelector('.telegram-button');
-        if (telegramBtn) {
-            telegramBtn.classList.remove('disabled');
-        }
         disableUI();
     }
     function disableUI() {
         // Add 'disabled' class to interactive elements
-        // --- Exclude the Telegram button from being disabled ---
-        document.querySelectorAll('.task-card, .nav-button, .action-button:not(.telegram-button)').forEach(el => {
+        document.querySelectorAll('.task-card, .nav-button, .action-button').forEach(el => {
             el.classList.add('disabled');
         });
         // Disable specific buttons that might not have the class
@@ -790,8 +772,6 @@
         if (withdrawBtn) withdrawBtn.classList.remove('disabled');
         const taskBtns = document.querySelectorAll('.task-card[onclick^="showAd"]');
         taskBtns.forEach(btn => btn.classList.remove('disabled'));
-        // --- Show the footer when UI is enabled (e.g., user unblocked) ---
-        document.querySelector('.footer-nav').classList.remove('hide-footer');
     }
     function updateDisplay() {
         document.getElementById('points-value').textContent = points.toLocaleString();
@@ -1021,76 +1001,54 @@
         }
     }
     // --- Withdrawal Logic ---
-    function resetWithdrawButton() {
-        const requestBtn = document.getElementById('requestWithdrawBtn');
-        requestBtn.textContent = 'Request Withdrawal';
-        requestBtn.classList.remove('requesting-button');
-        requestBtn.classList.add('primary-button');
-        requestBtn.disabled = false;
-    }
-
+    // Flag to prevent multiple withdrawal requests
+    let isWithdrawRequestPending = false;
     function requestWithdraw() {
         if (isBlocked) {
             showBlockedView();
             return;
         }
-
         // Prevent multiple simultaneous requests using flag
         if (isWithdrawRequestPending) {
             console.log("Withdrawal request already in progress.");
             return;
         }
-
-        // Set flag and disable button immediately
+        // Validation
+        const paymentMethod = document.getElementById('paymentMethod').value;
+        const mobileNumber = document.getElementById('mobileNumber').value.trim();
+        const amount = parseFloat(document.getElementById('withdrawAmount').value);
+        if (!mobileNumber) {
+            showMessageModal('Error', 'Please enter your mobile number.');
+            return;
+        }
+        if (!amount || isNaN(amount)) {
+            showMessageModal('Error', 'Please enter a valid amount.');
+            return;
+        }
+        if (amount < appConfig.minWithdrawAmount) {
+            showMessageModal('Error', `Minimum withdrawal amount is $${appConfig.minWithdrawAmount.toFixed(2)}.`);
+            return;
+        }
+        if (amount > balance) {
+            showMessageModal('Error', 'Insufficient balance for this withdrawal.');
+            return;
+        }
+        // Check for existing pending/processing requests in local array
+        const hasPendingRequest = withdrawHistory.some(request =>
+            request.status === 'Pending' || request.status === 'Processing'
+        );
+        if (hasPendingRequest) {
+            showMessageModal('Error', 'You already have a pending or processing withdrawal request. Please wait for it to be completed before submitting a new one.');
+            return;
+        }
+        // Set flag to indicate a request is in progress
         isWithdrawRequestPending = true;
+        // Change button to red "Requesting..." state immediately
         const requestBtn = document.getElementById('requestWithdrawBtn');
         requestBtn.textContent = 'Requesting...';
         requestBtn.classList.remove('primary-button');
         requestBtn.classList.add('requesting-button');
         requestBtn.disabled = true;
-
-        // Validation
-        const paymentMethod = document.getElementById('paymentMethod').value;
-        const mobileNumber = document.getElementById('mobileNumber').value.trim();
-        const amount = parseFloat(document.getElementById('withdrawAmount').value);
-
-        if (!mobileNumber) {
-            showMessageModal('Error', 'Please enter your mobile number.');
-            resetWithdrawButton();
-            isWithdrawRequestPending = false;
-            return;
-        }
-        if (!amount || isNaN(amount)) {
-            showMessageModal('Error', 'Please enter a valid amount.');
-            resetWithdrawButton();
-            isWithdrawRequestPending = false;
-            return;
-        }
-        if (amount < appConfig.minWithdrawAmount) {
-            showMessageModal('Error', `Minimum withdrawal amount is $${appConfig.minWithdrawAmount.toFixed(2)}.`);
-            resetWithdrawButton();
-            isWithdrawRequestPending = false;
-            return;
-        }
-        if (amount > balance) {
-            showMessageModal('Error', 'Insufficient balance for this withdrawal.');
-            resetWithdrawButton();
-            isWithdrawRequestPending = false;
-            return;
-        }
-
-        // Check for existing pending/processing requests in local array
-        const hasPendingRequest = withdrawHistory.some(request =>
-            request.status === 'Pending' || request.status === 'Processing'
-        );
-
-        if (hasPendingRequest) {
-            showMessageModal('Error', 'You already have a pending or processing withdrawal request. Please wait for it to be completed before submitting a new one.');
-            resetWithdrawButton();
-            isWithdrawRequestPending = false;
-            return;
-        }
-
         // Create withdraw request with Pending status
         const withdrawRequest = {
             id: Date.now().toString(), // This should be unique per request
@@ -1102,10 +1060,8 @@
             status: 'Pending',
             timestamp: new Date().toISOString()
         };
-
         // Save to Firebase
         const userRef = database.ref('users/' + tgUser.id);
-
         userRef.child('withdrawHistory').push(withdrawRequest)
             .then(() => {
                 // Immediately deduct balance and update points in Firebase
@@ -1114,21 +1070,21 @@
                 points = Math.max(0, Math.round(balance / appConfig.valuePerConversion * appConfig.coinsForConversion));
                 updateDisplay();
                 saveUserData();
-
                 // Add to local withdrawHistory array for immediate display in modal if open
                 withdrawHistory.unshift(withdrawRequest);
                 if (document.getElementById('withdraw-history-modal').classList.contains('active')) {
                     renderWithdrawHistoryModal();
                 }
-
                 // Add to activity history
                 addToHistory('withdraw', `Request for $${amount.toFixed(2)} via ${paymentMethod}`);
-
                 // Show success message after 3 seconds
                 setTimeout(() => {
                     showMessageModal('Success', 'Your withdrawal request has been submitted successfully!');
                     // Reset button state
-                    resetWithdrawButton();
+                    requestBtn.textContent = 'Request Withdrawal';
+                    requestBtn.classList.remove('requesting-button');
+                    requestBtn.classList.add('primary-button');
+                    requestBtn.disabled = false;
                     // Clear form
                     document.getElementById('mobileNumber').value = '';
                     document.getElementById('withdrawAmount').value = '';
@@ -1140,7 +1096,10 @@
                 console.error('Error submitting withdrawal request:', error);
                 showMessageModal('Error', 'Failed to submit withdrawal request. Please try again.');
                 // Reset button state on error
-                resetWithdrawButton();
+                requestBtn.textContent = 'Request Withdrawal';
+                requestBtn.classList.remove('requesting-button');
+                requestBtn.classList.add('primary-button');
+                requestBtn.disabled = false;
                 // Reset flag
                 isWithdrawRequestPending = false;
             });
@@ -1173,10 +1132,11 @@
             userRef.child('referralCount').off('value', referralListener);
             userRef.child('referralEarnings').off('value', referralListener);
         }
-         if (appConfigListener) {
+        if (appConfigListener) {
             database.ref('appConfig').off('value', appConfigListener);
         }
     });
 </script>
 </body>
 </html>
+```
