@@ -1,3 +1,4 @@
+.
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -419,6 +420,8 @@
     let userPointsBalanceListener = null;
     let referralListener = null;
     let appConfigListener = null; // New listener for appConfig
+    // Flag to prevent multiple withdrawal requests
+    let isWithdrawRequestPending = false;
     // --- Updated Balance Logic ---
     // Dynamic from Firebase: 1000 coins = 30 cents = $0.30 USD
     // 1 coin = $0.0003 USD (calculated dynamically)
@@ -1018,8 +1021,13 @@
         }
     }
     // --- Withdrawal Logic ---
-    // Flag to prevent multiple withdrawal requests
-    let isWithdrawRequestPending = false;
+    function resetWithdrawButton() {
+        const requestBtn = document.getElementById('requestWithdrawBtn');
+        requestBtn.textContent = 'Request Withdrawal';
+        requestBtn.classList.remove('requesting-button');
+        requestBtn.classList.add('primary-button');
+        requestBtn.disabled = false;
+    }
 
     function requestWithdraw() {
         if (isBlocked) {
@@ -1033,6 +1041,14 @@
             return;
         }
 
+        // Set flag and disable button immediately
+        isWithdrawRequestPending = true;
+        const requestBtn = document.getElementById('requestWithdrawBtn');
+        requestBtn.textContent = 'Requesting...';
+        requestBtn.classList.remove('primary-button');
+        requestBtn.classList.add('requesting-button');
+        requestBtn.disabled = true;
+
         // Validation
         const paymentMethod = document.getElementById('paymentMethod').value;
         const mobileNumber = document.getElementById('mobileNumber').value.trim();
@@ -1040,18 +1056,26 @@
 
         if (!mobileNumber) {
             showMessageModal('Error', 'Please enter your mobile number.');
+            resetWithdrawButton();
+            isWithdrawRequestPending = false;
             return;
         }
         if (!amount || isNaN(amount)) {
             showMessageModal('Error', 'Please enter a valid amount.');
+            resetWithdrawButton();
+            isWithdrawRequestPending = false;
             return;
         }
         if (amount < appConfig.minWithdrawAmount) {
             showMessageModal('Error', `Minimum withdrawal amount is $${appConfig.minWithdrawAmount.toFixed(2)}.`);
+            resetWithdrawButton();
+            isWithdrawRequestPending = false;
             return;
         }
         if (amount > balance) {
             showMessageModal('Error', 'Insufficient balance for this withdrawal.');
+            resetWithdrawButton();
+            isWithdrawRequestPending = false;
             return;
         }
 
@@ -1062,18 +1086,10 @@
 
         if (hasPendingRequest) {
             showMessageModal('Error', 'You already have a pending or processing withdrawal request. Please wait for it to be completed before submitting a new one.');
+            resetWithdrawButton();
+            isWithdrawRequestPending = false;
             return;
         }
-
-        // Set flag to indicate a request is in progress
-        isWithdrawRequestPending = true;
-
-        // Change button to red "Requesting..." state immediately
-        const requestBtn = document.getElementById('requestWithdrawBtn');
-        requestBtn.textContent = 'Requesting...';
-        requestBtn.classList.remove('primary-button');
-        requestBtn.classList.add('requesting-button');
-        requestBtn.disabled = true;
 
         // Create withdraw request with Pending status
         const withdrawRequest = {
@@ -1112,10 +1128,7 @@
                 setTimeout(() => {
                     showMessageModal('Success', 'Your withdrawal request has been submitted successfully!');
                     // Reset button state
-                    requestBtn.textContent = 'Request Withdrawal';
-                    requestBtn.classList.remove('requesting-button');
-                    requestBtn.classList.add('primary-button');
-                    requestBtn.disabled = false;
+                    resetWithdrawButton();
                     // Clear form
                     document.getElementById('mobileNumber').value = '';
                     document.getElementById('withdrawAmount').value = '';
@@ -1127,10 +1140,7 @@
                 console.error('Error submitting withdrawal request:', error);
                 showMessageModal('Error', 'Failed to submit withdrawal request. Please try again.');
                 // Reset button state on error
-                requestBtn.textContent = 'Request Withdrawal';
-                requestBtn.classList.remove('requesting-button');
-                requestBtn.classList.add('primary-button');
-                requestBtn.disabled = false;
+                resetWithdrawButton();
                 // Reset flag
                 isWithdrawRequestPending = false;
             });
