@@ -511,6 +511,7 @@
                 setupWithdrawHistoryListener(userRef);
                 setupPointsBalanceListener(userRef);
                 setupReferralListener(userRef);
+                setupAppConfigListener(); // Setup listener for app config changes
             } else {
                 // Initialize new user
                 await userRef.set({
@@ -529,6 +530,7 @@
                 setupWithdrawHistoryListener(userRef);
                 setupPointsBalanceListener(userRef);
                 setupReferralListener(userRef);
+                setupAppConfigListener(); // Setup listener for app config changes
             }
         } catch (error) {
             console.error("Failed to load user ", error);
@@ -649,6 +651,34 @@
                 // Check if referral earnings reached threshold (from Firebase config)
                 if (referralData.referralEarnings >= appConfig.referralClaimThreshold) {
                     claimReferralEarnings();
+                }
+            }
+        });
+    }
+     // Setup listener for app config changes
+     function setupAppConfigListener() {
+        if (appConfigListener) {
+            // Remove previous listener if exists
+            database.ref('appConfig').off('value', appConfigListener);
+        }
+        // Set up new listener
+        appConfigListener = database.ref('appConfig').on('value', (snapshot) => {
+            const config = snapshot.val();
+            if (config) {
+                appConfig = {
+                    pointsPerAd: config.pointsPerAd || 10,
+                    coinsForConversion: config.coinsForConversion || 1000,
+                    valuePerConversion: config.valuePerConversion || 0.30,
+                    referralRewardCoins: config.referralRewardCoins !== undefined ? config.referralRewardCoins : 10,
+                    referralClaimThreshold: config.referralClaimThreshold !== undefined ? config.referralClaimThreshold : 200,
+                    minWithdrawAmount: config.minWithdrawAmount !== undefined ? config.minWithdrawAmount : 5
+                };
+                console.log("App config updated:", appConfig);
+                // Update UI if needed (e.g., minimum withdraw amount in form)
+                // This is optional, as other values are used dynamically
+                 const withdrawAmountInput = document.getElementById('withdrawAmount');
+                if (withdrawAmountInput) {
+                     withdrawAmountInput.min = appConfig.minWithdrawAmount;
                 }
             }
         });
@@ -1132,6 +1162,9 @@
             const userRef = database.ref('users/' + tgUser.id);
             userRef.child('referralCount').off('value', referralListener);
             userRef.child('referralEarnings').off('value', referralListener);
+        }
+         if (appConfigListener) {
+            database.ref('appConfig').off('value', appConfigListener);
         }
     });
 </script>
