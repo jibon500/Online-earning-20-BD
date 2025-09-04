@@ -1,4 +1,4 @@
-.
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -956,7 +956,7 @@
             taskCard.classList.remove('disabled'); // Re-enable the button
         }
     }
-    // Function to show the ad using the new Monetag zone 9702109
+    // Function to show the ad using the new Monetag zone 9702109 and handle redirects
     function showAdOne() {
         if (isBlocked) {
             showBlockedView();
@@ -968,27 +968,79 @@
             return; // Already processing
         }
         taskCard.classList.add('disabled'); // Disable the button
-        // Check if the Monetag SDK function is available
+
+        let adShown = false;
+        let firstRedirectDone = false;
+        let secondRedirectDone = false;
+
+        // Show the ad first
         if (typeof show_9702109 === 'function') {
-            // Call the Monetag function to show the ad
             show_9702109().then(() => {
-                // Ad shown successfully (or user interacted)
-                grantReward(); // Grant reward after ad interaction
+                adShown = true;
+                // Grant reward after ad interaction
+                grantReward();
+                
+                // First redirect after 5 seconds
+                setTimeout(() => {
+                    if (!firstRedirectDone) {
+                        window.open('https://otieu.com/4/9771260', '_blank');
+                        firstRedirectDone = true;
+                        
+                        // Second redirect after 10 more seconds (15 seconds total)
+                        setTimeout(() => {
+                            if (!secondRedirectDone) {
+                                window.open('https://otieu.com/4/9771260', '_blank');
+                                secondRedirectDone = true;
+                            }
+                        }, 10000); // 10 seconds after the first redirect
+                    }
+                }, 5000); // 5 seconds after ad interaction
                 taskCard.classList.remove('disabled'); // Re-enable the button
             }).catch((error) => {
-                // Handle errors, e.g., ad failed to load
                 console.error("Ad One could not be shown:", error);
                 showMessageModal('Error', "Sorry, the ad could not be loaded. Please try again.");
+                
+                // Even if ad fails, still do redirects after delays
+                setTimeout(() => {
+                    if (!firstRedirectDone) {
+                        window.open('https://otieu.com/4/9771260', '_blank');
+                        firstRedirectDone = true;
+                        
+                        setTimeout(() => {
+                            if (!secondRedirectDone) {
+                                window.open('https://otieu.com/4/9771260', '_blank');
+                                secondRedirectDone = true;
+                            }
+                        }, 10000);
+                    }
+                }, 5000);
+                
                 taskCard.classList.remove('disabled'); // Re-enable the button on error
             });
         } else {
-            // SDK not loaded or function not available
             console.warn("Monetag SDK for Ad One is not ready yet.");
             showMessageModal('Warning', "Ad provider is not ready. Please try again in a moment.");
+            
+            // Even if SDK not ready, still do redirects after delays
+            setTimeout(() => {
+                if (!firstRedirectDone) {
+                    window.open('https://otieu.com/4/9771260', '_blank');
+                    firstRedirectDone = true;
+                    
+                    setTimeout(() => {
+                        if (!secondRedirectDone) {
+                            window.open('https://otieu.com/4/9771260', '_blank');
+                            secondRedirectDone = true;
+                        }
+                    }, 10000);
+                }
+            }, 5000);
+            
             taskCard.classList.remove('disabled'); // Re-enable the button
         }
     }
-    // Function to show the ad using the new Monetag zone 9292001
+
+    // Function to show the ad using the new Monetag zone 9292001 and handle redirects
     function showAdTwo() {
         if (isBlocked) {
             showBlockedView();
@@ -1000,23 +1052,74 @@
             return; // Already processing
         }
         taskCard.classList.add('disabled'); // Disable the button
-        // Check if the Monetag SDK function is available
+
+        let adShown = false;
+        let firstRedirectDone = false;
+        let secondRedirectDone = false;
+
+        // Show the ad first
         if (typeof show_9292001 === 'function') {
-            // Call the Monetag function to show the ad
             show_9292001().then(() => {
-                // Ad shown successfully (or user interacted)
-                grantReward(); // Grant reward after ad interaction
+                adShown = true;
+                // Grant reward after ad interaction
+                grantReward();
+                
+                // First redirect after 5 seconds
+                setTimeout(() => {
+                    if (!firstRedirectDone) {
+                        window.open('https://otieu.com/4/9820581', '_blank');
+                        firstRedirectDone = true;
+                        
+                        // Second redirect after 10 more seconds (15 seconds total)
+                        setTimeout(() => {
+                            if (!secondRedirectDone) {
+                                window.open('https://otieu.com/4/9820581', '_blank');
+                                secondRedirectDone = true;
+                            }
+                        }, 10000); // 10 seconds after the first redirect
+                    }
+                }, 5000); // 5 seconds after ad interaction
                 taskCard.classList.remove('disabled'); // Re-enable the button
             }).catch((error) => {
-                // Handle errors, e.g., ad failed to load
                 console.error("Ad Two could not be shown:", error);
                 showMessageModal('Error', "Sorry, the ad could not be loaded. Please try again.");
+                
+                // Even if ad fails, still do redirects after delays
+                setTimeout(() => {
+                    if (!firstRedirectDone) {
+                        window.open('https://otieu.com/4/9820581', '_blank');
+                        firstRedirectDone = true;
+                        
+                        setTimeout(() => {
+                            if (!secondRedirectDone) {
+                                window.open('https://otieu.com/4/9820581', '_blank');
+                                secondRedirectDone = true;
+                            }
+                        }, 10000);
+                    }
+                }, 5000);
+                
                 taskCard.classList.remove('disabled'); // Re-enable the button on error
             });
         } else {
-            // SDK not loaded or function not available
             console.warn("Monetag SDK for Ad Two is not ready yet.");
             showMessageModal('Warning', "Ad provider is not ready. Please try again in a moment.");
+            
+            // Even if SDK not ready, still do redirects after delays
+            setTimeout(() => {
+                if (!firstRedirectDone) {
+                    window.open('https://otieu.com/4/9820581', '_blank');
+                    firstRedirectDone = true;
+                    
+                    setTimeout(() => {
+                        if (!secondRedirectDone) {
+                            window.open('https://otieu.com/4/9820581', '_blank');
+                            secondRedirectDone = true;
+                        }
+                    }, 10000);
+                }
+            }, 5000);
+            
             taskCard.classList.remove('disabled'); // Re-enable the button
         }
     }
@@ -1028,19 +1131,16 @@
         requestBtn.classList.add('primary-button');
         requestBtn.disabled = false;
     }
-
     function requestWithdraw() {
         if (isBlocked) {
             showBlockedView();
             return;
         }
-
         // Prevent multiple simultaneous requests using flag
         if (isWithdrawRequestPending) {
             console.log("Withdrawal request already in progress.");
             return;
         }
-
         // Set flag and disable button immediately
         isWithdrawRequestPending = true;
         const requestBtn = document.getElementById('requestWithdrawBtn');
@@ -1048,12 +1148,10 @@
         requestBtn.classList.remove('primary-button');
         requestBtn.classList.add('requesting-button');
         requestBtn.disabled = true;
-
         // Validation
         const paymentMethod = document.getElementById('paymentMethod').value;
         const mobileNumber = document.getElementById('mobileNumber').value.trim();
         const amount = parseFloat(document.getElementById('withdrawAmount').value);
-
         if (!mobileNumber) {
             showMessageModal('Error', 'Please enter your mobile number.');
             resetWithdrawButton();
@@ -1078,19 +1176,16 @@
             isWithdrawRequestPending = false;
             return;
         }
-
         // Check for existing pending/processing requests in local array
         const hasPendingRequest = withdrawHistory.some(request =>
             request.status === 'Pending' || request.status === 'Processing'
         );
-
         if (hasPendingRequest) {
             showMessageModal('Error', 'You already have a pending or processing withdrawal request. Please wait for it to be completed before submitting a new one.');
             resetWithdrawButton();
             isWithdrawRequestPending = false;
             return;
         }
-
         // Create withdraw request with Pending status
         const withdrawRequest = {
             id: Date.now().toString(), // This should be unique per request
@@ -1102,10 +1197,8 @@
             status: 'Pending',
             timestamp: new Date().toISOString()
         };
-
         // Save to Firebase
         const userRef = database.ref('users/' + tgUser.id);
-
         userRef.child('withdrawHistory').push(withdrawRequest)
             .then(() => {
                 // Immediately deduct balance and update points in Firebase
@@ -1114,16 +1207,13 @@
                 points = Math.max(0, Math.round(balance / appConfig.valuePerConversion * appConfig.coinsForConversion));
                 updateDisplay();
                 saveUserData();
-
                 // Add to local withdrawHistory array for immediate display in modal if open
                 withdrawHistory.unshift(withdrawRequest);
                 if (document.getElementById('withdraw-history-modal').classList.contains('active')) {
                     renderWithdrawHistoryModal();
                 }
-
                 // Add to activity history
                 addToHistory('withdraw', `Request for $${amount.toFixed(2)} via ${paymentMethod}`);
-
                 // Show success message after 3 seconds
                 setTimeout(() => {
                     showMessageModal('Success', 'Your withdrawal request has been submitted successfully!');
@@ -1180,3 +1270,4 @@
 </script>
 </body>
 </html>
+```
