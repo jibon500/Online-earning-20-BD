@@ -1,4 +1,4 @@
-```html
+.
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -214,50 +214,6 @@
     .hide-footer {
         display: none !important;
     }
-
-    /* --- Ad Overlay Styles --- */
-    #ad-overlay {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.8);
-        display: none;
-        align-items: center;
-        justify-content: center;
-        z-index: 2000; /* Higher than modals */
-        color: white;
-        font-size: 24px;
-        text-align: center;
-        flex-direction: column;
-        padding: 20px;
-        box-sizing: border-box;
-    }
-    #ad-overlay.active {
-        display: flex;
-    }
-    #ad-overlay p {
-        margin-bottom: 20px;
-    }
-    #ad-overlay-timer {
-        font-size: 20px;
-        color: #ffc107; /* Bootstrap warning color */
-    }
-    #ad-overlay-close-btn {
-        background-color: var(--primary-color);
-        color: black;
-        border: none;
-        padding: 10px 20px;
-        border-radius: 5px;
-        font-size: 16px;
-        cursor: pointer;
-        margin-top: 20px;
-        display: none; /* Hidden by default, shown after timer */
-    }
-    #ad-overlay-close-btn:hover {
-        background-color: var(--primary-hover);
-    }
   </style>
   <!-- Monetag SDK Scripts -->
   <script src='//libtl.com/sdk.js' data-zone='9807992' data-sdk='show_9807992'></script>
@@ -372,15 +328,6 @@
       <button class="nav-button" onclick="openShareModal()"><i class="icon fa-solid fa-share-nodes"></i>Share</button>
     </nav>
   </div>
-
-  <!-- Ad Overlay -->
-  <div id="ad-overlay">
-    <p>Watching Ad...</p>
-    <p id="ad-overlay-timer">Closing in 14 seconds...</p>
-    <p>Click anywhere to open direct link!</p>
-    <button id="ad-overlay-close-btn">Close Ad</button>
-  </div>
-
   <!-- Generic Modal for Messages -->
   <div class="modal-overlay" id="message-modal">
     <div class="modal-content">
@@ -475,43 +422,13 @@
     let appConfigListener = null; // New listener for appConfig
     // Flag to prevent multiple withdrawal requests
     let isWithdrawRequestPending = false;
-
-    // --- Ad Overlay State ---
-    let adOverlayActive = false;
-    let adOverlayTimer = null;
-    let adOverlaySecondsLeft = 14;
-    let adOverlayDirectLink = ""; // Will be set dynamically
-    let adOverlayDefaultLinkFunction = null; // Will hold the Monetag function name
-
     // --- Updated Balance Logic ---
     // Dynamic from Firebase: 1000 coins = 30 cents = $0.30 USD
     // 1 coin = $0.0003 USD (calculated dynamically)
     // --- Core App Logic ---
     document.addEventListener('DOMContentLoaded', () => {
         initApp();
-
-        // Add click event listener to the ad overlay for direct link
-        document.getElementById('ad-overlay').addEventListener('click', function(event) {
-            // Prevent closing the overlay if clicking the close button
-            if (event.target.id !== 'ad-overlay-close-btn') {
-                if (adOverlayActive && adOverlayDirectLink) {
-                    // Open the direct link
-                    window.open(adOverlayDirectLink, '_blank');
-                    console.log("Direct link opened:", adOverlayDirectLink);
-                }
-            }
-        });
-
-        // Add click event listener to the close button
-        document.getElementById('ad-overlay-close-btn').addEventListener('click', function() {
-             if (adOverlayActive) {
-                 closeAdOverlay();
-                 // Grant reward only when manually closed
-                 grantReward();
-             }
-        });
     });
-
     function initApp() {
         if (window.Telegram && Telegram.WebApp) {
             Telegram.WebApp.ready();
@@ -554,47 +471,6 @@
             showView('home-view'); // Show home view initially
         }
     }
-
-    // --- Ad Overlay Functions ---
-    function showAdOverlay(directLink, defaultLinkFunctionName) {
-        const overlay = document.getElementById('ad-overlay');
-        const timerElement = document.getElementById('ad-overlay-timer');
-        const closeButton = document.getElementById('ad-overlay-close-btn');
-
-        adOverlayActive = true;
-        adOverlaySecondsLeft = 14;
-        adOverlayDirectLink = directLink; // Set the direct link
-        adOverlayDefaultLinkFunction = defaultLinkFunctionName; // Store the function name
-
-        overlay.classList.add('active');
-        timerElement.textContent = `Closing in ${adOverlaySecondsLeft} seconds...`;
-        closeButton.style.display = 'none'; // Hide close button initially
-
-        // Start the countdown timer
-        adOverlayTimer = setInterval(() => {
-            adOverlaySecondsLeft--;
-            timerElement.textContent = `Closing in ${adOverlaySecondsLeft} seconds...`;
-
-            if (adOverlaySecondsLeft <= 0) {
-                clearInterval(adOverlayTimer);
-                closeButton.style.display = 'block'; // Show close button when timer ends
-            }
-        }, 1000);
-    }
-
-    function closeAdOverlay() {
-        const overlay = document.getElementById('ad-overlay');
-        if (adOverlayTimer) {
-            clearInterval(adOverlayTimer);
-            adOverlayTimer = null;
-        }
-        overlay.classList.remove('active');
-        adOverlayActive = false;
-        adOverlayDirectLink = ""; // Clear the direct link
-        adOverlayDefaultLinkFunction = null; // Clear the stored function name
-    }
-
-
     // --- Firebase Functions ---
     async function loadAppConfig() {
         try {
@@ -1048,150 +924,102 @@
         Telegram.WebApp.HapticFeedback.notificationOccurred('success');
         showMessageModal('Success', `Congratulations! You've earned +${appConfig.pointsPerAd} coins. Your new balance is $${balance.toFixed(2)}.`);
     }
-
-    // --- Modified Ad Functions with Overlay ---
+    // Function to show the ad using the original Monetag zone
     function showAd() {
         if (isBlocked) {
             showBlockedView();
             return;
         }
-
         // Prevent double click by disabling the button immediately
         const taskCard = event.currentTarget; // Get the clicked task card
         if (taskCard.classList.contains('disabled')) {
             return; // Already processing
         }
         taskCard.classList.add('disabled'); // Disable the button
-
-        // Show the custom overlay with the specific direct link
-        showAdOverlay("https://otieu.com/4/9820581", 'show_9807992');
-
         // Check if the Monetag SDK function is available
         if (typeof show_9807992 === 'function') {
             // Call the Monetag function to show the ad
             show_9807992().then(() => {
-                console.log("Ad shown successfully.");
-                // The overlay handles the timing and user interaction.
-                // Reward is granted either by timer completion or manual close.
+                // Ad shown successfully (or user interacted)
+                grantReward(); // Grant reward after ad interaction
+                taskCard.classList.remove('disabled'); // Re-enable the button
             }).catch((error) => {
                 // Handle errors, e.g., ad failed to load
                 console.error("Ad could not be shown:", error);
-                closeAdOverlay(); // Close overlay on error
                 showMessageModal('Error', "Sorry, the ad could not be loaded. Please try again.");
                 taskCard.classList.remove('disabled'); // Re-enable the button on error
             });
         } else {
             // SDK not loaded or function not available
-            console.warn("Monetag SDK for Ad is not ready yet.");
-            closeAdOverlay(); // Close overlay if SDK not ready
+            console.warn("Monetag SDK is not ready yet.");
             showMessageModal('Warning', "Ad provider is not ready. Please try again in a moment.");
             taskCard.classList.remove('disabled'); // Re-enable the button
         }
-
-        // Re-enable the button after a short delay to prevent accidental double clicks
-        // The main logic is handled by the overlay close event
-        setTimeout(() => {
-             if (!adOverlayActive) { // Only re-enable if overlay is not active (error case)
-                 taskCard.classList.remove('disabled');
-             }
-        }, 2000);
     }
-
+    // Function to show the ad using the new Monetag zone 9702109
     function showAdOne() {
         if (isBlocked) {
             showBlockedView();
             return;
         }
-
         // Prevent double click by disabling the button immediately
         const taskCard = event.currentTarget; // Get the clicked task card
         if (taskCard.classList.contains('disabled')) {
             return; // Already processing
         }
         taskCard.classList.add('disabled'); // Disable the button
-
-        // Show the custom overlay with the specific direct link
-        showAdOverlay("https://otieu.com/4/9678873", 'show_9702109');
-
         // Check if the Monetag SDK function is available
         if (typeof show_9702109 === 'function') {
             // Call the Monetag function to show the ad
             show_9702109().then(() => {
-                console.log("Ad One shown successfully.");
-                // The overlay handles the timing and user interaction.
-                // Reward is granted either by timer completion or manual close.
+                // Ad shown successfully (or user interacted)
+                grantReward(); // Grant reward after ad interaction
+                taskCard.classList.remove('disabled'); // Re-enable the button
             }).catch((error) => {
                 // Handle errors, e.g., ad failed to load
                 console.error("Ad One could not be shown:", error);
-                closeAdOverlay(); // Close overlay on error
                 showMessageModal('Error', "Sorry, the ad could not be loaded. Please try again.");
                 taskCard.classList.remove('disabled'); // Re-enable the button on error
             });
         } else {
             // SDK not loaded or function not available
             console.warn("Monetag SDK for Ad One is not ready yet.");
-            closeAdOverlay(); // Close overlay if SDK not ready
             showMessageModal('Warning', "Ad provider is not ready. Please try again in a moment.");
             taskCard.classList.remove('disabled'); // Re-enable the button
         }
-
-        // Re-enable the button after a short delay to prevent accidental double clicks
-        // The main logic is handled by the overlay close event
-        setTimeout(() => {
-             if (!adOverlayActive) { // Only re-enable if overlay is not active (error case)
-                 taskCard.classList.remove('disabled');
-             }
-        }, 2000);
     }
-
+    // Function to show the ad using the new Monetag zone 9292001
     function showAdTwo() {
         if (isBlocked) {
             showBlockedView();
             return;
         }
-
         // Prevent double click by disabling the button immediately
         const taskCard = event.currentTarget; // Get the clicked task card
         if (taskCard.classList.contains('disabled')) {
             return; // Already processing
         }
         taskCard.classList.add('disabled'); // Disable the button
-
-        // Show the custom overlay with the specific direct link
-        showAdOverlay("https://otieu.com/4/9292136", 'show_9292001');
-
         // Check if the Monetag SDK function is available
         if (typeof show_9292001 === 'function') {
             // Call the Monetag function to show the ad
             show_9292001().then(() => {
-                console.log("Ad Two shown successfully.");
-                // The overlay handles the timing and user interaction.
-                // Reward is granted either by timer completion or manual close.
+                // Ad shown successfully (or user interacted)
+                grantReward(); // Grant reward after ad interaction
+                taskCard.classList.remove('disabled'); // Re-enable the button
             }).catch((error) => {
                 // Handle errors, e.g., ad failed to load
                 console.error("Ad Two could not be shown:", error);
-                closeAdOverlay(); // Close overlay on error
                 showMessageModal('Error', "Sorry, the ad could not be loaded. Please try again.");
                 taskCard.classList.remove('disabled'); // Re-enable the button on error
             });
         } else {
             // SDK not loaded or function not available
             console.warn("Monetag SDK for Ad Two is not ready yet.");
-            closeAdOverlay(); // Close overlay if SDK not ready
             showMessageModal('Warning', "Ad provider is not ready. Please try again in a moment.");
             taskCard.classList.remove('disabled'); // Re-enable the button
         }
-
-        // Re-enable the button after a short delay to prevent accidental double clicks
-        // The main logic is handled by the overlay close event
-        setTimeout(() => {
-             if (!adOverlayActive) { // Only re-enable if overlay is not active (error case)
-                 taskCard.classList.remove('disabled');
-             }
-        }, 2000);
     }
-
-
     // --- Withdrawal Logic ---
     function resetWithdrawButton() {
         const requestBtn = document.getElementById('requestWithdrawBtn');
@@ -1200,16 +1028,19 @@
         requestBtn.classList.add('primary-button');
         requestBtn.disabled = false;
     }
+
     function requestWithdraw() {
         if (isBlocked) {
             showBlockedView();
             return;
         }
+
         // Prevent multiple simultaneous requests using flag
         if (isWithdrawRequestPending) {
             console.log("Withdrawal request already in progress.");
             return;
         }
+
         // Set flag and disable button immediately
         isWithdrawRequestPending = true;
         const requestBtn = document.getElementById('requestWithdrawBtn');
@@ -1217,10 +1048,12 @@
         requestBtn.classList.remove('primary-button');
         requestBtn.classList.add('requesting-button');
         requestBtn.disabled = true;
+
         // Validation
         const paymentMethod = document.getElementById('paymentMethod').value;
         const mobileNumber = document.getElementById('mobileNumber').value.trim();
         const amount = parseFloat(document.getElementById('withdrawAmount').value);
+
         if (!mobileNumber) {
             showMessageModal('Error', 'Please enter your mobile number.');
             resetWithdrawButton();
@@ -1245,16 +1078,19 @@
             isWithdrawRequestPending = false;
             return;
         }
+
         // Check for existing pending/processing requests in local array
         const hasPendingRequest = withdrawHistory.some(request =>
             request.status === 'Pending' || request.status === 'Processing'
         );
+
         if (hasPendingRequest) {
             showMessageModal('Error', 'You already have a pending or processing withdrawal request. Please wait for it to be completed before submitting a new one.');
             resetWithdrawButton();
             isWithdrawRequestPending = false;
             return;
         }
+
         // Create withdraw request with Pending status
         const withdrawRequest = {
             id: Date.now().toString(), // This should be unique per request
@@ -1266,8 +1102,10 @@
             status: 'Pending',
             timestamp: new Date().toISOString()
         };
+
         // Save to Firebase
         const userRef = database.ref('users/' + tgUser.id);
+
         userRef.child('withdrawHistory').push(withdrawRequest)
             .then(() => {
                 // Immediately deduct balance and update points in Firebase
@@ -1276,13 +1114,16 @@
                 points = Math.max(0, Math.round(balance / appConfig.valuePerConversion * appConfig.coinsForConversion));
                 updateDisplay();
                 saveUserData();
+
                 // Add to local withdrawHistory array for immediate display in modal if open
                 withdrawHistory.unshift(withdrawRequest);
                 if (document.getElementById('withdraw-history-modal').classList.contains('active')) {
                     renderWithdrawHistoryModal();
                 }
+
                 // Add to activity history
                 addToHistory('withdraw', `Request for $${amount.toFixed(2)} via ${paymentMethod}`);
+
                 // Show success message after 3 seconds
                 setTimeout(() => {
                     showMessageModal('Success', 'Your withdrawal request has been submitted successfully!');
@@ -1335,12 +1176,7 @@
          if (appConfigListener) {
             database.ref('appConfig').off('value', appConfigListener);
         }
-        // Clear ad overlay timer if active
-        if (adOverlayTimer) {
-            clearInterval(adOverlayTimer);
-        }
     });
 </script>
 </body>
 </html>
-```
