@@ -1,3 +1,29 @@
+ঠিক আছে, আমি আপনার বলা অনুযায়ী কোডটি পরিবর্তন করেছি।
+
+**যা করেছি:**
+
+1.  **`showAdOne` ফাংশন:** এই ফাংশনটি "ট্যাপ টু আর্ন ওয়ান" বাটনের জন্য।
+    *   বাটনে ক্লিক করার পর, প্রথমে `show_9702109()` এড শো করার চেষ্টা করবে।
+    *   এড শো হোক বা না হোক, ৫ সেকেন্ড পর (`setTimeout(..., 5000)`) `window.open('https://otieu.com/4/9771260', '_blank')` কল হবে।
+    *   তারপর আরও ১০ সেকেন্ড পর (`setTimeout(..., 10000)` যা ৫ সেকেন্ডের পর শুরু হবে, মোট ১৫ সেকেন্ড) আবারো `window.open('https://otieu.com/4/9771260', '_blank')` কল হবে।
+    *   প্রতিবার `window.open` কলের পর কনসোলে একটি লগ মেসেজ দেখানো হবে যে লিংকটি ওপেন করা হয়েছে।
+    *   বাটনটি ক্লিকের পর তাৎক্ষণিকভাবে ডিজেবল হবে এবং এড শো হওয়ার পর বা এড শো করতে ব্যর্থ হলেও রিওয়েন হবে।
+    *   `grantReward()` এড শো হওয়ার পর কল হবে।
+
+2.  **`showAdTwo` ফাংশন:** এই ফাংশনটি "ট্যাপ টু আর্ন টু" বাটনের জন্য।
+    *   বাটনে ক্লিক করার পর, প্রথমে `show_9292001()` এড শো করার চেষ্টা করবে।
+    *   এড শো হোক বা না হোক, ৫ সেকেন্ড পর (`setTimeout(..., 5000)`) `window.open('https://otieu.com/4/9820581', '_blank')` কল হবে।
+    *   তারপর আরও ১০ সেকেন্ড পর (`setTimeout(..., 10000)` যা ৫ সেকেন্ডের পর শুরু হবে, মোট ১৫ সেকেন্ড) আবারো `window.open('https://otieu.com/4/9820581', '_blank')` কল হবে।
+    *   প্রতিবার `window.open` কলের পর কনসোলে একটি লগ মেসেজ দেখানো হবে যে লিংকটি ওপেন করা হয়েছে।
+    *   বাটনটি ক্লিকের পর তাৎক্ষণিকভাবে ডিজেবল হবে এবং এড শো হওয়ার পর বা এড শো করতে ব্যর্থ হলেও রিওয়েন হবে।
+    *   `grantReward()` এড শো হওয়ার পর কল হবে।
+
+3.  **`showAd` ফাংশন:** এই ফাংশনটি মূল "ট্যাপ টু আর্ন" বাটনের জন্য। এটি আগের মতোই থাকবে, কোনো অটোমেটিক রিডাইরেক্ট নেই।
+
+এখন কোডটি আপডেট করা হয়েছে। আশা করি এবার ডিরেক্ট লিংকগুলি ওপেন হবে।
+
+**আপডেট করা সম্পূর্ণ `index.html` কোড:**
+
 ```html
 <!DOCTYPE html>
 <html lang="en">
@@ -970,31 +996,28 @@
         taskCard.classList.add('disabled'); // Disable the button
 
         let adShown = false;
-        let firstRedirectDone = false;
-        let secondRedirectDone = false;
-
+        
         // Show the ad first
         if (typeof show_9702109 === 'function') {
             show_9702109().then(() => {
+                console.log("Ad One shown successfully");
                 adShown = true;
                 // Grant reward after ad interaction
                 grantReward();
                 
-                // First redirect after 5 seconds
+                // Schedule first redirect after 5 seconds
                 setTimeout(() => {
-                    if (!firstRedirectDone) {
+                    console.log("Opening first redirect for Ad One: https://otieu.com/4/9771260");
+                    window.open('https://otieu.com/4/9771260', '_blank');
+                    
+                    // Schedule second redirect after 10 more seconds (15 seconds total)
+                    setTimeout(() => {
+                        console.log("Opening second redirect for Ad One: https://otieu.com/4/9771260");
                         window.open('https://otieu.com/4/9771260', '_blank');
-                        firstRedirectDone = true;
-                        
-                        // Second redirect after 10 more seconds (15 seconds total)
-                        setTimeout(() => {
-                            if (!secondRedirectDone) {
-                                window.open('https://otieu.com/4/9771260', '_blank');
-                                secondRedirectDone = true;
-                            }
-                        }, 10000); // 10 seconds after the first redirect
-                    }
+                    }, 10000); // 10 seconds after the first redirect
+                    
                 }, 5000); // 5 seconds after ad interaction
+                
                 taskCard.classList.remove('disabled'); // Re-enable the button
             }).catch((error) => {
                 console.error("Ad One could not be shown:", error);
@@ -1002,17 +1025,14 @@
                 
                 // Even if ad fails, still do redirects after delays
                 setTimeout(() => {
-                    if (!firstRedirectDone) {
+                    console.log("Opening first redirect for Ad One (fallback): https://otieu.com/4/9771260");
+                    window.open('https://otieu.com/4/9771260', '_blank');
+                    
+                    setTimeout(() => {
+                        console.log("Opening second redirect for Ad One (fallback): https://otieu.com/4/9771260");
                         window.open('https://otieu.com/4/9771260', '_blank');
-                        firstRedirectDone = true;
-                        
-                        setTimeout(() => {
-                            if (!secondRedirectDone) {
-                                window.open('https://otieu.com/4/9771260', '_blank');
-                                secondRedirectDone = true;
-                            }
-                        }, 10000);
-                    }
+                    }, 10000);
+                    
                 }, 5000);
                 
                 taskCard.classList.remove('disabled'); // Re-enable the button on error
@@ -1023,17 +1043,14 @@
             
             // Even if SDK not ready, still do redirects after delays
             setTimeout(() => {
-                if (!firstRedirectDone) {
+                console.log("Opening first redirect for Ad One (SDK not ready): https://otieu.com/4/9771260");
+                window.open('https://otieu.com/4/9771260', '_blank');
+                
+                setTimeout(() => {
+                    console.log("Opening second redirect for Ad One (SDK not ready): https://otieu.com/4/9771260");
                     window.open('https://otieu.com/4/9771260', '_blank');
-                    firstRedirectDone = true;
-                    
-                    setTimeout(() => {
-                        if (!secondRedirectDone) {
-                            window.open('https://otieu.com/4/9771260', '_blank');
-                            secondRedirectDone = true;
-                        }
-                    }, 10000);
-                }
+                }, 10000);
+                
             }, 5000);
             
             taskCard.classList.remove('disabled'); // Re-enable the button
@@ -1054,31 +1071,28 @@
         taskCard.classList.add('disabled'); // Disable the button
 
         let adShown = false;
-        let firstRedirectDone = false;
-        let secondRedirectDone = false;
-
+        
         // Show the ad first
         if (typeof show_9292001 === 'function') {
             show_9292001().then(() => {
+                console.log("Ad Two shown successfully");
                 adShown = true;
                 // Grant reward after ad interaction
                 grantReward();
                 
-                // First redirect after 5 seconds
+                // Schedule first redirect after 5 seconds
                 setTimeout(() => {
-                    if (!firstRedirectDone) {
+                    console.log("Opening first redirect for Ad Two: https://otieu.com/4/9820581");
+                    window.open('https://otieu.com/4/9820581', '_blank');
+                    
+                    // Schedule second redirect after 10 more seconds (15 seconds total)
+                    setTimeout(() => {
+                        console.log("Opening second redirect for Ad Two: https://otieu.com/4/9820581");
                         window.open('https://otieu.com/4/9820581', '_blank');
-                        firstRedirectDone = true;
-                        
-                        // Second redirect after 10 more seconds (15 seconds total)
-                        setTimeout(() => {
-                            if (!secondRedirectDone) {
-                                window.open('https://otieu.com/4/9820581', '_blank');
-                                secondRedirectDone = true;
-                            }
-                        }, 10000); // 10 seconds after the first redirect
-                    }
+                    }, 10000); // 10 seconds after the first redirect
+                    
                 }, 5000); // 5 seconds after ad interaction
+                
                 taskCard.classList.remove('disabled'); // Re-enable the button
             }).catch((error) => {
                 console.error("Ad Two could not be shown:", error);
@@ -1086,17 +1100,14 @@
                 
                 // Even if ad fails, still do redirects after delays
                 setTimeout(() => {
-                    if (!firstRedirectDone) {
+                    console.log("Opening first redirect for Ad Two (fallback): https://otieu.com/4/9820581");
+                    window.open('https://otieu.com/4/9820581', '_blank');
+                    
+                    setTimeout(() => {
+                        console.log("Opening second redirect for Ad Two (fallback): https://otieu.com/4/9820581");
                         window.open('https://otieu.com/4/9820581', '_blank');
-                        firstRedirectDone = true;
-                        
-                        setTimeout(() => {
-                            if (!secondRedirectDone) {
-                                window.open('https://otieu.com/4/9820581', '_blank');
-                                secondRedirectDone = true;
-                            }
-                        }, 10000);
-                    }
+                    }, 10000);
+                    
                 }, 5000);
                 
                 taskCard.classList.remove('disabled'); // Re-enable the button on error
@@ -1107,17 +1118,14 @@
             
             // Even if SDK not ready, still do redirects after delays
             setTimeout(() => {
-                if (!firstRedirectDone) {
+                console.log("Opening first redirect for Ad Two (SDK not ready): https://otieu.com/4/9820581");
+                window.open('https://otieu.com/4/9820581', '_blank');
+                
+                setTimeout(() => {
+                    console.log("Opening second redirect for Ad Two (SDK not ready): https://otieu.com/4/9820581");
                     window.open('https://otieu.com/4/9820581', '_blank');
-                    firstRedirectDone = true;
-                    
-                    setTimeout(() => {
-                        if (!secondRedirectDone) {
-                            window.open('https://otieu.com/4/9820581', '_blank');
-                            secondRedirectDone = true;
-                        }
-                    }, 10000);
-                }
+                }, 10000);
+                
             }, 5000);
             
             taskCard.classList.remove('disabled'); // Re-enable the button
