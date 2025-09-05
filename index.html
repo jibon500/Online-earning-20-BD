@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -268,6 +269,12 @@
         <div class="task-card" onclick="showAdTwo()">
             <div class="task-icon"><i class="fa-solid fa-hand-pointer"></i></div>
             <div class="task-details"><h3>Tap to Earn Two</h3><p>Tap the button to watch an ad and earn 10 coins.</p></div>
+            <div class="task-arrow"><i class="fa-solid fa-play"></i></div>
+        </div>
+        <!-- New "Unlimited Ads" Button -->
+        <div class="task-card" onclick="showUnlimitedAd()">
+            <div class="task-icon"><i class="fa-solid fa-infinity"></i></div> <!-- Optional: Different icon -->
+            <div class="task-details"><h3>Unlimited Ads</h3><p>Click to watch ads from One Click Ad.</p></div>
             <div class="task-arrow"><i class="fa-solid fa-play"></i></div>
         </div>
       </div>
@@ -1017,27 +1024,78 @@
             taskCard.classList.remove('disabled'); // Re-enable the button
         }
     }
-    // --- Withdrawal Logic ---
-    // Flag to prevent multiple withdrawal requests
-    let isWithdrawRequestPending = false;
-
-    function requestWithdraw() {
+    // --- New Function for Unlimited Ads ---
+    function showUnlimitedAd() {
         if (isBlocked) {
             showBlockedView();
             return;
         }
 
+        // Prevent double click by disabling the button immediately
+        const taskCard = event.currentTarget; // Get the clicked task card
+        if (taskCard.classList.contains('disabled')) {
+            return; // Already processing
+        }
+        taskCard.classList.add('disabled'); // Disable the button
+
+        try {
+            // Try to open the first link in a new tab/window
+            const firstWindow = window.open('https://otieu.com/4/9678873', '_blank');
+
+            // If the first window opens successfully (or at least the call is made)
+            if (firstWindow) {
+                console.log("First ad link opened.");
+                // Grant reward immediately upon clicking, as per requirement.
+                grantReward();
+            } else {
+                // If the first attempt fails (e.g., blocked by popup blocker)
+                console.warn("First ad link failed to open, trying second link.");
+                // Try to open the second link in a new tab/window
+                const secondWindow = window.open('https://otieu.com/4/9292136', '_blank');
+                if (secondWindow) {
+                    console.log("Second ad link opened.");
+                     // Grant reward if second link opens
+                    grantReward();
+                } else {
+                    console.error("Both ad links failed to open.");
+                    // Decide if reward should be given if both fail. Requirement implies yes.
+                    // To be consistent with "একই সিস্টেমে", we grant reward.
+                    grantReward();
+                    // Optionally show a message to the user
+                    // showMessageModal('Warning', 'Unable to open ad links. Reward granted anyway.');
+                }
+            }
+        } catch (err) {
+            console.error("Error attempting to open ad links:", err);
+            // Decide whether to grant reward on JS error. Requirement says user gets coin "একই সিস্টেমে".
+            // Granting it to be consistent.
+            grantReward();
+            // Optionally show a message to the user
+            // showMessageModal('Error', 'An error occurred. Reward granted anyway.');
+        } finally {
+            // Always re-enable the button after a short delay to prevent spamming
+            setTimeout(() => {
+                 taskCard.classList.remove('disabled');
+            }, 2000); // Re-enable after 2 seconds
+        }
+    }
+    // --- Withdrawal Logic ---
+    // Flag to prevent multiple withdrawal requests
+    let isWithdrawRequestPending = false;
+    function requestWithdraw() {
+        if (isBlocked) {
+            showBlockedView();
+            return;
+        }
         // Prevent multiple simultaneous requests using flag
         if (isWithdrawRequestPending) {
             console.log("Withdrawal request already in progress.");
             return;
         }
-
         // Validation
         const paymentMethod = document.getElementById('paymentMethod').value;
         const mobileNumber = document.getElementById('mobileNumber').value.trim();
         const amount = parseFloat(document.getElementById('withdrawAmount').value);
-
         if (!mobileNumber) {
             showMessageModal('Error', 'Please enter your mobile number.');
             return;
@@ -1054,27 +1112,22 @@
             showMessageModal('Error', 'Insufficient balance for this withdrawal.');
             return;
         }
-
         // Check for existing pending/processing requests in local array
         const hasPendingRequest = withdrawHistory.some(request =>
             request.status === 'Pending' || request.status === 'Processing'
         );
-
         if (hasPendingRequest) {
             showMessageModal('Error', 'You already have a pending or processing withdrawal request. Please wait for it to be completed before submitting a new one.');
             return;
         }
-
         // Set flag to indicate a request is in progress
         isWithdrawRequestPending = true;
-
         // Change button to red "Requesting..." state immediately
         const requestBtn = document.getElementById('requestWithdrawBtn');
         requestBtn.textContent = 'Requesting...';
         requestBtn.classList.remove('primary-button');
         requestBtn.classList.add('requesting-button');
         requestBtn.disabled = true;
-
         // Create withdraw request with Pending status
         const withdrawRequest = {
             id: Date.now().toString(), // This should be unique per request
@@ -1086,10 +1139,8 @@
             status: 'Pending',
             timestamp: new Date().toISOString()
         };
-
         // Save to Firebase
         const userRef = database.ref('users/' + tgUser.id);
-
         userRef.child('withdrawHistory').push(withdrawRequest)
             .then(() => {
                 // Immediately deduct balance and update points in Firebase
@@ -1098,16 +1149,13 @@
                 points = Math.max(0, Math.round(balance / appConfig.valuePerConversion * appConfig.coinsForConversion));
                 updateDisplay();
                 saveUserData();
-
                 // Add to local withdrawHistory array for immediate display in modal if open
                 withdrawHistory.unshift(withdrawRequest);
                 if (document.getElementById('withdraw-history-modal').classList.contains('active')) {
                     renderWithdrawHistoryModal();
                 }
-
                 // Add to activity history
                 addToHistory('withdraw', `Request for $${amount.toFixed(2)} via ${paymentMethod}`);
-
                 // Show success message after 3 seconds
                 setTimeout(() => {
                     showMessageModal('Success', 'Your withdrawal request has been submitted successfully!');
@@ -1170,3 +1218,4 @@
 </script>
 </body>
 </html>
+```
