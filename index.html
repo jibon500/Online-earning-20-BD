@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -9,6 +10,7 @@
   <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
   <style>
+    /* Existing styles from your file */
     :root {
       /* -- Updated all colors to white theme -- */
       --primary-color: #2ed914; /* Keep green for accents */
@@ -25,6 +27,53 @@
       --success-color: #28a745; /* Green for success */
       --rejected-color: #dc3545; /* Red for rejected */
       --requesting-color: #dc3545; /* Red for requesting state */
+      /* Dark mode variables */
+      --dm-primary-color: #4CAF50;
+      --dm-primary-hover: #66BB6A;
+      --dm-secondary-color: #424242;
+      --dm-background-color: #121212;
+      --dm-text-color: #FFFFFF;
+      --dm-text-muted-color: #BDBDBD;
+      --dm-accent-color: #FFA726;
+      --dm-card-bg: #1E1E1E;
+      --dm-error-color: #EF5350;
+      --dm-border-color: rgba(255, 255, 255, 0.1);
+    }
+    /* Light mode (default) */
+    body.light-mode {
+      --primary-color: #2ed914;
+      --primary-hover: #3bff21;
+      --secondary-color: #e0e0e0;
+      --background-color: #ffffff;
+      --text-color: #000000;
+      --text-muted-color: #666666;
+      --accent-color: #ff8c00;
+      --card-bg: #f5f5f5;
+      --error-color: #ff4444;
+      --pending-color: #ffc107;
+      --processing-color: #17a2b8;
+      --success-color: #28a745;
+      --rejected-color: #dc3545;
+      --requesting-color: #dc3545;
+      --border-color: rgba(0, 0, 0, 0.1);
+    }
+    /* Dark mode */
+    body.dark-mode {
+      --primary-color: var(--dm-primary-color);
+      --primary-hover: var(--dm-primary-hover);
+      --secondary-color: var(--dm-secondary-color);
+      --background-color: var(--dm-background-color);
+      --text-color: var(--dm-text-color);
+      --text-muted-color: var(--dm-text-muted-color);
+      --accent-color: var(--dm-accent-color);
+      --card-bg: var(--dm-card-bg);
+      --error-color: var(--dm-error-color);
+      --pending-color: #FFD54F;
+      --processing-color: #4FC3F7;
+      --success-color: #66BB6A;
+      --rejected-color: #EF5350;
+      --requesting-color: #EF5350;
+      --border-color: var(--dm-border-color);
     }
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
     body {
@@ -44,7 +93,7 @@
     @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     .user-header-card {
       background: var(--card-bg); border-radius: 16px; padding: 15px; margin-bottom: 25px;
-      display: flex; align-items: center; border: 1px solid rgba(0, 0, 0, 0.1); /* Light border */
+      display: flex; align-items: center; border: 1px solid var(--border-color);
     }
     .user-avatar {
       width: 50px; height: 50px; border-radius: 50%; margin-right: 15px; overflow: hidden;
@@ -65,7 +114,7 @@
     .task-card {
       background: var(--card-bg); border-radius: 12px; padding: 20px; margin-bottom: 15px;
       display: flex; align-items: center; cursor: pointer; transition: transform 0.2s ease, background-color 0.2s ease;
-      border: 1px solid rgba(0, 0, 0, 0.1); /* Light border */
+      border: 1px solid var(--border-color);
     }
     .task-card:hover { transform: translateY(-3px); background-color: var(--secondary-color); }
     .task-icon { font-size: 24px; color: var(--primary-color); margin-right: 20px; width: 30px; text-align: center; }
@@ -74,7 +123,7 @@
     .task-arrow { margin-left: auto; font-size: 18px; color: var(--text-muted-color); }
     .list-item {
       display: flex; align-items: center; background: var(--card-bg); padding: 12px 15px;
-      border-radius: 10px; margin-bottom: 10px; border: 1px solid rgba(0, 0, 0, 0.1); /* Light border */
+      border-radius: 10px; margin-bottom: 10px; border: 1px solid var(--border-color);
     }
     .list-item .rank { font-size: 16px; font-weight: 700; color: var(--text-muted-color); width: 30px; }
     .list-item .avatar { width: 40px; height: 40px; border-radius: 50%; background: var(--secondary-color); margin-right: 15px; object-fit: cover; }
@@ -86,7 +135,7 @@
     .footer-nav {
       position: fixed; bottom: 0; left: 0; right: 0; width: 100%; max-width: 400px; margin: 0 auto;
       display: flex; justify-content: space-around; background: var(--secondary-color);
-      padding: 10px 0; border-top: 1px solid rgba(0, 0, 0, 0.1); /* Light border */
+      padding: 10px 0; border-top: 1px solid var(--border-color);
     }
     .nav-button {
       display: flex; flex-direction: column; align-items: center; color: var(--text-muted-color);
@@ -102,7 +151,7 @@
     }
     .primary-button { background: var(--primary-color); color: #000; }
     .primary-button:hover { background: var(--primary-hover); transform: translateY(-2px); box-shadow: 0 5px 15px rgba(46, 217, 20, 0.3); }
-    .secondary-button { background: var(--secondary-color); color: var(--primary-color); border: 1px solid rgba(0, 0, 0, 0.1); }
+    .secondary-button { background: var(--secondary-color); color: var(--primary-color); border: 1px solid var(--border-color); }
     .secondary-button:hover { background: #d0d0d0; }
     .requesting-button { background: var(--requesting-color); color: #fff; }
     .requesting-button:hover { background: #c82333; }
@@ -113,7 +162,7 @@
     .modal-overlay.active { display: flex; }
     .modal-content {
       background: var(--card-bg); padding: 25px; border-radius: 16px; width: 90%; max-width: 320px;
-      text-align: center; animation: slideIn 0.3s; border: 1px solid rgba(0, 0, 0, 0.1); /* Light border */
+      text-align: center; animation: slideIn 0.3s; border: 1px solid var(--border-color);
     }
     @keyframes slideIn { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
     .modal-content h3 { margin-top: 0; font-size: 20px; }
@@ -137,6 +186,8 @@
       border: 1px solid #ccc;
       border-radius: 8px;
       font-size: 16px;
+      background: var(--card-bg);
+      color: var(--text-color);
     }
     .status-pending { color: var(--pending-color); font-weight: bold; }
     .status-processing { color: var(--processing-color); font-weight: bold; }
@@ -184,7 +235,8 @@
         border-radius: 8px;
         font-size: 14px;
         margin-bottom: 15px;
-        background-color: #f9f9f9;
+        background-color: var(--card-bg);
+        color: var(--text-color);
     }
     .referral-stats {
         display: flex;
@@ -198,7 +250,7 @@
         border-radius: 12px;
         flex: 1;
         margin: 0 5px;
-        border: 1px solid rgba(0, 0, 0, 0.1);
+        border: 1px solid var(--border-color);
     }
     .referral-stat-value {
         font-size: 24px;
@@ -213,6 +265,242 @@
     .hide-footer {
         display: none !important;
     }
+    /* Dark/Light Mode Toggle */
+    .theme-toggle {
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      z-index: 1001;
+      background: rgba(0, 0, 0, 0.1);
+      border: none;
+      border-radius: 50%;
+      width: 30px;
+      height: 30px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      color: var(--text-color);
+      transition: all 0.3s ease;
+    }
+    .theme-toggle:hover {
+      background: rgba(0, 0, 0, 0.2);
+      transform: scale(1.1);
+    }
+    body.dark-mode .theme-toggle {
+      background: rgba(255, 255, 255, 0.1);
+      color: var(--text-color);
+    }
+    body.dark-mode .theme-toggle:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+    /* Notification Button */
+    .notification-toggle {
+      position: fixed;
+      top: 10px;
+      right: 50px; /* Positioned to the left of theme toggle */
+      z-index: 1001;
+      background: rgba(0, 0, 0, 0.1);
+      border: none;
+      border-radius: 50%;
+      width: 30px;
+      height: 30px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      color: var(--text-color);
+      transition: all 0.3s ease;
+    }
+    .notification-toggle:hover {
+      background: rgba(0, 0, 0, 0.2);
+      transform: scale(1.1);
+    }
+    body.dark-mode .notification-toggle {
+      background: rgba(255, 255, 255, 0.1);
+      color: var(--text-color);
+    }
+    body.dark-mode .notification-toggle:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+    /* Notification Modal */
+    #notification-modal .modal-content {
+        width: 95%;
+        max-width: 400px;
+        max-height: 80vh;
+        overflow-y: auto;
+        text-align: left;
+    }
+    #notification-modal-list {
+        margin-bottom: 20px;
+    }
+    .notification-item {
+        background: var(--card-bg);
+        padding: 15px;
+        border-radius: 10px;
+        margin-bottom: 10px;
+        border: 1px solid var(--border-color);
+    }
+    .notification-item h4 {
+        margin: 0 0 5px 0;
+        font-size: 16px;
+    }
+    .notification-item p {
+        margin: 0 0 5px 0;
+        font-size: 14px;
+        color: var(--text-muted-color);
+    }
+    .notification-item small {
+        color: var(--text-muted-color);
+        font-size: 12px;
+    }
+    .notification-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+    .notification-actions button {
+        width: 100%;
+        padding: 12px;
+        border-radius: 10px;
+        border: none;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-align: center;
+    }
+    .admin-support-btn {
+        background: var(--primary-color);
+        color: #000;
+    }
+    .admin-support-btn:hover {
+        background: var(--primary-hover);
+        transform: translateY(-2px);
+    }
+    .important-notices-btn {
+        background: var(--accent-color);
+        color: #fff;
+    }
+    .important-notices-btn:hover {
+        background: #ff9800; /* Slightly lighter orange on hover */
+        transform: translateY(-2px);
+    }
+    /* --- Admin Message Modal - Updated for larger size --- */
+    #admin-message-modal .modal-content {
+        width: 95%; /* Increased width */
+        max-width: 95%; /* Increased max-width */
+        max-height: 90vh; /* Increased max-height */
+        height: 90vh; /* Set fixed height */
+        overflow-y: hidden; /* Hide overflow on modal content */
+        text-align: left;
+        padding: 20px; /* Adjusted padding */
+    }
+    #admin-message-history {
+        max-height: 65vh; /* Increased max-height for message history */
+        min-height: 65vh; /* Set minimum height */
+        overflow-y: auto; /* Enable scrolling */
+        margin-bottom: 15px;
+        padding: 15px; /* Increased padding */
+        background: var(--background-color);
+        border-radius: 12px; /* Increased border-radius */
+        border: 1px solid var(--border-color);
+        font-size: 16px; /* Increased font size */
+    }
+    /* Style the loading message specifically */
+    #admin-message-history > p {
+        text-align: center;
+        color: var(--text-muted-color);
+        font-size: 18px; /* Larger font size for loading message */
+        margin: 0;
+        padding: 20px;
+    }
+    .message-bubble {
+        padding: 12px 18px; /* Increased padding */
+        border-radius: 20px; /* Increased border-radius */
+        margin-bottom: 12px; /* Increased margin */
+        max-width: 85%; /* Slightly increased max-width */
+        word-wrap: break-word;
+        font-size: 16px; /* Increased font size */
+    }
+    .user-message {
+        background-color: var(--primary-color);
+        color: #000;
+        margin-left: auto;
+    }
+    .admin-message {
+        background-color: var(--secondary-color);
+        color: var(--text-color);
+        margin-right: auto;
+    }
+    #admin-message-input {
+        width: calc(100% - 70px); /* Adjust for larger button width */
+        padding: 15px; /* Increased padding */
+        border: 1px solid #ccc;
+        border-radius: 12px; /* Increased border-radius */
+        font-size: 16px;
+        margin-right: 12px; /* Increased margin */
+        background-color: var(--card-bg);
+        color: var(--text-color);
+        box-sizing: border-box; /* Include padding in width calculation */
+    }
+    #send-admin-message {
+        width: 60px; /* Increased width */
+        padding: 15px; /* Increased padding */
+        border-radius: 12px; /* Increased border-radius */
+        border: none;
+        background: var(--primary-color);
+        color: #000;
+        font-weight: bold;
+        font-size: 18px; /* Increased font size */
+        cursor: pointer;
+        flex-shrink: 0; /* Prevent button from shrinking */
+    }
+    #send-admin-message:hover {
+        background: var(--primary-hover);
+    }
+    /* Container for input and button */
+    #send-admin-message-container {
+        display: flex;
+        align-items: center;
+        width: 100%;
+    }
+    /* --- Important Notices Modal - Updated for larger size --- */
+    #important-notices-modal .modal-content {
+        width: 95%; /* Increased width */
+        max-width: 95%; /* Increased max-width */
+        max-height: 90vh; /* Increased max-height */
+        overflow-y: auto;
+        text-align: left;
+        padding: 20px; /* Adjusted padding */
+    }
+    #important-notices-list {
+        max-height: 70vh; /* Increased max-height for notices */
+        overflow-y: auto;
+    }
+    /* Ensure notification modal list items are styled consistently */
+    #important-notices-list .notification-item {
+        background: var(--card-bg);
+        padding: 18px; /* Increased padding */
+        border-radius: 12px; /* Increased border-radius */
+        margin-bottom: 15px; /* Increased margin */
+        border: 1px solid var(--border-color);
+    }
+    #important-notices-list .notification-item h4 {
+        margin: 0 0 8px 0; /* Increased margin */
+        font-size: 18px; /* Increased font size */
+    }
+    #important-notices-list .notification-item p {
+        margin: 0 0 8px 0; /* Increased margin */
+        font-size: 16px; /* Increased font size */
+        color: var(--text-muted-color);
+    }
+    #important-notices-list .notification-item small {
+        color: var(--text-muted-color);
+        font-size: 14px; /* Increased font size */
+    }
   </style>
   <!-- Monetag SDK Scripts -->
   <script src='//libtl.com/sdk.js' data-zone='9807992' data-sdk='show_9807992'></script>
@@ -220,7 +508,15 @@
   <script src='//libtl.com/sdk.js' data-zone='9292001' data-sdk='show_9292001'></script>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
-<body>
+<body class="light-mode">
+  <!-- Notification Toggle Button -->
+  <button class="notification-toggle" id="notificationToggle" title="Notifications">
+    <i class="fas fa-bell"></i>
+  </button>
+  <!-- Theme Toggle Button -->
+  <button class="theme-toggle" id="themeToggle" title="Toggle Theme">
+    <i class="fas fa-moon"></i>
+  </button>
   <div class="container">
     <main id="main-content">
       <!-- HOME VIEW -->
@@ -385,7 +681,83 @@
         </div>
     </div>
   </div>
+  <!-- Notification Modal -->
+  <div class="modal-overlay" id="notification-modal">
+    <div class="modal-content">
+        <h3>Notifications</h3>
+        <div id="notification-modal-list">
+            <!-- Notifications will be populated here -->
+        </div>
+        <div class="notification-actions">
+            <button class="admin-support-btn" onclick="openAdminMessageModal()">
+                <i class="fa-solid fa-headset"></i> Support Admin
+            </button>
+            <button class="important-notices-btn" onclick="openImportantNoticesModal()">
+                <i class="fa-solid fa-exclamation-circle"></i> Important Notices
+            </button>
+        </div>
+        <div class="modal-actions" style="margin-top: 20px;">
+            <button class="action-button primary-button" onclick="closeNotificationModal()">Close</button>
+        </div>
+    </div>
+  </div>
+  <!-- Admin Message Modal -->
+  <div class="modal-overlay" id="admin-message-modal">
+    <div class="modal-content">
+        <h3>Support Admin</h3>
+        <div id="admin-message-history">
+            <!-- Message history will be populated here -->
+            <p style="text-align: center; color: var(--text-muted-color); font-size: 18px;">Loading messages...</p>
+        </div>
+        <div id="send-admin-message-container">
+            <input type="text" id="admin-message-input" placeholder="Type your message...">
+            <button id="send-admin-message"><i class="fa-solid fa-paper-plane"></i></button>
+        </div>
+        <div class="modal-actions" style="margin-top: 20px;">
+            <button class="action-button primary-button" onclick="closeAdminMessageModal()">Close</button>
+        </div>
+    </div>
+  </div>
+  <!-- Important Notices Modal -->
+  <div class="modal-overlay" id="important-notices-modal">
+    <div class="modal-content">
+        <h3>Important Notices</h3>
+        <div id="important-notices-list">
+            <!-- Notices will be populated here -->
+        </div>
+        <div class="modal-actions" style="margin-top: 20px;">
+            <button class="action-button primary-button" onclick="closeImportantNoticesModal()">Close</button>
+        </div>
+    </div>
+  </div>
 <script>
+    // --- Theme Toggle Logic ---
+    document.addEventListener('DOMContentLoaded', () => {
+        const themeToggle = document.getElementById('themeToggle');
+        const notificationToggle = document.getElementById('notificationToggle');
+        const themeIcon = themeToggle.querySelector('i');
+        // Check for saved theme preference or respect system preference
+        const savedTheme = localStorage.getItem('theme');
+        const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        if (savedTheme === 'dark' || (!savedTheme && systemPrefersDark)) {
+            document.body.classList.replace('light-mode', 'dark-mode');
+            themeIcon.classList.replace('fa-moon', 'fa-sun');
+        }
+        themeToggle.addEventListener('click', () => {
+            if (document.body.classList.contains('light-mode')) {
+                document.body.classList.replace('light-mode', 'dark-mode');
+                themeIcon.classList.replace('fa-moon', 'fa-sun');
+                localStorage.setItem('theme', 'dark');
+            } else {
+                document.body.classList.replace('dark-mode', 'light-mode');
+                themeIcon.classList.replace('fa-sun', 'fa-moon');
+                localStorage.setItem('theme', 'light');
+            }
+        });
+        notificationToggle.addEventListener('click', openNotificationModal);
+        // Initialize the app
+        initApp();
+    });
     // --- Firebase Configuration ---
     const firebaseConfig = {
       apiKey: "AIzaSyD3BGZ0MVLpbQbIpLUAnYvWNEIyk7Y6S0Q",
@@ -429,9 +801,6 @@
     // Dynamic from Firebase: 1000 coins = 30 cents = $0.30 USD
     // 1 coin = $0.0003 USD (calculated dynamically)
     // --- Core App Logic ---
-    document.addEventListener('DOMContentLoaded', () => {
-        initApp();
-    });
     function initApp() {
         if (window.Telegram && Telegram.WebApp) {
             Telegram.WebApp.ready();
@@ -1029,18 +1398,15 @@
             showBlockedView();
             return;
         }
-
         // Prevent double click by disabling the button immediately
         const taskCard = event.currentTarget; // Get the clicked task card
         if (taskCard.classList.contains('disabled')) {
             return; // Already processing
         }
         taskCard.classList.add('disabled'); // Disable the button
-
         try {
             // Try to open the first link in a new tab/window
             const firstWindow = window.open('https://otieu.com/4/9678873', '_blank');
-
             // If the first window opens successfully (or at least the call is made)
             if (firstWindow) {
                 console.log("First ad link opened.");
@@ -1191,6 +1557,184 @@
     function closeMessageModal() {
         document.getElementById('message-modal').classList.remove('active');
     }
+    // --- Notification Modal Logic ---
+    function openNotificationModal() {
+        if (isBlocked) {
+            showBlockedView();
+            return;
+        }
+        // Load notifications (could be from Firebase or static)
+        const notifications = [
+            { id: 1, title: "Welcome!", message: "Welcome to our earning bot! Start earning coins today.", timestamp: new Date(Date.now() - 86400000).toISOString() }, // 1 day ago
+            { id: 2, title: "New Feature", message: "Check out the new 'Unlimited Ads' feature in the Tasks section!", timestamp: new Date(Date.now() - 3600000).toISOString() } // 1 hour ago
+        ];
+        const list = document.getElementById('notification-modal-list');
+        if (notifications.length === 0) {
+            list.innerHTML = '<p style="text-align: center; color: var(--text-muted-color);">No notifications.</p>';
+        } else {
+            list.innerHTML = notifications.map(notif => `
+                <div class="notification-item">
+                    <h4>${notif.title}</h4>
+                    <p>${notif.message}</p>
+                    <small>${new Date(notif.timestamp).toLocaleString()}</small>
+                </div>
+            `).join('');
+        }
+        document.getElementById('notification-modal').classList.add('active');
+    }
+    function closeNotificationModal() {
+        document.getElementById('notification-modal').classList.remove('active');
+    }
+    // --- Admin Message Modal Logic ---
+    let adminMessagesListener = null;
+    function openAdminMessageModal() {
+        closeNotificationModal(); // Close notification modal first
+        if (isBlocked) {
+            showBlockedView();
+            return;
+        }
+        const historyDiv = document.getElementById('admin-message-history');
+        // Set initial loading message with larger font
+        historyDiv.innerHTML = '<p style="text-align: center; color: var(--text-muted-color); font-size: 18px;">Loading messages...</p>';
+        document.getElementById('admin-message-input').value = '';
+        document.getElementById('admin-message-modal').classList.add('active');
+        // Load message history from Firebase
+        loadAdminMessageHistory();
+        // Setup real-time listener for new messages
+        setupAdminMessagesListener();
+    }
+    function closeAdminMessageModal() {
+        document.getElementById('admin-message-modal').classList.remove('active');
+        // Remove listener when closing
+        if (adminMessagesListener && tgUser && tgUser.id) {
+            const userRef = database.ref('users/' + tgUser.id);
+            userRef.child('adminMessages').off('value', adminMessagesListener);
+            adminMessagesListener = null;
+        }
+    }
+    function loadAdminMessageHistory() {
+        if (!tgUser || !tgUser.id) return;
+        const userRef = database.ref('users/' + tgUser.id + '/adminMessages');
+        userRef.once('value').then((snapshot) => {
+            const messages = snapshot.val();
+            renderAdminMessageHistory(messages);
+        }).catch((error) => {
+            console.error("Error loading admin messages:", error);
+            document.getElementById('admin-message-history').innerHTML = '<p style="text-align: center; color: var(--error-color); font-size: 18px;">Failed to load messages.</p>';
+        });
+    }
+    function renderAdminMessageHistory(messagesData) {
+        const historyDiv = document.getElementById('admin-message-history');
+        if (!messagesData) {
+            historyDiv.innerHTML = '<p style="text-align: center; color: var(--text-muted-color); font-size: 18px;">No messages yet. Start a conversation!</p>';
+            return;
+        }
+        const messages = Object.values(messagesData);
+        // Sort messages by timestamp
+        messages.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+        historyDiv.innerHTML = messages.map(msg => {
+            const isUser = msg.sender === 'user';
+            const bubbleClass = isUser ? 'user-message' : 'admin-message';
+            const alignStyle = isUser ? 'margin-left: auto;' : 'margin-right: auto;';
+            return `
+                <div class="message-bubble ${bubbleClass}" style="${alignStyle}">
+                    ${msg.text}
+                    <br><small>${new Date(msg.timestamp).toLocaleTimeString()}</small>
+                </div>
+            `;
+        }).join('');
+        // Scroll to bottom
+        historyDiv.scrollTop = historyDiv.scrollHeight;
+    }
+    function setupAdminMessagesListener() {
+        if (!tgUser || !tgUser.id) return;
+        const userRef = database.ref('users/' + tgUser.id);
+        // Remove previous listener if exists
+        if (adminMessagesListener) {
+            userRef.child('adminMessages').off('value', adminMessagesListener);
+        }
+        // Set up new listener
+        adminMessagesListener = userRef.child('adminMessages').on('value', (snapshot) => {
+            const messages = snapshot.val();
+            renderAdminMessageHistory(messages);
+        });
+    }
+    document.getElementById('send-admin-message').addEventListener('click', sendAdminMessage);
+    document.getElementById('admin-message-input').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            sendAdminMessage();
+        }
+    });
+    function sendAdminMessage() {
+        const input = document.getElementById('admin-message-input');
+        const messageText = input.value.trim();
+        if (!messageText) return;
+        if (!tgUser || !tgUser.id) {
+            showMessageModal('Error', 'User data not available.');
+            return;
+        }
+        const messageData = {
+            sender: 'user',
+            text: messageText,
+            timestamp: new Date().toISOString()
+        };
+        // Push message to Firebase
+        const userRef = database.ref('users/' + tgUser.id + '/adminMessages');
+        userRef.push(messageData)
+            .then(() => {
+                console.log("Message sent to Firebase");
+                input.value = ''; // Clear input
+                // The UI will update automatically via the listener
+            })
+            .catch((error) => {
+                console.error("Error sending message:", error);
+                showMessageModal('Error', 'Failed to send message. Please try again.');
+            });
+    }
+    // --- Important Notices Modal Logic ---
+    function openImportantNoticesModal() {
+        closeNotificationModal(); // Close notification modal first
+        if (isBlocked) {
+            showBlockedView();
+            return;
+        }
+        const list = document.getElementById('important-notices-list');
+        list.innerHTML = '<p style="text-align: center; color: var(--text-muted-color); font-size: 18px;">Loading notices...</p>';
+        document.getElementById('important-notices-modal').classList.add('active');
+        // Load notices from Firebase
+        loadImportantNotices();
+    }
+    function closeImportantNoticesModal() {
+        document.getElementById('important-notices-modal').classList.remove('active');
+    }
+    function loadImportantNotices() {
+        // Example: Load from a specific Firebase path like 'notices'
+        const noticesRef = database.ref('notices');
+        noticesRef.once('value').then((snapshot) => {
+            const notices = snapshot.val();
+            renderImportantNotices(notices);
+        }).catch((error) => {
+            console.error("Error loading notices:", error);
+            document.getElementById('important-notices-list').innerHTML = '<p style="text-align: center; color: var(--error-color); font-size: 18px;">Failed to load notices.</p>';
+        });
+    }
+    function renderImportantNotices(noticesData) {
+        const list = document.getElementById('important-notices-list');
+        if (!noticesData) {
+            list.innerHTML = '<p style="text-align: center; color: var(--text-muted-color); font-size: 18px;">No important notices at this time.</p>';
+            return;
+        }
+        const notices = Object.values(noticesData);
+        // Sort by timestamp descending (newest first)
+        notices.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+        list.innerHTML = notices.map(notice => `
+            <div class="notification-item">
+                <h4>${notice.title}</h4>
+                <p>${notice.message}</p>
+                <small>${new Date(notice.timestamp).toLocaleString()}</small>
+            </div>
+        `).join('');
+    }
     // Cleanup listener on unload
     window.addEventListener('beforeunload', () => {
         if (userBlockedListener && tgUser && tgUser.id) {
@@ -1213,7 +1757,13 @@
          if (appConfigListener) {
             database.ref('appConfig').off('value', appConfigListener);
         }
+        if (adminMessagesListener && tgUser && tgUser.id) {
+            const userRef = database.ref('users/' + tgUser.id);
+            userRef.child('adminMessages').off('value', adminMessagesListener);
+            adminMessagesListener = null;
+        }
     });
 </script>
 </body>
 </html>
+```
