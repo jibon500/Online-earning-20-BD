@@ -1,4 +1,4 @@
-ণ<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -1031,18 +1031,30 @@
             const referrerSnapshot = await referrerRef.once('value');
             if (referrerSnapshot.exists()) {
                 // Reward referrer (coins from Firebase config)
-                // --- Update: Use default value if config not found ---
-                const rewardCoins = appConfig.referralRewardCoins || 10;
+                // --- Update: Check if appConfig.referralRewardCoins exists ---
+                if (appConfig.referralRewardCoins === undefined) {
+                    console.warn("appConfig.referralRewardCoins is not set. Skipping referral reward.");
+                    return; // Skip if not configured
+                }
                 // --- End Update ---
                 const referrerData = referrerSnapshot.val();
-                const newReferralEarnings = (referrerData.referralEarnings || 0) + rewardCoins;
+                const newReferralEarnings = (referrerData.referralEarnings || 0) + appConfig.referralRewardCoins;
                 const newReferralCount = (referrerData.referralCount || 0) + 1;
-                const newPoints = referrerData.points + rewardCoins;
-                // --- Update: Use default conversion if config not found ---
-                const coinsForConversion = appConfig.coinsForConversion || 1000;
-                const valuePerConversion = appConfig.valuePerConversion || 0.30;
+                const newPoints = referrerData.points + appConfig.referralRewardCoins;
+                // --- Update: Check if conversion config exists ---
+                if (appConfig.coinsForConversion === undefined || appConfig.valuePerConversion === undefined) {
+                    console.warn("appConfig.coinsForConversion or appConfig.valuePerConversion is not set. Skipping balance update for referral.");
+                    // Update only points and referral data, not balance
+                     await referrerRef.update({
+                        referralEarnings: newReferralEarnings,
+                        referralCount: newReferralCount,
+                        points: newPoints
+                    });
+                     console.log(`Referral processed (points only): User ${tgUser.id} referred by ${referrerId}`);
+                     return;
+                }
                 // --- End Update ---
-                const newBalance = (newPoints / coinsForConversion) * valuePerConversion;
+                const newBalance = (newPoints / appConfig.coinsForConversion) * appConfig.valuePerConversion;
                 // Update referrer's data
                 await referrerRef.update({
                     referralEarnings: newReferralEarnings,
@@ -1124,13 +1136,14 @@
                 if (document.getElementById('share-modal').classList.contains('active')) {
                     updateShareModal();
                 }
-                // --- Update: Use default threshold if config not found ---
-                const claimThreshold = appConfig.referralClaimThreshold || 200;
-                // --- End Update ---
-                // Check if referral earnings reached threshold (from Firebase config)
-                if (referralData.referralEarnings >= claimThreshold) {
-                    claimReferralEarnings();
+                // --- Update: Check if threshold config exists ---
+                if (appConfig.referralClaimThreshold !== undefined) {
+                    // Check if referral earnings reached threshold (from Firebase config)
+                    if (referralData.referralEarnings >= appConfig.referralClaimThreshold) {
+                        claimReferralEarnings();
+                    }
                 }
+                // --- End Update ---
             }
         });
     }
@@ -1160,15 +1173,25 @@
     // Claim referral earnings (convert to main balance)
     async function claimReferralEarnings() {
         if (!tgUser || !tgUser.id) return;
+        // --- Update: Check if threshold config exists ---
+        if (appConfig.referralClaimThreshold === undefined) {
+             console.warn("appConfig.referralClaimThreshold is not set. Cannot claim referral earnings.");
+             return; // Skip if not configured
+        }
+        // --- End Update ---
         try {
-            // --- Update: Use default threshold if config not found ---
-            const coinsToClaim = appConfig.referralClaimThreshold || 200;
+            // --- Update: Use the threshold from appConfig ---
+            const coinsToClaim = appConfig.referralClaimThreshold;
             // --- End Update ---
-            // --- Update: Use default conversion if config not found ---
-            const coinsForConversion = appConfig.coinsForConversion || 1000;
-            const valuePerConversion = appConfig.valuePerConversion || 0.30;
+            // --- Update: Check if conversion config exists ---
+            if (appConfig.coinsForConversion === undefined || appConfig.valuePerConversion === undefined) {
+                 console.warn("appConfig.coinsForConversion or appConfig.valuePerConversion is not set. Cannot claim referral earnings.");
+                 return; // Skip if not configured
+            }
             // --- End Update ---
-            const valueToClaim = (coinsToClaim / coinsForConversion) * valuePerConversion;
+            // --- Update: Use conversion from appConfig ---
+            const valueToClaim = (coinsToClaim / appConfig.coinsForConversion) * appConfig.valuePerConversion;
+            // --- End Update ---
             // Update user's main balance
             points += coinsToClaim;
             balance += valueToClaim;
@@ -1184,7 +1207,9 @@
             // Update display
             updateDisplay();
             // Show notification
-            showMessageModal('Success', `Congratulations! You've claimed ${coinsToClaim} referral coins ($${valueToClaim.toFixed(2)}) and they've been added to your main balance.`);
+            // --- Update: Use the threshold from appConfig in message ---
+            showMessageModal('Success', `Congratulations! You've claimed ${appConfig.referralClaimThreshold} referral coins ($${valueToClaim.toFixed(2)}) and they've been added to your main balance.`);
+            // --- End Update ---
         } catch (error) {
             console.error("Error claiming referral earnings:", error);
             showMessageModal('Error', 'Failed to claim referral earnings. Please try again.');
@@ -1274,14 +1299,14 @@
     // --- New function to update ad button states based on limit and status ---
     function updateAdButtonStates() {
          // --- Update: Check if appConfig exists and has isAdSystemActive ---
-         const isGlobalActive = appConfig && appConfig.isAdSystemActive !== undefined ? appConfig.isAdSystemActive : true;
+         const isGlobalActive = appConfig && appConfig.isAdSystemActive !== undefined ? appConfig.isAdSystemActive : false; // Default to false if not set
          // --- End Update ---
         // Check user-specific ad status
         const isUserActive = adStatus === 'Active';
         // Check if the 12-hour period has passed and reset if necessary
         checkAndResetAdCounter();
-        // --- Update: Use default limit if config not found ---
-        const dailyLimit = appConfig.dailyAdLimitPerUser || 0;
+        // --- Update: Check if limit config exists ---
+        const dailyLimit = appConfig && appConfig.dailyAdLimitPerUser !== undefined ? appConfig.dailyAdLimitPerUser : 0; // Default to 0 if not set
         // --- End Update ---
         // Check if limit is reached
         const isLimitReached = adsWatchedToday >= dailyLimit;
@@ -1301,15 +1326,15 @@
     function updateDisplay() {
         document.getElementById('points-value').textContent = points.toLocaleString();
         document.getElementById('balance-value').textContent = `$${balance.toFixed(2)}`;
-        // --- Update: Use default limit if config not found ---
-        const dailyLimit = appConfig.dailyAdLimitPerUser || 0;
+        // --- Update: Check if limit config exists ---
+        const dailyLimit = appConfig && appConfig.dailyAdLimitPerUser !== undefined ? appConfig.dailyAdLimitPerUser : 0; // Default to 0 if not set
         // --- End Update ---
         // Update new ad info section
         document.getElementById('daily-ad-limit').textContent = `${adsWatchedToday}/${dailyLimit}`;
         const statusBox = document.getElementById('ad-status-box');
         const statusValue = document.getElementById('ad-status-value');
-        // --- Update: Check if appConfig exists and has isAdSystemActive ---
-        const isGlobalActive = appConfig && appConfig.isAdSystemActive !== undefined ? appConfig.isAdSystemActive : true;
+        // --- Update: Check if global status config exists ---
+        const isGlobalActive = appConfig && appConfig.isAdSystemActive !== undefined ? appConfig.isAdSystemActive : false; // Default to false if not set
         // --- End Update ---
         // Show global status if inactive, otherwise show user status
         statusValue.textContent = isGlobalActive ? adStatus : 'Inactive (Global)';
@@ -1506,7 +1531,7 @@
         // --- Ad Limit and Status Check ---
         // 1. Check global ad system status
         // --- Update: Check if appConfig exists and has isAdSystemActive ---
-        const isGlobalActive = appConfig && appConfig.isAdSystemActive !== undefined ? appConfig.isAdSystemActive : true;
+        const isGlobalActive = appConfig && appConfig.isAdSystemActive !== undefined ? appConfig.isAdSystemActive : false; // Default to false if not set
         // --- End Update ---
         if (!isGlobalActive) {
             showMessageModal('Error', 'The ad system is currently inactive. Please try again later.');
@@ -1518,8 +1543,8 @@
             return;
         }
         // 3. Check 12-hour period and limit (redundant check, but for safety)
-        // --- Update: Use default limit if config not found ---
-        const dailyLimit = appConfig.dailyAdLimitPerUser || 0;
+        // --- Update: Check if limit config exists ---
+        const dailyLimit = appConfig && appConfig.dailyAdLimitPerUser !== undefined ? appConfig.dailyAdLimitPerUser : 0; // Default to 0 if not set
         // --- End Update ---
         if (adsWatchedToday >= dailyLimit) {
             // This check should ideally be done before calling grantReward
@@ -1540,22 +1565,31 @@
             }
         }
         // --- End Ad Limit and Status Check ---
-        // --- Update: Use default points per ad if config not found ---
-        const pointsPerAd = appConfig.pointsPerAd || 10;
+        // --- Update: Check if pointsPerAd config exists ---
+        if (appConfig.pointsPerAd === undefined) {
+             console.warn("appConfig.pointsPerAd is not set. Cannot grant reward.");
+             showMessageModal('Error', 'Reward configuration is missing. Please contact support.');
+             return; // Skip if not configured
+        }
         // --- End Update ---
         // Add coins for watching ad (from Firebase config)
-        points += pointsPerAd;
-        // --- Update: Use default conversion if config not found ---
-        const coinsForConversion = appConfig.coinsForConversion || 1000;
-        const valuePerConversion = appConfig.valuePerConversion || 0.30;
+        points += appConfig.pointsPerAd;
+        // --- Update: Check if conversion config exists ---
+        if (appConfig.coinsForConversion === undefined || appConfig.valuePerConversion === undefined) {
+             console.warn("appConfig.coinsForConversion or appConfig.valuePerConversion is not set. Cannot calculate balance.");
+             balance = 0; // Or keep previous balance? Up to you.
+        } else {
+             // Calculate balance dynamically from Firebase config
+             balance = (points / appConfig.coinsForConversion) * appConfig.valuePerConversion;
+        }
         // --- End Update ---
-        // Calculate balance dynamically from Firebase config
-        balance = (points / coinsForConversion) * valuePerConversion;
         updateDisplay();
-        addToHistory('earn', `+${pointsPerAd} Coin(s) from Ad`);
+        addToHistory('earn', `+${appConfig.pointsPerAd} Coin(s) from Ad`);
         saveUserData();
         Telegram.WebApp.HapticFeedback.notificationOccurred('success');
-        showMessageModal('Success', `Congratulations! You've earned +${pointsPerAd} coins. Your new balance is $${balance.toFixed(2)}.`);
+        // --- Update: Use pointsPerAd from appConfig in message ---
+        showMessageModal('Success', `Congratulations! You've earned +${appConfig.pointsPerAd} coins. Your new balance is $${balance.toFixed(2)}.`);
+        // --- End Update ---
     }
     // Function to update ad tracking data in Firebase
     async function updateAdTracking() {
@@ -1598,7 +1632,7 @@
          // --- Ad Limit and Status Check (Duplicate for safety) ---
         // 1. Check global ad system status
         // --- Update: Check if appConfig exists and has isAdSystemActive ---
-        const isGlobalActive = appConfig && appConfig.isAdSystemActive !== undefined ? appConfig.isAdSystemActive : true;
+        const isGlobalActive = appConfig && appConfig.isAdSystemActive !== undefined ? appConfig.isAdSystemActive : false; // Default to false if not set
         // --- End Update ---
         if (!isGlobalActive) {
             showMessageModal('Error', 'The ad system is currently inactive. Please try again later.');
@@ -1610,8 +1644,8 @@
             return;
         }
         // 3. Check 12-hour period and limit
-        // --- Update: Use default limit if config not found ---
-        const dailyLimit = appConfig.dailyAdLimitPerUser || 0;
+        // --- Update: Check if limit config exists ---
+        const dailyLimit = appConfig && appConfig.dailyAdLimitPerUser !== undefined ? appConfig.dailyAdLimitPerUser : 0; // Default to 0 if not set
         // --- End Update ---
         const now = new Date();
         let isWithinPeriod = true;
@@ -1740,7 +1774,7 @@
         // --- Ad Limit and Status Check ---
         // 1. Check global ad system status
         // --- Update: Check if appConfig exists and has isAdSystemActive ---
-        const isGlobalActive = appConfig && appConfig.isAdSystemActive !== undefined ? appConfig.isAdSystemActive : true;
+        const isGlobalActive = appConfig && appConfig.isAdSystemActive !== undefined ? appConfig.isAdSystemActive : false; // Default to false if not set
         // --- End Update ---
         if (!isGlobalActive) {
             showMessageModal('Error', 'The ad system is currently inactive. Please try again later.');
@@ -1752,8 +1786,8 @@
             return;
         }
         // 3. Check 12-hour period and limit
-        // --- Update: Use default limit if config not found ---
-        const dailyLimit = appConfig.dailyAdLimitPerUser || 0;
+        // --- Update: Check if limit config exists ---
+        const dailyLimit = appConfig && appConfig.dailyAdLimitPerUser !== undefined ? appConfig.dailyAdLimitPerUser : 0; // Default to 0 if not set
         // --- End Update ---
         const now = new Date();
         let isWithinPeriod = true;
@@ -1852,8 +1886,8 @@
             showMessageModal('Error', 'Please enter a valid amount.');
             return;
         }
-        // --- Update: Use default minimum amount if config not found ---
-        const minAmount = appConfig.minWithdrawAmount || 5;
+        // --- Update: Check if minWithdrawAmount config exists ---
+        const minAmount = appConfig && appConfig.minWithdrawAmount !== undefined ? appConfig.minWithdrawAmount : 0; // Default to 0 if not set (allows any amount > 0)
         // --- End Update ---
         if (amount < minAmount) {
             showMessageModal('Error', `Minimum withdrawal amount is $${minAmount.toFixed(2)}.`);
@@ -1896,12 +1930,16 @@
             .then(() => {
                 // Immediately deduct balance and update points in Firebase
                 balance -= amount;
-                // --- Update: Use default conversion if config not found ---
-                const coinsForConversion = appConfig.coinsForConversion || 1000;
-                const valuePerConversion = appConfig.valuePerConversion || 0.30;
+                // --- Update: Check if conversion config exists for points calculation ---
+                if (appConfig.coinsForConversion !== undefined && appConfig.valuePerConversion !== undefined) {
+                    // Ensure points are calculated correctly and don't go negative
+                    points = Math.max(0, Math.round(balance / appConfig.valuePerConversion * appConfig.coinsForConversion));
+                } else {
+                    console.warn("appConfig.coinsForConversion or appConfig.valuePerConversion is not set. Points calculation skipped.");
+                    // Optionally, you could keep points unchanged or set to 0.
+                    // For now, we'll keep points unchanged.
+                }
                 // --- End Update ---
-                // Ensure points are calculated correctly and don't go negative
-                points = Math.max(0, Math.round(balance / valuePerConversion * coinsForConversion));
                 updateDisplay();
                 saveUserData();
                 // Add to local withdrawHistory array for immediate display in modal if open
