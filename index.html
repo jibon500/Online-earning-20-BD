@@ -1,4 +1,4 @@
-```html
+```html২৩৪৩৪৫৫৫৪৫৫৫৫৫৫৪৫৪৫৪৪৫৫৪৪৫৬৬
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -983,6 +983,23 @@
                 setupAppConfigListener(); // Setup listener for app config changes
                 setupUserAdDataListener(userRef); // Setup listener for user ad data
             }
+             // --- New: Ensure timer starts for existing users too ---
+            // Check if lastAdWatchTime exists for existing user, if not, set it
+            if (userData && !userData.lastAdWatchTime) {
+                 const nowForTimer = new Date();
+                 try {
+                      await userRef.update({
+                         lastAdWatchTime: nowForTimer.toISOString()
+                      });
+                      lastAdWatchTime = nowForTimer; // Update local variable
+                      console.log("Initial lastAdWatchTime set for existing user to start timer.");
+                 } catch (error) {
+                      console.error("Failed to set initial lastAdWatchTime for existing user:", error);
+                 }
+            }
+            // Ensure timer is always started after loading data
+            startResetTimer();
+            // --- End New ---
         } catch (error) {
             console.error("Failed to load user ", error);
             throw error;
@@ -1322,22 +1339,7 @@
         }
         // Update reset timer display is handled by the timer function
     }
-    // --- 12-Hour Reset Timer Logic ---
-    // function startResetTimer() {
-    //     // Clear any existing interval
-    //     if (resetTimerInterval) {
-    //         clearInterval(resetTimerInterval);
-    //     }
-    //     // Update display immediately
-    //     updateResetTimerDisplay();
-    //     // Start the interval to update the timer every second
-    //     resetTimerInterval = setInterval(() => {
-    //         updateResetTimerDisplay();
-    //         // Also check and reset the counter every second
-    //         checkAndResetAdCounter();
-    //     }, 1000);
-    // }
-    // নতুন লজিক: প্রতি সেকেন্ডে UI আপডেট করার জন্য একটি সরল ফাংশন
+    // --- 12-Hour Reset Timer Logic (Updated) ---
     function startResetTimer() {
         // Clear any existing interval
         if (resetTimerInterval) {
@@ -1345,12 +1347,14 @@
         }
         // Update display immediately
         updateResetTimerDisplay();
-        // Start the interval ONLY for UI update (not for checking reset)
+        // Start the interval ONLY for UI update and checking reset
         resetTimerInterval = setInterval(() => {
             updateResetTimerDisplay();
-            // DO NOT call checkAndResetAdCounter here anymore
+            // Check and reset the counter every second based on real time
+            checkAndResetAdCounter();
         }, 1000);
     }
+
     function updateResetTimerDisplay() {
         // If there's no lastAdWatchTime, or it's more than 12 hours ago, timer shows --:--:--
         if (!lastAdWatchTime) {
@@ -1374,6 +1378,7 @@
         document.getElementById('reset-timer').textContent =
             `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
     }
+
     async function checkAndResetAdCounter() {
         if (!tgUser || !tgUser.id) return;
         // Check if 12 hours have passed based on actual time
@@ -1381,20 +1386,24 @@
             const now = new Date();
             const timeDiff = now - lastAdWatchTime;
             const hoursDiff = timeDiff / (1000 * 60 * 60);
+            // console.log("Checking reset... Time diff (hours):", hoursDiff); // For debugging
             if (hoursDiff >= 12) {
-                // Reset the counter if it's not already 0
-                if (adsWatchedToday !== 0) {
-                    adsWatchedToday = 0;
-                    try {
-                        await database.ref('users/' + tgUser.id).update({
-                            adsWatchedToday: adsWatchedToday
-                        });
-                        console.log("Ad counter reset after 12 hours (real-time check).");
-                        updateDisplay(); // Update display to reflect reset
-                        updateAdButtonStates(); // Update button states
-                    } catch (error) {
-                        console.error("Failed to reset ad counter:", error);
-                    }
+                // Always reset the counter and timer, regardless of current value
+                // const oldAdsWatchedToday = adsWatchedToday; // Store for logging if needed
+                adsWatchedToday = 0;
+                const newLastAdWatchTime = new Date(); // Set new start time
+                try {
+                    await database.ref('users/' + tgUser.id).update({
+                        adsWatchedToday: adsWatchedToday,
+                        lastAdWatchTime: newLastAdWatchTime.toISOString()
+                    });
+                    lastAdWatchTime = newLastAdWatchTime; // Update local variable
+                    console.log("Ad counter and timer reset after 12 hours (real-time check).");
+                    updateDisplay(); // Update display to reflect reset
+                    // No need to call updateAdButtonStates() here as it's timer related, not ad view related
+                    startResetTimer(); // Restart the UI timer display with new time
+                } catch (error) {
+                    console.error("Failed to reset ad counter and timer:", error);
                 }
             }
         }
@@ -1562,31 +1571,34 @@
     async function updateAdTracking() {
         if (!tgUser || !tgUser.id) return;
         const now = new Date();
-        // Check if the 12-hour period has passed, if so, reset the counter locally for this action
-        let localAdsWatchedToday = adsWatchedToday;
-        let localLastAdWatchTime = lastAdWatchTime;
-        if (localLastAdWatchTime) {
-            const timeDiff = now - localLastAdWatchTime;
-            const hoursDiff = timeDiff / (1000 * 60 * 60);
-            if (hoursDiff >= 12) {
-                localAdsWatchedToday = 0; // Reset for this action
-                // Note: We don't change localLastAdWatchTime here, it will be updated to 'now'
-            }
-        }
+
+        // --- Changed: Do not update lastAdWatchTime on every ad view anymore ---
+        // The timer is now independent of ad clicks
+        // --- End Changed ---
+
         // Increment the local counter for this action
-        localAdsWatchedToday += 1;
-        localLastAdWatchTime = now;
+        let localAdsWatchedToday = adsWatchedToday + 1;
+
         try {
+            // --- Changed: Only update adsWatchedToday ---
             await database.ref('users/' + tgUser.id).update({
-                adsWatchedToday: localAdsWatchedToday,
-                lastAdWatchTime: localLastAdWatchTime.toISOString() // Store as ISO string
+                adsWatchedToday: localAdsWatchedToday
+                // --- Changed: Do not update lastAdWatchTime on every ad view anymore ---
+                // lastAdWatchTime: localLastAdWatchTime.toISOString() // Store as ISO string
+                // --- End Changed ---
             });
-            console.log("Ad tracking updated:", { localAdsWatchedToday, localLastAdWatchTime });
+            // --- End Changed ---
+            console.log("Ad tracking updated (counter only):", { localAdsWatchedToday });
+
             // Update local state variables to reflect the change
             adsWatchedToday = localAdsWatchedToday;
-            lastAdWatchTime = localLastAdWatchTime;
+            // --- Changed: Do not update lastAdWatchTime on every ad view anymore ---
+            // lastAdWatchTime = localLastAdWatchTime;
+            // --- End Changed ---
             updateDisplay();
-            startResetTimer(); // Restart the timer
+            // --- Changed: Do not restart the timer UI on ad view ---
+            // startResetTimer(); // Restart the timer
+            // --- End Changed ---
             updateAdButtonStates(); // Update button states
         } catch (error) {
             console.error("Failed to update ad tracking:", error);
