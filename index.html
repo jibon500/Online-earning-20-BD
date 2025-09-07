@@ -133,12 +133,14 @@
       display: block;
       margin-top: 3px;
     }
-    .ad-info-box.status-active .value {
+    /* --- Update: Remove default status colors, use dynamic ones --- */
+    /* .ad-info-box.status-active .value {
       color: var(--success-color);
     }
     .ad-info-box.status-inactive .value {
       color: var(--error-color);
-    }
+    } */
+    /* --- End Update --- */
     /* --- End Ad Info Section --- */
     .section-title { font-size: 20px; font-weight: 700; margin-bottom: 15px; padding-left: 5px; border-left: 4px solid var(--primary-color); }
     .task-card {
@@ -418,7 +420,7 @@
         background: #ff9800; /* Slightly lighter orange on hover */
         transform: translateY(-2px);
     }
-    /* --- Admin Message Modal - Updated for larger size --- */
+    /* --- Admin Message Modal - Updated for larger size and message alignment --- */
     #admin-message-modal .modal-content {
         width: 90%; /* Increased width */
         max-width: 90%; /* Increased max-width */
@@ -435,11 +437,10 @@
         background: var(--background-color);
         border-radius: 8px;
         border: 1px solid var(--border-color);
-        /* --- Update for loading message --- */
+        /* --- Update for loading message and message alignment --- */
         display: flex;
-        align-items: center;
-        justify-content: center;
-        min-height: 200px; /* Adjust this value as needed */
+        flex-direction: column; /* Stack messages vertically */
+        min-height: 200px; /* Adjust this value as needed for loading message */
         /* --- End Update --- */
     }
     .message-bubble {
@@ -449,16 +450,24 @@
         max-width: 85%; /* Slightly increased max-width */
         word-wrap: break-word;
         font-size: 15px; /* Increased font size */
+        /* --- Update: Remove automatic alignment styles --- */
+        /* margin-left: auto; */
+        /* margin-right: auto; */
+        /* --- End Update --- */
     }
     .user-message {
         background-color: var(--primary-color);
         color: #000;
-        margin-left: auto;
+        /* --- Update: Explicitly align user messages to the right --- */
+        align-self: flex-end; /* Aligns the bubble to the right */
+        /* --- End Update --- */
     }
     .admin-message {
         background-color: var(--secondary-color);
         color: var(--text-color);
-        margin-right: auto;
+        /* --- Update: Explicitly align admin messages to the left --- */
+        align-self: flex-start; /* Aligns the bubble to the left */
+        /* --- End Update --- */
     }
     #admin-message-input {
         width: calc(100% - 70px); /* Adjust for larger button width */
@@ -1338,13 +1347,19 @@
         // --- End Update ---
         // Show global status if inactive, otherwise show user status
         statusValue.textContent = isGlobalActive ? adStatus : 'Inactive (Global)';
-        // Update status box class for color coding
+        // Update status box class for color coding dynamically based on appConfig
+        // --- Update: Dynamic status coloring based on appConfig ---
         statusBox.classList.remove('status-active', 'status-inactive');
         if (isGlobalActive && adStatus === 'Active') {
-            statusBox.classList.add('status-active');
+            // Use success color if defined in appConfig, otherwise default
+            statusBox.style.color = appConfig.successColor || 'var(--success-color)';
+            statusBox.classList.add('status-active'); // Keep class for potential styling
         } else {
-            statusBox.classList.add('status-inactive');
+            // Use error color if defined in appConfig, otherwise default
+            statusBox.style.color = appConfig.errorColor || 'var(--error-color)';
+            statusBox.classList.add('status-inactive'); // Keep class for potential styling
         }
+        // --- End Update ---
         // Update reset timer display is handled by the timer function
     }
     // --- 12-Hour Reset Timer Logic ---
@@ -2023,7 +2038,7 @@
         }
         const historyDiv = document.getElementById('admin-message-history');
         // --- Update: Loading message style ---
-        historyDiv.innerHTML = '<p style="text-align: center; color: var(--text-muted-color);">Loading messages...</p>';
+        historyDiv.innerHTML = '<p style="text-align: center; color: var(--text-muted-color); margin: auto;">Loading messages...</p>';
         // --- End Update ---
         document.getElementById('admin-message-input').value = '';
         document.getElementById('admin-message-modal').classList.add('active');
@@ -2054,26 +2069,35 @@
     }
     function renderAdminMessageHistory(messagesData) {
         const historyDiv = document.getElementById('admin-message-history');
+        // Clear previous content
+        historyDiv.innerHTML = '';
         if (!messagesData) {
-            historyDiv.innerHTML = '<p style="text-align: center; color: var(--text-muted-color);">No messages yet. Start a conversation!</p>';
+            historyDiv.innerHTML = '<p style="text-align: center; color: var(--text-muted-color); margin: auto;">No messages yet. Start a conversation!</p>';
             return;
         }
         const messages = Object.values(messagesData);
-        // Sort messages by timestamp
+        // Sort messages by timestamp (oldest first for correct display order)
         messages.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
-        historyDiv.innerHTML = messages.map(msg => {
+
+        // --- Update: Create message elements and append them correctly ---
+        messages.forEach(msg => {
             const isUser = msg.sender === 'user';
             const bubbleClass = isUser ? 'user-message' : 'admin-message';
-            const alignStyle = isUser ? 'margin-left: auto;' : 'margin-right: auto;';
-            return `
-                <div class="message-bubble ${bubbleClass}" style="${alignStyle}">
-                    ${msg.text}
-                    <br><small>${new Date(msg.timestamp).toLocaleTimeString()}</small>
-                </div>
+
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message-bubble ${bubbleClass}`;
+            // --- Update: Use flexbox alignment instead of margin ---
+            // Alignment is now handled by CSS (align-self)
+            // --- End Update ---
+            messageDiv.innerHTML = `
+                ${msg.text}
+                <br><small>${new Date(msg.timestamp).toLocaleTimeString()}</small>
             `;
-        }).join('');
+            historyDiv.appendChild(messageDiv);
+        });
         // Scroll to bottom
         historyDiv.scrollTop = historyDiv.scrollHeight;
+        // --- End Update ---
     }
     function setupAdminMessagesListener() {
         if (!tgUser || !tgUser.id) return;
