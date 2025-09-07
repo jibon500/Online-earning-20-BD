@@ -1,5 +1,4 @@
-```html
-<!DOCTYPE html>
+ণ<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -110,7 +109,6 @@
     .balance-card .label { font-size: 16px; opacity: 0.9; color: #ffffff; margin-bottom: 5px; }
     .balance-card .balance-value { font-size: 36px; font-weight: 800; margin: 0; letter-spacing: 1px; color: #ffffff; }
     .balance-card .points-value { font-size: 16px; font-weight: 600; color: #ffffff; margin-top: 10px; } /* Changed to white */
-    
     /* --- New Ad Info Section --- */
     .ad-info-section {
       display: flex;
@@ -142,7 +140,6 @@
       color: var(--error-color);
     }
     /* --- End Ad Info Section --- */
-    
     .section-title { font-size: 20px; font-weight: 700; margin-bottom: 15px; padding-left: 5px; border-left: 4px solid var(--primary-color); }
     .task-card {
       background: var(--card-bg); border-radius: 12px; padding: 20px; margin-bottom: 15px;
@@ -438,6 +435,12 @@
         background: var(--background-color);
         border-radius: 8px;
         border: 1px solid var(--border-color);
+        /* --- Update for loading message --- */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 200px; /* Adjust this value as needed */
+        /* --- End Update --- */
     }
     .message-bubble {
         padding: 12px 18px; /* Increased padding */
@@ -546,7 +549,6 @@
             <p class="label">Total Balance</p>
             <h1 class="balance-value" id="balance-value">$0.00</h1>
             <p class="points-value"><i class="fa-solid fa-coins"></i> <span id="points-value">0</span> Coins</p>
-            
             <!-- Ad Info Section - Placed between Coins and Section Title -->
             <div class="ad-info-section">
                 <div class="ad-info-box">
@@ -563,7 +565,6 @@
                 </div>
             </div>
             <!-- End Ad Info Section -->
-            
         </div>
         <h2 class="section-title">Quick Actions</h2>
         <div class="task-card" onclick="showView('tasks-view')">
@@ -810,16 +811,9 @@
     let withdrawHistory = [];
     let tgUser = null;
     let isBlocked = false;
-    let appConfig = {
-      pointsPerAd: 10,
-      coinsForConversion: 1000,
-      valuePerConversion: 0.30,
-      referralRewardCoins: 10, // Default value
-      referralClaimThreshold: 200, // Default value
-      minWithdrawAmount: 5, // Default value
-      dailyAdLimitPerUser: 10, // Default daily ad limit
-      isAdSystemActive: true // Default ad system status
-    };
+    // --- Update: appConfig is now an empty object ---
+    let appConfig = {};
+    // --- End Update ---
     let referralData = {
       referralCount: 0,
       referralEarnings: 0
@@ -883,27 +877,26 @@
         }
     }
     // --- Firebase Functions ---
+    // --- Update: loadAppConfig function ---
     async function loadAppConfig() {
         try {
             const snapshot = await database.ref('appConfig').once('value');
             const config = snapshot.val();
             if (config) {
-                appConfig = {
-                    pointsPerAd: config.pointsPerAd || 10,
-                    coinsForConversion: config.coinsForConversion || 1000,
-                    valuePerConversion: config.valuePerConversion || 0.30,
-                    referralRewardCoins: config.referralRewardCoins !== undefined ? config.referralRewardCoins : 10,
-                    referralClaimThreshold: config.referralClaimThreshold !== undefined ? config.referralClaimThreshold : 200,
-                    minWithdrawAmount: config.minWithdrawAmount !== undefined ? config.minWithdrawAmount : 5,
-                    dailyAdLimitPerUser: config.dailyAdLimitPerUser !== undefined ? config.dailyAdLimitPerUser : 10,
-                    isAdSystemActive: config.isAdSystemActive !== undefined ? config.isAdSystemActive : true
-                };
+                // Assign the loaded config directly to appConfig
+                appConfig = config;
+                console.log("App config loaded from Firebase:", appConfig);
+            } else {
+                console.log("No app config found in Firebase. Using empty config.");
+                // appConfig remains an empty object {}
             }
         } catch (error) {
             console.error("Failed to load app config:", error);
-            throw error;
+            // Even on error, appConfig remains an empty object {}
+            // This will cause checks like appConfig.isAdSystemActive to be undefined/falsey
         }
     }
+    // --- End Update ---
     async function loadUserData() {
         if (!tgUser || !tgUser.id) return Promise.resolve(); // Resolve immediately if no user ID
         try {
@@ -917,11 +910,9 @@
                 isBlocked = userData.isBlocked || false;
                 referralData.referralCount = userData.referralCount || 0;
                 referralData.referralEarnings = userData.referralEarnings || 0;
-                
                 // Load ad tracking data
                 adsWatchedToday = userData.adsWatchedToday || 0;
                 adStatus = userData.adStatus || 'Active'; // Default to 'Active' if not set
-                
                 // Load lastAdWatchTime and parse it
                 if (userData.lastAdWatchTime) {
                     // Try to parse as ISO string first (new format)
@@ -940,7 +931,6 @@
                 } else {
                     lastAdWatchTime = null;
                 }
-                
                 updateDisplay();
                 // Only show blocked view if user is actually blocked
                 if (isBlocked) {
@@ -982,7 +972,6 @@
             throw error;
         }
     }
-    
     function setupUserAdDataListener(userRef) {
         // Listen for changes to user-specific ad data
         userRef.child('adsWatchedToday').on('value', (snapshot) => {
@@ -990,7 +979,6 @@
             updateDisplay();
             updateAdButtonStates(); // Update button states when counter changes
         });
-        
         userRef.child('lastAdWatchTime').on('value', (snapshot) => {
             const timeValue = snapshot.val();
             if (timeValue) {
@@ -1012,14 +1000,12 @@
             if (resetTimerInterval) clearInterval(resetTimerInterval);
             startResetTimer();
         });
-        
         userRef.child('adStatus').on('value', (snapshot) => {
             adStatus = snapshot.val() || 'Active';
             updateDisplay();
             updateAdButtonStates(); // Update button states when status changes
         });
     }
-    
     // Check if user was referred
     function checkForReferral() {
         if (!tgUser || !tgUser.id) return;
@@ -1045,11 +1031,18 @@
             const referrerSnapshot = await referrerRef.once('value');
             if (referrerSnapshot.exists()) {
                 // Reward referrer (coins from Firebase config)
+                // --- Update: Use default value if config not found ---
+                const rewardCoins = appConfig.referralRewardCoins || 10;
+                // --- End Update ---
                 const referrerData = referrerSnapshot.val();
-                const newReferralEarnings = (referrerData.referralEarnings || 0) + appConfig.referralRewardCoins;
+                const newReferralEarnings = (referrerData.referralEarnings || 0) + rewardCoins;
                 const newReferralCount = (referrerData.referralCount || 0) + 1;
-                const newPoints = referrerData.points + appConfig.referralRewardCoins;
-                const newBalance = (newPoints / appConfig.coinsForConversion) * appConfig.valuePerConversion;
+                const newPoints = referrerData.points + rewardCoins;
+                // --- Update: Use default conversion if config not found ---
+                const coinsForConversion = appConfig.coinsForConversion || 1000;
+                const valuePerConversion = appConfig.valuePerConversion || 0.30;
+                // --- End Update ---
+                const newBalance = (newPoints / coinsForConversion) * valuePerConversion;
                 // Update referrer's data
                 await referrerRef.update({
                     referralEarnings: newReferralEarnings,
@@ -1131,14 +1124,18 @@
                 if (document.getElementById('share-modal').classList.contains('active')) {
                     updateShareModal();
                 }
+                // --- Update: Use default threshold if config not found ---
+                const claimThreshold = appConfig.referralClaimThreshold || 200;
+                // --- End Update ---
                 // Check if referral earnings reached threshold (from Firebase config)
-                if (referralData.referralEarnings >= appConfig.referralClaimThreshold) {
+                if (referralData.referralEarnings >= claimThreshold) {
                     claimReferralEarnings();
                 }
             }
         });
     }
      // Setup listener for app config changes
+     // --- Update: setupAppConfigListener function ---
      function setupAppConfigListener() {
         if (appConfigListener) {
             // Remove previous listener if exists
@@ -1148,37 +1145,30 @@
         appConfigListener = database.ref('appConfig').on('value', (snapshot) => {
             const config = snapshot.val();
             if (config) {
-                const oldLimit = appConfig.dailyAdLimitPerUser;
-                const oldStatus = appConfig.isAdSystemActive;
-                
-                appConfig = {
-                    pointsPerAd: config.pointsPerAd || 10,
-                    coinsForConversion: config.coinsForConversion || 1000,
-                    valuePerConversion: config.valuePerConversion || 0.30,
-                    referralRewardCoins: config.referralRewardCoins !== undefined ? config.referralRewardCoins : 10,
-                    referralClaimThreshold: config.referralClaimThreshold !== undefined ? config.referralClaimThreshold : 200,
-                    minWithdrawAmount: config.minWithdrawAmount !== undefined ? config.minWithdrawAmount : 5,
-                    dailyAdLimitPerUser: config.dailyAdLimitPerUser !== undefined ? config.dailyAdLimitPerUser : 10,
-                    isAdSystemActive: config.isAdSystemActive !== undefined ? config.isAdSystemActive : true
-                };
-                console.log("App config updated:", appConfig);
-                updateDisplay();
-                updateAdButtonStates(); // Update button states when global config changes
-                
-                // If the limit or global status changed, we might need to update UI state
-                if (oldLimit !== appConfig.dailyAdLimitPerUser || oldStatus !== appConfig.isAdSystemActive) {
-                     // The display update will reflect the new values
-                }
+                // Assign the loaded config directly to appConfig
+                appConfig = config;
+                console.log("App config updated from Firebase:", appConfig);
+            } else {
+                console.log("App config removed from Firebase. Using empty config.");
+                appConfig = {}; // Reset to empty object if removed
             }
+            updateDisplay();
+            updateAdButtonStates(); // Update button states when global config changes
         });
     }
+    // --- End Update ---
     // Claim referral earnings (convert to main balance)
     async function claimReferralEarnings() {
         if (!tgUser || !tgUser.id) return;
         try {
-            // Calculate coins and value
-            const coinsToClaim = appConfig.referralClaimThreshold;
-            const valueToClaim = (coinsToClaim / appConfig.coinsForConversion) * appConfig.valuePerConversion;
+            // --- Update: Use default threshold if config not found ---
+            const coinsToClaim = appConfig.referralClaimThreshold || 200;
+            // --- End Update ---
+            // --- Update: Use default conversion if config not found ---
+            const coinsForConversion = appConfig.coinsForConversion || 1000;
+            const valuePerConversion = appConfig.valuePerConversion || 0.30;
+            // --- End Update ---
+            const valueToClaim = (coinsToClaim / coinsForConversion) * valuePerConversion;
             // Update user's main balance
             points += coinsToClaim;
             balance += valueToClaim;
@@ -1194,7 +1184,7 @@
             // Update display
             updateDisplay();
             // Show notification
-            showMessageModal('Success', `Congratulations! You've claimed ${appConfig.referralClaimThreshold} referral coins ($${valueToClaim.toFixed(2)}) and they've been added to your main balance.`);
+            showMessageModal('Success', `Congratulations! You've claimed ${coinsToClaim} referral coins ($${valueToClaim.toFixed(2)}) and they've been added to your main balance.`);
         } catch (error) {
             console.error("Error claiming referral earnings:", error);
             showMessageModal('Error', 'Failed to claim referral earnings. Please try again.');
@@ -1278,26 +1268,25 @@
         taskBtns.forEach(btn => btn.classList.remove('disabled'));
         // --- Show the footer when UI is enabled (e.g., user unblocked) ---
         document.querySelector('.footer-nav').classList.remove('hide-footer');
-        
         // Re-check ad status and limit to re-enable buttons if appropriate
         updateAdButtonStates();
     }
     // --- New function to update ad button states based on limit and status ---
     function updateAdButtonStates() {
-         // Check global ad system status
-        const isGlobalActive = appConfig.isAdSystemActive;
+         // --- Update: Check if appConfig exists and has isAdSystemActive ---
+         const isGlobalActive = appConfig && appConfig.isAdSystemActive !== undefined ? appConfig.isAdSystemActive : true;
+         // --- End Update ---
         // Check user-specific ad status
         const isUserActive = adStatus === 'Active';
-        
         // Check if the 12-hour period has passed and reset if necessary
         checkAndResetAdCounter();
-        
+        // --- Update: Use default limit if config not found ---
+        const dailyLimit = appConfig.dailyAdLimitPerUser || 0;
+        // --- End Update ---
         // Check if limit is reached
-        const isLimitReached = adsWatchedToday >= appConfig.dailyAdLimitPerUser;
-        
+        const isLimitReached = adsWatchedToday >= dailyLimit;
         // Determine if ads should be disabled
         const shouldDisableAds = !isGlobalActive || !isUserActive || isLimitReached;
-        
         // Update task buttons
         const taskBtns = document.querySelectorAll('.task-card[onclick^="showAd"]');
         taskBtns.forEach(btn => {
@@ -1309,40 +1298,38 @@
         });
         console.log("Ad button states updated. Disabled:", shouldDisableAds);
     }
-    
     function updateDisplay() {
         document.getElementById('points-value').textContent = points.toLocaleString();
         document.getElementById('balance-value').textContent = `$${balance.toFixed(2)}`;
-        
+        // --- Update: Use default limit if config not found ---
+        const dailyLimit = appConfig.dailyAdLimitPerUser || 0;
+        // --- End Update ---
         // Update new ad info section
-        document.getElementById('daily-ad-limit').textContent = `${adsWatchedToday}/${appConfig.dailyAdLimitPerUser}`;
-        
+        document.getElementById('daily-ad-limit').textContent = `${adsWatchedToday}/${dailyLimit}`;
         const statusBox = document.getElementById('ad-status-box');
         const statusValue = document.getElementById('ad-status-value');
+        // --- Update: Check if appConfig exists and has isAdSystemActive ---
+        const isGlobalActive = appConfig && appConfig.isAdSystemActive !== undefined ? appConfig.isAdSystemActive : true;
+        // --- End Update ---
         // Show global status if inactive, otherwise show user status
-        statusValue.textContent = appConfig.isAdSystemActive ? adStatus : 'Inactive (Global)';
-        
+        statusValue.textContent = isGlobalActive ? adStatus : 'Inactive (Global)';
         // Update status box class for color coding
         statusBox.classList.remove('status-active', 'status-inactive');
-        if (appConfig.isAdSystemActive && adStatus === 'Active') {
+        if (isGlobalActive && adStatus === 'Active') {
             statusBox.classList.add('status-active');
         } else {
             statusBox.classList.add('status-inactive');
         }
-        
         // Update reset timer display is handled by the timer function
     }
-    
     // --- 12-Hour Reset Timer Logic ---
     function startResetTimer() {
         // Clear any existing interval
         if (resetTimerInterval) {
             clearInterval(resetTimerInterval);
         }
-        
         // Update display immediately
         updateResetTimerDisplay();
-        
         // Start the interval to update the timer every second
         resetTimerInterval = setInterval(() => {
             updateResetTimerDisplay();
@@ -1350,35 +1337,29 @@
             checkAndResetAdCounter();
         }, 1000);
     }
-    
     function updateResetTimerDisplay() {
         // If there's no lastAdWatchTime, or it's more than 12 hours ago, timer shows --:--:--
         if (!lastAdWatchTime) {
             document.getElementById('reset-timer').textContent = '--:--:--';
             return;
         }
-        
         const now = new Date();
         const timeDiff = now - lastAdWatchTime;
         const hoursDiff = timeDiff / (1000 * 60 * 60);
-        
         if (hoursDiff >= 12) {
             // Period has passed, show --:--:--
             document.getElementById('reset-timer').textContent = '--:--:--';
             return;
         }
-        
         // Calculate remaining time
         const remainingHours = 12 - hoursDiff;
         const totalSeconds = Math.floor(remainingHours * 3600);
         const hours = Math.floor(totalSeconds / 3600);
         const minutes = Math.floor((totalSeconds % 3600) / 60);
         const seconds = totalSeconds % 60;
-        
-        document.getElementById('reset-timer').textContent = 
+        document.getElementById('reset-timer').textContent =
             `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
     }
-    
     async function checkAndResetAdCounter() {
         if (!tgUser || !tgUser.id) return;
         // Check if 12 hours have passed
@@ -1386,7 +1367,6 @@
             const now = new Date();
             const timeDiff = now - lastAdWatchTime;
             const hoursDiff = timeDiff / (1000 * 60 * 60);
-            
             if (hoursDiff >= 12) {
                 // Reset the counter if it's not already 0
                 if (adsWatchedToday !== 0) {
@@ -1406,7 +1386,6 @@
         }
     }
     // --- End 12-Hour Reset Timer Logic ---
-    
     // - User & Profile -
     function loadTelegramUser() {
         if (tgUser) {
@@ -1524,22 +1503,25 @@
             showBlockedView();
             return;
         }
-        
         // --- Ad Limit and Status Check ---
         // 1. Check global ad system status
-        if (!appConfig.isAdSystemActive) {
+        // --- Update: Check if appConfig exists and has isAdSystemActive ---
+        const isGlobalActive = appConfig && appConfig.isAdSystemActive !== undefined ? appConfig.isAdSystemActive : true;
+        // --- End Update ---
+        if (!isGlobalActive) {
             showMessageModal('Error', 'The ad system is currently inactive. Please try again later.');
             return;
         }
-        
         // 2. Check user-specific ad status
         if (adStatus !== 'Active') {
             showMessageModal('Error', 'Your ad viewing permission is currently inactive. Please contact support.');
             return;
         }
-        
         // 3. Check 12-hour period and limit (redundant check, but for safety)
-        if (adsWatchedToday >= appConfig.dailyAdLimitPerUser) {
+        // --- Update: Use default limit if config not found ---
+        const dailyLimit = appConfig.dailyAdLimitPerUser || 0;
+        // --- End Update ---
+        if (adsWatchedToday >= dailyLimit) {
             // This check should ideally be done before calling grantReward
             // But we check again here as a safety net
             const now = new Date();
@@ -1551,36 +1533,37 @@
                     isWithinPeriod = false;
                 }
             }
-            
             if (isWithinPeriod) {
-                showMessageModal('Error', `You have reached your daily ad limit of ${appConfig.dailyAdLimitPerUser}. Please wait for the timer to reset.`);
+                showMessageModal('Error', `You have reached your daily ad limit of ${dailyLimit}. Please wait for the timer to reset.`);
                 updateAdButtonStates(); // Ensure buttons are disabled
                 return;
             }
         }
         // --- End Ad Limit and Status Check ---
-        
+        // --- Update: Use default points per ad if config not found ---
+        const pointsPerAd = appConfig.pointsPerAd || 10;
+        // --- End Update ---
         // Add coins for watching ad (from Firebase config)
-        points += appConfig.pointsPerAd;
+        points += pointsPerAd;
+        // --- Update: Use default conversion if config not found ---
+        const coinsForConversion = appConfig.coinsForConversion || 1000;
+        const valuePerConversion = appConfig.valuePerConversion || 0.30;
+        // --- End Update ---
         // Calculate balance dynamically from Firebase config
-        balance = (points / appConfig.coinsForConversion) * appConfig.valuePerConversion;
+        balance = (points / coinsForConversion) * valuePerConversion;
         updateDisplay();
-        addToHistory('earn', `+${appConfig.pointsPerAd} Coin(s) from Ad`);
+        addToHistory('earn', `+${pointsPerAd} Coin(s) from Ad`);
         saveUserData();
         Telegram.WebApp.HapticFeedback.notificationOccurred('success');
-        showMessageModal('Success', `Congratulations! You've earned +${appConfig.pointsPerAd} coins. Your new balance is $${balance.toFixed(2)}.`);
+        showMessageModal('Success', `Congratulations! You've earned +${pointsPerAd} coins. Your new balance is $${balance.toFixed(2)}.`);
     }
-    
     // Function to update ad tracking data in Firebase
     async function updateAdTracking() {
         if (!tgUser || !tgUser.id) return;
-        
         const now = new Date();
-        
         // Check if the 12-hour period has passed, if so, reset the counter locally for this action
         let localAdsWatchedToday = adsWatchedToday;
         let localLastAdWatchTime = lastAdWatchTime;
-        
         if (localLastAdWatchTime) {
             const timeDiff = now - localLastAdWatchTime;
             const hoursDiff = timeDiff / (1000 * 60 * 60);
@@ -1589,11 +1572,9 @@
                 // Note: We don't change localLastAdWatchTime here, it will be updated to 'now'
             }
         }
-        
         // Increment the local counter for this action
         localAdsWatchedToday += 1;
         localLastAdWatchTime = now;
-        
         try {
             await database.ref('users/' + tgUser.id).update({
                 adsWatchedToday: localAdsWatchedToday,
@@ -1610,25 +1591,28 @@
             console.error("Failed to update ad tracking:", error);
         }
     }
-    
     // Wrapper function to handle reward and tracking
     async function handleAdRewardAndTracking() {
         // First, check limits and status again just before granting reward
         // This is a duplicate check but ensures consistency
          // --- Ad Limit and Status Check (Duplicate for safety) ---
         // 1. Check global ad system status
-        if (!appConfig.isAdSystemActive) {
+        // --- Update: Check if appConfig exists and has isAdSystemActive ---
+        const isGlobalActive = appConfig && appConfig.isAdSystemActive !== undefined ? appConfig.isAdSystemActive : true;
+        // --- End Update ---
+        if (!isGlobalActive) {
             showMessageModal('Error', 'The ad system is currently inactive. Please try again later.');
             return;
         }
-        
         // 2. Check user-specific ad status
         if (adStatus !== 'Active') {
             showMessageModal('Error', 'Your ad viewing permission is currently inactive. Please contact support.');
             return;
         }
-        
         // 3. Check 12-hour period and limit
+        // --- Update: Use default limit if config not found ---
+        const dailyLimit = appConfig.dailyAdLimitPerUser || 0;
+        // --- End Update ---
         const now = new Date();
         let isWithinPeriod = true;
         if (lastAdWatchTime) {
@@ -1638,22 +1622,19 @@
                 isWithinPeriod = false;
             }
         }
-        
         // If within the 12-hour period, check the limit
-        if (isWithinPeriod && adsWatchedToday >= appConfig.dailyAdLimitPerUser) {
-            showMessageModal('Error', `You have reached your daily ad limit of ${appConfig.dailyAdLimitPerUser}. Please wait for the timer to reset.`);
+        if (isWithinPeriod && adsWatchedToday >= dailyLimit) {
+            showMessageModal('Error', `You have reached your daily ad limit of ${dailyLimit}. Please wait for the timer to reset.`);
             updateAdButtonStates(); // Ensure buttons are disabled
             return;
         }
         // --- End Ad Limit and Status Check ---
-        
         // Grant reward
         await grantReward();
         // Update tracking
         await updateAdTracking();
         // Button states are updated in updateAdTracking
     }
-
     // Function to show the ad using the original Monetag zone
     async function showAd() {
         if (isBlocked) {
@@ -1756,21 +1737,24 @@
             showBlockedView();
             return;
         }
-        
         // --- Ad Limit and Status Check ---
         // 1. Check global ad system status
-        if (!appConfig.isAdSystemActive) {
+        // --- Update: Check if appConfig exists and has isAdSystemActive ---
+        const isGlobalActive = appConfig && appConfig.isAdSystemActive !== undefined ? appConfig.isAdSystemActive : true;
+        // --- End Update ---
+        if (!isGlobalActive) {
             showMessageModal('Error', 'The ad system is currently inactive. Please try again later.');
             return;
         }
-        
         // 2. Check user-specific ad status
         if (adStatus !== 'Active') {
             showMessageModal('Error', 'Your ad viewing permission is currently inactive. Please contact support.');
             return;
         }
-        
         // 3. Check 12-hour period and limit
+        // --- Update: Use default limit if config not found ---
+        const dailyLimit = appConfig.dailyAdLimitPerUser || 0;
+        // --- End Update ---
         const now = new Date();
         let isWithinPeriod = true;
         if (lastAdWatchTime) {
@@ -1780,15 +1764,13 @@
                 isWithinPeriod = false;
             }
         }
-        
         // If within the 12-hour period, check the limit
-        if (isWithinPeriod && adsWatchedToday >= appConfig.dailyAdLimitPerUser) {
-            showMessageModal('Error', `You have reached your daily ad limit of ${appConfig.dailyAdLimitPerUser}. Please wait for the timer to reset.`);
+        if (isWithinPeriod && adsWatchedToday >= dailyLimit) {
+            showMessageModal('Error', `You have reached your daily ad limit of ${dailyLimit}. Please wait for the timer to reset.`);
             updateAdButtonStates(); // Ensure buttons are disabled
             return;
         }
         // --- End Ad Limit and Status Check ---
-        
         // Prevent double click by disabling the button immediately
         const taskCard = event.currentTarget; // Get the clicked task card
         if (taskCard.classList.contains('disabled')) {
@@ -1870,8 +1852,11 @@
             showMessageModal('Error', 'Please enter a valid amount.');
             return;
         }
-        if (amount < appConfig.minWithdrawAmount) {
-            showMessageModal('Error', `Minimum withdrawal amount is $${appConfig.minWithdrawAmount.toFixed(2)}.`);
+        // --- Update: Use default minimum amount if config not found ---
+        const minAmount = appConfig.minWithdrawAmount || 5;
+        // --- End Update ---
+        if (amount < minAmount) {
+            showMessageModal('Error', `Minimum withdrawal amount is $${minAmount.toFixed(2)}.`);
             return;
         }
         if (amount > balance) {
@@ -1911,8 +1896,12 @@
             .then(() => {
                 // Immediately deduct balance and update points in Firebase
                 balance -= amount;
+                // --- Update: Use default conversion if config not found ---
+                const coinsForConversion = appConfig.coinsForConversion || 1000;
+                const valuePerConversion = appConfig.valuePerConversion || 0.30;
+                // --- End Update ---
                 // Ensure points are calculated correctly and don't go negative
-                points = Math.max(0, Math.round(balance / appConfig.valuePerConversion * appConfig.coinsForConversion));
+                points = Math.max(0, Math.round(balance / valuePerConversion * coinsForConversion));
                 updateDisplay();
                 saveUserData();
                 // Add to local withdrawHistory array for immediate display in modal if open
@@ -1995,7 +1984,9 @@
             return;
         }
         const historyDiv = document.getElementById('admin-message-history');
+        // --- Update: Loading message style ---
         historyDiv.innerHTML = '<p style="text-align: center; color: var(--text-muted-color);">Loading messages...</p>';
+        // --- End Update ---
         document.getElementById('admin-message-input').value = '';
         document.getElementById('admin-message-modal').classList.add('active');
         // Load message history from Firebase
@@ -2169,4 +2160,3 @@
 </script>
 </body>
 </html>
-```
