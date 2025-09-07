@@ -1,4 +1,4 @@
-```html
+```htmlধঠদফদফ্যফফধফরফধফরফ্য
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -440,6 +440,12 @@
             width: 3rem;
             height: 3rem;
         }
+        /* --- Update: Styles for the dynamic reset timer display --- */
+        #reset-timer-display {
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+        /* --- End Update --- */
     </style>
 </head>
 <body>
@@ -498,6 +504,12 @@
                                 <div class="stat-value" id="home-ads-watched">0</div>
                                 <div class="stat-label">Ads Watched</div>
                             </div>
+                            <!-- --- Update: Add a stat item for the reset timer --- -->
+                            <div class="stat-item">
+                                <div class="stat-value" id="reset-timer-display">--:--:--</div>
+                                <div class="stat-label">Reset Timer</div>
+                            </div>
+                            <!-- --- End Update --- -->
                         </div>
 
                         <h5>Important Notices</h5>
@@ -523,6 +535,9 @@
                     <div class="card-header">Watch Ads & Earn</div>
                     <div class="card-body">
                         <p>Earn <strong><span id="points-per-ad">10</span> points</strong> for each ad you watch.</p>
+                        <!-- --- Update: Display the dynamic reset timer value --- -->
+                        <p>Ads reset after <strong><span id="reset-timer-hours-display">12</span> hours</strong> of your first ad view.</p>
+                        <!-- --- End Update --- -->
                         
                         <div class="ad-section">
                             <h5>Available Ads</h5>
@@ -759,6 +774,8 @@
         let adminMessagesListener = null;
         // --- Update: Add a variable for the real-time data interval ---
         let realTimeDataInterval = null;
+        // --- Update: Add a variable for the reset timer interval ---
+        let resetTimerInterval = null;
         // --- End Update ---
 
         // --- Utility Functions ---
@@ -881,6 +898,7 @@
                 renderActivityHistory();
                 renderRecentWithdrawHistory();
                 updateAdButtonStates(); // Initial button state check
+                startResetTimer(); // Start the reset timer display
 
                 if (isBlocked) {
                     showBlockedView();
@@ -1035,6 +1053,7 @@
                 if (config) {
                     const oldLimit = appConfig.dailyAdLimitPerUser;
                     const oldStatus = appConfig.isAdSystemActive;
+                    const oldResetTimerHours = appConfig.resetTimerHours; // Store old value
                     // --- Update: Ensure resetTimerHours is loaded from Firebase or defaults ---
                     appConfig = {
                         pointsPerAd: config.pointsPerAd !== undefined ? config.pointsPerAd : 10,
@@ -1051,11 +1070,24 @@
                     // --- End Update ---
                     console.log("App config updated:", appConfig);
                     updateDisplay();
-                    updateAdButtonStates(); // Update button states when global config changes
+                    // --- Update: Update UI elements that depend on resetTimerHours ---
+                    document.getElementById('reset-timer-hours-display').textContent = appConfig.resetTimerHours;
+                    document.getElementById('points-per-ad').textContent = appConfig.pointsPerAd;
+                    document.getElementById('referral-reward').textContent = appConfig.referralRewardCoins;
+                    document.getElementById('min-withdraw-amount').textContent = appConfig.minWithdrawAmount.toFixed(2);
+                    document.getElementById('referral-claim-threshold').textContent = appConfig.referralClaimThreshold;
+                    // --- End Update ---
+                    
+                    // Update button states when global config changes
+                    updateAdButtonStates(); 
 
-                    // If the limit or global status changed, we might need to update UI state
-                    if (oldLimit !== appConfig.dailyAdLimitPerUser || oldStatus !== appConfig.isAdSystemActive) {
+                    // If the limit, global status, or reset timer hours changed, we might need to update UI state
+                    if (oldLimit !== appConfig.dailyAdLimitPerUser || 
+                        oldStatus !== appConfig.isAdSystemActive || 
+                        oldResetTimerHours !== appConfig.resetTimerHours) {
                         renderAdGrid(); // Re-render ads if limit changed
+                        // Restart the timer display with the new value
+                        startResetTimer(); 
                     }
                 }
             });
@@ -1287,6 +1319,8 @@
                     });
                     lastAdWatchTime = currentTime; // Update local state
                     console.log("Set lastAdWatchTime to:", lastAdWatchTime);
+                    // Restart the timer display as it's a new cycle
+                    startResetTimer();
                 }
                 // --- End Update ---
 
@@ -1781,6 +1815,51 @@
             }
         }
 
+        // --- Update: Dynamic Reset Timer Display Logic ---
+        function startResetTimer() {
+            // Clear any existing interval
+            if (resetTimerInterval) {
+                clearInterval(resetTimerInterval);
+            }
+
+            // Update display immediately
+            updateResetTimerDisplay();
+
+            // Update display every second
+            resetTimerInterval = setInterval(updateResetTimerDisplay, 1000);
+        }
+
+        function updateResetTimerDisplay() {
+            const timerDisplay = document.getElementById('reset-timer-display');
+            
+            // If lastAdWatchTime is not set, timer is not running
+            if (!lastAdWatchTime) {
+                timerDisplay.textContent = '--:--:--';
+                return;
+            }
+
+            const now = new Date();
+            const timeDiffMs = now - lastAdWatchTime; // Difference in milliseconds
+            const hoursDiff = timeDiffMs / (1000 * 60 * 60); // Convert to hours
+
+            // If the timer has already expired, show 00:00:00
+            if (hoursDiff >= appConfig.resetTimerHours) {
+                timerDisplay.textContent = '00:00:00';
+                return;
+            }
+
+            // Calculate remaining time
+            const remainingHours = appConfig.resetTimerHours - hoursDiff;
+            const totalSeconds = Math.floor(remainingHours * 3600);
+            const hours = Math.floor(totalSeconds / 3600);
+            const minutes = Math.floor((totalSeconds % 3600) / 60);
+            const seconds = totalSeconds % 60;
+            
+            timerDisplay.textContent = 
+                `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+        // --- End Update ---
+
         // --- End View Management ---
 
         // --- Initialize App ---
@@ -1807,6 +1886,7 @@
                 document.getElementById('referral-reward').textContent = appConfig.referralRewardCoins;
                 document.getElementById('min-withdraw-amount').textContent = appConfig.minWithdrawAmount.toFixed(2);
                 document.getElementById('referral-claim-threshold').textContent = appConfig.referralClaimThreshold;
+                document.getElementById('reset-timer-hours-display').textContent = appConfig.resetTimerHours; // Initial display
                 
                 renderAdGrid();
             }).catch(error => {
@@ -1846,6 +1926,10 @@
             // --- Update: Clear the real-time data interval ---
             if (realTimeDataInterval) {
                  clearInterval(realTimeDataInterval);
+            }
+            // --- Update: Clear the reset timer interval ---
+            if (resetTimerInterval) {
+                 clearInterval(resetTimerInterval);
             }
             // --- End Update ---
         });
