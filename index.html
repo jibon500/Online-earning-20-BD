@@ -1,2149 +1,1856 @@
-
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"/>
-  <title>TKBD5_bot</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-  <!-- Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
-  <style>
-    /* Existing styles from your file */
-    :root {
-      /* -- Updated all colors to white theme -- */
-      --primary-color: #2ed914; /* Keep green for accents */
-      --primary-hover: #3bff21;
-      --secondary-color: #e0e0e0; /* Light grey instead of dark */
-      --background-color: #ffffff; /* White background */
-      --text-color: #000000; /* Black text */
-      --text-muted-color: #666666; /* Dark grey for muted text */
-      --accent-color: #ff8c00; /* Keep orange for accents */
-      --card-bg: #f5f5f5; /* Light grey card background */
-      --error-color: #ff4444; /* Error color */
-      --pending-color: #ffc107; /* Yellow for pending */
-      --processing-color: #17a2b8; /* Blue for processing */
-      --success-color: #28a745; /* Green for success */
-      --rejected-color: #dc3545; /* Red for rejected */
-      --requesting-color: #dc3545; /* Red for requesting state */
-      /* Dark mode variables */
-      --dm-primary-color: #4CAF50;
-      --dm-primary-hover: #66BB6A;
-      --dm-secondary-color: #424242;
-      --dm-background-color: #121212;
-      --dm-text-color: #FFFFFF;
-      --dm-text-muted-color: #BDBDBD;
-      --dm-accent-color: #FFA726;
-      --dm-card-bg: #1E1E1E;
-      --dm-error-color: #EF5350;
-      --dm-border-color: rgba(255, 255, 255, 0.1);
-    }
-    /* Light mode (default) */
-    body.light-mode {
-      --primary-color: #2ed914;
-      --primary-hover: #3bff21;
-      --secondary-color: #e0e0e0;
-      --background-color: #ffffff;
-      --text-color: #000000;
-      --text-muted-color: #666666;
-      --accent-color: #ff8c00;
-      --card-bg: #f5f5f5;
-      --error-color: #ff4444;
-      --pending-color: #ffc107;
-      --processing-color: #17a2b8;
-      --success-color: #28a745;
-      --rejected-color: #dc3545;
-      --requesting-color: #dc3545;
-      --border-color: rgba(0, 0, 0, 0.1);
-    }
-    /* Dark mode */
-    body.dark-mode {
-      --primary-color: var(--dm-primary-color);
-      --primary-hover: var(--dm-primary-hover);
-      --secondary-color: var(--dm-secondary-color);
-      --background-color: var(--dm-background-color);
-      --text-color: var(--dm-text-color);
-      --text-muted-color: var(--dm-text-muted-color);
-      --accent-color: var(--dm-accent-color);
-      --card-bg: var(--dm-card-bg);
-      --error-color: var(--dm-error-color);
-      --pending-color: #FFD54F;
-      --processing-color: #4FC3F7;
-      --success-color: #66BB6A;
-      --rejected-color: #EF5350;
-      --requesting-color: #EF5350;
-      --border-color: var(--dm-border-color);
-    }
-    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-    body {
-      margin: 0; padding: 0; background-color: var(--background-color); color: var(--text-color);
-      font-family: 'Segoe UI', 'Roboto', sans-serif; display: flex; justify-content: center; align-items: center;
-      height: 100vh; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
-    }
-    .container {
-      width: 100%; height: 100%; max-width: 400px; background: var(--background-color);
-      display: flex; flex-direction: column; overflow: hidden; position: relative;
-    }
-    main {
-      flex-grow: 1; overflow-y: auto; padding: 20px; padding-bottom: 80px; /* Space for footer nav */
-    }
-    .view { display: none; animation: fadeIn 0.4s ease-in-out; }
-    .view.active { display: block; }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-    .user-header-card {
-      background: var(--card-bg); border-radius: 16px; padding: 15px; margin-bottom: 25px;
-      display: flex; align-items: center; border: 1px solid var(--border-color);
-    }
-    .user-avatar {
-      width: 50px; height: 50px; border-radius: 50%; margin-right: 15px; overflow: hidden;
-      background: linear-gradient(135deg, var(--primary-color), #00a651);
-      display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 20px;
-    }
-    .user-avatar img { width: 100%; height: 100%; object-fit: cover; }
-    .user-info .username { font-size: 18px; font-weight: 700; margin: 0; }
-    .user-info .title { font-size: 14px; color: var(--text-muted-color); margin: 0; }
-    .balance-card {
-      background: linear-gradient(135deg, #00a651, #00753a); border-radius: 16px; padding: 20px;
-      text-align: center; margin-bottom: 25px;
-    }
-    .balance-card .label { font-size: 16px; opacity: 0.9; color: #ffffff; margin-bottom: 5px; }
-    .balance-card .balance-value { font-size: 36px; font-weight: 800; margin: 0; letter-spacing: 1px; color: #ffffff; }
-    .balance-card .points-value { font-size: 16px; font-weight: 600; color: #ffffff; margin-top: 10px; } /* Changed to white */
-    /* --- New Ad Info Section --- */
-    .ad-info-section {
-      display: flex;
-      justify-content: space-between;
-      gap: 10px;
-      margin-top: 15px;
-    }
-    .ad-info-box {
-      flex: 1;
-      background: rgba(255, 255, 255, 0.2); /* Semi-transparent white */
-      border-radius: 10px;
-      padding: 10px;
-      text-align: center;
-      font-size: 12px;
-    }
-    body.dark-mode .ad-info-box {
-      background: rgba(0, 0, 0, 0.2); /* Semi-transparent black in dark mode */
-    }
-    .ad-info-box .value {
-      font-weight: bold;
-      font-size: 14px;
-      display: block;
-      margin-top: 3px;
-    }
-    .ad-info-box.status-active .value {
-      color: var(--success-color);
-    }
-    .ad-info-box.status-inactive .value {
-      color: var(--error-color);
-    }
-    /* --- End Ad Info Section --- */
-    .section-title { font-size: 20px; font-weight: 700; margin-bottom: 15px; padding-left: 5px; border-left: 4px solid var(--primary-color); }
-    .task-card {
-      background: var(--card-bg); border-radius: 12px; padding: 20px; margin-bottom: 15px;
-      display: flex; align-items: center; cursor: pointer; transition: transform 0.2s ease, background-color 0.2s ease;
-      border: 1px solid var(--border-color);
-    }
-    .task-card:hover { transform: translateY(-3px); background-color: var(--secondary-color); }
-    .task-icon { font-size: 24px; color: var(--primary-color); margin-right: 20px; width: 30px; text-align: center; }
-    .task-details h3 { margin: 0; font-size: 16px; font-weight: 600; }
-    .task-details p { margin: 3px 0 0; font-size: 13px; color: var(--text-muted-color); }
-    .task-arrow { margin-left: auto; font-size: 18px; color: var(--text-muted-color); }
-    .list-item {
-      display: flex; align-items: center; background: var(--card-bg); padding: 12px 15px;
-      border-radius: 10px; margin-bottom: 10px; border: 1px solid var(--border-color);
-    }
-    .list-item .rank { font-size: 16px; font-weight: 700; color: var(--text-muted-color); width: 30px; }
-    .list-item .avatar { width: 40px; height: 40px; border-radius: 50%; background: var(--secondary-color); margin-right: 15px; object-fit: cover; }
-    .list-item .info { flex-grow: 1; }
-    .list-item .info .name { font-weight: 600; font-size: 15px; }
-    .list-item .info .detail { font-size: 13px; color: var(--text-muted-color); }
-    .list-item .score { font-size: 16px; font-weight: 700; color: var(--accent-color); }
-    .history-icon { color: var(--primary-color); margin-right: 15px; font-size: 18px; }
-    .footer-nav {
-      position: fixed; bottom: 0; left: 0; right: 0; width: 100%; max-width: 400px; margin: 0 auto;
-      display: flex; justify-content: space-around; background: var(--secondary-color);
-      padding: 10px 0; border-top: 1px solid var(--border-color);
-    }
-    .nav-button {
-      display: flex; flex-direction: column; align-items: center; color: var(--text-muted-color);
-      background: none; border: none; font-size: 12px; transition: color 0.2s ease, transform 0.2s ease;
-      cursor: pointer; padding: 5px 10px;
-    }
-    .nav-button .icon { font-size: 22px; margin-bottom: 4px; }
-    .nav-button:hover { color: var(--text-color); }
-    .nav-button.active { color: var(--primary-color); transform: scale(1.1); }
-    .action-button {
-      width: 100%; padding: 15px; border-radius: 12px; border: none; font-size: 16px; font-weight: 700;
-      margin-top: 15px; cursor: pointer; transition: all 0.3s ease; text-transform: uppercase; letter-spacing: 1px;
-    }
-    .primary-button { background: var(--primary-color); color: #000; }
-    .primary-button:hover { background: var(--primary-hover); transform: translateY(-2px); box-shadow: 0 5px 15px rgba(46, 217, 20, 0.3); }
-    .secondary-button { background: var(--secondary-color); color: var(--primary-color); border: 1px solid var(--border-color); }
-    .secondary-button:hover { background: #d0d0d0; }
-    .requesting-button { background: var(--requesting-color); color: #fff; }
-    .requesting-button:hover { background: #c82333; }
-    .modal-overlay {
-      position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7);
-      display: none; align-items: center; justify-content: center; z-index: 1000; animation: fadeIn 0.3s;
-    }
-    .modal-overlay.active { display: flex; }
-    .modal-content {
-      background: var(--card-bg); padding: 25px; border-radius: 16px; width: 90%; max-width: 320px;
-      text-align: center; animation: slideIn 0.3s; border: 1px solid var(--border-color);
-    }
-    @keyframes slideIn { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-    .modal-content h3 { margin-top: 0; font-size: 20px; }
-    .modal-content p { color: var(--text-muted-color); margin-bottom: 25px; }
-    .modal-actions { display: flex; gap: 10px; }
-    /* Withdraw Modal Specific Styles */
-    .withdraw-form {
-      text-align: left;
-    }
-    .form-group {
-      margin-bottom: 15px;
-    }
-    .form-group label {
-      display: block;
-      margin-bottom: 5px;
-      font-weight: 600;
-    }
-    .form-control {
-      width: 100%;
-      padding: 10px;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      font-size: 16px;
-      background: var(--card-bg);
-      color: var(--text-color);
-    }
-    .status-pending { color: var(--pending-color); font-weight: bold; }
-    .status-processing { color: var(--processing-color); font-weight: bold; }
-    .status-success { color: var(--success-color); font-weight: bold; }
-    .status-rejected { color: var(--rejected-color); font-weight: bold; }
-    /* Loading and Error States */
-    .loading, .error-message {
-      text-align: center;
-      padding: 20px;
-      font-size: 16px;
-    }
-    .error-message {
-      color: var(--error-color);
-      font-weight: bold;
-    }
-    .hidden { display: none; }
-    /* Disabled state for UI elements */
-    .disabled {
-      pointer-events: none;
-      opacity: 0.5;
-    }
-    /* Withdraw History Modal */
-    #withdraw-history-modal .modal-content {
-        width: 95%;
-        max-width: 400px;
-        max-height: 80vh;
-        overflow-y: auto;
-    }
-    #withdraw-history-modal-list {
-        text-align: left;
-        max-height: 60vh;
-        overflow-y: auto;
-    }
-    /* Share Modal */
-    #share-modal .modal-content {
-        width: 95%;
-        max-width: 400px;
-        max-height: 80vh;
-        overflow-y: auto;
-    }
-    #referral-link {
-        width: 100%;
-        padding: 10px;
-        border: 1px solid #ccc;
-        border-radius: 8px;
-        font-size: 14px;
-        margin-bottom: 15px;
-        background-color: var(--card-bg);
-        color: var(--text-color);
-    }
-    .referral-stats {
-        display: flex;
-        justify-content: space-around;
-        margin: 20px 0;
-        text-align: center;
-    }
-    .referral-stat-item {
-        background: var(--card-bg);
-        padding: 15px;
-        border-radius: 12px;
-        flex: 1;
-        margin: 0 5px;
-        border: 1px solid var(--border-color);
-    }
-    .referral-stat-value {
-        font-size: 24px;
-        font-weight: bold;
-        color: var(--primary-color);
-    }
-    .referral-stat-label {
-        font-size: 14px;
-        color: var(--text-muted-color);
-    }
-    /* --- New CSS for hiding footer on blocked view --- */
-    .hide-footer {
-        display: none !important;
-    }
-    /* Dark/Light Mode Toggle */
-    .theme-toggle {
-      position: fixed;
-      top: 10px;
-      right: 10px;
-      z-index: 1001;
-      background: rgba(0, 0, 0, 0.1);
-      border: none;
-      border-radius: 50%;
-      width: 30px;
-      height: 30px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 14px;
-      color: var(--text-color);
-      transition: all 0.3s ease;
-    }
-    .theme-toggle:hover {
-      background: rgba(0, 0, 0, 0.2);
-      transform: scale(1.1);
-    }
-    body.dark-mode .theme-toggle {
-      background: rgba(255, 255, 255, 0.1);
-      color: var(--text-color);
-    }
-    body.dark-mode .theme-toggle:hover {
-      background: rgba(255, 255, 255, 0.2);
-    }
-    /* Notification Button */
-    .notification-toggle {
-      position: fixed;
-      top: 10px;
-      right: 50px; /* Positioned to the left of theme toggle */
-      z-index: 1001;
-      background: rgba(0, 0, 0, 0.1);
-      border: none;
-      border-radius: 50%;
-      width: 30px;
-      height: 30px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 14px;
-      color: var(--text-color);
-      transition: all 0.3s ease;
-    }
-    .notification-toggle:hover {
-      background: rgba(0, 0, 0, 0.2);
-      transform: scale(1.1);
-    }
-    body.dark-mode .notification-toggle {
-      background: rgba(255, 255, 255, 0.1);
-      color: var(--text-color);
-    }
-    body.dark-mode .notification-toggle:hover {
-      background: rgba(255, 255, 255, 0.2);
-    }
-    /* Notification Modal */
-    #notification-modal .modal-content {
-        width: 95%;
-        max-width: 400px;
-        max-height: 80vh;
-        overflow-y: auto;
-        text-align: left;
-    }
-    #notification-modal-list {
-        margin-bottom: 20px;
-    }
-    .notification-item {
-        background: var(--card-bg);
-        padding: 15px;
-        border-radius: 10px;
-        margin-bottom: 10px;
-        border: 1px solid var(--border-color);
-    }
-    .notification-item h4 {
-        margin: 0 0 5px 0;
-        font-size: 16px;
-    }
-    .notification-item p {
-        margin: 0 0 5px 0;
-        font-size: 14px;
-        color: var(--text-muted-color);
-    }
-    .notification-item small {
-        color: var(--text-muted-color);
-        font-size: 12px;
-    }
-    .notification-actions {
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-    }
-    .notification-actions button {
-        width: 100%;
-        padding: 12px;
-        border-radius: 10px;
-        border: none;
-        font-size: 16px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        text-align: center;
-    }
-    .admin-support-btn {
-        background: var(--primary-color);
-        color: #000;
-    }
-    .admin-support-btn:hover {
-        background: var(--primary-hover);
-        transform: translateY(-2px);
-    }
-    .important-notices-btn {
-        background: var(--accent-color);
-        color: #fff;
-    }
-    .important-notices-btn:hover {
-        background: #ff9800; /* Slightly lighter orange on hover */
-        transform: translateY(-2px);
-    }
-    /* --- Admin Message Modal - Updated for larger size and message alignment --- */
-    #admin-message-modal .modal-content {
-        width: 90%; /* Increased width */
-        max-width: 90%; /* Increased max-width */
-        max-height: 90vh; /* Increased max-height */
-        overflow-y: auto;
-        text-align: left;
-        padding: 20px; /* Adjusted padding */
-    }
-    #admin-message-history {
-        /* --- Update: Increased min-height and added flexbox for better layout --- */
-        min-height: 300px; /* বড় করা হয়েছে */
-        max-height: 60vh; /* Increased max-height for message history */
-        overflow-y: auto;
-        margin-bottom: 15px;
-        padding: 10px;
-        background: var(--background-color);
-        border-radius: 8px;
-        border: 1px solid var(--border-color);
-        display: flex; /* ফ্লেক্সবক্স লেআউট */
-        flex-direction: column; /* কলাম অর্ডার */
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Earning App</title>
+    <!-- Telegram Web App SDK -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
+    <style>
+        :root {
+            --primary-color: #0088cc; /* Telegram Blue */
+            --secondary-color: #dddddd; /* Light Gray */
+            --background-color: #ffffff; /* White */
+            --text-color: #000000; /* Black */
+            --success-color: #28a745; /* Bootstrap Success */
+            --warning-color: #ffc107; /* Bootstrap Warning */
+            --danger-color: #dc3545; /* Bootstrap Danger */
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden; /* Prevent horizontal scroll */
+        }
+        .container {
+            padding: 15px;
+            max-width: 100%;
+        }
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between; /* Space between items */
+            padding: 10px 0;
+            border-bottom: 1px solid #e0e0e0;
+            margin-bottom: 15px;
+        }
+        #profile-pic {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: var(--primary-color);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 20px;
+            margin-right: 10px;
+        }
+        #profile-pic img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        #user-info {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        #username {
+            font-size: 18px;
+            font-weight: bold;
+        }
+        #points-display, #balance-display {
+            font-size: 16px;
+            color: #666;
+        }
+        .nav-tabs {
+            margin-bottom: 15px;
+            border-bottom: 1px solid #dee2e6;
+        }
+        .nav-tabs .nav-link {
+            border: 1px solid transparent;
+            border-top-left-radius: .375rem;
+            border-top-right-radius: .375rem;
+            color: #495057;
+            padding: 8px 12px; /* Reduced padding */
+            font-size: 14px; /* Reduced font size */
+        }
+        .nav-tabs .nav-link.active {
+            color: var(--primary-color);
+            background-color: var(--background-color);
+            border-color: #dee2e6 #dee2e6 var(--background-color);
+            border-bottom: 2px solid var(--primary-color); /* Active indicator */
+        }
+        .tab-content {
+            min-height: calc(100vh - 200px); /* Adjust based on header/tabs height */
+        }
+        .view {
+            display: none;
+        }
+        .view.active {
+            display: block;
+        }
+        .card {
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            margin-bottom: 15px;
+            background-color: var(--background-color);
+        }
+        .card-header {
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #e0e0e0;
+            font-weight: bold;
+            padding: 10px 15px;
+        }
+        .card-body {
+            padding: 15px;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        .stat-item {
+            text-align: center;
+            padding: 10px;
+            background-color: #f1f3f4;
+            border-radius: 6px;
+        }
+        .stat-value {
+            font-size: 20px;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+        .stat-label {
+            font-size: 12px;
+            color: #666;
+        }
+        .ad-section {
+            margin-bottom: 20px;
+        }
+        .ad-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+        }
+        .ad-card {
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+            background-color: white;
+        }
+        .ad-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+        .ad-image {
+            width: 100%;
+            height: 100px;
+            object-fit: cover;
+        }
+        .ad-content {
+            padding: 10px;
+        }
+        .ad-title {
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .ad-reward {
+            font-size: 16px;
+            color: var(--success-color);
+            font-weight: bold;
+        }
+        .ad-button {
+            display: block;
+            width: 100%;
+            padding: 8px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-weight: bold;
+            cursor: pointer;
+            text-align: center;
+            margin-top: 8px;
+            text-decoration: none;
+        }
+        .ad-button:hover:not(:disabled) {
+            background-color: #0077b3; /* Slightly darker on hover */
+        }
+        .ad-button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        .ad-button.requesting {
+             background-color: #6c757d; /* Bootstrap secondary */
+        }
+        .withdraw-section {
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .form-control {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            text-align: center;
+            display: inline-block;
+            transition: background-color 0.2s;
+        }
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        .btn-primary:hover:not(:disabled) {
+            background-color: #0077b3;
+        }
+        .btn-success {
+            background-color: var(--success-color);
+            color: white;
+        }
+        .btn-warning {
+            background-color: var(--warning-color);
+            color: black;
+        }
+        .btn-danger {
+            background-color: var(--danger-color);
+            color: white;
+        }
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        .history-item {
+            padding: 10px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        .history-item:last-child {
+            border-bottom: none;
+        }
+        .history-date {
+            font-size: 12px;
+            color: #999;
+            margin-bottom: 3px;
+        }
+        .history-detail {
+            font-size: 14px;
+        }
+        .referral-code {
+            font-weight: bold;
+            color: var(--primary-color);
+            word-break: break-all;
+        }
+        .copy-btn {
+            background-color: var(--secondary-color);
+            color: black;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            margin-left: 5px;
+        }
+        .copy-btn:hover {
+            background-color: #cccccc;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+        }
+        .modal-content {
+            background-color: var(--background-color);
+            margin: 10% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 90%;
+            max-width: 500px;
+            border-radius: 8px;
+            position: relative;
+        }
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            position: absolute;
+            top: 10px;
+            right: 15px;
+        }
+        .close:hover,
+        .close:focus {
+            color: black;
+        }
+        .notice-item {
+             padding: 10px;
+             border-bottom: 1px solid #e0e0e0;
+             background-color: #fff8e1; /* Light yellow for notices */
+        }
+        .notice-item:last-child {
+             border-bottom: none;
+        }
+        .notice-title {
+             font-weight: bold;
+             margin-bottom: 5px;
+             color: #e65100; /* Deep orange for notice title */
+        }
+        .notice-message {
+             font-size: 14px;
+        }
+        .notice-date {
+             font-size: 12px;
+             color: #999;
+             margin-top: 5px;
+        }
+        .blocked-view-content {
+            text-align: center;
+            padding: 40px 20px;
+        }
+        .blocked-icon {
+            font-size: 48px;
+            color: var(--danger-color);
+            margin-bottom: 20px;
+        }
+        .blocked-message {
+            font-size: 18px;
+            margin-bottom: 20px;
+        }
+        .support-link {
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+        .support-link:hover {
+            text-decoration: underline;
+        }
+        .message-bubble {
+            padding: 12px 18px; /* Increased padding */
+            border-radius: 20px; /* Increased border-radius */
+            margin-bottom: 12px; /* Increased margin */
+            max-width: 85%; /* Slightly increased max-width */
+            word-wrap: break-word;
+            font-size: 15px; /* Increased font size */
+            /* - Update: Removed default margin alignment - */
+            /* margin-left: auto; */
+            /* margin-right: auto; */
+            /* - End Update - */
+        }
+        .user-message {
+            background-color: var(--primary-color);
+            color: #000;
+            /* - Update: Float right for user messages - */
+            margin-left: auto; /* ডানে সারিবদ্ধ */
+            /* - End Update - */
+        }
+        .admin-message {
+            background-color: var(--secondary-color);
+            color: var(--text-color);
+            margin-right: auto; /* বামে সারিবদ্ধ */
+        }
+        #message-history {
+            max-height: 60vh; /* Increased max-height for message history */
+            min-height: 300px; /* Ensure a minimum height */
+            overflow-y: auto;
+            margin-bottom: 15px;
+            padding: 10px;
+            background: var(--bs-body-bg); /* Use Bootstrap's body background */
+            border-radius: 8px;
+            border: 1px solid var(--bs-border-color); /* Use Bootstrap's border color */
+            display: flex; /* ফ্লেক্সবক্স লেআউট */
+            flex-direction: column; /* কলাম অর্ডার */
+        }
+        #message-input-container {
+            display: flex;
+            gap: 10px;
+        }
+        #message-input {
+            flex-grow: 1;
+        }
+        .footer {
+            text-align: center;
+            padding: 15px 0;
+            font-size: 12px;
+            color: #999;
+            border-top: 1px solid #e0e0e0;
+            margin-top: 20px;
+        }
+        /* --- Update: Add styles for the real-time data indicator --- */
+        #realtime-indicator {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: #28a745; /* Green */
+            opacity: 0;
+            transition: opacity 0.3s;
+            z-index: 9999; /* High z-index to stay on top */
+        }
+        #realtime-indicator.updating {
+            opacity: 1;
+        }
         /* --- End Update --- */
-    }
-    .message-bubble {
-        padding: 12px 18px; /* Increased padding */
-        border-radius: 20px; /* Increased border-radius */
-        margin-bottom: 12px; /* Increased margin */
-        max-width: 85%; /* Slightly increased max-width */
-        word-wrap: break-word;
-        font-size: 15px; /* Increased font size */
-        /* --- Update: Removed default margin alignment --- */
-        /* margin-left: auto; */
-        /* margin-right: auto; */
-        /* --- End Update --- */
-    }
-    .user-message {
-        background-color: var(--primary-color);
-        color: #000;
-        /* --- Update: Float right for user messages --- */
-        margin-left: auto; /* ডানে সারিবদ্ধ */
-        /* --- End Update --- */
-    }
-    .admin-message {
-        background-color: var(--secondary-color);
-        color: var(--text-color);
-        /* --- Update: Float left for admin messages --- */
-        margin-right: auto; /* বামে সারিবদ্ধ */
-        /* --- End Update --- */
-    }
-    #admin-message-input {
-        width: calc(100% - 70px); /* Adjust for larger button width */
-        padding: 12px; /* Increased padding */
-        border: 1px solid #ccc;
-        border-radius: 10px; /* Increased border-radius */
-        font-size: 16px;
-        margin-right: 12px; /* Increased margin */
-        background-color: var(--card-bg);
-        color: var(--text-color);
-    }
-    #send-admin-message {
-        width: 60px; /* Increased width */
-        padding: 12px; /* Increased padding */
-        border-radius: 10px; /* Increased border-radius */
-        border: none;
-        background: var(--primary-color);
-        color: #000;
-        font-weight: bold;
-        font-size: 16px; /* Increased font size */
-        cursor: pointer;
-    }
-    #send-admin-message:hover {
-        background: var(--primary-hover);
-    }
-    /* --- Important Notices Modal - Updated for larger size --- */
-    #important-notices-modal .modal-content {
-        width: 90%; /* Increased width */
-        max-width: 90%; /* Increased max-width */
-        max-height: 90vh; /* Increased max-height */
-        overflow-y: auto;
-        text-align: left;
-        padding: 20px; /* Adjusted padding */
-    }
-    #important-notices-list {
-        max-height: 70vh; /* Increased max-height for notices */
-        overflow-y: auto;
-    }
-    /* Ensure notification modal list items are styled consistently */
-    #important-notices-list .notification-item {
-        background: var(--card-bg);
-        padding: 18px; /* Increased padding */
-        border-radius: 12px; /* Increased border-radius */
-        margin-bottom: 15px; /* Increased margin */
-        border: 1px solid var(--border-color);
-    }
-    #important-notices-list .notification-item h4 {
-        margin: 0 0 8px 0; /* Increased margin */
-        font-size: 18px; /* Increased font size */
-    }
-    #important-notices-list .notification-item p {
-        margin: 0 0 8px 0; /* Increased margin */
-        font-size: 16px; /* Increased font size */
-        color: var(--text-muted-color);
-    }
-    #important-notices-list .notification-item small {
-        color: var(--text-muted-color);
-        font-size: 14px; /* Increased font size */
-    }
-  </style>
-  <!-- Monetag SDK Scripts -->
-  <script src='//libtl.com/sdk.js' data-zone='9807992' data-sdk='show_9807992'></script>
-  <script src='//libtl.com/sdk.js' data-zone='9702109' data-sdk='show_9702109'></script>
-  <script src='//libtl.com/sdk.js' data-zone='9292001' data-sdk='show_9292001'></script>
-  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+        /* Loading Spinner */
+        .loading-spinner {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+        .spinner-border {
+            width: 3rem;
+            height: 3rem;
+        }
+    </style>
 </head>
-<body class="light-mode">
-  <!-- Notification Toggle Button -->
-  <button class="notification-toggle" id="notificationToggle" title="Notifications">
-    <i class="fas fa-bell"></i>
-  </button>
-  <!-- Theme Toggle Button -->
-  <button class="theme-toggle" id="themeToggle" title="Toggle Theme">
-    <i class="fas fa-moon"></i>
-  </button>
-  <div class="container">
-    <main id="main-content">
-      <!-- HOME VIEW -->
-      <div id="home-view" class="view active">
-        <div class="user-header-card">
-          <div class="user-avatar" id="profile-pic">EE</div>
-          <div class="user-info">
-            <h2 class="username" id="username">Loading...</h2>
-            <p class="title">Welcome Back!</p>
-          </div>
-        </div>
-        <div class="balance-card">
-            <p class="label">Total Balance</p>
-            <h1 class="balance-value" id="balance-value">$0.00</h1>
-            <p class="points-value"><i class="fa-solid fa-coins"></i> <span id="points-value">0</span> Coins</p>
-            <!-- Ad Info Section - Placed between Coins and Section Title -->
-            <div class="ad-info-section">
-                <div class="ad-info-box">
-                    <span>Daily Limit</span>
-                    <span class="value" id="daily-ad-limit">0/0</span>
-                </div>
-                <div class="ad-info-box" id="ad-status-box">
-                    <span>Status</span>
-                    <span class="value" id="ad-status-value">Loading...</span>
-                </div>
-                <div class="ad-info-box">
-                    <span>Reset In</span>
-                    <span class="value" id="reset-timer">--:--:--</span>
-                </div>
+<body>
+    <div id="realtime-indicator"></div> <!-- Real-time indicator -->
+    <div class="container">
+        <div class="header">
+            <div id="profile-pic">U</div>
+            <div id="user-info">
+                <span id="username">Loading...</span>
+                <span id="points-display">Points: 0</span>
+                <span id="balance-display">Balance: $0.00</span>
             </div>
-            <!-- End Ad Info Section -->
-        </div>
-        <h2 class="section-title">Quick Actions</h2>
-        <div class="task-card" onclick="showView('tasks-view')">
-            <div class="task-icon"><i class="fa-solid fa-list-check"></i></div>
-            <div class="task-details"><h3>View Tasks</h3><p>Watch ads and complete tasks to earn coins.</p></div>
-            <div class="task-arrow"><i class="fa-solid fa-chevron-right"></i></div>
-        </div>
-        <div class="task-card" onclick="showView('withdraw-view')">
-            <div class="task-icon"><i class="fa-solid fa-wallet"></i></div>
-            <div class="task-details"><h3>Withdraw Funds</h3><p>Request to withdraw your available balance.</p></div>
-            <div class="task-arrow"><i class="fa-solid fa-chevron-right"></i></div>
-        </div>
-      </div>
-      <!-- TASKS VIEW -->
-      <div id="tasks-view" class="view">
-        <h2 class="section-title">Earning Tasks</h2>
-        <!-- Original "Tap to Earn" Button -->
-        <div class="task-card" onclick="showAd()">
-            <div class="task-icon"><i class="fa-solid fa-hand-pointer"></i></div>
-            <div class="task-details"><h3>Tap to Earn</h3><p>Tap the button to watch an ad and earn 10 coins.</p></div>
-            <div class="task-arrow"><i class="fa-solid fa-play"></i></div>
-        </div>
-        <!-- New "Tap to Earn One" Button -->
-        <div class="task-card" onclick="showAdOne()">
-            <div class="task-icon"><i class="fa-solid fa-hand-pointer"></i></div>
-            <div class="task-details"><h3>Tap to Earn One</h3><p>Tap the button to watch an ad and earn 10 coins.</p></div>
-            <div class="task-arrow"><i class="fa-solid fa-play"></i></div>
-        </div>
-        <!-- New "Tap to Earn Two" Button -->
-        <div class="task-card" onclick="showAdTwo()">
-            <div class="task-icon"><i class="fa-solid fa-hand-pointer"></i></div>
-            <div class="task-details"><h3>Tap to Earn Two</h3><p>Tap the button to watch an ad and earn 10 coins.</p></div>
-            <div class="task-arrow"><i class="fa-solid fa-play"></i></div>
-        </div>
-        <!-- New "Unlimited Ads" Button -->
-        <div class="task-card" onclick="showUnlimitedAd()">
-            <div class="task-icon"><i class="fa-solid fa-infinity"></i></div> <!-- Optional: Different icon -->
-            <div class="task-details"><h3>Unlimited Ads</h3><p>Click to watch ads from One Click Ad.</p></div>
-            <div class="task-arrow"><i class="fa-solid fa-play"></i></div>
-        </div>
-      </div>
-      <!-- WITHDRAW VIEW -->
-      <div id="withdraw-view" class="view">
-        <h2 class="section-title">Withdraw Funds</h2>
-        <!-- Withdraw Form -->
-        <div class="withdraw-form">
-          <div class="form-group">
-            <label for="paymentMethod">Payment Method</label>
-            <select id="paymentMethod" class="form-control">
-              <option value="bkash">Bkash</option>
-              <option value="nagad">Nagad</option>
-              <option value="rocket">Rocket</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label for="mobileNumber">Mobile Number</label>
-            <input type="tel" id="mobileNumber" class="form-control" placeholder="Enter mobile number">
-          </div>
-          <div class="form-group">
-            <label for="withdrawAmount">Amount ($)</label>
-            <input type="number" id="withdrawAmount" class="form-control" placeholder="Enter amount" step="0.01" min="5">
-          </div>
-          <button id="requestWithdrawBtn" class="action-button primary-button" onclick="requestWithdraw()">
-            <i class="fa-solid fa-paper-plane"></i> Request Withdrawal
-          </button>
-        </div>
-        <!-- Withdraw History Button -->
-        <button class="action-button secondary-button" onclick="openWithdrawHistoryModal()" style="margin-top: 20px;">
-          <i class="fa-solid fa-history"></i> View Withdraw History
-        </button>
-      </div>
-      <!-- HISTORY VIEW -->
-      <div id="history-view" class="view">
-        <h2 class="section-title">Recent Activity</h2>
-        <div id="history-list"><!-- History items will be generated here by JS --></div>
-      </div>
-      <!-- BLOCKED VIEW -->
-      <div id="blocked-view" class="view">
-        <div class="error-message">
-          <h2><i class="fa-solid fa-ban"></i> Account Blocked</h2>
-          <p>Your account has been blocked. Please contact admin to unblock.</p>
-          <!-- Telegram Contact Button (Special class to avoid disableUI) -->
-          <a href="https://t.me/Nikhil_Shaan" target="_blank" rel="noopener noreferrer" class="action-button primary-button telegram-button" style="display: inline-flex; align-items: center; justify-content: center; text-decoration: none; margin-top: 20px;">
-            <i class="fa-brands fa-telegram" style="margin-right: 8px;"></i> Contact Admin on Telegram
-          </a>
-        </div>
-      </div>
-    </main>
-    <nav class="footer-nav">
-      <button class="nav-button active" onclick="showView('home-view')"><i class="icon fa-solid fa-house"></i>Home</button>
-      <button class="nav-button" onclick="showView('tasks-view')"><i class="icon fa-solid fa-list-check"></i>Tasks</button>
-      <button class="nav-button" onclick="showView('history-view')"><i class="icon fa-solid fa-clock-rotate-left"></i>History</button>
-      <!-- Added Withdraw button -->
-      <button class="nav-button" onclick="showView('withdraw-view')"><i class="icon fa-solid fa-wallet"></i>Withdraw</button>
-      <button class="nav-button" onclick="openShareModal()"><i class="icon fa-solid fa-share-nodes"></i>Share</button>
-    </nav>
-  </div>
-  <!-- Generic Modal for Messages -->
-  <div class="modal-overlay" id="message-modal">
-    <div class="modal-content">
-        <h3 id="message-modal-title">Notification</h3>
-        <p id="message-modal-text">Operation completed.</p>
-        <div class="modal-actions">
-            <button class="action-button primary-button" onclick="closeMessageModal()">OK</button>
-        </div>
-    </div>
-  </div>
-  <!-- Withdraw History Modal -->
-  <div class="modal-overlay" id="withdraw-history-modal">
-    <div class="modal-content">
-        <h3>Withdraw History</h3>
-        <div id="withdraw-history-modal-list">
-            <!-- History items will be populated here -->
-        </div>
-        <div class="modal-actions" style="margin-top: 20px;">
-            <button class="action-button primary-button" onclick="closeWithdrawHistoryModal()">Close</button>
-        </div>
-    </div>
-  </div>
-  <!-- Share Modal -->
-  <div class="modal-overlay" id="share-modal">
-    <div class="modal-content">
-        <h3>Share & Earn</h3>
-        <p>Share your referral link and earn coins!</p>
-        <div class="referral-stats">
-            <div class="referral-stat-item">
-                <div class="referral-stat-value" id="referral-count">0</div>
-                <div class="referral-stat-label">Referrals</div>
-            </div>
-            <div class="referral-stat-item">
-                <div class="referral-stat-value" id="referral-earnings">0</div>
-                <div class="referral-stat-label">Coins Earned</div>
-            </div>
-        </div>
-        <div class="form-group">
-            <label for="referral-link">Your Referral Link:</label>
-            <input type="text" id="referral-link" readonly>
-        </div>
-        <button class="action-button primary-button" onclick="copyReferralLink()">
-            <i class="fa-solid fa-copy"></i> Copy Link
-        </button>
-        <button class="action-button secondary-button" onclick="shareOnTelegram()" style="margin-top: 10px;">
-            <i class="fa-brands fa-telegram"></i> Share on Telegram
-        </button>
-        <div class="modal-actions" style="margin-top: 20px;">
-            <button class="action-button primary-button" onclick="closeShareModal()">Close</button>
-        </div>
-    </div>
-  </div>
-  <!-- Notification Modal -->
-  <div class="modal-overlay" id="notification-modal">
-    <div class="modal-content">
-        <h3>Notifications</h3>
-        <div id="notification-modal-list">
-            <!-- Notifications will be populated here -->
-        </div>
-        <div class="notification-actions">
-            <button class="admin-support-btn" onclick="openAdminMessageModal()">
-                <i class="fa-solid fa-headset"></i> Support Admin
-            </button>
-            <button class="important-notices-btn" onclick="openImportantNoticesModal()">
-                <i class="fa-solid fa-exclamation-circle"></i> Important Notices
+            <button class="btn btn-sm btn-outline-secondary" onclick="logout()">
+                <i class="fas fa-sign-out-alt"></i>
             </button>
         </div>
-        <div class="modal-actions" style="margin-top: 20px;">
-            <button class="action-button primary-button" onclick="closeNotificationModal()">Close</button>
+
+        <ul class="nav nav-tabs" id="mainTabs">
+            <li class="nav-item">
+                <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#home-view">Home</button>
+            </li>
+            <li class="nav-item">
+                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#earn-view">Earn</button>
+            </li>
+            <li class="nav-item">
+                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#withdraw-view">Withdraw</button>
+            </li>
+            <li class="nav-item">
+                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#referral-view">Referral</button>
+            </li>
+            <li class="nav-item">
+                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#profile-view">Profile</button>
+            </li>
+        </ul>
+
+        <div class="tab-content">
+            <!-- Home View -->
+            <div id="home-view" class="view active">
+                <div class="card">
+                    <div class="card-header">Dashboard</div>
+                    <div class="card-body">
+                        <div class="stats-grid">
+                            <div class="stat-item">
+                                <div class="stat-value" id="home-points">0</div>
+                                <div class="stat-label">Points</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value" id="home-balance">$0.00</div>
+                                <div class="stat-label">Balance</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value" id="home-referrals">0</div>
+                                <div class="stat-label">Referrals</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value" id="home-ads-watched">0</div>
+                                <div class="stat-label">Ads Watched</div>
+                            </div>
+                        </div>
+
+                        <h5>Important Notices</h5>
+                        <div id="notices-container">
+                            <p class="text-muted">Loading notices...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">Recent Activity</div>
+                    <div class="card-body">
+                        <div id="activity-history">
+                            <p class="text-muted">No recent activity.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Earn View -->
+            <div id="earn-view" class="view">
+                <div class="card">
+                    <div class="card-header">Watch Ads & Earn</div>
+                    <div class="card-body">
+                        <p>Earn <strong><span id="points-per-ad">10</span> points</strong> for each ad you watch.</p>
+                        
+                        <div class="ad-section">
+                            <h5>Available Ads</h5>
+                            <div class="ad-grid" id="ad-grid">
+                                <!-- Ads will be populated here -->
+                                <p class="text-muted">Loading ads...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Withdraw View -->
+            <div id="withdraw-view" class="view">
+                <div class="card">
+                    <div class="card-header">Withdraw Earnings</div>
+                    <div class="card-body">
+                        <p>Minimum withdrawal amount: $<span id="min-withdraw-amount">5.00</span></p>
+                        <p>Your balance: $<span id="withdraw-balance">0.00</span></p>
+                        
+                        <div class="withdraw-section">
+                            <div class="form-group">
+                                <label for="paymentMethod" class="form-label">Payment Method</label>
+                                <select class="form-control" id="paymentMethod">
+                                    <option value="bkash">bKash</option>
+                                    <option value="nagad">Nagad</option>
+                                    <option value="rocket">Rocket</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="mobileNumber" class="form-label">Mobile Number</label>
+                                <input type="text" class="form-control" id="mobileNumber" placeholder="Enter mobile number">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="withdrawAmount" class="form-label">Amount ($)</label>
+                                <input type="number" class="form-control" id="withdrawAmount" placeholder="Enter amount" step="0.01" min="0">
+                            </div>
+                            
+                            <button class="btn btn-primary" id="requestWithdrawBtn" onclick="requestWithdraw()">Request Withdrawal</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">Withdrawal History</div>
+                    <div class="card-body">
+                        <button class="btn btn-outline-primary btn-sm mb-2" onclick="openWithdrawHistoryModal()">View Full History</button>
+                        <div id="recent-withdraw-history">
+                            <p class="text-muted">No recent withdrawals.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Referral View -->
+            <div id="referral-view" class="view">
+                <div class="card">
+                    <div class="card-header">Invite Friends</div>
+                    <div class="card-body">
+                        <p>Earn <strong><span id="referral-reward">10</span> points</strong> for each friend who joins using your link.</p>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Your Referral Link</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="referralLink" readonly>
+                                <button class="btn btn-outline-secondary copy-btn" type="button" onclick="copyReferralLink()">Copy</button>
+                            </div>
+                        </div>
+                        
+                        <div class="stats-grid">
+                            <div class="stat-item">
+                                <div class="stat-value" id="referral-count">0</div>
+                                <div class="stat-label">Total Referrals</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value" id="referral-earnings">0</div>
+                                <div class="stat-label">Referral Earnings</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value" id="referral-claim-threshold">0</div>
+                                <div class="stat-label">Claim Threshold</div>
+                            </div>
+                        </div>
+                        
+                        <button class="btn btn-success" id="claimReferralBtn" onclick="claimReferralEarnings()" disabled>Claim Earnings</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Profile View -->
+            <div id="profile-view" class="view">
+                <div class="card">
+                    <div class="card-header">Your Profile</div>
+                    <div class="card-body">
+                        <div class="form-group">
+                            <label class="form-label">Telegram ID</label>
+                            <input type="text" class="form-control" id="profile-telegram-id" readonly>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Username</label>
+                            <input type="text" class="form-control" id="profile-username" readonly>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">First Name</label>
+                            <input type="text" class="form-control" id="profile-first-name" readonly>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Last Name</label>
+                            <input type="text" class="form-control" id="profile-last-name" readonly>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Language</label>
+                            <input type="text" class="form-control" id="profile-language" readonly>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Messages</label>
+                            <button class="btn btn-outline-info" onclick="openMessagesModal()">View Messages</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Blocked View -->
+            <div id="blocked-view" class="view">
+                <div class="blocked-view-content">
+                    <div class="blocked-icon">
+                        <i class="fas fa-ban"></i>
+                    </div>
+                    <div class="blocked-message">
+                        Your account has been blocked.
+                    </div>
+                    <p>Please contact support if you believe this is an error.</p>
+                    <p><a href="https://t.me/your_support_bot" class="support-link" target="_blank">Contact Support</a></p>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>&copy; 2023 Earning App. All rights reserved.</p>
         </div>
     </div>
-  </div>
-  <!-- Admin Message Modal -->
-  <div class="modal-overlay" id="admin-message-modal">
-    <div class="modal-content">
-        <h3>Support Admin</h3>
-        <div id="admin-message-history">
-            <!-- Message history will be populated here -->
-        </div>
-        <div style="display: flex; align-items: center;">
-            <input type="text" id="admin-message-input" placeholder="Type your message...">
-            <button id="send-admin-message"><i class="fa-solid fa-paper-plane"></i></button>
-        </div>
-        <div class="modal-actions" style="margin-top: 20px;">
-            <button class="action-button primary-button" onclick="closeAdminMessageModal()">Close</button>
+
+    <!-- Withdraw History Modal -->
+    <div id="withdraw-history-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeWithdrawHistoryModal()">&times;</span>
+            <h4>Withdrawal History</h4>
+            <div id="withdraw-history-list">
+                <p class="text-muted">Loading history...</p>
+            </div>
         </div>
     </div>
-  </div>
-  <!-- Important Notices Modal -->
-  <div class="modal-overlay" id="important-notices-modal">
-    <div class="modal-content">
-        <h3>Important Notices</h3>
-        <div id="important-notices-list">
-            <!-- Notices will be populated here -->
-        </div>
-        <div class="modal-actions" style="margin-top: 20px;">
-            <button class="action-button primary-button" onclick="closeImportantNoticesModal()">Close</button>
+
+    <!-- Messages Modal -->
+    <div id="messages-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeMessagesModal()">&times;</span>
+            <h4>Messages from Admin</h4>
+            <div id="message-history">
+                <p class="text-center text-muted">Loading messages...</p>
+            </div>
+            <div id="message-input-container">
+                <input type="text" class="form-control" id="message-input" placeholder="Type your reply...">
+                <button class="btn btn-outline-secondary" id="send-message-btn" onclick="sendMessage()"><i class="fas fa-paper-plane"></i></button>
+            </div>
         </div>
     </div>
-  </div>
-<script>
-    // --- Theme Toggle Logic ---
-    document.addEventListener('DOMContentLoaded', () => {
-        const themeToggle = document.getElementById('themeToggle');
-        const notificationToggle = document.getElementById('notificationToggle');
-        const themeIcon = themeToggle.querySelector('i');
-        // Check for saved theme preference or respect system preference
-        const savedTheme = localStorage.getItem('theme');
-        const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-        if (savedTheme === 'dark' || (!savedTheme && systemPrefersDark)) {
-            document.body.classList.replace('light-mode', 'dark-mode');
-            themeIcon.classList.replace('fa-moon', 'fa-sun');
-        }
-        themeToggle.addEventListener('click', () => {
-            if (document.body.classList.contains('light-mode')) {
-                document.body.classList.replace('light-mode', 'dark-mode');
-                themeIcon.classList.replace('fa-moon', 'fa-sun');
-                localStorage.setItem('theme', 'dark');
-            } else {
-                document.body.classList.replace('dark-mode', 'light-mode');
-                themeIcon.classList.replace('fa-sun', 'fa-moon');
-                localStorage.setItem('theme', 'light');
+
+    <!-- Bootstrap 5 JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // --- Firebase Configuration ---
+        const firebaseConfig = {
+          apiKey: "AIzaSyD3BGZ0MVLpbQbIpLUAnYvWNEIyk7Y6S0Q",
+          authDomain: "earning-app-80258.firebaseapp.com",
+          databaseURL: "https://earning-app-80258-default-rtdb.firebaseio.com",
+          projectId: "earning-app-80258",
+          storageBucket: "earning-app-80258.appspot.com",
+          messagingSenderId: "25930019210",
+          appId: "1:25930019210:web:6441562811d3e7e9631873",
+          measurementId: "G-P9HX6XXT1Q"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        // --- Global State Variables ---
+        let tgUser = null;
+        let tg = window.Telegram.WebApp;
+        let points = 0;
+        let balance = 0.00;
+        let referralCount = 0;
+        let referralEarnings = 0;
+        let adsWatchedToday = 0;
+        let lastAdWatchTime = null; // This will be a Date object or null
+        let isBlocked = false;
+        let historyLog = [];
+        let withdrawHistory = [];
+        let appConfig = {
+            pointsPerAd: 10,
+            coinsForConversion: 1000,
+            valuePerConversion: 0.30,
+            referralRewardCoins: 10,
+            referralClaimThreshold: 200,
+            minWithdrawAmount: 5,
+            dailyAdLimitPerUser: 10,
+            isAdSystemActive: true,
+            // --- Update: Add resetTimerHours with a default value ---
+            resetTimerHours: 12 // Default to 12 hours if not set by admin
+            // --- End Update ---
+        };
+        let adUrls = [
+            "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+            "https://www.google.com",
+            "https://www.github.com",
+            "https://www.stackoverflow.com"
+        ];
+
+        // --- Firebase Listeners ---
+        let userPointsBalanceListener = null;
+        let userReferralListener = null;
+        let userAdTrackingListener = null;
+        let appConfigListener = null;
+        let noticesListener = null;
+        let adminMessagesListener = null;
+        // --- Update: Add a variable for the real-time data interval ---
+        let realTimeDataInterval = null;
+        // --- End Update ---
+
+        // --- Utility Functions ---
+        function updateDisplay() {
+            document.getElementById('home-points').textContent = points;
+            document.getElementById('home-balance').textContent = `$${balance.toFixed(2)}`;
+            document.getElementById('home-referrals').textContent = referralCount;
+            document.getElementById('home-ads-watched').textContent = adsWatchedToday;
+            
+            document.getElementById('points-display').textContent = `Points: ${points}`;
+            document.getElementById('balance-display').textContent = `Balance: $${balance.toFixed(2)}`;
+            
+            document.getElementById('withdraw-balance').textContent = balance.toFixed(2);
+            
+            document.getElementById('referral-count').textContent = referralCount;
+            document.getElementById('referral-earnings').textContent = referralEarnings;
+            
+            // Update referral link
+            if (tgUser && tgUser.id) {
+                document.getElementById('referralLink').value = `https://t.me/your_bot?start=${tgUser.id}`;
             }
-        });
-        notificationToggle.addEventListener('click', openNotificationModal);
-        // Initialize the app
-        initApp();
-    });
-    // --- Firebase Configuration ---
-    const firebaseConfig = {
-      apiKey: "AIzaSyD3BGZ0MVLpbQbIpLUAnYvWNEIyk7Y6S0Q",
-      authDomain: "earning-app-80258.firebaseapp.com",
-      databaseURL: "https://earning-app-80258-default-rtdb.firebaseio.com",
-      projectId: "earning-app-80258",
-      storageBucket: "earning-app-80258.appspot.com",
-      messagingSenderId: "25930019210",
-      appId: "1:25930019210:web:6441562811d3e7e9631873",
-      measurementId: "G-P9HX6XXT1Q"
-    };
-    // Initialize Firebase
-    firebase.initializeApp(firebaseConfig);
-    const database = firebase.database();
-    // --- State Variables ---
-    let points = 0;
-    let balance = 0.00;
-    let historyLog = [];
-    let withdrawHistory = [];
-    let tgUser = null;
-    let isBlocked = false;
-    let appConfig = {
-      pointsPerAd: 10,
-      coinsForConversion: 1000,
-      valuePerConversion: 0.30,
-      referralRewardCoins: 10, // Default value
-      referralClaimThreshold: 200, // Default value
-      minWithdrawAmount: 5, // Default value
-      dailyAdLimitPerUser: 10, // Default daily ad limit
-      isAdSystemActive: true // Default ad system status
-    };
-    let referralData = {
-      referralCount: 0,
-      referralEarnings: 0
-    };
-    // For real-time listener reference
-    let userBlockedListener = null;
-    let withdrawHistoryListener = null;
-    let userPointsBalanceListener = null;
-    let referralListener = null;
-    let appConfigListener = null; // New listener for appConfig
-    // Ad tracking variables
-    let adsWatchedToday = 0;
-    let lastAdWatchTime = null; // Will be a Date object or null
-    let adStatus = 'Active'; // User-specific ad status, default 'Active'
-    let resetTimerInterval = null;
-    // --- Updated Balance Logic ---
-    // Dynamic from Firebase: 1000 coins = 30 cents = $0.30 USD
-    // 1 coin = $0.0003 USD (calculated dynamically)
-    // --- Core App Logic ---
-    function initApp() {
-        if (window.Telegram && Telegram.WebApp) {
-            Telegram.WebApp.ready();
-            Telegram.WebApp.expand();
-            tgUser = Telegram.WebApp.initDataUnsafe.user;
-            if (!tgUser) {
-                // Don't show blocked view immediately, wait for Firebase check
-                console.log("Telegram user data not available immediately, waiting for Firebase check");
-                showView('home-view'); // Show home view initially
-                loadAppConfig().then(() => {
-                    loadUserData().then(() => {
-                        loadTelegramUser();
-                        renderLeaderboard();
-                        checkForReferral(); // Check if this user was referred
-                    }).catch(error => {
-                        console.error("Error loading user ", error);
-                        // Handle error appropriately, maybe show a message
-                    });
-                });
-                return;
-            }
-            // Load app configuration and user data
-            loadAppConfig().then(() => {
-                loadUserData().then(() => {
-                    loadTelegramUser();
-                    showView('home-view');
-                    renderLeaderboard();
-                    checkForReferral(); // Check if this user was referred
-                    startResetTimer(); // Start the 12-hour reset timer logic
-                }).catch(error => {
-                    console.error("Error loading user ", error);
-                    // Handle error appropriately
-                });
-            }).catch(error => {
-                console.error("Error loading app config:", error);
-                // Handle error appropriately
-            });
-        } else {
-            // Don't show blocked view for non-Telegram access, just log
-            console.log("This app must be opened in Telegram.");
-            showView('home-view'); // Show home view initially
         }
-    }
-    // --- Firebase Functions ---
-    async function loadAppConfig() {
-        try {
-            const snapshot = await database.ref('appConfig').once('value');
-            const config = snapshot.val();
-            if (config) {
-                appConfig = {
-                    pointsPerAd: config.pointsPerAd || 10,
-                    coinsForConversion: config.coinsForConversion || 1000,
-                    valuePerConversion: config.valuePerConversion || 0.30,
-                    referralRewardCoins: config.referralRewardCoins !== undefined ? config.referralRewardCoins : 10,
-                    referralClaimThreshold: config.referralClaimThreshold !== undefined ? config.referralClaimThreshold : 200,
-                    minWithdrawAmount: config.minWithdrawAmount !== undefined ? config.minWithdrawAmount : 5,
-                    dailyAdLimitPerUser: config.dailyAdLimitPerUser !== undefined ? config.dailyAdLimitPerUser : 10,
-                    isAdSystemActive: config.isAdSystemActive !== undefined ? config.isAdSystemActive : true
-                };
-            }
-        } catch (error) {
-            console.error("Failed to load app config:", error);
-            throw error;
+
+        function showMessageModal(title, message) {
+            // Simple alert for now, can be replaced with a custom modal
+            alert(`${title}\n\n${message}`);
         }
-    }
-    async function loadUserData() {
-        if (!tgUser || !tgUser.id) return Promise.resolve(); // Resolve immediately if no user ID
-        try {
-            const userRef = database.ref('users/' + tgUser.id);
-            const snapshot = await userRef.once('value');
-            const userData = snapshot.val();
-            if (userData) {
-                points = userData.points || 0;
-                balance = userData.balance || 0.00;
-                historyLog = userData.historyLog || [];
-                isBlocked = userData.isBlocked || false;
-                referralData.referralCount = userData.referralCount || 0;
-                referralData.referralEarnings = userData.referralEarnings || 0;
-                // Load ad tracking data
-                adsWatchedToday = userData.adsWatchedToday || 0;
-                adStatus = userData.adStatus || 'Active'; // Default to 'Active' if not set
-                // Load lastAdWatchTime and parse it
-                if (userData.lastAdWatchTime) {
-                    // Try to parse as ISO string first (new format)
-                    let parsedTime = new Date(userData.lastAdWatchTime);
-                    if (isNaN(parsedTime.getTime())) {
-                        // If it's not a valid ISO string, try parsing as timestamp number
-                        const timestamp = Number(userData.lastAdWatchTime);
-                        if (!isNaN(timestamp)) {
-                            parsedTime = new Date(timestamp);
-                        } else {
-                            // If all parsing fails, set to null
-                            parsedTime = null;
-                        }
-                    }
-                    lastAdWatchTime = parsedTime;
-                } else {
-                    lastAdWatchTime = null;
+
+        function showBlockedView() {
+            document.querySelectorAll('.view').forEach(view => view.classList.remove('active'));
+            document.getElementById('blocked-view').classList.add('active');
+        }
+
+        function logout() {
+            // Close the Web App
+            tg.close();
+        }
+
+        // --- End Utility Functions ---
+
+        // --- User Data Management ---
+        async function loadTelegramUser() {
+            try {
+                tgUser = tg.initDataUnsafe.user;
+                if (!tgUser || !tgUser.id) {
+                    throw new Error("Unable to get Telegram user data.");
                 }
+                console.log("Telegram User Data:", tgUser);
+                
+                document.getElementById('username').textContent = tgUser.first_name || 'Telegram User';
+                const profilePicDiv = document.getElementById('profile-pic');
+                if (tgUser.photo_url) {
+                    profilePicDiv.innerHTML = `<img src="${tgUser.photo_url}" alt="Profile Picture">`;
+                } else {
+                    profilePicDiv.textContent = (tgUser.first_name || 'U').charAt(0);
+                }
+
+                // Populate profile view
+                document.getElementById('profile-telegram-id').value = tgUser.id;
+                document.getElementById('profile-username').value = tgUser.username || 'N/A';
+                document.getElementById('profile-first-name').value = tgUser.first_name || 'N/A';
+                document.getElementById('profile-last-name').value = tgUser.last_name || 'N/A';
+                document.getElementById('profile-language').value = tg.initDataUnsafe.user.language_code || 'N/A';
+
+                // Set referral link
+                document.getElementById('referralLink').value = `https://t.me/your_bot?start=${tgUser.id}`;
+
+                // Load user data from Firebase
+                await loadUserData();
+
+                // Setup real-time listeners
+                setupRealTimeListeners();
+
+            } catch (error) {
+                console.error("Error loading Telegram user:", error);
+                showMessageModal('Error', 'Failed to load user data. Please try again.');
+            }
+        }
+
+        async function loadUserData() {
+            if (!tgUser || !tgUser.id) return;
+
+            try {
+                const userRef = database.ref('users/' + tgUser.id);
+                const snapshot = await userRef.once('value');
+                const userData = snapshot.val();
+
+                if (userData) {
+                    points = userData.points || 0;
+                    balance = userData.balance || 0.00;
+                    referralCount = userData.referralCount || 0;
+                    referralEarnings = userData.referralEarnings || 0;
+                    adsWatchedToday = userData.adsWatchedToday || 0;
+                    isBlocked = userData.isBlocked || false;
+                    historyLog = userData.historyLog || [];
+                    withdrawHistory = userData.withdrawHistory ? Object.values(userData.withdrawHistory) : [];
+                    
+                    // Handle lastAdWatchTime correctly
+                    if (userData.lastAdWatchTime) {
+                        // If it's already a Date object string, parse it. Otherwise, assume it's a timestamp.
+                        lastAdWatchTime = new Date(userData.lastAdWatchTime);
+                        // Basic validation
+                        if (isNaN(lastAdWatchTime.getTime())) {
+                             console.warn("Invalid lastAdWatchTime format in DB, setting to null");
+                             lastAdWatchTime = null;
+                        }
+                    } else {
+                        lastAdWatchTime = null;
+                    }
+
+                    console.log("User data loaded from Firebase:", {
+                        points, balance, referralCount, referralEarnings, adsWatchedToday, lastAdWatchTime, isBlocked
+                    });
+                } else {
+                    // Create new user entry
+                    await createUserEntry();
+                }
+
                 updateDisplay();
-                // Only show blocked view if user is actually blocked
+                renderActivityHistory();
+                renderRecentWithdrawHistory();
+                updateAdButtonStates(); // Initial button state check
+
                 if (isBlocked) {
                     showBlockedView();
                 }
-                // Set up real-time listeners
-                setupBlockingListener(userRef);
-                setupWithdrawHistoryListener(userRef);
-                setupPointsBalanceListener(userRef);
-                setupReferralListener(userRef);
-                setupAppConfigListener(); // Setup listener for app config changes
-                setupUserAdDataListener(userRef); // Setup listener for user ad data
-            } else {
-                // Initialize new user
-                await userRef.set({
+
+            } catch (error) {
+                console.error("Error loading user data from Firebase:", error);
+                showMessageModal('Error', 'Failed to load your data. Please try again.');
+            }
+        }
+
+        async function createUserEntry() {
+            if (!tgUser || !tgUser.id) return;
+
+            try {
+                const newUser = {
                     id: tgUser.id,
-                    username: tgUser.username || 'Unknown',
-                    firstName: tgUser.first_name || 'User',
+                    username: tgUser.username || null,
+                    firstName: tgUser.first_name || null,
+                    lastName: tgUser.last_name || null,
                     points: 0,
                     balance: 0.00,
-                    isBlocked: false,
                     referralCount: 0,
                     referralEarnings: 0,
                     adsWatchedToday: 0,
-                    lastAdWatchTime: null,
-                    adStatus: 'Active', // Default status
-                    createdAt: new Date().toISOString()
-                });
-                // Set up real-time listeners
-                setupBlockingListener(userRef);
-                setupWithdrawHistoryListener(userRef);
-                setupPointsBalanceListener(userRef);
-                setupReferralListener(userRef);
-                setupAppConfigListener(); // Setup listener for app config changes
-                setupUserAdDataListener(userRef); // Setup listener for user ad data
+                    lastAdWatchTime: null, // Initialize as null
+                    isBlocked: false,
+                    adStatus: 'Active', // Default ad status
+                    createdAt: new Date().toISOString(),
+                    historyLog: [],
+                    withdrawHistory: {}
+                };
+
+                await database.ref('users/' + tgUser.id).set(newUser);
+                console.log("New user entry created in Firebase");
+
+                // Update local state with default values
+                points = newUser.points;
+                balance = newUser.balance;
+                referralCount = newUser.referralCount;
+                referralEarnings = newUser.referralEarnings;
+                adsWatchedToday = newUser.adsWatchedToday;
+                lastAdWatchTime = null; // Should be null initially
+                isBlocked = newUser.isBlocked;
+                historyLog = newUser.historyLog;
+                withdrawHistory = [];
+
+            } catch (error) {
+                console.error("Error creating new user entry:", error);
+                showMessageModal('Error', 'Failed to create user profile. Please try again.');
             }
-        } catch (error) {
-            console.error("Failed to load user ", error);
-            throw error;
         }
-    }
-    function setupUserAdDataListener(userRef) {
-        // Listen for changes to user-specific ad data
-        userRef.child('adsWatchedToday').on('value', (snapshot) => {
-            adsWatchedToday = snapshot.val() || 0;
-            updateDisplay();
-            updateAdButtonStates(); // Update button states when counter changes
-        });
-        userRef.child('lastAdWatchTime').on('value', (snapshot) => {
-            const timeValue = snapshot.val();
-            if (timeValue) {
-                let parsedTime = new Date(timeValue);
-                if (isNaN(parsedTime.getTime())) {
-                    const timestamp = Number(timeValue);
-                    if (!isNaN(timestamp)) {
-                        parsedTime = new Date(timestamp);
+
+        async function saveUserData() {
+            if (!tgUser || !tgUser.id) return;
+
+            try {
+                await database.ref('users/' + tgUser.id).update({
+                    points: points,
+                    balance: balance,
+                    historyLog: historyLog
+                });
+            } catch (error) {
+                console.error("Failed to save user data:", error);
+            }
+        }
+
+        // --- End User Data Management ---
+
+        // --- Real-time Listeners Setup ---
+        function setupRealTimeListeners() {
+            if (!tgUser || !tgUser.id) return;
+
+            const userRef = database.ref('users/' + tgUser.id);
+
+            // Listener for points and balance
+            if (userPointsBalanceListener) {
+                userRef.child('points').off('value', userPointsBalanceListener);
+                userRef.child('balance').off('value', userPointsBalanceListener);
+            }
+            userPointsBalanceListener = userRef.on('value', (snapshot) => {
+                const userData = snapshot.val();
+                if (userData) {
+                    points = userData.points || 0;
+                    balance = userData.balance || 0.00;
+                    updateDisplay();
+                }
+            });
+
+            // Listener for referral data
+            if (userReferralListener) {
+                userRef.child('referralCount').off('value', userReferralListener);
+                userRef.child('referralEarnings').off('value', userReferralListener);
+            }
+            userReferralListener = userRef.on('value', (snapshot) => {
+                const userData = snapshot.val();
+                if (userData) {
+                    referralCount = userData.referralCount || 0;
+                    referralEarnings = userData.referralEarnings || 0;
+                    updateDisplay();
+                    document.getElementById('referral-count').textContent = referralCount;
+                    document.getElementById('referral-earnings').textContent = referralEarnings;
+                    
+                    const claimBtn = document.getElementById('claimReferralBtn');
+                    if (referralEarnings >= appConfig.referralClaimThreshold) {
+                        claimBtn.disabled = false;
                     } else {
-                        parsedTime = null;
+                        claimBtn.disabled = true;
                     }
                 }
-                lastAdWatchTime = parsedTime;
-            } else {
-                lastAdWatchTime = null;
+            });
+
+            // Listener for ad tracking data
+            if (userAdTrackingListener) {
+                userRef.child('adsWatchedToday').off('value', userAdTrackingListener);
+                userRef.child('lastAdWatchTime').off('value', userAdTrackingListener);
             }
-            updateDisplay();
-            // Restart timer logic if needed
-            if (resetTimerInterval) clearInterval(resetTimerInterval);
-            startResetTimer();
-        });
-        userRef.child('adStatus').on('value', (snapshot) => {
-            adStatus = snapshot.val() || 'Active';
-            updateDisplay();
-            updateAdButtonStates(); // Update button states when status changes
-        });
-    }
-    // Check if user was referred
-    function checkForReferral() {
-        if (!tgUser || !tgUser.id) return;
-        // Get the start parameter from Telegram WebApp
-        const startParam = Telegram.WebApp.initDataUnsafe.start_param;
-        // If there's a start parameter and it's not the user's own ID, it means they were referred
-        if (startParam && startParam !== tgUser.id.toString()) {
-            const referrerId = startParam;
-            // Check if referral has already been processed for this user
-            database.ref('users/' + tgUser.id + '/referredBy').once('value').then((snapshot) => {
-                if (!snapshot.val()) {
-                    // Process referral
-                    processReferral(referrerId);
+            userAdTrackingListener = userRef.on('value', (snapshot) => {
+                const userData = snapshot.val();
+                if (userData) {
+                    const oldAdsWatchedToday = adsWatchedToday;
+                    adsWatchedToday = userData.adsWatchedToday || 0;
+                    
+                    // Handle lastAdWatchTime correctly on update
+                    if (userData.lastAdWatchTime) {
+                        const newLastAdWatchTime = new Date(userData.lastAdWatchTime);
+                        if (!isNaN(newLastAdWatchTime.getTime())) {
+                             lastAdWatchTime = newLastAdWatchTime;
+                        } else {
+                             console.warn("Invalid lastAdWatchTime format received from DB update");
+                        }
+                    } else {
+                        lastAdWatchTime = null;
+                    }
+                    
+                    console.log("Ad tracking data updated from Firebase:", { adsWatchedToday, lastAdWatchTime });
+
+                    // Only update button states if the count actually changed or time was updated
+                    // This prevents unnecessary updates if other fields change
+                    if (adsWatchedToday !== oldAdsWatchedToday || userData.lastAdWatchTime !== (lastAdWatchTime ? lastAdWatchTime.toISOString() : null)) {
+                         updateAdButtonStates();
+                    }
+                }
+            });
+
+            // Listener for app configuration
+            if (appConfigListener) {
+                database.ref('appConfig').off('value', appConfigListener);
+            }
+            appConfigListener = database.ref('appConfig').on('value', (snapshot) => {
+                const config = snapshot.val();
+                if (config) {
+                    const oldLimit = appConfig.dailyAdLimitPerUser;
+                    const oldStatus = appConfig.isAdSystemActive;
+                    // --- Update: Ensure resetTimerHours is loaded from Firebase or defaults ---
+                    appConfig = {
+                        pointsPerAd: config.pointsPerAd !== undefined ? config.pointsPerAd : 10,
+                        coinsForConversion: config.coinsForConversion !== undefined ? config.coinsForConversion : 1000,
+                        valuePerConversion: config.valuePerConversion !== undefined ? config.valuePerConversion : 0.30,
+                        referralRewardCoins: config.referralRewardCoins !== undefined ? config.referralRewardCoins : 10,
+                        referralClaimThreshold: config.referralClaimThreshold !== undefined ? config.referralClaimThreshold : 200,
+                        minWithdrawAmount: config.minWithdrawAmount !== undefined ? config.minWithdrawAmount : 5,
+                        dailyAdLimitPerUser: config.dailyAdLimitPerUser !== undefined ? config.dailyAdLimitPerUser : 10,
+                        isAdSystemActive: config.isAdSystemActive !== undefined ? config.isAdSystemActive : true,
+                        // Load resetTimerHours from Firebase, defaulting to 12 if not present
+                        resetTimerHours: config.resetTimerHours !== undefined ? config.resetTimerHours : 12
+                    };
+                    // --- End Update ---
+                    console.log("App config updated:", appConfig);
+                    updateDisplay();
+                    updateAdButtonStates(); // Update button states when global config changes
+
+                    // If the limit or global status changed, we might need to update UI state
+                    if (oldLimit !== appConfig.dailyAdLimitPerUser || oldStatus !== appConfig.isAdSystemActive) {
+                        renderAdGrid(); // Re-render ads if limit changed
+                    }
+                }
+            });
+
+            // Listener for notices
+            if (noticesListener) {
+                database.ref('notices').off('value', noticesListener);
+            }
+            noticesListener = database.ref('notices').on('value', (snapshot) => {
+                const notices = snapshot.val();
+                renderNotices(notices);
+            });
+
+            // Listener for admin messages
+            if (adminMessagesListener) {
+                userRef.child('adminMessages').off('value', adminMessagesListener);
+            }
+            adminMessagesListener = userRef.child('adminMessages').on('value', (snapshot) => {
+                const messages = snapshot.val();
+                // Check if messages modal is open to update history
+                if (document.getElementById('messages-modal').style.display === 'block') {
+                    renderMessageHistory(messages);
+                }
+            });
+            
+            // --- Update: Setup periodic real-time data fetching ---
+            if (realTimeDataInterval) {
+                 clearInterval(realTimeDataInterval);
+            }
+            // Fetch data every 5 seconds
+            realTimeDataInterval = setInterval(fetchRealTimeData, 5000);
+            // --- End Update ---
+        }
+
+        // --- Update: Function to fetch real-time data periodically ---
+        async function fetchRealTimeData() {
+             if (!tgUser || !tgUser.id) return;
+
+             const indicator = document.getElementById('realtime-indicator');
+             indicator.classList.add('updating'); // Show indicator
+
+             try {
+                 const userRef = database.ref('users/' + tgUser.id);
+                 const snapshot = await userRef.once('value');
+                 const userData = snapshot.val();
+
+                 if (userData) {
+                     // Update only the specific fields we want to track in real-time
+                     const oldAdsWatchedToday = adsWatchedToday;
+                     const oldLastAdWatchTime = lastAdWatchTime ? lastAdWatchTime.toISOString() : null;
+                     
+                     adsWatchedToday = userData.adsWatchedToday || 0;
+                     
+                     // Handle lastAdWatchTime correctly on real-time fetch
+                     if (userData.lastAdWatchTime) {
+                         const fetchedLastAdWatchTime = new Date(userData.lastAdWatchTime);
+                         if (!isNaN(fetchedLastAdWatchTime.getTime())) {
+                             lastAdWatchTime = fetchedLastAdWatchTime;
+                         } else {
+                             console.warn("Invalid lastAdWatchTime format fetched in real-time update");
+                         }
+                     } else {
+                         lastAdWatchTime = null;
+                     }
+
+                     console.log("Real-time data fetched:", { adsWatchedToday, lastAdWatchTime });
+
+                     // Update UI only if these specific values changed
+                     if (adsWatchedToday !== oldAdsWatchedToday || 
+                         (lastAdWatchTime ? lastAdWatchTime.toISOString() : null) !== oldLastAdWatchTime) {
+                         updateAdButtonStates();
+                         // Also update display if adsWatchedToday changed
+                         if(adsWatchedToday !== oldAdsWatchedToday) {
+                              document.getElementById('home-ads-watched').textContent = adsWatchedToday;
+                         }
+                     }
+                 }
+             } catch (error) {
+                 console.error("Error fetching real-time data:", error);
+             } finally {
+                 // Use a short timeout to make the indicator visible even for fast requests
+                 setTimeout(() => {
+                     indicator.classList.remove('updating'); // Hide indicator
+                 }, 200);
+             }
+        }
+        // --- End Update ---
+
+        // --- End Real-time Listeners Setup ---
+
+        // --- Ad Management ---
+        function renderAdGrid() {
+            const adGrid = document.getElementById('ad-grid');
+            adGrid.innerHTML = ''; // Clear existing ads
+
+            if (!appConfig.isAdSystemActive) {
+                adGrid.innerHTML = '<p class="text-muted">Ad system is currently inactive.</p>';
+                return;
+            }
+
+            for (let i = 0; i < appConfig.dailyAdLimitPerUser; i++) {
+                const adCard = document.createElement('div');
+                adCard.className = 'ad-card';
+                adCard.innerHTML = `
+                    <img src="https://picsum.photos/200/100?random=${i}" alt="Ad ${i+1}" class="ad-image">
+                    <div class="ad-content">
+                        <div class="ad-title">Ad ${i+1}</div>
+                        <div class="ad-reward">+${appConfig.pointsPerAd} Points</div>
+                        <button class="ad-button" id="ad-btn-${i}" onclick="watchAd(${i})">Watch Ad</button>
+                    </div>
+                `;
+                adGrid.appendChild(adCard);
+            }
+            updateAdButtonStates(); // Set initial button states after rendering
+        }
+
+        // --- Update: Modified updateAdButtonStates to use appConfig.resetTimerHours ---
+        async function updateAdButtonStates() {
+            if (!tgUser || !tgUser.id) return;
+
+            // Check and reset the ad counter based on the dynamic timer
+            await checkAndResetAdCounter();
+
+            const adButtons = document.querySelectorAll('.ad-button');
+            const isAtLimit = adsWatchedToday >= appConfig.dailyAdLimitPerUser;
+            const isSystemActive = appConfig.isAdSystemActive;
+
+            adButtons.forEach((button, index) => {
+                if (!isSystemActive) {
+                    button.disabled = true;
+                    button.textContent = 'Inactive';
+                } else if (isAtLimit) {
+                    button.disabled = true;
+                    button.textContent = 'Limit Reached';
+                } else {
+                    button.disabled = false;
+                    button.textContent = 'Watch Ad';
                 }
             });
         }
-    }
-    // Process referral and reward referrer
-    async function processReferral(referrerId) {
-        try {
-            // Verify referrer exists
-            const referrerRef = database.ref('users/' + referrerId);
-            const referrerSnapshot = await referrerRef.once('value');
-            if (referrerSnapshot.exists()) {
-                // Reward referrer (coins from Firebase config)
-                const referrerData = referrerSnapshot.val();
-                const newReferralEarnings = (referrerData.referralEarnings || 0) + appConfig.referralRewardCoins;
-                const newReferralCount = (referrerData.referralCount || 0) + 1;
-                const newPoints = referrerData.points + appConfig.referralRewardCoins;
-                const newBalance = (newPoints / appConfig.coinsForConversion) * appConfig.valuePerConversion;
-                // Update referrer's data
-                await referrerRef.update({
-                    referralEarnings: newReferralEarnings,
-                    referralCount: newReferralCount,
-                    points: newPoints,
-                    balance: newBalance
-                });
-                // Mark this user as referred by this referrer
-                await database.ref('users/' + tgUser.id).update({
-                    referredBy: referrerId
-                });
-                console.log(`Referral processed: User ${tgUser.id} referred by ${referrerId}`);
+
+        // --- Update: New function to check and reset the ad counter based on dynamic timer ---
+        async function checkAndResetAdCounter() {
+            if (!tgUser || !tgUser.id) return;
+
+            // If lastAdWatchTime is not set, it means the user hasn't watched any ads yet in this cycle
+            // We don't need to reset anything, just let them watch the first ad which will set the time.
+            if (!lastAdWatchTime) {
+                console.log("No lastAdWatchTime set, counter is fresh or was reset.");
+                return; // Nothing to check/reset
             }
-        } catch (error) {
-            console.error("Error processing referral:", error);
-        }
-    }
-    function setupBlockingListener(userRef) {
-        if (userBlockedListener) {
-            // Remove previous listener if exists
-            userRef.child('isBlocked').off('value', userBlockedListener);
-        }
-        // Set up new listener
-        userBlockedListener = userRef.child('isBlocked').on('value', (snapshot) => {
-            const blockedStatus = snapshot.val() || false;
-            handleBlockingStatus(blockedStatus);
-        });
-    }
-    function setupWithdrawHistoryListener(userRef) {
-        if (withdrawHistoryListener) {
-            // Remove previous listener if exists
-            userRef.child('withdrawHistory').off('value', withdrawHistoryListener);
-        }
-        // Set up new listener
-        withdrawHistoryListener = userRef.child('withdrawHistory').on('value', (snapshot) => {
-            const history = snapshot.val();
-            if (history) {
-                withdrawHistory = Object.values(history);
-                // Sort by timestamp descending
-                withdrawHistory.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-            } else {
-                withdrawHistory = [];
-            }
-            // Render history in modal if it's open
-            if (document.getElementById('withdraw-history-modal').classList.contains('active')) {
-                renderWithdrawHistoryModal();
-            }
-        });
-    }
-    function setupPointsBalanceListener(userRef) {
-        if (userPointsBalanceListener) {
-            // Remove previous listener if exists
-            userRef.child('points').off('value', userPointsBalanceListener);
-            userRef.child('balance').off('value', userPointsBalanceListener);
-        }
-        // Set up new listeners for points and balance
-        userPointsBalanceListener = userRef.on('value', (snapshot) => {
-            const userData = snapshot.val();
-            if (userData) {
-                points = userData.points || 0;
-                balance = userData.balance || 0.00;
-                updateDisplay();
-            }
-        });
-    }
-    function setupReferralListener(userRef) {
-        if (referralListener) {
-            // Remove previous listener if exists
-            userRef.child('referralCount').off('value', referralListener);
-            userRef.child('referralEarnings').off('value', referralListener);
-        }
-        // Set up new listeners for referral data
-        referralListener = userRef.on('value', (snapshot) => {
-            const userData = snapshot.val();
-            if (userData) {
-                referralData.referralCount = userData.referralCount || 0;
-                referralData.referralEarnings = userData.referralEarnings || 0;
-                // Update share modal if it's open
-                if (document.getElementById('share-modal').classList.contains('active')) {
-                    updateShareModal();
-                }
-                // Check if referral earnings reached threshold (from Firebase config)
-                if (referralData.referralEarnings >= appConfig.referralClaimThreshold) {
-                    claimReferralEarnings();
-                }
-            }
-        });
-    }
-     // Setup listener for app config changes
-     function setupAppConfigListener() {
-        if (appConfigListener) {
-            // Remove previous listener if exists
-            database.ref('appConfig').off('value', appConfigListener);
-        }
-        // Set up new listener
-        appConfigListener = database.ref('appConfig').on('value', (snapshot) => {
-            const config = snapshot.val();
-            if (config) {
-                const oldLimit = appConfig.dailyAdLimitPerUser;
-                const oldStatus = appConfig.isAdSystemActive;
-                appConfig = {
-                    pointsPerAd: config.pointsPerAd || 10,
-                    coinsForConversion: config.coinsForConversion || 1000,
-                    valuePerConversion: config.valuePerConversion || 0.30,
-                    referralRewardCoins: config.referralRewardCoins !== undefined ? config.referralRewardCoins : 10,
-                    referralClaimThreshold: config.referralClaimThreshold !== undefined ? config.referralClaimThreshold : 200,
-                    minWithdrawAmount: config.minWithdrawAmount !== undefined ? config.minWithdrawAmount : 5,
-                    dailyAdLimitPerUser: config.dailyAdLimitPerUser !== undefined ? config.dailyAdLimitPerUser : 10,
-                    isAdSystemActive: config.isAdSystemActive !== undefined ? config.isAdSystemActive : true
-                };
-                console.log("App config updated:", appConfig);
-                updateDisplay();
-                updateAdButtonStates(); // Update button states when global config changes
-                // If the limit or global status changed, we might need to update UI state
-                if (oldLimit !== appConfig.dailyAdLimitPerUser || oldStatus !== appConfig.isAdSystemActive) {
-                     // The display update will reflect the new values
-                }
-            }
-        });
-    }
-    // Claim referral earnings (convert to main balance)
-    async function claimReferralEarnings() {
-        if (!tgUser || !tgUser.id) return;
-        try {
-            // Calculate coins and value
-            const coinsToClaim = appConfig.referralClaimThreshold;
-            const valueToClaim = (coinsToClaim / appConfig.coinsForConversion) * appConfig.valuePerConversion;
-            // Update user's main balance
-            points += coinsToClaim;
-            balance += valueToClaim;
-            // Reset referral earnings
-            referralData.referralEarnings -= coinsToClaim;
-            referralData.referralCount = referralData.referralCount; // Keep count unchanged
-            // Update Firebase
-            await database.ref('users/' + tgUser.id).update({
-                points: points,
-                balance: balance,
-                referralEarnings: referralData.referralEarnings
-            });
-            // Update display
-            updateDisplay();
-            // Show notification
-            showMessageModal('Success', `Congratulations! You've claimed ${appConfig.referralClaimThreshold} referral coins ($${valueToClaim.toFixed(2)}) and they've been added to your main balance.`);
-        } catch (error) {
-            console.error("Error claiming referral earnings:", error);
-            showMessageModal('Error', 'Failed to claim referral earnings. Please try again.');
-        }
-    }
-    function handleBlockingStatus(blockedStatus) {
-        if (blockedStatus !== isBlocked) {
-            isBlocked = blockedStatus;
-            if (isBlocked) {
-                showBlockedView();
-                disableUI();
-            } else {
-                // Re-enable UI if unblocked
-                enableUI();
-                // Optionally switch back to home view if currently on blocked view
-                if (document.getElementById('blocked-view').classList.contains('active')) {
-                    showView('home-view');
-                }
-            }
-        }
-    }
-    async function saveUserData() {
-        if (!tgUser || !tgUser.id) return;
-        try {
-            await database.ref('users/' + tgUser.id).update({
-                points: points,
-                balance: balance,
-                historyLog: historyLog
-            });
-        } catch (error) {
-            console.error("Failed to save user ", error);
-        }
-    }
-    // --- View Management ---
-    function showView(viewId) {
-        // Prevent navigation if user is blocked (except to blocked view)
-        if (isBlocked && viewId !== 'blocked-view') {
-            showBlockedView();
-            return;
-        }
-        document.querySelectorAll('.view').forEach(view => view.classList.remove('active'));
-        document.getElementById(viewId).classList.add('active');
-        document.querySelectorAll('.nav-button').forEach(btn => btn.classList.remove('active'));
-        const activeBtn = document.querySelector(`.nav-button[onclick="showView('${viewId}')"]`);
-        if(activeBtn) activeBtn.classList.add('active');
-        if (viewId === 'history-view') renderHistory();
-    }
-    function showBlockedView() {
-        isBlocked = true;
-        showView('blocked-view');
-        // --- Hide the footer when blocked view is shown ---
-        document.querySelector('.footer-nav').classList.add('hide-footer');
-        // --- Ensure the Telegram button is not disabled ---
-        const telegramBtn = document.querySelector('.telegram-button');
-        if (telegramBtn) {
-            telegramBtn.classList.remove('disabled');
-        }
-        disableUI();
-    }
-    function disableUI() {
-        // Add 'disabled' class to interactive elements
-        // --- Exclude the Telegram button from being disabled ---
-        document.querySelectorAll('.task-card, .nav-button, .action-button:not(.telegram-button)').forEach(el => {
-            el.classList.add('disabled');
-        });
-        // Disable specific buttons that might not have the class
-        const withdrawBtn = document.querySelector('.task-card[onclick="showView(\'withdraw-view\')"]');
-        if (withdrawBtn) withdrawBtn.classList.add('disabled');
-        const taskBtns = document.querySelectorAll('.task-card[onclick^="showAd"]');
-        taskBtns.forEach(btn => btn.classList.add('disabled'));
-    }
-    function enableUI() {
-        // Remove 'disabled' class from interactive elements
-        document.querySelectorAll('.task-card, .nav-button, .action-button').forEach(el => {
-            el.classList.remove('disabled');
-        });
-        // Enable specific buttons
-        const withdrawBtn = document.querySelector('.task-card[onclick="showView(\'withdraw-view\')"]');
-        if (withdrawBtn) withdrawBtn.classList.remove('disabled');
-        const taskBtns = document.querySelectorAll('.task-card[onclick^="showAd"]');
-        taskBtns.forEach(btn => btn.classList.remove('disabled'));
-        // --- Show the footer when UI is enabled (e.g., user unblocked) ---
-        document.querySelector('.footer-nav').classList.remove('hide-footer');
-        // Re-check ad status and limit to re-enable buttons if appropriate
-        updateAdButtonStates();
-    }
-    // --- New function to update ad button states based on limit and status ---
-    function updateAdButtonStates() {
-         // Check global ad system status
-        const isGlobalActive = appConfig.isAdSystemActive;
-        // Check user-specific ad status
-        const isUserActive = adStatus === 'Active';
-        // Check if the 12-hour period has passed and reset if necessary
-        checkAndResetAdCounter();
-        // Check if limit is reached
-        const isLimitReached = adsWatchedToday >= appConfig.dailyAdLimitPerUser;
-        // Determine if ads should be disabled
-        const shouldDisableAds = !isGlobalActive || !isUserActive || isLimitReached;
-        // Update task buttons
-        const taskBtns = document.querySelectorAll('.task-card[onclick^="showAd"]');
-        taskBtns.forEach(btn => {
-            if (shouldDisableAds) {
-                btn.classList.add('disabled');
-            } else {
-                btn.classList.remove('disabled');
-            }
-        });
-        console.log("Ad button states updated. Disabled:", shouldDisableAds);
-    }
-    function updateDisplay() {
-        document.getElementById('points-value').textContent = points.toLocaleString();
-        document.getElementById('balance-value').textContent = `$${balance.toFixed(2)}`;
-        // Update new ad info section
-        document.getElementById('daily-ad-limit').textContent = `${adsWatchedToday}/${appConfig.dailyAdLimitPerUser}`;
-        const statusBox = document.getElementById('ad-status-box');
-        const statusValue = document.getElementById('ad-status-value');
-        // Show global status if inactive, otherwise show user status
-        statusValue.textContent = appConfig.isAdSystemActive ? adStatus : 'Inactive (Global)';
-        // Update status box class for color coding
-        statusBox.classList.remove('status-active', 'status-inactive');
-        if (appConfig.isAdSystemActive && adStatus === 'Active') {
-            statusBox.classList.add('status-active');
-        } else {
-            statusBox.classList.add('status-inactive');
-        }
-        // Update reset timer display is handled by the timer function
-    }
-    // --- 12-Hour Reset Timer Logic ---
-    function startResetTimer() {
-        // Clear any existing interval
-        if (resetTimerInterval) {
-            clearInterval(resetTimerInterval);
-        }
-        // Update display immediately
-        updateResetTimerDisplay();
-        // Start the interval to update the timer every second
-        resetTimerInterval = setInterval(() => {
-            updateResetTimerDisplay();
-            // Also check and reset the counter every second
-            checkAndResetAdCounter();
-        }, 1000);
-    }
-    function updateResetTimerDisplay() {
-        // If there's no lastAdWatchTime, or it's more than 12 hours ago, timer shows --:--:--
-        if (!lastAdWatchTime) {
-            document.getElementById('reset-timer').textContent = '--:--:--';
-            return;
-        }
-        const now = new Date();
-        const timeDiff = now - lastAdWatchTime;
-        const hoursDiff = timeDiff / (1000 * 60 * 60);
-        if (hoursDiff >= 12) {
-            // Period has passed, show --:--:--
-            document.getElementById('reset-timer').textContent = '--:--:--';
-            return;
-        }
-        // Calculate remaining time
-        const remainingHours = 12 - hoursDiff;
-        const totalSeconds = Math.floor(remainingHours * 3600);
-        const hours = Math.floor(totalSeconds / 3600);
-        const minutes = Math.floor((totalSeconds % 3600) / 60);
-        const seconds = totalSeconds % 60;
-        document.getElementById('reset-timer').textContent =
-            `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-    }
-    async function checkAndResetAdCounter() {
-        if (!tgUser || !tgUser.id) return;
-        // Check if 12 hours have passed
-        if (lastAdWatchTime) {
+
             const now = new Date();
-            const timeDiff = now - lastAdWatchTime;
-            const hoursDiff = timeDiff / (1000 * 60 * 60);
-            if (hoursDiff >= 12) {
+            const timeDiffMs = now - lastAdWatchTime; // Difference in milliseconds
+            const hoursDiff = timeDiffMs / (1000 * 60 * 60); // Convert to hours
+
+            console.log(`Checking timer: ${hoursDiff.toFixed(2)} hours passed (need ${appConfig.resetTimerHours} hours)`);
+
+            // Check if the time set by admin (appConfig.resetTimerHours) has passed
+            if (hoursDiff >= appConfig.resetTimerHours) {
+                console.log(`Reset timer (${appConfig.resetTimerHours} hours) has passed. Resetting counter.`);
                 // Reset the counter if it's not already 0
                 if (adsWatchedToday !== 0) {
                     adsWatchedToday = 0;
                     try {
                         await database.ref('users/' + tgUser.id).update({
                             adsWatchedToday: adsWatchedToday
+                            // Do not update lastAdWatchTime here. It should only be updated when a new ad viewing cycle starts.
                         });
-                        console.log("Ad counter reset after 12 hours.");
+                        console.log("Ad counter reset successfully in Firebase.");
                         updateDisplay(); // Update display to reflect reset
-                        updateAdButtonStates(); // Update button states
+                        // updateAdButtonStates() will be called by the listener, but we can call it explicitly if needed
+                        // updateAdButtonStates();
                     } catch (error) {
                         console.error("Failed to reset ad counter:", error);
+                        // Optionally inform the user
                     }
+                } else {
+                     console.log("Ad counter was already 0, no Firebase update needed.");
                 }
-            }
-        }
-    }
-    // --- End 12-Hour Reset Timer Logic ---
-    // - User & Profile -
-    function loadTelegramUser() {
-        if (tgUser) {
-            document.getElementById('username').textContent = tgUser.first_name || 'Telegram User';
-            const profilePicDiv = document.getElementById('profile-pic');
-            if (tgUser.photo_url) {
-                profilePicDiv.innerHTML = `<img src="${tgUser.photo_url}" alt="P">`;
             } else {
-                profilePicDiv.textContent = (tgUser.first_name || 'U').charAt(0);
+                console.log(`Reset timer (${appConfig.resetTimerHours} hours) has not passed yet.`);
             }
         }
-    }
-    // --- History Logic ---
-    function addToHistory(type, detail) {
-        const timestamp = new Date().toISOString();
-        historyLog.unshift({ type, detail, timestamp });
-        if (historyLog.length > 50) historyLog.pop();
-        saveUserData();
-    }
-    function renderHistory() {
-        const list = document.getElementById('history-list');
-        if (historyLog.length === 0) {
-            list.innerHTML = `<div class="list-item"><div class="info"><div class="name">No activity yet.</div><div class="detail">Watch some ads to get started!</div></div></div>`;
-            return;
-        }
-        list.innerHTML = historyLog.map(item => {
-            const icon = item.type === 'earn'
-                ? '<i class="fa-solid fa-plus-circle" style="color: var(--primary-color);"></i>'
-                : '<i class="fa-solid fa-paper-plane" style="color: var(--accent-color);"></i>';
-            return `
-                <div class="list-item">
-                    <div class="history-icon">${icon}</div>
-                    <div class="info">
-                        <div class="name">${item.detail}</div>
-                        <div class="detail">${new Date(item.timestamp).toLocaleString()}</div>
-                    </div>
-                </div>`;
-        }).join('');
-    }
-    // --- Withdraw History Modal Logic ---
-    function openWithdrawHistoryModal() {
-        renderWithdrawHistoryModal();
-        document.getElementById('withdraw-history-modal').classList.add('active');
-    }
-    function closeWithdrawHistoryModal() {
-        document.getElementById('withdraw-history-modal').classList.remove('active');
-    }
-    function renderWithdrawHistoryModal() {
-        const list = document.getElementById('withdraw-history-modal-list');
-        if (withdrawHistory.length === 0) {
-            list.innerHTML = '<p style="text-align: center; color: var(--text-muted-color);">No withdrawal history found.</p>';
-            return;
-        }
-        list.innerHTML = withdrawHistory.map(item => {
-            const statusClass = `status-${item.status.toLowerCase()}`;
-            return `
-                <div class="list-item">
-                    <div class="info">
-                        <div class="name">$${parseFloat(item.amount).toFixed(2)} via ${item.method}</div>
-                        <div class="detail">${item.mobileNumber}</div>
-                        <div class="detail">${new Date(item.timestamp).toLocaleString()}</div>
-                    </div>
-                    <div class="${statusClass}">${item.status}</div>
-                </div>`;
-        }).join('');
-    }
-    // --- Share Modal Logic ---
-    function openShareModal() {
-        if (isBlocked) {
-            showBlockedView();
-            return;
-        }
-        // Generate referral link
-        const botUsername = "TKBD5_bot";
-        const referralLink = `https://t.me/${botUsername}?start=${tgUser.id}`;
-        document.getElementById('referral-link').value = referralLink;
-        // Update modal content
-        updateShareModal();
-        // Show modal
-        document.getElementById('share-modal').classList.add('active');
-    }
-    function closeShareModal() {
-        document.getElementById('share-modal').classList.remove('active');
-    }
-    function updateShareModal() {
-        document.getElementById('referral-count').textContent = referralData.referralCount;
-        document.getElementById('referral-earnings').textContent = referralData.referralEarnings;
-    }
-    function copyReferralLink() {
-        const referralLinkInput = document.getElementById('referral-link');
-        referralLinkInput.select();
-        document.execCommand('copy');
-        showMessageModal('Success', 'Referral link copied to clipboard!');
-    }
-    function shareOnTelegram() {
-        const referralLink = document.getElementById('referral-link').value;
-        const text = "🎉 Join this amazing bot and start earning! Use my link to get a special bonus:";
-        const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(referralLink)}&text=${encodeURIComponent(text)}`;
-        Telegram.WebApp.openTelegramLink(shareUrl);
-    }
-    // --- Leaderboard Logic (kept for compatibility) ---
-    function renderLeaderboard() {
-        const leaderboardData = [
-            { name: "CryptoKing", score: 25400, avatar: "https://i.pravatar.cc/150?img=1" },
-            { name: "Elena", score: 22100, avatar: "https://i.pravatar.cc/150?img=2" },
-            { name: "ProMiner", score: 19800, avatar: "https://i.pravatar.cc/150?img=3" },
-            { name: "Aisha", score: 17500, avatar: "https://i.pravatar.cc/150?img=4" },
-            { name: "BotMaster", score: 15300, avatar: "https://i.pravatar.cc/150?img=5" },
-        ];
-        // This function is kept but not used in current UI
-    }
-    // --- Earning Functions ---
-    async function grantReward() {
-        if (isBlocked) {
-            showBlockedView();
-            return;
-        }
-        // --- Ad Limit and Status Check ---
-        // 1. Check global ad system status
-        if (!appConfig.isAdSystemActive) {
-            showMessageModal('Error', 'The ad system is currently inactive. Please try again later.');
-            return;
-        }
-        // 2. Check user-specific ad status
-        if (adStatus !== 'Active') {
-            showMessageModal('Error', 'Your ad viewing permission is currently inactive. Please contact support.');
-            return;
-        }
-        // 3. Check 12-hour period and limit (redundant check, but for safety)
-        if (adsWatchedToday >= appConfig.dailyAdLimitPerUser) {
-            // This check should ideally be done before calling grantReward
-            // But we check again here as a safety net
-            const now = new Date();
-            let isWithinPeriod = true;
-            if (lastAdWatchTime) {
-                const timeDiff = now - lastAdWatchTime;
-                const hoursDiff = timeDiff / (1000 * 60 * 60);
-                if (hoursDiff >= 12) {
-                    isWithinPeriod = false;
-                }
-            }
-            if (isWithinPeriod) {
-                showMessageModal('Error', `You have reached your daily ad limit of ${appConfig.dailyAdLimitPerUser}. Please wait for the timer to reset.`);
-                updateAdButtonStates(); // Ensure buttons are disabled
+        // --- End Update ---
+
+        // Flag to prevent multiple simultaneous ad requests
+        let isAdRequestPending = false;
+
+        async function watchAd(adIndex) {
+            if (isBlocked) {
+                showBlockedView();
                 return;
             }
-        }
-        // --- End Ad Limit and Status Check ---
-        // Add coins for watching ad (from Firebase config)
-        points += appConfig.pointsPerAd;
-        // Calculate balance dynamically from Firebase config
-        balance = (points / appConfig.coinsForConversion) * appConfig.valuePerConversion;
-        updateDisplay();
-        addToHistory('earn', `+${appConfig.pointsPerAd} Coin(s) from Ad`);
-        saveUserData();
-        Telegram.WebApp.HapticFeedback.notificationOccurred('success');
-        showMessageModal('Success', `Congratulations! You've earned +${appConfig.pointsPerAd} coins. Your new balance is $${balance.toFixed(2)}.`);
-    }
-    // Function to update ad tracking data in Firebase
-    async function updateAdTracking() {
-        if (!tgUser || !tgUser.id) return;
-        const now = new Date();
-        // Check if the 12-hour period has passed, if so, reset the counter locally for this action
-        let localAdsWatchedToday = adsWatchedToday;
-        let localLastAdWatchTime = lastAdWatchTime;
-        if (localLastAdWatchTime) {
-            const timeDiff = now - localLastAdWatchTime;
-            const hoursDiff = timeDiff / (1000 * 60 * 60);
-            if (hoursDiff >= 12) {
-                localAdsWatchedToday = 0; // Reset for this action
-                // Note: We don't change localLastAdWatchTime here, it will be updated to 'now'
+
+            if (isAdRequestPending) {
+                console.log("Ad request already in progress.");
+                return;
             }
-        }
-        // Increment the local counter for this action
-        localAdsWatchedToday += 1;
-        localLastAdWatchTime = now;
-        try {
-            await database.ref('users/' + tgUser.id).update({
-                adsWatchedToday: localAdsWatchedToday,
-                lastAdWatchTime: localLastAdWatchTime.toISOString() // Store as ISO string
-            });
-            console.log("Ad tracking updated:", { localAdsWatchedToday, localLastAdWatchTime });
-            // Update local state variables to reflect the change
-            adsWatchedToday = localAdsWatchedToday;
-            lastAdWatchTime = localLastAdWatchTime;
-            updateDisplay();
-            startResetTimer(); // Restart the timer
-            updateAdButtonStates(); // Update button states
-        } catch (error) {
-            console.error("Failed to update ad tracking:", error);
-        }
-    }
-    // Wrapper function to handle reward and tracking
-    async function handleAdRewardAndTracking() {
-        // First, check limits and status again just before granting reward
-        // This is a duplicate check but ensures consistency
-         // --- Ad Limit and Status Check (Duplicate for safety) ---
-        // 1. Check global ad system status
-        if (!appConfig.isAdSystemActive) {
-            showMessageModal('Error', 'The ad system is currently inactive. Please try again later.');
-            return;
-        }
-        // 2. Check user-specific ad status
-        if (adStatus !== 'Active') {
-            showMessageModal('Error', 'Your ad viewing permission is currently inactive. Please contact support.');
-            return;
-        }
-        // 3. Check 12-hour period and limit
-        const now = new Date();
-        let isWithinPeriod = true;
-        if (lastAdWatchTime) {
-            const timeDiff = now - lastAdWatchTime;
-            const hoursDiff = timeDiff / (1000 * 60 * 60);
-            if (hoursDiff >= 12) {
-                isWithinPeriod = false;
+
+            // Double-check limit before proceeding
+            if (adsWatchedToday >= appConfig.dailyAdLimitPerUser) {
+                showMessageModal('Limit Reached', `You have reached your daily limit of ${appConfig.dailyAdLimitPerUser} ads.`);
+                updateAdButtonStates();
+                return;
             }
-        }
-        // If within the 12-hour period, check the limit
-        if (isWithinPeriod && adsWatchedToday >= appConfig.dailyAdLimitPerUser) {
-            showMessageModal('Error', `You have reached your daily ad limit of ${appConfig.dailyAdLimitPerUser}. Please wait for the timer to reset.`);
-            updateAdButtonStates(); // Ensure buttons are disabled
-            return;
-        }
-        // --- End Ad Limit and Status Check ---
-        // Grant reward
-        await grantReward();
-        // Update tracking
-        await updateAdTracking();
-        // Button states are updated in updateAdTracking
-    }
-    // Function to show the ad using the original Monetag zone
-    async function showAd() {
-        if (isBlocked) {
-            showBlockedView();
-            return;
-        }
-        // Prevent double click by disabling the button immediately
-        const taskCard = event.currentTarget; // Get the clicked task card
-        if (taskCard.classList.contains('disabled')) {
-            return; // Already processing
-        }
-        taskCard.classList.add('disabled'); // Disable the button
-        // Check if the Monetag SDK function is available
-        if (typeof show_9807992 === 'function') {
-            // Call the Monetag function to show the ad
-            show_9807992().then(() => {
-                // Ad shown successfully (or user interacted)
-                handleAdRewardAndTracking(); // Handle reward and tracking after ad interaction
-                // Button re-enable is handled in updateAdButtonStates via listener
-            }).catch((error) => {
-                // Handle errors, e.g., ad failed to load
-                console.error("Ad could not be shown:", error);
-                showMessageModal('Error', "Sorry, the ad could not be loaded. Please try again.");
-                taskCard.classList.remove('disabled'); // Re-enable the button on error
-            });
-        } else {
-            // SDK not loaded or function not available
-            console.warn("Monetag SDK is not ready yet.");
-            showMessageModal('Warning', "Ad provider is not ready. Please try again in a moment.");
-            taskCard.classList.remove('disabled'); // Re-enable the button
-        }
-    }
-    // Function to show the ad using the new Monetag zone 9702109
-    async function showAdOne() {
-        if (isBlocked) {
-            showBlockedView();
-            return;
-        }
-        // Prevent double click by disabling the button immediately
-        const taskCard = event.currentTarget; // Get the clicked task card
-        if (taskCard.classList.contains('disabled')) {
-            return; // Already processing
-        }
-        taskCard.classList.add('disabled'); // Disable the button
-        // Check if the Monetag SDK function is available
-        if (typeof show_9702109 === 'function') {
-            // Call the Monetag function to show the ad
-            show_9702109().then(() => {
-                // Ad shown successfully (or user interacted)
-                handleAdRewardAndTracking(); // Handle reward and tracking after ad interaction
-                // Button re-enable is handled in updateAdButtonStates via listener
-            }).catch((error) => {
-                // Handle errors, e.g., ad failed to load
-                console.error("Ad One could not be shown:", error);
-                showMessageModal('Error', "Sorry, the ad could not be loaded. Please try again.");
-                taskCard.classList.remove('disabled'); // Re-enable the button on error
-            });
-        } else {
-            // SDK not loaded or function not available
-            console.warn("Monetag SDK for Ad One is not ready yet.");
-            showMessageModal('Warning', "Ad provider is not ready. Please try again in a moment.");
-            taskCard.classList.remove('disabled'); // Re-enable the button
-        }
-    }
-    // Function to show the ad using the new Monetag zone 9292001
-    async function showAdTwo() {
-        if (isBlocked) {
-            showBlockedView();
-            return;
-        }
-        // Prevent double click by disabling the button immediately
-        const taskCard = event.currentTarget; // Get the clicked task card
-        if (taskCard.classList.contains('disabled')) {
-            return; // Already processing
-        }
-        taskCard.classList.add('disabled'); // Disable the button
-        // Check if the Monetag SDK function is available
-        if (typeof show_9292001 === 'function') {
-            // Call the Monetag function to show the ad
-            show_9292001().then(() => {
-                // Ad shown successfully (or user interacted)
-                handleAdRewardAndTracking(); // Handle reward and tracking after ad interaction
-                // Button re-enable is handled in updateAdButtonStates via listener
-            }).catch((error) => {
-                // Handle errors, e.g., ad failed to load
-                console.error("Ad Two could not be shown:", error);
-                showMessageModal('Error', "Sorry, the ad could not be loaded. Please try again.");
-                taskCard.classList.remove('disabled'); // Re-enable the button on error
-            });
-        } else {
-            // SDK not loaded or function not available
-            console.warn("Monetag SDK for Ad Two is not ready yet.");
-            showMessageModal('Warning', "Ad provider is not ready. Please try again in a moment.");
-            taskCard.classList.remove('disabled'); // Re-enable the button
-        }
-    }
-    // --- New Function for Unlimited Ads ---
-    async function showUnlimitedAd() {
-        if (isBlocked) {
-            showBlockedView();
-            return;
-        }
-        // --- Ad Limit and Status Check ---
-        // 1. Check global ad system status
-        if (!appConfig.isAdSystemActive) {
-            showMessageModal('Error', 'The ad system is currently inactive. Please try again later.');
-            return;
-        }
-        // 2. Check user-specific ad status
-        if (adStatus !== 'Active') {
-            showMessageModal('Error', 'Your ad viewing permission is currently inactive. Please contact support.');
-            return;
-        }
-        // 3. Check 12-hour period and limit
-        const now = new Date();
-        let isWithinPeriod = true;
-        if (lastAdWatchTime) {
-            const timeDiff = now - lastAdWatchTime;
-            const hoursDiff = timeDiff / (1000 * 60 * 60);
-            if (hoursDiff >= 12) {
-                isWithinPeriod = false;
+
+            // --- Update: Ensure lastAdWatchTime is set when the first ad is watched in a new cycle ---
+            let shouldSetLastAdWatchTime = false;
+            if (!lastAdWatchTime) {
+                console.log("First ad in a new cycle, will set lastAdWatchTime.");
+                shouldSetLastAdWatchTime = true;
             }
-        }
-        // If within the 12-hour period, check the limit
-        if (isWithinPeriod && adsWatchedToday >= appConfig.dailyAdLimitPerUser) {
-            showMessageModal('Error', `You have reached your daily ad limit of ${appConfig.dailyAdLimitPerUser}. Please wait for the timer to reset.`);
-            updateAdButtonStates(); // Ensure buttons are disabled
-            return;
-        }
-        // --- End Ad Limit and Status Check ---
-        // Prevent double click by disabling the button immediately
-        const taskCard = event.currentTarget; // Get the clicked task card
-        if (taskCard.classList.contains('disabled')) {
-            return; // Already processing
-        }
-        taskCard.classList.add('disabled'); // Disable the button
-        try {
-            // Try to open the first link in a new tab/window
-            const firstWindow = window.open('https://otieu.com/4/9678873', '_blank');
-            // If the first window opens successfully (or at least the call is made)
-            if (firstWindow) {
-                console.log("First ad link opened.");
-                // Grant reward immediately upon clicking, as per requirement.
-                // Update tracking first
-                await updateAdTracking();
-                await grantReward();
-                // Button states are updated in updateAdTracking
-            } else {
-                // If the first attempt fails (e.g., blocked by popup blocker)
-                console.warn("First ad link failed to open, trying second link.");
-                // Try to open the second link in a new tab/window
-                const secondWindow = window.open('https://otieu.com/4/9292136', '_blank');
-                if (secondWindow) {
-                    console.log("Second ad link opened.");
-                     // Grant reward if second link opens
-                     // Update tracking first
-                    await updateAdTracking();
-                    await grantReward();
-                    // Button states are updated in updateAdTracking
-                } else {
-                    console.error("Both ad links failed to open.");
-                    // Decide if reward should be given if both fail. Requirement implies yes.
-                    // To be consistent with "একই সিস্টেমে", we grant reward.
-                    // Update tracking first
-                    await updateAdTracking();
-                    await grantReward();
-                    // Button states are updated in updateAdTracking
-                    // Optionally show a message to the user
-                    // showMessageModal('Warning', 'Unable to open ad links. Reward granted anyway.');
+            // --- End Update ---
+
+            isAdRequestPending = true;
+            const adBtn = document.getElementById(`ad-btn-${adIndex}`);
+            const originalText = adBtn.textContent;
+            adBtn.textContent = 'Processing...';
+            adBtn.disabled = true;
+            adBtn.classList.add('requesting');
+
+            try {
+                // --- Update: Set lastAdWatchTime in Firebase if needed ---
+                if (shouldSetLastAdWatchTime) {
+                    const currentTime = new Date();
+                    await database.ref('users/' + tgUser.id).update({
+                        lastAdWatchTime: currentTime.toISOString()
+                    });
+                    lastAdWatchTime = currentTime; // Update local state
+                    console.log("Set lastAdWatchTime to:", lastAdWatchTime);
                 }
+                // --- End Update ---
+
+                // Simulate ad watching process
+                // In a real app, you would open the ad link here
+                // window.open(adUrls[adIndex % adUrls.length], '_blank');
+                
+                // For demo, we'll just simulate a delay
+                await new Promise(resolve => setTimeout(resolve, 2000));
+
+                // Grant reward
+                await grantReward();
+
+                // Update tracking
+                await updateAdTracking();
+
+                // Show success message
+                showMessageModal('Success', `You earned ${appConfig.pointsPerAd} points!`);
+
+            } catch (err) {
+                console.error("Error attempting to watch ad:", err);
+                showMessageModal('Error', 'An error occurred while processing your ad. Please try again.');
+            } finally {
+                adBtn.textContent = originalText;
+                adBtn.disabled = false;
+                adBtn.classList.remove('requesting');
+                isAdRequestPending = false;
             }
-        } catch (err) {
-            console.error("Error attempting to open ad links:", err);
-            // Decide whether to grant reward on JS error. Requirement says user gets coin "একই সিস্টেমে".
-            // Granting it to be consistent.
-            // Update tracking first
-            await updateAdTracking();
-            await grantReward();
-            // Button states are updated in updateAdTracking
-            // Optionally show a message to the user
-            // showMessageModal('Error', 'An error occurred. Reward granted anyway.');
-        } finally {
-            // Button re-enable is handled in updateAdButtonStates via listener, so no need to re-enable here immediately
-            // The listeners will re-enable the buttons after the state is updated in Firebase
         }
-    }
-    // --- Withdrawal Logic ---
-    // Flag to prevent multiple withdrawal requests
-    let isWithdrawRequestPending = false;
-    function requestWithdraw() {
-        if (isBlocked) {
-            showBlockedView();
-            return;
+
+        async function updateAdTracking() {
+            if (!tgUser || !tgUser.id) return;
+
+            adsWatchedToday += 1;
+            // lastAdWatchTime is now set either initially or when the timer resets
+            // We only update it when the FIRST ad is watched in a new cycle (see watchAd)
+            // lastAdWatchTime = new Date(); // <-- This line is removed or commented out
+
+            try {
+                const updateData = {
+                    adsWatchedToday: adsWatchedToday
+                    // lastAdWatchTime is NOT updated here anymore
+                };
+                await database.ref('users/' + tgUser.id).update(updateData);
+                console.log("Ad tracking updated in Firebase:", updateData);
+            } catch (error) {
+                console.error("Failed to update ad tracking:", error);
+            }
         }
-        // Prevent multiple simultaneous requests using flag
-        if (isWithdrawRequestPending) {
-            console.log("Withdrawal request already in progress.");
-            return;
+
+        async function grantReward() {
+            if (!tgUser || !tgUser.id) return;
+
+            points += appConfig.pointsPerAd;
+            
+            // Convert points to balance
+            // Ensure conversion is based on the latest appConfig values
+            const earnedBalance = (appConfig.valuePerConversion / appConfig.coinsForConversion) * appConfig.pointsPerAd;
+            balance += earnedBalance;
+
+            // Add to history
+            addToHistory('Ad Reward', `Earned ${appConfig.pointsPerAd} points and $${earnedBalance.toFixed(2)} for watching an ad.`);
+
+            updateDisplay();
+            await saveUserData();
         }
-        // Validation
-        const paymentMethod = document.getElementById('paymentMethod').value;
-        const mobileNumber = document.getElementById('mobileNumber').value.trim();
-        const amount = parseFloat(document.getElementById('withdrawAmount').value);
-        if (!mobileNumber) {
-            showMessageModal('Error', 'Please enter your mobile number.');
-            return;
-        }
-        if (!amount || isNaN(amount)) {
-            showMessageModal('Error', 'Please enter a valid amount.');
-            return;
-        }
-        if (amount < appConfig.minWithdrawAmount) {
-            showMessageModal('Error', `Minimum withdrawal amount is $${appConfig.minWithdrawAmount.toFixed(2)}.`);
-            return;
-        }
-        if (amount > balance) {
-            showMessageModal('Error', 'Insufficient balance for this withdrawal.');
-            return;
-        }
-        // Check for existing pending/processing requests in local array
-        const hasPendingRequest = withdrawHistory.some(request =>
-            request.status === 'Pending' || request.status === 'Processing'
-        );
-        if (hasPendingRequest) {
-            showMessageModal('Error', 'You already have a pending or processing withdrawal request. Please wait for it to be completed before submitting a new one.');
-            return;
-        }
-        // Set flag to indicate a request is in progress
-        isWithdrawRequestPending = true;
-        // Change button to red "Requesting..." state immediately
-        const requestBtn = document.getElementById('requestWithdrawBtn');
-        requestBtn.textContent = 'Requesting...';
-        requestBtn.classList.remove('primary-button');
-        requestBtn.classList.add('requesting-button');
-        requestBtn.disabled = true;
-        // Create withdraw request with Pending status
-        const withdrawRequest = {
-            id: Date.now().toString(), // This should be unique per request
-            userId: tgUser.id,
-            username: tgUser.username || 'Unknown',
-            method: paymentMethod,
-            mobileNumber: mobileNumber,
-            amount: amount.toFixed(2),
-            status: 'Pending',
-            timestamp: new Date().toISOString()
-        };
-        // Save to Firebase
-        const userRef = database.ref('users/' + tgUser.id);
-        userRef.child('withdrawHistory').push(withdrawRequest)
-            .then(() => {
+
+        // --- End Ad Management ---
+
+        // --- Withdrawal Logic ---
+        // Flag to prevent multiple withdrawal requests
+        let isWithdrawRequestPending = false;
+
+        async function requestWithdraw() {
+            if (isBlocked) {
+                showBlockedView();
+                return;
+            }
+
+            // Prevent multiple simultaneous requests using flag
+            if (isWithdrawRequestPending) {
+                console.log("Withdrawal request already in progress.");
+                return;
+            }
+
+            // Validation
+            const paymentMethod = document.getElementById('paymentMethod').value;
+            const mobileNumber = document.getElementById('mobileNumber').value.trim();
+            const amount = parseFloat(document.getElementById('withdrawAmount').value);
+
+            if (!paymentMethod || !mobileNumber || isNaN(amount) || amount <= 0) {
+                showMessageModal('Error', 'Please fill in all fields correctly.');
+                return;
+            }
+
+            if (amount > balance) {
+                showMessageModal('Error', 'Insufficient balance.');
+                return;
+            }
+
+            if (amount < appConfig.minWithdrawAmount) {
+                showMessageModal('Error', `Minimum withdrawal amount is $${appConfig.minWithdrawAmount.toFixed(2)}.`);
+                return;
+            }
+
+            // Set flag to true at the start of the request
+            isWithdrawRequestPending = true;
+
+            // Update UI to show request is processing
+            const requestBtn = document.getElementById('requestWithdrawBtn');
+            const originalText = requestBtn.textContent;
+            requestBtn.textContent = 'Requesting...';
+            requestBtn.classList.remove('btn-primary');
+            requestBtn.classList.add('btn-secondary'); // Using BS class for disabled look
+            requestBtn.disabled = true;
+
+            try {
+                // Create withdraw request with Pending status
+                const withdrawRequest = {
+                    id: Date.now().toString(), // This should be unique per request
+                    userId: tgUser.id,
+                    username: tgUser.username || 'Unknown',
+                    method: paymentMethod,
+                    mobileNumber: mobileNumber,
+                    amount: amount.toFixed(2),
+                    status: 'Pending',
+                    timestamp: new Date().toISOString()
+                };
+
+                // Save to Firebase
+                const userRef = database.ref('users/' + tgUser.id);
+                await userRef.child('withdrawHistory').push(withdrawRequest);
+
                 // Immediately deduct balance and update points in Firebase
                 balance -= amount;
                 // Ensure points are calculated correctly and don't go negative
-                points = Math.max(0, Math.round(balance / appConfig.valuePerConversion * appConfig.coinsForConversion));
+                points = Math.max(0, Math.round((balance / appConfig.valuePerConversion) * appConfig.coinsForConversion));
+
                 updateDisplay();
-                saveUserData();
+                await saveUserData(); // This now only saves points, balance, historyLog
+
                 // Add to local withdrawHistory array for immediate display in modal if open
                 withdrawHistory.unshift(withdrawRequest);
                 if (document.getElementById('withdraw-history-modal').classList.contains('active')) {
                     renderWithdrawHistoryModal();
                 }
+
                 // Add to activity history
-                addToHistory('withdraw', `Request for $${amount.toFixed(2)} via ${paymentMethod}`);
-                // Show success message after 3 seconds
-                setTimeout(() => {
-                    showMessageModal('Success', 'Your withdrawal request has been submitted successfully!');
-                    // Reset button state
-                    requestBtn.textContent = 'Request Withdrawal';
-                    requestBtn.classList.remove('requesting-button');
-                    requestBtn.classList.add('primary-button');
-                    requestBtn.disabled = false;
-                    // Clear form
-                    document.getElementById('mobileNumber').value = '';
-                    document.getElementById('withdrawAmount').value = '';
-                    // Reset flag
-                    isWithdrawRequestPending = false;
-                }, 3000); // 3 seconds delay before showing success message
-            })
-            .catch((error) => {
-                console.error('Error submitting withdrawal request:', error);
+                addToHistory('Withdrawal Request', `Requested $${amount.toFixed(2)} to ${paymentMethod} (${mobileNumber}). Status: Pending.`);
+
+                // Show success message
+                showMessageModal('Success', 'Withdrawal request submitted successfully.');
+
+                // Reset form
+                document.getElementById('mobileNumber').value = '';
+                document.getElementById('withdrawAmount').value = '';
+
+            } catch (error) {
+                console.error("Withdrawal request failed:", error);
                 showMessageModal('Error', 'Failed to submit withdrawal request. Please try again.');
-                // Reset button state on error
-                requestBtn.textContent = 'Request Withdrawal';
-                requestBtn.classList.remove('requesting-button');
-                requestBtn.classList.add('primary-button');
+                
+                // Restore button state on error
+                requestBtn.textContent = originalText;
+                requestBtn.classList.remove('btn-secondary');
+                requestBtn.classList.add('btn-primary');
                 requestBtn.disabled = false;
-                // Reset flag
+                
+            } finally {
+                // Reset flag and button state in the finally block to ensure it always runs
                 isWithdrawRequestPending = false;
+                requestBtn.textContent = originalText;
+                requestBtn.classList.remove('btn-secondary');
+                requestBtn.classList.add('btn-primary');
+                requestBtn.disabled = false;
+            }
+        }
+
+        function openWithdrawHistoryModal() {
+            document.getElementById('withdraw-history-modal').style.display = 'block';
+            renderWithdrawHistoryModal();
+        }
+
+        function closeWithdrawHistoryModal() {
+            document.getElementById('withdraw-history-modal').style.display = 'none';
+        }
+
+        function renderWithdrawHistoryModal() {
+            const historyList = document.getElementById('withdraw-history-list');
+            historyList.innerHTML = '';
+
+            if (withdrawHistory.length === 0) {
+                historyList.innerHTML = '<p class="text-muted">No withdrawal history yet.</p>';
+                return;
+            }
+
+            // Sort by timestamp descending
+            const sortedHistory = [...withdrawHistory].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+            sortedHistory.forEach(request => {
+                const item = document.createElement('div');
+                item.className = 'history-item';
+                // Determine status badge class
+                let statusClass = 'bg-secondary';
+                if (request.status === 'Success') statusClass = 'bg-success';
+                else if (request.status === 'Rejected') statusClass = 'bg-danger';
+                else if (request.status === 'Processing') statusClass = 'bg-warning text-dark';
+                
+                item.innerHTML = `
+                    <div><strong>Amount:</strong> $${request.amount}</div>
+                    <div><strong>Method:</strong> ${request.method}</div>
+                    <div><strong>Mobile:</strong> ${request.mobileNumber}</div>
+                    <div><strong>Date:</strong> ${new Date(request.timestamp).toLocaleString()}</div>
+                    <div><strong>Status:</strong> <span class="badge ${statusClass}">${request.status}</span></div>
+                `;
+                historyList.appendChild(item);
             });
-    }
-    // --- Message Modal ---
-    function showMessageModal(title, message) {
-        document.getElementById('message-modal-title').textContent = title;
-        document.getElementById('message-modal-text').textContent = message;
-        document.getElementById('message-modal').classList.add('active');
-    }
-    function closeMessageModal() {
-        document.getElementById('message-modal').classList.remove('active');
-    }
-    // --- Notification Modal Logic ---
-    function openNotificationModal() {
-        if (isBlocked) {
-            showBlockedView();
-            return;
-        }
-        // Load notifications (could be from Firebase or static)
-        const notifications = [
-            { id: 1, title: "Welcome!", message: "Welcome to our earning bot! Start earning coins today.", timestamp: new Date(Date.now() - 86400000).toISOString() }, // 1 day ago
-            { id: 2, title: "New Feature", message: "Check out the new 'Unlimited Ads' feature in the Tasks section!", timestamp: new Date(Date.now() - 3600000).toISOString() } // 1 hour ago
-        ];
-        const list = document.getElementById('notification-modal-list');
-        if (notifications.length === 0) {
-            list.innerHTML = '<p style="text-align: center; color: var(--text-muted-color);">No notifications.</p>';
-        } else {
-            list.innerHTML = notifications.map(notif => `
-                <div class="notification-item">
-                    <h4>${notif.title}</h4>
-                    <p>${notif.message}</p>
-                    <small>${new Date(notif.timestamp).toLocaleString()}</small>
-                </div>
-            `).join('');
-        }
-        document.getElementById('notification-modal').classList.add('active');
-    }
-    function closeNotificationModal() {
-        document.getElementById('notification-modal').classList.remove('active');
-    }
-    // --- Admin Message Modal Logic ---
-    let adminMessagesListener = null;
-    function openAdminMessageModal() {
-        closeNotificationModal(); // Close notification modal first
-        if (isBlocked) {
-            showBlockedView();
-            return;
-        }
-        const historyDiv = document.getElementById('admin-message-history');
-        // --- Update: Loading message style ---
-        historyDiv.innerHTML = '<p style="text-align: center; color: var(--text-muted-color); margin: auto;">Loading messages...</p>';
-        // --- End Update ---
-        document.getElementById('admin-message-input').value = '';
-        document.getElementById('admin-message-modal').classList.add('active');
-        // Load message history from Firebase
-        loadAdminMessageHistory();
-        // Setup real-time listener for new messages
-        setupAdminMessagesListener();
-    }
-    function closeAdminMessageModal() {
-        document.getElementById('admin-message-modal').classList.remove('active');
-        // Remove listener when closing
-        if (adminMessagesListener && tgUser && tgUser.id) {
-            const userRef = database.ref('users/' + tgUser.id);
-            userRef.child('adminMessages').off('value', adminMessagesListener);
-            adminMessagesListener = null;
-        }
-    }
-    function loadAdminMessageHistory() {
-        if (!tgUser || !tgUser.id) return;
-        const userRef = database.ref('users/' + tgUser.id + '/adminMessages');
-        userRef.once('value').then((snapshot) => {
-            const messages = snapshot.val();
-            renderAdminMessageHistory(messages);
-        }).catch((error) => {
-            console.error("Error loading admin messages:", error);
-            document.getElementById('admin-message-history').innerHTML = '<p style="text-align: center; color: var(--error-color);">Failed to load messages.</p>';
-        });
-    }
-    // --- Update: renderAdminMessageHistory function ---
-    function renderAdminMessageHistory(messagesData) {
-        const historyDiv = document.getElementById('admin-message-history');
-        // Clear previous content
-        historyDiv.innerHTML = '';
-
-        if (!messagesData) {
-            // Add "No messages" message if history is empty
-            const noMsgElement = document.createElement('p');
-            noMsgElement.style.textAlign = 'center';
-            noMsgElement.style.color = 'var(--text-muted-color)';
-            noMsgElement.style.margin = 'auto'; // Center vertically if needed
-            noMsgElement.textContent = 'No messages yet. Start a conversation!';
-            historyDiv.appendChild(noMsgElement);
-            return;
         }
 
-        const messages = Object.values(messagesData);
-        // Sort messages by timestamp (oldest first)
-        messages.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+        function renderRecentWithdrawHistory() {
+            const historyContainer = document.getElementById('recent-withdraw-history');
+            historyContainer.innerHTML = '';
 
-        // Create and append message elements
-        messages.forEach(msg => {
-            const isUser = msg.sender === 'user';
-            const bubbleClass = isUser ? 'user-message' : 'admin-message';
+            if (withdrawHistory.length === 0) {
+                historyContainer.innerHTML = '<p class="text-muted">No recent withdrawals.</p>';
+                return;
+            }
 
-            const messageDiv = document.createElement('div');
-            messageDiv.className = `message-bubble ${bubbleClass}`;
+            // Sort by timestamp descending and get the last 3
+            const sortedHistory = [...withdrawHistory].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+            const recentHistory = sortedHistory.slice(0, 3);
 
-            // Add message text and timestamp
-            messageDiv.innerHTML = `
-                ${msg.text}
-                <br><small>${new Date(msg.timestamp).toLocaleTimeString()}</small>
-            `;
-
-            historyDiv.appendChild(messageDiv);
-        });
-
-        // Scroll to bottom after adding messages
-        historyDiv.scrollTop = historyDiv.scrollHeight;
-    }
-    // --- End Update ---
-    function setupAdminMessagesListener() {
-        if (!tgUser || !tgUser.id) return;
-        const userRef = database.ref('users/' + tgUser.id);
-        // Remove previous listener if exists
-        if (adminMessagesListener) {
-            userRef.child('adminMessages').off('value', adminMessagesListener);
+            recentHistory.forEach(request => {
+                const item = document.createElement('div');
+                item.className = 'history-item';
+                 // Determine status badge class
+                let statusClass = 'bg-secondary';
+                if (request.status === 'Success') statusClass = 'bg-success';
+                else if (request.status === 'Rejected') statusClass = 'bg-danger';
+                else if (request.status === 'Processing') statusClass = 'bg-warning text-dark';
+                
+                item.innerHTML = `
+                    <div><strong>$${request.amount}</strong> to ${request.method}</div>
+                    <div><small>${new Date(request.timestamp).toLocaleDateString()}</small></div>
+                    <div><span class="badge ${statusClass}">${request.status}</span></div>
+                `;
+                historyContainer.appendChild(item);
+            });
         }
-        // Set up new listener
-        adminMessagesListener = userRef.child('adminMessages').on('value', (snapshot) => {
-            const messages = snapshot.val();
-            renderAdminMessageHistory(messages);
-        });
-    }
-    document.getElementById('send-admin-message').addEventListener('click', sendAdminMessage);
-    document.getElementById('admin-message-input').addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
-            sendAdminMessage();
+
+        // --- End Withdrawal Logic ---
+
+        // --- Referral Logic ---
+        function copyReferralLink() {
+            const referralLinkInput = document.getElementById('referralLink');
+            referralLinkInput.select();
+            referralLinkInput.setSelectionRange(0, 99999); /* For mobile devices */
+            document.execCommand("copy");
+            
+            const copyBtn = document.querySelector('.copy-btn');
+            const originalText = copyBtn.textContent;
+            copyBtn.textContent = 'Copied!';
+            setTimeout(() => {
+                copyBtn.textContent = originalText;
+            }, 2000);
         }
-    });
-    function sendAdminMessage() {
-        const input = document.getElementById('admin-message-input');
-        const messageText = input.value.trim();
-        if (!messageText) return;
-        if (!tgUser || !tgUser.id) {
-            showMessageModal('Error', 'User data not available.');
-            return;
+
+        async function claimReferralEarnings() {
+            if (isBlocked) {
+                showBlockedView();
+                return;
+            }
+
+            if (referralEarnings < appConfig.referralClaimThreshold) {
+                showMessageModal('Error', `You need at least ${appConfig.referralClaimThreshold} referral earnings to claim.`);
+                return;
+            }
+
+            try {
+                // Convert referral earnings to points
+                const pointsToAdd = referralEarnings; // Assuming 1 point = 1 coin
+                points += pointsToAdd;
+                
+                // Convert points to balance
+                const balanceToAdd = (appConfig.valuePerConversion / appConfig.coinsForConversion) * pointsToAdd;
+                balance += balanceToAdd;
+
+                // Reset referral earnings
+                referralEarnings = 0;
+
+                // Update Firebase
+                await database.ref('users/' + tgUser.id).update({
+                    points: points,
+                    balance: balance,
+                    referralEarnings: 0
+                });
+
+                // Add to history
+                addToHistory('Referral Claim', `Claimed ${pointsToAdd} points ($${balanceToAdd.toFixed(2)}) from referrals.`);
+
+                updateDisplay();
+                document.getElementById('claimReferralBtn').disabled = true;
+
+                showMessageModal('Success', `You have successfully claimed ${pointsToAdd} points ($${balanceToAdd.toFixed(2)}) from referrals!`);
+
+            } catch (error) {
+                console.error("Failed to claim referral earnings:", error);
+                showMessageModal('Error', 'Failed to claim referral earnings. Please try again.');
+            }
         }
-        const messageData = {
-            sender: 'user',
-            text: messageText,
-            timestamp: new Date().toISOString()
-        };
-        // Push message to Firebase
-        const userRef = database.ref('users/' + tgUser.id + '/adminMessages');
-        userRef.push(messageData)
-            .then(() => {
+
+        // --- End Referral Logic ---
+
+        // --- History Logic ---
+        function addToHistory(type, detail) {
+            const timestamp = new Date().toISOString();
+            const historyItem = { type, detail, timestamp };
+            historyLog.push(historyItem);
+            
+            // Keep only the last 50 items
+            if (historyLog.length > 50) {
+                historyLog.shift();
+            }
+            
+            // Update Firebase
+            // saveUserData(); // This is called by grantReward etc.
+            
+            // Update UI
+            renderActivityHistory();
+        }
+
+        function renderActivityHistory() {
+            const historyContainer = document.getElementById('activity-history');
+            historyContainer.innerHTML = '';
+
+            if (historyLog.length === 0) {
+                historyContainer.innerHTML = '<p class="text-muted">No recent activity.</p>';
+                return;
+            }
+
+            // Sort by timestamp descending and get the last 5
+            const sortedHistory = [...historyLog].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+            const recentHistory = sortedHistory.slice(0, 5);
+
+            recentHistory.forEach(item => {
+                const historyItem = document.createElement('div');
+                historyItem.className = 'history-item';
+                historyItem.innerHTML = `
+                    <div class="history-date">${new Date(item.timestamp).toLocaleString()}</div>
+                    <div class="history-detail"><strong>${item.type}:</strong> ${item.detail}</div>
+                `;
+                historyContainer.appendChild(historyItem);
+            });
+        }
+
+        // --- End History Logic ---
+
+        // --- Notices Logic ---
+        function renderNotices(noticesData) {
+            const noticesContainer = document.getElementById('notices-container');
+            noticesContainer.innerHTML = '';
+
+            if (!noticesData || Object.keys(noticesData).length === 0) {
+                noticesContainer.innerHTML = '<p class="text-muted">No notices at the moment.</p>';
+                return;
+            }
+
+            // Convert to array and sort by timestamp descending
+            const noticesArray = Object.values(noticesData);
+            noticesArray.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+            noticesArray.forEach(notice => {
+                const noticeItem = document.createElement('div');
+                noticeItem.className = 'notice-item';
+                noticeItem.innerHTML = `
+                    <div class="notice-title">${notice.title}</div>
+                    <div class="notice-message">${notice.message}</div>
+                    <div class="notice-date">${new Date(notice.timestamp).toLocaleString()}</div>
+                `;
+                noticesContainer.appendChild(noticeItem);
+            });
+        }
+
+        // --- End Notices Logic ---
+
+        // --- Messages Logic ---
+        function openMessagesModal() {
+            document.getElementById('messages-modal').style.display = 'block';
+            loadMessageHistory();
+        }
+
+        function closeMessagesModal() {
+            document.getElementById('messages-modal').style.display = 'none';
+        }
+
+        async function loadMessageHistory() {
+            if (!tgUser || !tgUser.id) return;
+
+            try {
+                const userRef = database.ref('users/' + tgUser.id);
+                const snapshot = await userRef.child('adminMessages').once('value');
+                const messages = snapshot.val();
+                renderMessageHistory(messages);
+            } catch (error) {
+                console.error("Error loading message history:", error);
+                document.getElementById('message-history').innerHTML = '<p class="text-center text-danger">Failed to load messages.</p>';
+            }
+        }
+
+        function renderMessageHistory(messagesData) {
+            const historyDiv = document.getElementById('message-history');
+            if (!messagesData) {
+                historyDiv.innerHTML = '<p class="text-center text-muted">No messages yet. Start a conversation!</p>';
+                return;
+            }
+
+            const messages = Object.values(messagesData);
+            // Sort messages by timestamp (oldest first for correct display order)
+            messages.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+
+            historyDiv.innerHTML = ''; // Clear previous content
+            messages.forEach(msg => {
+                const isUser = msg.sender === 'user';
+                // Apply correct class based on sender
+                const bubbleClass = isUser ? 'user-message' : 'admin-message';
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `message-bubble ${bubbleClass}`;
+                messageDiv.innerHTML = `
+                    ${msg.text}
+                    <br><small>${new Date(msg.timestamp).toLocaleTimeString()}</small>
+                `;
+                historyDiv.appendChild(messageDiv);
+            });
+
+            // Scroll to bottom
+            historyDiv.scrollTop = historyDiv.scrollHeight;
+        }
+
+        async function sendMessage() {
+            const input = document.getElementById('message-input');
+            const messageText = input.value.trim();
+            if (!messageText || !tgUser || !tgUser.id) {
+                return;
+            }
+
+            const messageData = {
+                sender: 'user', // Mark message as from user
+                text: messageText,
+                timestamp: new Date().toISOString()
+            };
+
+            try {
+                await database.ref(`users/${tgUser.id}/adminMessages`).push(messageData);
                 console.log("Message sent to Firebase");
                 input.value = ''; // Clear input
-                // The UI will update automatically via the listener
-            })
-            .catch((error) => {
+                // Re-load messages to show the new one
+                // The listener will update the UI automatically, but we can also call loadMessageHistory
+                // loadMessageHistory();
+            } catch (error) {
                 console.error("Error sending message:", error);
                 showMessageModal('Error', 'Failed to send message. Please try again.');
+            }
+        }
+
+        // --- End Messages Logic ---
+
+        // --- View Management ---
+        function showView(viewId) {
+            // Prevent navigation if user is blocked (except to blocked view)
+            if (isBlocked && viewId !== 'blocked-view') {
+                showBlockedView();
+                return;
+            }
+
+            document.querySelectorAll('.view').forEach(view => view.classList.remove('active'));
+            document.getElementById(viewId).classList.add('active');
+            
+            // Specific actions for views
+            if (viewId === 'earn-view') {
+                renderAdGrid();
+            } else if (viewId === 'withdraw-view') {
+                document.getElementById('min-withdraw-amount').textContent = appConfig.minWithdrawAmount.toFixed(2);
+                document.getElementById('withdraw-balance').textContent = balance.toFixed(2);
+            } else if (viewId === 'referral-view') {
+                document.getElementById('referral-reward').textContent = appConfig.referralRewardCoins;
+                document.getElementById('referral-claim-threshold').textContent = appConfig.referralClaimThreshold;
+                const claimBtn = document.getElementById('claimReferralBtn');
+                if (referralEarnings >= appConfig.referralClaimThreshold) {
+                    claimBtn.disabled = false;
+                } else {
+                    claimBtn.disabled = true;
+                }
+            }
+        }
+
+        // --- End View Management ---
+
+        // --- Initialize App ---
+        window.onload = function() {
+            // Expand the web app to full screen
+            tg.expand();
+            
+            // Set back button behavior
+            tg.BackButton.onClick(() => {
+                // If a modal is open, close it. Otherwise, close the web app.
+                if (document.getElementById('withdraw-history-modal').style.display === 'block') {
+                    closeWithdrawHistoryModal();
+                } else if (document.getElementById('messages-modal').style.display === 'block') {
+                    closeMessagesModal();
+                } else {
+                    tg.close();
+                }
             });
-    }
-    // --- Important Notices Modal Logic ---
-    function openImportantNoticesModal() {
-        closeNotificationModal(); // Close notification modal first
-        if (isBlocked) {
-            showBlockedView();
-            return;
-        }
-        const list = document.getElementById('important-notices-list');
-        list.innerHTML = '<p style="text-align: center; color: var(--text-muted-color);">Loading notices...</p>';
-        document.getElementById('important-notices-modal').classList.add('active');
-        // Load notices from Firebase
-        loadImportantNotices();
-    }
-    function closeImportantNoticesModal() {
-        document.getElementById('important-notices-modal').classList.remove('active');
-    }
-    function loadImportantNotices() {
-        // Example: Load from a specific Firebase path like 'notices'
-        const noticesRef = database.ref('notices');
-        noticesRef.once('value').then((snapshot) => {
-            const notices = snapshot.val();
-            renderImportantNotices(notices);
-        }).catch((error) => {
-            console.error("Error loading notices:", error);
-            document.getElementById('important-notices-list').innerHTML = '<p style="text-align: center; color: var(--error-color);">Failed to load notices.</p>';
+
+            // Load user and initialize
+            loadTelegramUser().then(() => {
+                // Initial render of dynamic content
+                document.getElementById('points-per-ad').textContent = appConfig.pointsPerAd;
+                document.getElementById('referral-reward').textContent = appConfig.referralRewardCoins;
+                document.getElementById('min-withdraw-amount').textContent = appConfig.minWithdrawAmount.toFixed(2);
+                document.getElementById('referral-claim-threshold').textContent = appConfig.referralClaimThreshold;
+                
+                renderAdGrid();
+            }).catch(error => {
+                console.error("Failed to initialize app:", error);
+                showMessageModal('Error', 'Failed to initialize the app. Please try again.');
+            });
+        };
+
+        // --- Cleanup Listeners on Unload ---
+        window.addEventListener('beforeunload', () => {
+            if (userPointsBalanceListener && tgUser && tgUser.id) {
+                const userRef = database.ref('users/' + tgUser.id);
+                userRef.child('points').off('value', userPointsBalanceListener);
+                userRef.child('balance').off('value', userPointsBalanceListener);
+            }
+            if (userReferralListener && tgUser && tgUser.id) {
+                const userRef = database.ref('users/' + tgUser.id);
+                userRef.child('referralCount').off('value', userReferralListener);
+                userRef.child('referralEarnings').off('value', userReferralListener);
+            }
+            if (userAdTrackingListener && tgUser && tgUser.id) {
+                const userRef = database.ref('users/' + tgUser.id);
+                userRef.child('adsWatchedToday').off('value', userAdTrackingListener);
+                userRef.child('lastAdWatchTime').off('value', userAdTrackingListener);
+            }
+            if (appConfigListener) {
+                database.ref('appConfig').off('value', appConfigListener);
+            }
+            if (noticesListener) {
+                database.ref('notices').off('value', noticesListener);
+            }
+            if (adminMessagesListener && tgUser && tgUser.id) {
+                const userRef = database.ref('users/' + tgUser.id);
+                userRef.child('adminMessages').off('value', adminMessagesListener);
+                adminMessagesListener = null;
+            }
+            // --- Update: Clear the real-time data interval ---
+            if (realTimeDataInterval) {
+                 clearInterval(realTimeDataInterval);
+            }
+            // --- End Update ---
         });
-    }
-    function renderImportantNotices(noticesData) {
-        const list = document.getElementById('important-notices-list');
-        if (!noticesData) {
-            list.innerHTML = '<p style="text-align: center; color: var(--text-muted-color);">No important notices at this time.</p>';
-            return;
-        }
-        const notices = Object.values(noticesData);
-        // Sort by timestamp descending (newest first)
-        notices.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-        list.innerHTML = notices.map(notice => `
-            <div class="notification-item">
-                <h4>${notice.title}</h4>
-                <p>${notice.message}</p>
-                <small>${new Date(notice.timestamp).toLocaleString()}</small>
-            </div>
-        `).join('');
-    }
-    // Cleanup listener on unload
-    window.addEventListener('beforeunload', () => {
-        if (userBlockedListener && tgUser && tgUser.id) {
-            const userRef = database.ref('users/' + tgUser.id);
-            userRef.child('isBlocked').off('value', userBlockedListener);
-        }
-        if (withdrawHistoryListener && tgUser && tgUser.id) {
-            const userRef = database.ref('users/' + tgUser.id);
-            userRef.child('withdrawHistory').off('value', withdrawHistoryListener);
-        }
-        if (userPointsBalanceListener && tgUser && tgUser.id) {
-            const userRef = database.ref('users/' + tgUser.id);
-            userRef.off('value', userPointsBalanceListener);
-        }
-        if (referralListener && tgUser && tgUser.id) {
-            const userRef = database.ref('users/' + tgUser.id);
-            userRef.child('referralCount').off('value', referralListener);
-            userRef.child('referralEarnings').off('value', referralListener);
-        }
-         if (appConfigListener) {
-            database.ref('appConfig').off('value', appConfigListener);
-        }
-        if (adminMessagesListener && tgUser && tgUser.id) {
-            const userRef = database.ref('users/' + tgUser.id);
-            userRef.child('adminMessages').off('value', adminMessagesListener);
-            adminMessagesListener = null;
-        }
-        if (resetTimerInterval) {
-            clearInterval(resetTimerInterval);
-        }
-    });
-</script>
+        // --- End Cleanup ---
+    </script>
 </body>
 </html>
+```
