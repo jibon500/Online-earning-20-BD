@@ -1,4 +1,4 @@
-
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1323,6 +1323,21 @@
         // Update reset timer display is handled by the timer function
     }
     // --- 12-Hour Reset Timer Logic ---
+    // function startResetTimer() {
+    //     // Clear any existing interval
+    //     if (resetTimerInterval) {
+    //         clearInterval(resetTimerInterval);
+    //     }
+    //     // Update display immediately
+    //     updateResetTimerDisplay();
+    //     // Start the interval to update the timer every second
+    //     resetTimerInterval = setInterval(() => {
+    //         updateResetTimerDisplay();
+    //         // Also check and reset the counter every second
+    //         checkAndResetAdCounter();
+    //     }, 1000);
+    // }
+    // নতুন লজিক: প্রতি সেকেন্ডে UI আপডেট করার জন্য একটি সরল ফাংশন
     function startResetTimer() {
         // Clear any existing interval
         if (resetTimerInterval) {
@@ -1330,11 +1345,10 @@
         }
         // Update display immediately
         updateResetTimerDisplay();
-        // Start the interval to update the timer every second
+        // Start the interval ONLY for UI update (not for checking reset)
         resetTimerInterval = setInterval(() => {
             updateResetTimerDisplay();
-            // Also check and reset the counter every second
-            checkAndResetAdCounter();
+            // DO NOT call checkAndResetAdCounter here anymore
         }, 1000);
     }
     function updateResetTimerDisplay() {
@@ -1362,7 +1376,7 @@
     }
     async function checkAndResetAdCounter() {
         if (!tgUser || !tgUser.id) return;
-        // Check if 12 hours have passed
+        // Check if 12 hours have passed based on actual time
         if (lastAdWatchTime) {
             const now = new Date();
             const timeDiff = now - lastAdWatchTime;
@@ -1375,7 +1389,7 @@
                         await database.ref('users/' + tgUser.id).update({
                             adsWatchedToday: adsWatchedToday
                         });
-                        console.log("Ad counter reset after 12 hours.");
+                        console.log("Ad counter reset after 12 hours (real-time check).");
                         updateDisplay(); // Update display to reflect reset
                         updateAdButtonStates(); // Update button states
                     } catch (error) {
@@ -1987,7 +2001,6 @@
         const historyDiv = document.getElementById('admin-message-history');
         // Clear previous content
         historyDiv.innerHTML = '';
-
         if (!messagesData) {
             // Add "No messages" message if history is empty
             const noMsgElement = document.createElement('p');
@@ -1998,28 +2011,22 @@
             historyDiv.appendChild(noMsgElement);
             return;
         }
-
         const messages = Object.values(messagesData);
         // Sort messages by timestamp (oldest first)
         messages.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
-
         // Create and append message elements
         messages.forEach(msg => {
             const isUser = msg.sender === 'user';
             const bubbleClass = isUser ? 'user-message' : 'admin-message';
-
             const messageDiv = document.createElement('div');
             messageDiv.className = `message-bubble ${bubbleClass}`;
-
             // Add message text and timestamp
             messageDiv.innerHTML = `
                 ${msg.text}
                 <br><small>${new Date(msg.timestamp).toLocaleTimeString()}</small>
             `;
-
             historyDiv.appendChild(messageDiv);
         });
-
         // Scroll to bottom after adding messages
         historyDiv.scrollTop = historyDiv.scrollHeight;
     }
@@ -2147,3 +2154,4 @@
 </script>
 </body>
 </html>
+```
