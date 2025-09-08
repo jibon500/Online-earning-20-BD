@@ -1,4 +1,3 @@
-```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1102,32 +1101,30 @@
             // Remove previous listener if exists
             userRef.child('withdrawHistory').off('value', withdrawHistoryListener);
         }
+
+        // Store a copy of the previous state for comparison
+        let previousWithdrawHistoryState = {};
+
         // Set up new listener
         withdrawHistoryListener = userRef.child('withdrawHistory').on('value', (snapshot) => {
             const history = snapshot.val();
-            let previousWithdrawHistoryMap = {};
-            // Create a map of the current withdrawHistory for easy lookup
-            withdrawHistory.forEach(req => {
-                previousWithdrawHistoryMap[req.id] = req;
-            });
-
-            if (history) {
-                withdrawHistory = Object.values(history);
-                // Sort by timestamp descending
-                withdrawHistory.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-            } else {
-                withdrawHistory = [];
-            }
 
             // --- New Logic to check for Rejected status and refund ---
-            // This logic runs every time the withdrawHistory changes
+            // Create a map of the current state from Firebase for comparison
+            let currentFirebaseState = {};
+            if (history) {
+                Object.values(history).forEach(req => {
+                    currentFirebaseState[req.id] = req;
+                });
+            }
+
+            // Check for status changes from non-Rejected to Rejected
             if (tgUser && tgUser.id && history) {
-                // Iterate through the *new* history data from Firebase
                 Object.values(history).forEach(currentRequest => {
                     const requestId = currentRequest.id;
-                    const previousRequest = previousWithdrawHistoryMap[requestId];
+                    const previousRequest = previousWithdrawHistoryState[requestId];
 
-                    // Check if this specific request's status has changed from something other than 'Rejected' to 'Rejected'
+                    // Check if status changed to 'Rejected' from a different status
                     if (currentRequest.status === 'Rejected' &&
                         (!previousRequest || previousRequest.status !== 'Rejected')) {
 
@@ -1137,7 +1134,6 @@
                         // Validate the refund amount
                         if (!isNaN(refundAmount) && refundAmount > 0) {
                             // Calculate the equivalent points to refund based on current app configuration
-                            // Using Math.round to ensure whole points
                             const pointsToRefund = Math.round((refundAmount / appConfig.valuePerConversion) * appConfig.coinsForConversion);
 
                             // Update local state variables immediately for UI responsiveness
@@ -1169,6 +1165,18 @@
                 });
             }
             // --- End New Logic ---
+
+            // Update the previous state for the next comparison
+            previousWithdrawHistoryState = currentFirebaseState;
+
+            // Update the local withdrawHistory array (this happens AFTER refund logic)
+            if (history) {
+                withdrawHistory = Object.values(history);
+                // Sort by timestamp descending
+                withdrawHistory.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+            } else {
+                withdrawHistory = [];
+            }
 
             // Render history in modal if it's open
             if (document.getElementById('withdraw-history-modal').classList.contains('active')) {
@@ -2218,5 +2226,3 @@
 </script>
 </body>
 </html>
-
-```
