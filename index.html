@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1104,7 +1105,11 @@
         // Set up new listener
         withdrawHistoryListener = userRef.child('withdrawHistory').on('value', (snapshot) => {
             const history = snapshot.val();
-            let previousWithdrawHistory = [...withdrawHistory]; // Make a copy of the current history
+            let previousWithdrawHistoryMap = {};
+            // Create a map of the current withdrawHistory for easy lookup
+            withdrawHistory.forEach(req => {
+                previousWithdrawHistoryMap[req.id] = req;
+            });
 
             if (history) {
                 withdrawHistory = Object.values(history);
@@ -1115,43 +1120,50 @@
             }
 
             // --- New Logic to check for Rejected status and refund ---
-            // Compare previous and current history to find updated requests
-            if (tgUser && tgUser.id) {
-                const currentHistoryMap = {};
-                withdrawHistory.forEach(req => {
-                    currentHistoryMap[req.id] = req;
-                });
+            // This logic runs every time the withdrawHistory changes
+            if (tgUser && tgUser.id && history) {
+                // Iterate through the *new* history data from Firebase
+                Object.values(history).forEach(currentRequest => {
+                    const requestId = currentRequest.id;
+                    const previousRequest = previousWithdrawHistoryMap[requestId];
 
-                previousWithdrawHistory.forEach(prevReq => {
-                    const currentReq = currentHistoryMap[prevReq.id];
-                    // Check if the request exists in both and status has changed to 'Rejected'
-                    if (currentReq && prevReq.status !== 'Rejected' && currentReq.status === 'Rejected') {
-                        console.log(`Withdrawal request ${currentReq.id} status changed to Rejected. Refunding...`);
-                        // Refund logic
-                        const refundAmount = parseFloat(currentReq.amount);
+                    // Check if this specific request's status has changed from something other than 'Rejected' to 'Rejected'
+                    if (currentRequest.status === 'Rejected' &&
+                        (!previousRequest || previousRequest.status !== 'Rejected')) {
+
+                        console.log(`Withdrawal request ${requestId} status changed to Rejected. Initiating refund...`);
+                        const refundAmount = parseFloat(currentRequest.amount);
+
+                        // Validate the refund amount
                         if (!isNaN(refundAmount) && refundAmount > 0) {
-                            // Update local points and balance
-                            points += Math.round((refundAmount / appConfig.valuePerConversion) * appConfig.coinsForConversion);
+                            // Calculate the equivalent points to refund based on current app configuration
+                            // Using Math.round to ensure whole points
+                            const pointsToRefund = Math.round((refundAmount / appConfig.valuePerConversion) * appConfig.coinsForConversion);
+
+                            // Update local state variables immediately for UI responsiveness
+                            points += pointsToRefund;
                             balance += refundAmount;
 
-                            // Update Firebase
+                            // Update Firebase with the new points and balance
                             const userRefForUpdate = database.ref('users/' + tgUser.id);
                             userRefForUpdate.update({
                                 points: points,
                                 balance: balance
                             }).then(() => {
-                                console.log(`Refund successful for request ${currentReq.id}. Amount: $${refundAmount}`);
+                                console.log(`Refund successful for request ${requestId}. Amount: $${refundAmount}, Points: ${pointsToRefund}`);
                                 updateDisplay(); // Update UI immediately
                                 // Optional: Add to history log
-                                addToHistory('refund', `Refunded $${refundAmount.toFixed(2)} for rejected withdrawal.`);
+                                addToHistory('refund', `Refunded $${refundAmount.toFixed(2)} and ${pointsToRefund} coins for rejected withdrawal.`);
                                 // Optional: Show a notification to the user
-                                showMessageModal('Refund Successful', `Your withdrawal request for $${refundAmount.toFixed(2)} was rejected. The amount has been refunded to your balance.`);
+                                showMessageModal('Refund Successful', `Your withdrawal request for $${refundAmount.toFixed(2)} was rejected. The amount ($${refundAmount.toFixed(2)}) and equivalent coins (${pointsToRefund}) have been refunded to your balance.`);
                             }).catch((error) => {
                                 console.error("Error updating user data for refund:", error);
                                 // Even if Firebase update fails, UI is updated. User might need to refresh.
                                 updateDisplay();
-                                showMessageModal('Refund Note', `Refund of $${refundAmount.toFixed(2)} processed locally. Please refresh the app if balance doesn't update.`);
+                                showMessageModal('Refund Note', `Refund of $${refundAmount.toFixed(2)} and ${pointsToRefund} coins processed locally. Please refresh the app if balance doesn't update.`);
                             });
+                        } else {
+                            console.warn(`Invalid refund amount for request ${requestId}: ${currentRequest.amount}`);
                         }
                     }
                 });
@@ -2206,3 +2218,5 @@
 </script>
 </body>
 </html>
+
+```
