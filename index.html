@@ -1104,6 +1104,8 @@
         // Set up new listener
         withdrawHistoryListener = userRef.child('withdrawHistory').on('value', (snapshot) => {
             const history = snapshot.val();
+            let previousWithdrawHistory = [...withdrawHistory]; // Make a copy of the current history
+
             if (history) {
                 withdrawHistory = Object.values(history);
                 // Sort by timestamp descending
@@ -1111,6 +1113,51 @@
             } else {
                 withdrawHistory = [];
             }
+
+            // --- New Logic to check for Rejected status and refund ---
+            // Compare previous and current history to find updated requests
+            if (tgUser && tgUser.id) {
+                const currentHistoryMap = {};
+                withdrawHistory.forEach(req => {
+                    currentHistoryMap[req.id] = req;
+                });
+
+                previousWithdrawHistory.forEach(prevReq => {
+                    const currentReq = currentHistoryMap[prevReq.id];
+                    // Check if the request exists in both and status has changed to 'Rejected'
+                    if (currentReq && prevReq.status !== 'Rejected' && currentReq.status === 'Rejected') {
+                        console.log(`Withdrawal request ${currentReq.id} status changed to Rejected. Refunding...`);
+                        // Refund logic
+                        const refundAmount = parseFloat(currentReq.amount);
+                        if (!isNaN(refundAmount) && refundAmount > 0) {
+                            // Update local points and balance
+                            points += Math.round((refundAmount / appConfig.valuePerConversion) * appConfig.coinsForConversion);
+                            balance += refundAmount;
+
+                            // Update Firebase
+                            const userRefForUpdate = database.ref('users/' + tgUser.id);
+                            userRefForUpdate.update({
+                                points: points,
+                                balance: balance
+                            }).then(() => {
+                                console.log(`Refund successful for request ${currentReq.id}. Amount: $${refundAmount}`);
+                                updateDisplay(); // Update UI immediately
+                                // Optional: Add to history log
+                                addToHistory('refund', `Refunded $${refundAmount.toFixed(2)} for rejected withdrawal.`);
+                                // Optional: Show a notification to the user
+                                showMessageModal('Refund Successful', `Your withdrawal request for $${refundAmount.toFixed(2)} was rejected. The amount has been refunded to your balance.`);
+                            }).catch((error) => {
+                                console.error("Error updating user data for refund:", error);
+                                // Even if Firebase update fails, UI is updated. User might need to refresh.
+                                updateDisplay();
+                                showMessageModal('Refund Note', `Refund of $${refundAmount.toFixed(2)} processed locally. Please refresh the app if balance doesn't update.`);
+                            });
+                        }
+                    }
+                });
+            }
+            // --- End New Logic ---
+
             // Render history in modal if it's open
             if (document.getElementById('withdraw-history-modal').classList.contains('active')) {
                 renderWithdrawHistoryModal();
@@ -1353,7 +1400,6 @@
             checkAndResetAdCounter();
         }, 1000);
     }
-
     function updateResetTimerDisplay() {
         // If there's no lastAdWatchTime, or it's more than 12 hours ago, timer shows --:--:--
         if (!lastAdWatchTime) {
@@ -1377,7 +1423,6 @@
         document.getElementById('reset-timer').textContent =
             `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
     }
-
     async function checkAndResetAdCounter() {
         if (!tgUser || !tgUser.id) return;
         // Check if 12 hours have passed based on actual time
@@ -1436,7 +1481,7 @@
         list.innerHTML = historyLog.map(item => {
             const icon = item.type === 'earn'
                 ? '<i class="fa-solid fa-plus-circle" style="color: var(--primary-color);"></i>'
-                : '<i class="fa-solid fa-paper-plane" style="color: var(--accent-color);"></i>';
+                : (item.type === 'refund' ? '<i class="fa-solid fa-rotate-left" style="color: var(--success-color);"></i>' : '<i class="fa-solid fa-paper-plane" style="color: var(--accent-color);"></i>');
             return `
                 <div class="list-item">
                     <div class="history-icon">${icon}</div>
@@ -1570,14 +1615,11 @@
     async function updateAdTracking() {
         if (!tgUser || !tgUser.id) return;
         const now = new Date();
-
         // --- Changed: Do not update lastAdWatchTime on every ad view anymore ---
         // The timer is now independent of ad clicks
         // --- End Changed ---
-
         // Increment the local counter for this action
         let localAdsWatchedToday = adsWatchedToday + 1;
-
         try {
             // --- Changed: Only update adsWatchedToday ---
             await database.ref('users/' + tgUser.id).update({
@@ -1588,7 +1630,6 @@
             });
             // --- End Changed ---
             console.log("Ad tracking updated (counter only):", { localAdsWatchedToday });
-
             // Update local state variables to reflect the change
             adsWatchedToday = localAdsWatchedToday;
             // --- Changed: Do not update lastAdWatchTime on every ad view anymore ---
