@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1102,74 +1103,89 @@
             userRef.child('withdrawHistory').off('value', withdrawHistoryListener);
         }
 
-        // Store a copy of the previous state for comparison
+        // Store the previous state of withdrawHistory for comparison
         let previousWithdrawHistoryState = {};
 
         // Set up new listener
         withdrawHistoryListener = userRef.child('withdrawHistory').on('value', (snapshot) => {
             const history = snapshot.val();
-
-            // --- New Logic to check for Rejected status and refund ---
-            // Create a map of the current state from Firebase for comparison
-            let currentFirebaseState = {};
-            if (history) {
+            
+            // --- New Logic for Dynamic Balance Adjustment based on Status ---
+            if (tgUser && tgUser.id && history) {
+                // Create a map of the current state from Firebase
+                let currentFirebaseState = {};
                 Object.values(history).forEach(req => {
                     currentFirebaseState[req.id] = req;
                 });
-            }
 
-            // Check for status changes from non-Rejected to Rejected
-            if (tgUser && tgUser.id && history) {
+                // Check for status changes for each request
                 Object.values(history).forEach(currentRequest => {
                     const requestId = currentRequest.id;
                     const previousRequest = previousWithdrawHistoryState[requestId];
+                    const currentStatus = currentRequest.status;
+                    const previousStatus = previousRequest ? previousRequest.status : null;
+                    
+                    // Get the amount for this request
+                    const requestAmount = parseFloat(currentRequest.amount);
+                    if (isNaN(requestAmount) || requestAmount <= 0) {
+                        console.warn(`Invalid amount for request ${requestId}: ${currentRequest.amount}`);
+                        return; // Skip if amount is invalid
+                    }
+                    
+                    // Calculate points equivalent to the request amount
+                    const pointsEquivalent = Math.round((requestAmount / appConfig.valuePerConversion) * appConfig.coinsForConversion);
 
-                    // Check if status changed to 'Rejected' from a different status
-                    if (currentRequest.status === 'Rejected' &&
-                        (!previousRequest || previousRequest.status !== 'Rejected')) {
+                    // Define which statuses require balance deduction
+                    const deductionStatuses = ['Pending', 'Processing', 'Success'];
+                    const isCurrentDeductionStatus = deductionStatuses.includes(currentStatus);
+                    const isPreviousDeductionStatus = previousStatus ? deductionStatuses.includes(previousStatus) : false;
 
-                        console.log(`Withdrawal request ${requestId} status changed to Rejected. Initiating refund...`);
-                        const refundAmount = parseFloat(currentRequest.amount);
+                    console.log(`Checking request ${requestId}: Previous Status: ${previousStatus}, Current Status: ${currentStatus}`);
 
-                        // Validate the refund amount
-                        if (!isNaN(refundAmount) && refundAmount > 0) {
-                            // Calculate the equivalent points to refund based on current app configuration
-                            const pointsToRefund = Math.round((refundAmount / appConfig.valuePerConversion) * appConfig.coinsForConversion);
-
-                            // Update local state variables immediately for UI responsiveness
-                            points += pointsToRefund;
-                            balance += refundAmount;
-
-                            // Update Firebase with the new points and balance
-                            const userRefForUpdate = database.ref('users/' + tgUser.id);
-                            userRefForUpdate.update({
-                                points: points,
-                                balance: balance
-                            }).then(() => {
-                                console.log(`Refund successful for request ${requestId}. Amount: $${refundAmount}, Points: ${pointsToRefund}`);
-                                updateDisplay(); // Update UI immediately
-                                // Optional: Add to history log
-                                addToHistory('refund', `Refunded $${refundAmount.toFixed(2)} and ${pointsToRefund} coins for rejected withdrawal.`);
-                                // Optional: Show a notification to the user
-                                showMessageModal('Refund Successful', `Your withdrawal request for $${refundAmount.toFixed(2)} was rejected. The amount ($${refundAmount.toFixed(2)}) and equivalent coins (${pointsToRefund}) have been refunded to your balance.`);
-                            }).catch((error) => {
-                                console.error("Error updating user data for refund:", error);
-                                // Even if Firebase update fails, UI is updated. User might need to refresh.
-                                updateDisplay();
-                                showMessageModal('Refund Note', `Refund of $${refundAmount.toFixed(2)} and ${pointsToRefund} coins processed locally. Please refresh the app if balance doesn't update.`);
+                    // Case 1: Status changed FROM a deduction status TO 'Rejected'
+                    if (isPreviousDeductionStatus && currentStatus === 'Rejected') {
+                        console.log(`Request ${requestId} changed to Rejected. Refunding $${requestAmount} and ${pointsEquivalent} coins.`);
+                        // Refund: Add back the amount and points
+                        points += pointsEquivalent;
+                        balance += requestAmount;
+                        
+                        // Update Firebase and UI
+                        updateUserBalanceAndPoints(userRef, points, balance, `Refunded $${requestAmount.toFixed(2)} and ${pointsEquivalent} coins for rejected withdrawal (${requestId}).`)
+                            .then(() => {
+                                showMessageModal('Refund Successful', `Your withdrawal request for $${requestAmount.toFixed(2)} was rejected. The amount ($${requestAmount.toFixed(2)}) and equivalent coins (${pointsEquivalent}) have been refunded to your balance.`);
                             });
-                        } else {
-                            console.warn(`Invalid refund amount for request ${requestId}: ${currentRequest.amount}`);
-                        }
+                    }
+                    // Case 2: Status changed FROM 'Rejected' TO a deduction status
+                    else if (previousStatus === 'Rejected' && isCurrentDeductionStatus) {
+                        console.log(`Request ${requestId} changed from Rejected to ${currentStatus}. Deducting $${requestAmount} and ${pointsEquivalent} coins.`);
+                        // Deduct: Subtract the amount and points
+                        points = Math.max(0, points - pointsEquivalent); // Ensure points don't go negative
+                        balance = Math.max(0, balance - requestAmount); // Ensure balance doesn't go negative
+                        
+                        // Update Firebase and UI
+                        updateUserBalanceAndPoints(userRef, points, balance, `Deducted $${requestAmount.toFixed(2)} and ${pointsEquivalent} coins for withdrawal status change to ${currentStatus} (${requestId}).`)
+                            .then(() => {
+                                showMessageModal('Balance Updated', `Your withdrawal request status changed to ${currentStatus}. The amount ($${requestAmount.toFixed(2)}) and equivalent coins (${pointsEquivalent}) have been deducted from your balance.`);
+                            });
+                    }
+                    // Case 3: Initial request creation with a deduction status (when user first submits)
+                    else if (!previousStatus && isCurrentDeductionStatus) {
+                         console.log(`New request ${requestId} created with status ${currentStatus}. Deducting $${requestAmount} and ${pointsEquivalent} coins.`);
+                         // This case is primarily handled by requestWithdraw(), but we check here too for consistency if listener is added after request
+                         // Only deduct if not already deducted (e.g., if listener was removed and re-added)
+                         // A simple check: if user's current balance/points are higher than what they should be after deduction, deduct now.
+                         // This is a bit complex without storing "deducted" flag per request. 
+                         // For now, we rely on requestWithdraw() to do the initial deduction.
+                         // This listener primarily handles status *changes*.
                     }
                 });
+
+                // Update the previous state for the next comparison
+                previousWithdrawHistoryState = currentFirebaseState;
             }
             // --- End New Logic ---
 
-            // Update the previous state for the next comparison
-            previousWithdrawHistoryState = currentFirebaseState;
-
-            // Update the local withdrawHistory array (this happens AFTER refund logic)
+            // Update the local withdrawHistory array (this happens AFTER processing)
             if (history) {
                 withdrawHistory = Object.values(history);
                 // Sort by timestamp descending
@@ -1184,6 +1200,27 @@
             }
         });
     }
+
+    // Helper function to update user balance and points in Firebase and UI
+    async function updateUserBalanceAndPoints(userRef, newPoints, newBalance, historyMessage) {
+        try {
+            await userRef.update({
+                points: newPoints,
+                balance: newBalance
+            });
+            console.log("User balance and points updated in Firebase:", { points: newPoints, balance: newBalance });
+            updateDisplay(); // Update UI immediately
+            if (historyMessage) {
+               addToHistory('system', historyMessage); // Log the change
+            }
+        } catch (error) {
+            console.error("Error updating user balance and points in Firebase:", error);
+            // Even if Firebase update fails, UI is updated. User might need to refresh.
+            updateDisplay();
+            showMessageModal('Update Note', 'Balance updated locally. Please refresh the app if it does not update.');
+        }
+    }
+
     function setupPointsBalanceListener(userRef) {
         if (userPointsBalanceListener) {
             // Remove previous listener if exists
@@ -1501,7 +1538,7 @@
         list.innerHTML = historyLog.map(item => {
             const icon = item.type === 'earn'
                 ? '<i class="fa-solid fa-plus-circle" style="color: var(--primary-color);"></i>'
-                : (item.type === 'refund' ? '<i class="fa-solid fa-rotate-left" style="color: var(--success-color);"></i>' : '<i class="fa-solid fa-paper-plane" style="color: var(--accent-color);"></i>');
+                : (item.type === 'system' ? '<i class="fa-solid fa-rotate-left" style="color: var(--success-color);"></i>' : '<i class="fa-solid fa-paper-plane" style="color: var(--accent-color);"></i>');
             return `
                 <div class="list-item">
                     <div class="history-icon">${icon}</div>
@@ -1945,14 +1982,15 @@
             method: paymentMethod,
             mobileNumber: mobileNumber,
             amount: amount.toFixed(2),
-            status: 'Pending',
+            status: 'Pending', // Initially set to Pending
             timestamp: new Date().toISOString()
         };
         // Save to Firebase
         const userRef = database.ref('users/' + tgUser.id);
         userRef.child('withdrawHistory').push(withdrawRequest)
             .then(() => {
-                // Immediately deduct balance and update points in Firebase
+                // Immediately deduct balance and update points in Firebase AND locally
+                // This deduction happens immediately when the request is submitted
                 balance -= amount;
                 // Ensure points are calculated correctly and don't go negative
                 points = Math.max(0, Math.round(balance / appConfig.valuePerConversion * appConfig.coinsForConversion));
@@ -2226,3 +2264,5 @@
 </script>
 </body>
 </html>
+
+```
