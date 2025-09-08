@@ -1097,6 +1097,8 @@
             handleBlockingStatus(blockedStatus);
         });
     }
+    
+    // --- Updated Withdraw History Listener with Refund Logic ---
     function setupWithdrawHistoryListener(userRef) {
         if (withdrawHistoryListener) {
             // Remove previous listener if exists
@@ -1105,6 +1107,8 @@
 
         // Store the previous state of withdrawHistory for comparison
         let previousWithdrawHistoryState = {};
+        // Store a map of request IDs to their last processed status to prevent duplicate actions
+        let processedStatusMap = {};
 
         // Set up new listener
         withdrawHistoryListener = userRef.child('withdrawHistory').on('value', (snapshot) => {
@@ -1142,6 +1146,16 @@
 
                     console.log(`Checking request ${requestId}: Previous Status: ${previousStatus}, Current Status: ${currentStatus}`);
 
+                    // --- Prevent Duplicate Actions ---
+                    // Create a unique key for the current state of this request
+                    const currentStateKey = `${requestId}_${currentStatus}`;
+                    // If this exact state (requestId + status) has already been processed, skip it
+                    if (processedStatusMap[requestId] === currentStateKey) {
+                        console.log(`Request ${requestId} with status ${currentStatus} already processed. Skipping.`);
+                        return;
+                    }
+                    // --- End Prevent Duplicate Actions ---
+
                     // Case 1: Status changed FROM a deduction status TO 'Rejected'
                     if (isPreviousDeductionStatus && currentStatus === 'Rejected') {
                         console.log(`Request ${requestId} changed to Rejected. Refunding $${requestAmount} and ${pointsEquivalent} coins.`);
@@ -1154,6 +1168,9 @@
                             .then(() => {
                                 showMessageModal('Refund Successful', `Your withdrawal request for $${requestAmount.toFixed(2)} was rejected. The amount ($${requestAmount.toFixed(2)}) and equivalent coins (${pointsEquivalent}) have been refunded to your balance.`);
                             });
+                        
+                        // Mark this state as processed
+                        processedStatusMap[requestId] = currentStateKey;
                     }
                     // Case 2: Status changed FROM 'Rejected' TO a deduction status
                     else if (previousStatus === 'Rejected' && isCurrentDeductionStatus) {
@@ -1167,17 +1184,17 @@
                             .then(() => {
                                 showMessageModal('Balance Updated', `Your withdrawal request status changed to ${currentStatus}. The amount ($${requestAmount.toFixed(2)}) and equivalent coins (${pointsEquivalent}) have been deducted from your balance.`);
                             });
+                        
+                        // Mark this state as processed
+                        processedStatusMap[requestId] = currentStateKey;
                     }
                     // Case 3: Initial request creation with a deduction status (when user first submits)
-                    else if (!previousStatus && isCurrentDeductionStatus) {
-                         console.log(`New request ${requestId} created with status ${currentStatus}. Deducting $${requestAmount} and ${pointsEquivalent} coins.`);
-                         // This case is primarily handled by requestWithdraw(), but we check here too for consistency if listener is added after request
-                         // Only deduct if not already deducted (e.g., if listener was removed and re-added)
-                         // A simple check: if user's current balance/points are higher than what they should be after deduction, deduct now.
-                         // This is a bit complex without storing "deducted" flag per request. 
-                         // For now, we rely on requestWithdraw() to do the initial deduction.
-                         // This listener primarily handles status *changes*.
-                    }
+                    // This is primarily handled by requestWithdraw(), but we check here too for consistency if listener is added after request
+                    // Only deduct if not already deducted (e.g., if listener was removed and re-added)
+                    // A simple check: if user's current balance/points are higher than what they should be after deduction, deduct now.
+                    // This is a bit complex without storing "deducted" flag per request. 
+                    // For now, we rely on requestWithdraw() to do the initial deduction.
+                    // This listener primarily handles status *changes*.
                 });
 
                 // Update the previous state for the next comparison
@@ -1200,6 +1217,7 @@
             }
         });
     }
+    // --- End Updated Withdraw History Listener ---
 
     // Helper function to update user balance and points in Firebase and UI
     async function updateUserBalanceAndPoints(userRef, newPoints, newBalance, historyMessage) {
